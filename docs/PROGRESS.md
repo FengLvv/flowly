@@ -1,5 +1,11 @@
 # Implementation progress
 
+## PR #75 review fixes: quote evidence, one timeout across refused permissions — 2026-11-07
+
+- Auto review B1 (CodeRabbit, Major): a failed check whose only evidence was a quote was accepted even when the quote was invented. A quote now counts only when it appears, after collapsing runs of whitespace and ignoring case, as a substring of the card title, the card description, a message of the filtered conversation the reviewer was given, or that check's own user words (`hasEvidence` in `shared/auto-review.ts`, sources built in `server/auto-review.ts` `judge`). Otherwise the verdict becomes `na` with reason `no evidence`. File evidence (a file in the diff or an existing repository file) is unchanged and still counts alongside an invented quote. GUARDRAILS-SPEC §0.1 B1 is to be updated by its owner. Tests in `shared/auto-review.test.ts` and `server/auto-review.test.ts`.
+- `finishRefusingPermissions` (`server/summary-models.ts`): the timeout restarted after each refused permission, so a run could take up to 21 × the timeout. One deadline now covers the whole run; each wait gets the remaining time, and a run past the deadline ends as `timeout`. Test in `server/summary-models.test.ts`.
+- Onboarding and telemetry: none (internal correctness fixes).
+
 ## Memory page: readable cards and grid — 2026-10-31
 
 - User feedback: grid cards were narrow and cut off, the page looked dense. Content area at most 1120 pt, centered; List one column at most 760 pt; Grid a masonry of columns at least 340 pt wide, two or three (`gridColumns`), 16 pt gutters, cards at their own height; `estimateHeight` follows the new card (title never folded, body six lines, source line, tags/usage line only when present). Tests in `client/memory-layout.test.ts`.

@@ -124,12 +124,22 @@ export function reviewVerdict(items: readonly Pick<ReviewItem, "gating" | "state
   return "passed";
 }
 
+const normalizedQuote = (text: string) => text.replace(/\s+/g, " ").trim().toLowerCase();
+
 /**
  * B1 (§6.3): a `fail` stands only with evidence: a file in the diff, an existing repository file, or a quote of the
- * card or the user's words. `existing` holds the cited files the daemon found in the repository.
+ * card or the user's words. `existing` holds the cited files the daemon found in the repository; `sources` is the text
+ * the reviewer was given that a quote may come from (card title and description, the filtered conversation, the
+ * check's own user words). A quote counts only when it appears in one of them, ignoring case and runs of whitespace.
  */
-export function hasEvidence(v: { file?: string; quote?: string }, diffFiles: ReadonlySet<string>, existing: ReadonlySet<string>): boolean {
-  if (v.quote?.trim()) return true;
+export function hasEvidence(
+  v: { file?: string; quote?: string },
+  diffFiles: ReadonlySet<string>,
+  existing: ReadonlySet<string>,
+  sources: readonly (string | null | undefined)[],
+): boolean {
+  const quote = normalizedQuote(v.quote ?? "");
+  if (quote && sources.some((s) => !!s && normalizedQuote(s).includes(quote))) return true;
   return !!v.file && (diffFiles.has(v.file) || existing.has(v.file));
 }
 

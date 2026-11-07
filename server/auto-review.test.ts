@@ -471,7 +471,7 @@ test("what is judged: the built-in check, guidelines in scope by type and size, 
   expect(bare.runs).toEqual([]);
 });
 
-test("B1: a fail without evidence becomes na; a file in the diff, an existing repository file or a quote keeps it", async () => {
+test("B1: a fail without evidence becomes na; a file in the diff, an existing repository file or a quote found in the reviewer's input keeps it", async () => {
   const llm: LlmReview = async () => ({
     model: "m",
     verdicts: [
@@ -480,18 +480,27 @@ test("B1: a fail without evidence becomes na; a file in the diff, an existing re
       { id: "g-repo", verdict: "fail", detail: "No zh-TW entry.", file: "shared/i18n/zh-TW.ts" },
       { id: "g-quote", verdict: "fail", detail: "No Rerun button.", quote: "add a Rerun button" },
       { id: "g-outside", verdict: "fail", detail: "Elsewhere.", file: "../other/x.ts" },
+      { id: "g-words", verdict: "fail", detail: "Same as before.", quote: "QUOTE OF  g-words" },
+      { id: "g-title", verdict: "fail", detail: "Not the card.", quote: "card" },
+      { id: "g-invented", verdict: "fail", detail: "No dark mode.", quote: "the user asked for a dark mode" },
     ],
   });
-  const entries = ["g-diff", "g-repo", "g-quote", "g-outside"].map((id) => guideline(id, id));
-  const x = await setup({ entries, llm, exists: async (path) => path.endsWith("shared/i18n/zh-TW.ts") });
+  const ids = ["g-diff", "g-repo", "g-quote", "g-outside", "g-words", "g-title", "g-invented"];
+  const entries = ids.map((id) => guideline(id, id));
+  const x = await setup({ entries, llm, exists: async (path) => path.endsWith("shared/i18n/zh-TW.ts"), conversation: async () => ["Please ADD a\n rerun button next to each failed check."] });
   const board = await x.deliver("development");
   const items = board.tasks[0]!.review!.items;
   expect(items.map((i) => [i.id, i.state, i.reason])).toEqual([
     ["goal", "na", "no evidence"],
     ["g-diff", "failed", undefined],
     ["g-repo", "failed", undefined],
+    // From the conversation, the check's own user words and the card title.
     ["g-quote", "failed", undefined],
     ["g-outside", "na", "no evidence"],
+    ["g-words", "failed", undefined],
+    ["g-title", "failed", undefined],
+    // A quote that appears nowhere the reviewer was given is no evidence.
+    ["g-invented", "na", "no evidence"],
   ]);
   expect(items[1]).toMatchObject({ file: "src/a.ts", line: 3 });
   expect(items[3]).toMatchObject({ quote: "add a Rerun button" });

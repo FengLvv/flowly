@@ -666,7 +666,8 @@ export class AutoReviewService {
             if (prior && itemPassed(prior)) return { ...r, state: prior.state, ms, ...(prior.detail ? { detail: prior.detail } : {}), reason: "Passed in the previous round; not judged again." };
             return { ...r, state: "unavailable" as const, ms, reason: "The review session gave no verdict for this check." };
           }
-          const evidence = v.verdict !== "fail" || hasEvidence(v, diffFiles, existing);
+          const quoteSources = [task.title, task.description, ...(input.conversation ?? []), guard?.words.get(r.id)];
+          const evidence = v.verdict !== "fail" || hasEvidence(v, diffFiles, existing, quoteSources);
           return {
             ...r,
             state: v.verdict === "pass" ? ("passed" as const) : v.verdict === "fail" && evidence ? ("failed" as const) : ("na" as const),

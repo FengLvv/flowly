@@ -86,15 +86,22 @@ test("the verdict counts gating items only: observing commands never decide, dis
   expect(reviewVerdict([item("c", "command", "failed"), item("x", "command", "unavailable")])).toBe("failed");
 });
 
-test("B1: a fail stands with a file in the diff, an existing repository file, or a quote", () => {
+test("B1: a fail stands with a file in the diff, an existing repository file, or a quote found in what the reviewer was given", () => {
   const diff = new Set(["shared/a.ts"]);
   const existing = new Set(["shared/i18n/zh-TW.ts"]);
-  expect(hasEvidence({ file: "shared/a.ts" }, diff, existing)).toBe(true);
-  expect(hasEvidence({ file: "shared/i18n/zh-TW.ts" }, diff, existing)).toBe(true);
-  expect(hasEvidence({ quote: "the card asked for a Rerun button" }, diff, existing)).toBe(true);
-  expect(hasEvidence({ file: "nowhere.ts" }, diff, existing)).toBe(false);
-  expect(hasEvidence({ quote: "  " }, diff, existing)).toBe(false);
-  expect(hasEvidence({}, diff, existing)).toBe(false);
+  const sources = ["Add a rerun button", "The card asked for a\n  Rerun   button on failed checks.", undefined, null];
+  expect(hasEvidence({ file: "shared/a.ts" }, diff, existing, [])).toBe(true);
+  expect(hasEvidence({ file: "shared/i18n/zh-TW.ts" }, diff, existing, [])).toBe(true);
+  // Substring, case-insensitive, whitespace runs collapsed.
+  expect(hasEvidence({ quote: "the card asked for a Rerun button" }, diff, existing, sources)).toBe(true);
+  expect(hasEvidence({ quote: "  ADD a  rerun\tbutton " }, diff, existing, sources)).toBe(true);
+  // An invented quote is no evidence; a valid file still is.
+  expect(hasEvidence({ quote: "the user wanted a dark mode" }, diff, existing, sources)).toBe(false);
+  expect(hasEvidence({ quote: "the user wanted a dark mode", file: "shared/a.ts" }, diff, existing, sources)).toBe(true);
+  expect(hasEvidence({ quote: "the card asked for a Rerun button" }, diff, existing, [])).toBe(false);
+  expect(hasEvidence({ file: "nowhere.ts" }, diff, existing, sources)).toBe(false);
+  expect(hasEvidence({ quote: "  " }, diff, existing, sources)).toBe(false);
+  expect(hasEvidence({}, diff, existing, sources)).toBe(false);
 });
 
 test("reviewProgress: passed (na included) and failed of the gating items; what runs now (§7.1.1)", () => {
