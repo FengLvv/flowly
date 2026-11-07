@@ -322,12 +322,13 @@ Project memory (<n> of <m> shown, flowly_recall finds the others):
 - 评审 session 读的 diff 用同一基点（第 1 轮 `git diff <基点>`，目录卡为 `git diff HEAD` 加最近 5 个提交），未跟踪的新文件以 `git diff --no-index /dev/null <file>` 附在后面；第 2 轮起 `git diff <上一轮 sha>` 加当时仍未跟踪的新文件；总长仍截在 64 KiB。
 - 本卡最近一次交付的形状也写进 `task.review.shape`，供 §4.3 新项使用。
 - 共享工作区（非 worktree）里别的卡的改动会算进来，形状可能偏大；评审记录标 `shared`，不另做处理（D6）。
+- **多仓根目录**（2026-11-07 加）：卡片 workspace 的目录本身不是 Git 仓库时（linked root，PROJECT-PICKER-SPEC；或用户注册的普通公共目录），评审读它下面的仓库：按名字排序的、非隐藏的子项（symlink 或目录）里含 `.git` 的，最多 20 个。对每个仓库按上面的规则取形状和 diff（基点同上，linked 卡没有 `baseRef`，走目录卡取法）；路径一律带仓库前缀 `<子项名>/<路径>`（diff 用 `--src-prefix` / `--dst-prefix`），所以评审引用的文件、证据核对（文件经 symlink 存在即可）和返工消息都指向具体仓库里的文件。形状为各仓库之和；diff 每个仓库一节，标题 `## Repository <名字> (its paths start with <名字>/)`，每个仓库的一节截在 64 KiB 的平均份额内（`[<名字>: diff truncated]`），一个仓库的大改动不会把其他仓库挤出去，总长仍截在 64 KiB。HEAD：各仓库的短 sha 记在 `fingerprint.repos: { <名字>: sha }`，`fingerprint.sha` 为它们的 12 位摘要（任一仓库有新提交即变），任一仓库 dirty 即 dirty；第 2 轮起每个仓库从自己上一轮的 sha 取增量，上一轮没有记录的仓库取全量。目录本身是 Git 仓库时行为不变；agent 在卡片 workspace 之外另开 worktree 做的改动仍看不到。
 
 **范围内**：准则的 `scope.types` 为 `"all"` 或包含卡片类型（卡片没有类型时视为包含），且 `scope.sizes` 为 `"all"` 或包含本次大小。
 
 ### 6.3 顺序与判定
 
-1. **命令**：active 与 observing 的命令全部跑完（执行方式同 AUTO-REVIEW-SPEC §4.3）。只有 active 的参与总判定。
+1. **命令**：active 与 observing 的命令全部跑完（执行方式同 AUTO-REVIEW-SPEC §4.3）。只有 active 的参与总判定。多仓根目录（§6.2）里每条命令只在本次交付改动过的仓库里跑（有未提交或未跟踪的改动，或者有卡片创建之后的提交；git 读不了的仓库算改动过；一个都没改动时退回全部仓库），在这些仓库里依次挑适用的跑，任一仓库失败即该项失败（失败输出前标 `[<仓库名>]`，耗时为各次之和），后面的仓库不再跑：`npm` / `pnpm` / `yarn` / `bun`（及 `npx` 等）的脚本要求该仓库 `package.json` 有这个脚本（`run <x>`、`test` 等别名；其余子命令只要求有 `package.json`）；`make <target>` 要求有 makefile 且写了该 target；`go` / `cargo` 要求有 `go.mod` / `Cargo.toml`；其他命令在每个仓库都跑。没有一个仓库适用时该项记 `skipped`（`No repository in this workspace has this command.`；只看改动过的仓库时为 `No repository this delivery changed has this command.`），不让评审变成 Unavailable。
 2. **评审 session**：所有参与判定的命令都通过时才跑（D9）。一次判定全部：内置检查 `goal`（“Does what you asked”，尺子同 AUTO-REVIEW-SPEC §4.2：卡片、用户原话、验收清单只作上下文）、范围内的每条准则、本卡每条 `open` 项。输出：
 
    ```

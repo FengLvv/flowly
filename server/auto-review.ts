@@ -1,5 +1,6 @@
 import { execFile, spawn } from "node:child_process";
-import { access, readFile, stat } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { access, readdir, readFile, stat } from "node:fs/promises";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { promisify } from "node:util";
 import type { PaseoApi } from "@getpaseo/client";
@@ -142,12 +143,15 @@ async function fileLines(path: string): Promise<number> {
   return data[data.length - 1] === 10 ? lines : lines + 1;
 }
 /** `git diff --no-index` exits 1 when the files differ, which for a new file is always: that output is the diff. */
-async function newFileDiff(directory: string, file: string, git: Git): Promise<string> {
-  return git(directory, ["diff", "--no-index", "--no-color", "--", "/dev/null", file]).catch((e: unknown) => {
+async function newFileDiff(directory: string, file: string, git: Git, shown: string[] = []): Promise<string> {
+  return git(directory, ["diff", "--no-index", "--no-color", ...shown, "--", "/dev/null", file]).catch((e: unknown) => {
     const failure = e as { code?: unknown; stdout?: unknown } | null;
     return failure?.code === 1 && typeof failure.stdout === "string" ? failure.stdout : "";
   });
 }
+
+/** `git diff` / `git log -p` flags that show each path under the repository's folder name in a linked root (§6.2). */
+const prefixArgs = (prefix: string) => (prefix ? [`--src-prefix=a/${prefix}`, `--dst-prefix=b/${prefix}`] : []);
 
 /**
  * What the review session reads, cut at 64 KiB: a worktree card's change since it branched off `baseRef` (or, without
@@ -155,15 +159,22 @@ async function newFileDiff(directory: string, file: string, git: Git): Promise<s
  * commit. Untracked new files follow in every mode. Never fails: an empty diff when git does.
  */
 export async function reviewDiff(directory: string, options: { since?: string; baseRef?: string } = {}, git: Git = defaultGit): Promise<string> {
+  return cut(await repoDiff(directory, options, git, ""));
+}
+const cut = (text: string) => (text.length > diffLimit ? `${text.slice(0, diffLimit)}\n[diff truncated at 64 KiB]` : text);
+
+/** One repository's part of the review diff; `prefix` (`name/`, or empty) goes before every path it shows. */
+async function repoDiff(directory: string, options: { since?: string; baseRef?: string }, git: Git, prefix: string): Promise<string> {
   const run = (args: string[]) => git(directory, args).catch(() => "");
+  const shown = prefixArgs(prefix);
   const { since } = options;
   let text: string;
-  if (since && shaPattern.test(since)) text = `# Changes since the previous delivery (git diff ${since})\n${(await run(["diff", since, "--no-color"])) || "(none)\n"}`;
+  if (since && shaPattern.test(since)) text = `# Changes since the previous delivery (git diff ${since})\n${(await run(["diff", since, "--no-color", ...shown])) || "(none)\n"}`;
   else {
     const base = await changeBase(directory, options.baseRef, git);
-    if (base) text = `# Changes on this card's branch (git diff ${base})\n${(await run(["diff", base, "--no-color"])) || "(none)\n"}`;
+    if (base) text = `# Changes on this card's branch (git diff ${base})\n${(await run(["diff", base, "--no-color", ...shown])) || "(none)\n"}`;
     else {
-      const [uncommitted, recent] = await Promise.all([run(["diff", "HEAD", "--no-color"]), run(["log", "-5", "-p", "--no-color", "--format=commit %h %s"])]);
+      const [uncommitted, recent] = await Promise.all([run(["diff", "HEAD", "--no-color", ...shown]), run(["log", "-5", "-p", "--no-color", ...shown, "--format=commit %h %s"])]);
       text = `# Uncommitted changes (git diff HEAD)\n${uncommitted || "(none)\n"}\n# Recent commits\n${recent}`;
     }
   }
@@ -172,10 +183,64 @@ export async function reviewDiff(directory: string, options: { since?: string; b
     text += "\n# New files (untracked)\n";
     for (const file of added) {
       if (text.length > diffLimit) break;
-      text += (await readable(join(directory, file))) ? await newFileDiff(directory, file, git) : `new file ${file} (over 1 MiB or unreadable, not shown)\n`;
+      text += (await readable(join(directory, file))) ? await newFileDiff(directory, file, git, shown) : `new file ${prefix}${file} (over 1 MiB or unreadable, not shown)\n`;
     }
   }
-  return text.length > diffLimit ? `${text.slice(0, diffLimit)}\n[diff truncated at 64 KiB]` : text;
+  return text;
+}
+
+/** A Git repository inside a workspace directory that is not one itself (a linked root, GUARDRAILS-SPEC §6.2). */
+export type LinkedRepo = { name: string; directory: string };
+const linkedRepoLimit = 20;
+/**
+ * The repositories a review reads when the workspace directory is not a Git repository (a linked root or a common
+ * folder, §6.2): every non-hidden child, link or folder, that holds `.git`, by name, at most 20. Empty when none.
+ */
+export async function linkedRepos(directory: string): Promise<LinkedRepo[]> {
+  const entries = await readdir(directory, { withFileTypes: true }).catch(() => []);
+  const repos: LinkedRepo[] = [];
+  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+    if (entry.name.startsWith(".") || !(entry.isDirectory() || entry.isSymbolicLink())) continue;
+    const path = join(directory, entry.name);
+    if (await fileExists(join(path, ".git"))) repos.push({ name: entry.name, directory: path });
+    if (repos.length >= linkedRepoLimit) break;
+  }
+  return repos;
+}
+
+/**
+ * The review diff of a linked root (§6.2): each repository's part, as `reviewDiff` takes it, under its own heading and
+ * with its paths under the repository's name, cut to an equal share of the 64 KiB so one large change cannot hide the
+ * other repositories; `since` holds each repository's commit of the previous delivery.
+ */
+export async function linkedReviewDiff(repos: readonly LinkedRepo[], options: { since?: Readonly<Record<string, string>>; baseRef?: string } = {}, git: Git = defaultGit): Promise<string> {
+  const share = Math.floor(diffLimit / Math.max(1, repos.length)) - 200;
+  const parts: string[] = [];
+  for (const repo of repos) {
+    const part = await repoDiff(repo.directory, { since: options.since?.[repo.name], baseRef: options.baseRef }, git, `${repo.name}/`);
+    const shown = part.length > share ? `${part.slice(0, share)}\n[${repo.name}: diff truncated]\n` : part;
+    parts.push(`## Repository ${repo.name} (its paths start with ${repo.name}/)\n${shown}`);
+  }
+  return cut(parts.join("\n"));
+}
+
+/**
+ * HEAD of a linked root (§6.2): each repository's commit by name, and one 12-character digest of them as the review's
+ * `sha`, so the fingerprint notices a commit in any of them; dirty when any is. null head when git fails in all.
+ */
+export async function linkedHead(repos: readonly LinkedRepo[], git: Git, now = new Date().toISOString()): Promise<{ head: GitHead | null; repos: Record<string, string> }> {
+  const heads = await Promise.all(repos.map((r) => readHead(r.directory, git, now)));
+  const shas: Record<string, string> = {};
+  let dirty = false;
+  heads.forEach((h, i) => {
+    if (!h?.sha) return;
+    shas[repos[i]!.name] = h.sha;
+    dirty ||= h.dirty;
+  });
+  const names = Object.keys(shas).sort();
+  if (!names.length) return { head: null, repos: shas };
+  const sha = createHash("sha1").update(names.map((n) => `${n} ${shas[n]}`).join("\n")).digest("hex").slice(0, 12);
+  return { head: { sha, dirty, at: now }, repos: shas };
 }
 
 /** Changed files and lines from `git --numstat` lines; a binary file counts 0 lines. */
@@ -204,7 +269,7 @@ function renamedTo(path: string) {
  * `git diff HEAD --numstat` plus the same last five commits the review's diff reads; untracked new files count too,
  * one file each with their lines. null when git fails.
  */
-export async function reviewShape(directory: string, baseRef?: string, git: Git = defaultGit): Promise<{ shape: ChangeShape; paths: Set<string> } | null> {
+export async function reviewShape(directory: string, baseRef?: string, git: Git = defaultGit, prefix = ""): Promise<{ shape: ChangeShape; paths: Set<string> } | null> {
   try {
     const base = await changeBase(directory, baseRef, git);
     const tracked = base
@@ -218,10 +283,19 @@ export async function reviewShape(directory: string, baseRef?: string, git: Git 
       paths.add(file);
       lines += await fileLines(join(directory, file));
     }
-    return { shape: { files: paths.size, lines, size: sizeOf(lines) }, paths };
+    return { shape: { files: paths.size, lines, size: sizeOf(lines) }, paths: prefix ? new Set([...paths].map((p) => `${prefix}${p}`)) : paths };
   } catch {
     return null;
   }
+}
+
+/** A linked root's shape (§6.2): the sum of its repositories', paths under each repository's name; null when git fails in all. */
+export async function linkedShape(repos: readonly LinkedRepo[], baseRef?: string, git: Git = defaultGit): Promise<{ shape: ChangeShape; paths: Set<string> } | null> {
+  const parts = (await Promise.all(repos.map((r) => reviewShape(r.directory, baseRef, git, `${r.name}/`)))).filter((p) => p !== null);
+  if (!parts.length) return null;
+  const paths = new Set(parts.flatMap((p) => [...p.paths]));
+  const lines = parts.reduce((sum, p) => sum + p.shape.lines, 0);
+  return { shape: { files: paths.size, lines, size: sizeOf(lines) }, paths };
 }
 
 /** A file the model cited, as a repository-relative path; null when it points outside the workspace. */
@@ -308,6 +382,79 @@ export const runCheck: RunCheck = (argv, cwd, timeoutMs) =>
     child.on("error", (e) => finish({ exitCode: null, spawnError: e.message }));
     child.on("close", (code) => finish({ exitCode: code }));
   });
+
+const packageRunners = new Set(["npm", "pnpm", "yarn", "bun", "npx", "pnpx", "bunx"]);
+const npmScriptAliases: Record<string, string> = { test: "test", t: "test", tst: "test", start: "start", stop: "stop", restart: "restart" };
+const makefiles = ["GNUmakefile", "makefile", "Makefile"];
+const projectFiles: Record<string, string> = { go: "go.mod", cargo: "Cargo.toml" };
+/**
+ * Whether a project command belongs in this repository of a linked root (GUARDRAILS-SPEC §6.3): an npm, pnpm, yarn or
+ * bun script when its `package.json` has that script (any other package command when it has a `package.json`); `make
+ * <target>` when a makefile there names the target (bare `make` when it has one); `go` and `cargo` when `go.mod` /
+ * `Cargo.toml` is there. Any other command runs in every repository.
+ */
+export async function commandApplies(argv: readonly string[], directory: string): Promise<boolean> {
+  const [tool, ...args] = argv;
+  const base = tool ? tool.split(/[\\/]/).pop()! : "";
+  if (packageRunners.has(base)) {
+    const pkg = await readFile(join(directory, "package.json"), "utf8").then(
+      (t) => JSON.parse(t) as { scripts?: Record<string, unknown> },
+      () => null,
+    );
+    if (!pkg) return false;
+    const first = args.find((a) => !a.startsWith("-"));
+    const script = first === "run" || first === "run-script" ? args[args.indexOf(first) + 1] : first && npmScriptAliases[first];
+    return !script || typeof pkg.scripts?.[script] === "string";
+  }
+  if (base === "make") {
+    const file = (await Promise.all(makefiles.map((m) => readFile(join(directory, m), "utf8").catch(() => null)))).find((t) => t !== null);
+    if (file === undefined || file === null) return false;
+    const targets = args.filter((a, i) => !a.startsWith("-") && !a.includes("=") && !["-C", "-f", "-j"].includes(args[i - 1] ?? ""));
+    return targets.every((t) => new RegExp(`^${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*:`, "m").test(file));
+  }
+  if (projectFiles[base]) return fileExists(join(directory, projectFiles[base]));
+  return true;
+}
+
+/**
+ * The repositories of a linked root this delivery touched (§6.3): uncommitted or untracked changes, or a commit after
+ * the card was created. All of them when none did; a repository git cannot read counts as touched.
+ */
+export async function changedRepos(repos: readonly LinkedRepo[], since: string | undefined, git: Git = defaultGit): Promise<LinkedRepo[]> {
+  const after = since ? Date.parse(since) : NaN;
+  const touched = await Promise.all(
+    repos.map(async (repo) => {
+      try {
+        const [status, last] = await Promise.all([
+          git(repo.directory, ["status", "--porcelain", "--untracked-files=normal"]),
+          Number.isFinite(after) ? git(repo.directory, ["log", "-1", "--format=%ct"]) : Promise.resolve(""),
+        ]);
+        return status.trim() !== "" || Number(last.trim()) * 1000 > after;
+      } catch {
+        return true;
+      }
+    }),
+  );
+  const changed = repos.filter((_, i) => touched[i]);
+  return changed.length ? changed : [...repos];
+}
+
+/**
+ * Runs one project command in a linked root (§6.3): in each repository where it applies, in order, until one fails.
+ * null when it applies in none. The failing run's output names its repository; the time is the sum.
+ */
+export async function runInRepos(run: RunCheck, argv: readonly string[], repos: readonly LinkedRepo[], timeoutMs: number): Promise<CheckRun | null> {
+  let ms = 0,
+    ran = false;
+  for (const repo of repos) {
+    if (!(await commandApplies(argv, repo.directory))) continue;
+    ran = true;
+    const result = await run(argv, repo.directory, timeoutMs);
+    ms += result.ms;
+    if (result.exitCode !== 0 || result.timedOut || result.spawnError) return { ...result, ms, output: `[${repo.name}]\n${result.output}` };
+  }
+  return ran ? { exitCode: 0, timedOut: false, ms, output: "" } : null;
+}
 
 /** What a review reads of the project's guardrails (GUARDRAILS-SPEC §6.3) and reports back at its end (§6.6). */
 export type ReviewGuardrails = {
@@ -455,8 +602,16 @@ export class AutoReviewService {
     const project = task && board.projects.find((p) => p.id === task.projectId);
     if (!task || !project || task.archivedAt || project.archivedAt || task.status !== "in_review" || !autoReviewRuns(project)) return;
     const where = await this.deps.workspace(task, paseo).catch(() => null);
-    const head = where ? await readHead(where.directory, this.git, this.now()) : null;
-    const measured = where ? await (this.deps.shape ?? ((d: string, base?: string) => reviewShape(d, base, this.git)))(where.directory, task.baseRef).catch(() => null) : null;
+    let head = where ? await readHead(where.directory, this.git, this.now()) : null;
+    // A workspace that is not a Git repository itself reads the repositories in it (a linked root, §6.2).
+    const linked = where && !head ? await linkedRepos(where.directory) : [];
+    let repoShas: Record<string, string> | undefined;
+    if (linked.length) ({ head, repos: repoShas } = await linkedHead(linked, this.git, this.now()));
+    const measured = !where
+      ? null
+      : linked.length
+        ? await linkedShape(linked, task.baseRef, this.git).catch(() => null)
+        : await (this.deps.shape ?? ((d: string, base?: string) => reviewShape(d, base, this.git)))(where.directory, task.baseRef).catch(() => null);
     const config = autoReviewOf(project);
     // What is checked is fixed when it starts; editing the guardrails meanwhile does not change this review (§4.3).
     const guard = this.deps.guardrails
@@ -499,6 +654,7 @@ export class AutoReviewService {
           taskRevision: t.revision,
           workpadRevision: b.workpads.find((w) => w.taskId === t.id)?.revision ?? 0,
           ...(head?.sha ? { sha: head.sha } : {}),
+          ...(repoShas && Object.keys(repoShas).length ? { repos: repoShas } : {}),
           dirty: !!head?.dirty,
         },
         shared: !where?.worktree,
@@ -516,12 +672,17 @@ export class AutoReviewService {
       await this.updateItems(delivery.taskId, startedAt, items.filter((i) => i.state === "queued").map((i) => i.id), { state: "unavailable", reason: "The card's workspace directory is unavailable." });
     } else {
       // Every active and observing command runs, in list order; each result shows as soon as it is in (§6.3 step 1).
+      const runIn = linked.length ? await changedRepos(linked, task.createdAt, this.git) : [];
       for (const item of items) {
         if (item.kind !== "command" || item.state !== "queued") continue;
         const entry = guard?.commands.find((c) => c.id === item.id);
         await set(item.id, { state: "running" });
         const timeout = (entry?.timeoutSec ?? defaultCheckTimeoutSec) * 1000;
-        const run = await this.run(item.argv || [], where.directory, timeout);
+        const run = linked.length ? await runInRepos(this.run, item.argv || [], runIn, timeout) : await this.run(item.argv || [], where.directory, timeout);
+        if (!run) {
+          await set(item.id, { state: "skipped", reason: runIn.length < linked.length ? "No repository this delivery changed has this command." : "No repository in this workspace has this command." });
+          continue;
+        }
         const tail = outputTail(run.output, autoReviewLimits.tail);
         const passed = run.exitCode === 0 && !run.timedOut && !run.spawnError;
         // A command that cannot start or times out is the review's problem, not the agent's (§3.2 Unavailable).
@@ -536,9 +697,9 @@ export class AutoReviewService {
           ...(run.timedOut ? { reason: `Timed out after ${timeout / 1000} s.` } : {}),
         });
       }
-      await this.judge(delivery, startedAt, task, started.round > 1 && !manual ? started.previous : undefined, guard, where, measured?.paths ?? new Set(), paseo);
+      await this.judge(delivery, startedAt, task, started.round > 1 && !manual ? started.previous : undefined, guard, where, linked, measured?.paths ?? new Set(), paseo);
     }
-    const after = where ? await readHead(where.directory, this.git, this.now()) : null;
+    const after = !where ? null : linked.length ? (await linkedHead(linked, this.git, this.now())).head : await readHead(where.directory, this.git, this.now());
     const outcome = await this.finish(delivery.taskId, startedAt, where ? after : undefined);
     if (!outcome) return;
     // The three signals and retirement (§6.6, §6.7); a failure here never changes the review.
@@ -577,6 +738,7 @@ export class AutoReviewService {
     previous: Task["review"] | undefined,
     guard: Awaited<ReturnType<ReviewGuardrails["reviewInput"]>> | null,
     where: { directory: string; worktree: boolean },
+    linked: readonly LinkedRepo[],
     diffFiles: ReadonlySet<string>,
     paseo: PaseoApi,
   ) {
@@ -624,11 +786,13 @@ export class AutoReviewService {
       deliveryNote: deliveryEvent?.note ?? "",
       outputs: board.artifacts.filter((a) => a.taskId === task.id && a.role === "output").map((a) => a.target),
       commands: now.items.filter((r) => r.kind === "command").map((r) => `${r.name}: ${r.state}${r.gating ? "" : " (observing)"}`),
-      diff: await (this.deps.diff ?? ((d: string, since?: string, baseRef?: string) => reviewDiff(d, { since, baseRef }, this.git)))(
-        where.directory,
-        incremental ? previous!.fingerprint.sha : undefined,
-        task.baseRef,
-      ),
+      diff: linked.length
+        ? await linkedReviewDiff(linked, { since: incremental ? previous!.fingerprint.repos : undefined, baseRef: task.baseRef }, this.git)
+        : await (this.deps.diff ?? ((d: string, since?: string, baseRef?: string) => reviewDiff(d, { since, baseRef }, this.git)))(
+            where.directory,
+            incremental ? previous!.fingerprint.sha : undefined,
+            task.baseRef,
+          ),
       ...(incremental ? { incremental: true } : {}),
       parentAgentId: delivery.agentId,
     };
