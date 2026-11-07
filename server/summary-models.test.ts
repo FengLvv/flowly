@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 import type { PaseoApi } from "@getpaseo/client";
-import { availableModels, runSummaryModels, SummaryModelError } from "./summary-models";
+import { availableModels, finishRefusingPermissions, runSummaryModels, SummaryModelError } from "./summary-models";
 
 const paseo = {
   providers: {
@@ -66,4 +66,25 @@ test("a permission request that cannot be refused still fails the model, and an 
   const endless = async (model: string) => ({ id: model, archive: async () => undefined, respondToPermission: respond, waitForFinish: async () => ({ status: "permission", final: { pendingPermissions: [{ id: "r" }] } }) });
   await expect(runSummaryModels(paseo, ["one/a"], { create: endless, parse: () => null, remove: async () => {}, timeoutMs: 100 })).rejects.toThrow(/asked for a permission/);
   expect(respond).toHaveBeenCalledTimes(20);
+});
+
+test("refusing permissions does not restart the timeout: every wait shares one deadline", async () => {
+  vi.useFakeTimers({ now: 0 });
+  try {
+    const waits: number[] = [];
+    const agent = {
+      id: "a", archive: async () => undefined,
+      respondToPermission: async () => {},
+      waitForFinish: async (timeout: number) => {
+        waits.push(timeout);
+        vi.setSystemTime(Date.now() + 40);
+        return { status: "permission", final: { pendingPermissions: [{ id: "r" }] } };
+      },
+    };
+    const result = await finishRefusingPermissions(agent, 100);
+    expect(waits).toEqual([100, 60, 20]);
+    expect(result.status).toBe("timeout");
+  } finally {
+    vi.useRealTimers();
+  }
 });

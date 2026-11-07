@@ -49,12 +49,16 @@ const DENIED = "Read-only review: this tool is not available. Continue without i
  * stopped on its first tool call and the whole run failed. Gives up when the request cannot be refused.
  */
 export async function finishRefusingPermissions(agent: ModelAgent, timeoutMs: number) {
+  // One deadline for the whole run: refusing a permission does not restart the clock.
+  const deadline = Date.now() + timeoutMs;
   let result = await agent.waitForFinish(timeoutMs);
   for (let denied = 0; result.status === "permission" && denied < MAX_PERMISSION_DENIALS; denied++) {
     const pending = result.final?.pendingPermissions ?? [];
     if (!pending.length || !agent.respondToPermission) break;
     for (const request of pending) await agent.respondToPermission({ requestId: request.id, response: { behavior: "deny", message: DENIED } });
-    result = await agent.waitForFinish(timeoutMs);
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) return { ...result, status: "timeout" };
+    result = await agent.waitForFinish(remaining);
   }
   return result;
 }
