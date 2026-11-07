@@ -632,7 +632,7 @@ export default function contribute(host: PluginServerContext) {
     if (!identity || identity.workspaceId !== agent.workspaceId) return null;
     return identity;
   };
-  server.on("agent.turn_started", async (event, { paseo }) => {
+  server.addHook("agent.turn.before", async (event, { paseo }) => {
     tools.attach(paseo);
     const identity = await managedTask(event.agent);
     if (!identity) {
@@ -649,7 +649,7 @@ export default function contribute(host: PluginServerContext) {
       if (auto) applyTurnStarted(store, board, identity, event.agent.title);
     });
   });
-  server.on("agent.turn_ended", async (event, { paseo }) => {
+  server.addHook("agent.turn.after", async (event, { paseo }) => {
     // Before any await: a turn of this session that starts later skips its summary row (NATIVE-SESSION-SPEC §5.1).
     const endedAt = new Date().toISOString();
     tools.attach(paseo);
@@ -657,7 +657,7 @@ export default function contribute(host: PluginServerContext) {
     if (!identity) {
       // A session Flowly does not manage (NATIVE-SESSION-SPEC §12): insights after a completed turn, when switched on.
       if (event.outcome.kind === "completed")
-        void turnTimeline(paseo, event.agent.id, event.timeline)
+        void turnTimeline(paseo, event.agent.id)
           .then((timeline) => sessionInsights.enqueue(event.agent, timeline, paseo, endedAt))
           .catch((e) => logFailure("Flowly session insight failed:", e));
       return;
@@ -666,8 +666,8 @@ export default function contribute(host: PluginServerContext) {
     // settings read, the model lookup (up to 2 s) and the board write: the suggestion is already in the board's
     // events and none of those steps changes it, so the card waits for nothing. Never blocks the hook.
     if (event.outcome.kind === "completed") void nextRows.turnEnded(identity, paseo);
-    // The hook's timeline is empty from Paseo 0.13; read alongside the settings and model lookups below.
-    const turn = turnTimeline(paseo, event.agent.id, event.timeline);
+    // The hook's timeline is always empty; read alongside the settings and model lookups below.
+    const turn = turnTimeline(paseo, event.agent.id);
     const auto = await autoStatusOn();
     // Agent habits (WORKFLOW-INSIGHTS-SPEC §12.4): the model this turn ran on, and whether the user's message took one of the suggestions that were open.
     const model = await sessionModel(paseo, event.agent);
@@ -696,16 +696,16 @@ export default function contribute(host: PluginServerContext) {
       void summaries.enqueue(identity.taskId, identity.agentId, timeline, paseo, endedAt, rework);
   });
   // Queued follow-ups go out when any session's turn ends (Paseo "queue").
-  server.on("agent.turn_ended", async (event, { paseo }) => {
+  server.addHook("agent.turn.after", async (event, { paseo }) => {
     if (event.outcome.kind !== "failed") await composer.drain(event.agent.id, paseo).catch(() => undefined);
   });
   // Shell calls of any card-workspace session (WORKFLOW-INSIGHTS-SPEC §3.1); after the hook, never blocking it.
-  server.on("agent.turn_ended", (event, { paseo }) => {
-    void workflow.recordTurn(event.agent, event.timeline, paseo).catch((e) =>
-      logFailure("Workflow insights commands not recorded:", e),
-    );
+  server.addHook("agent.turn.after", async (event, { paseo }) => {
+    void turnTimeline(paseo, event.agent.id)
+      .then((timeline) => workflow.recordTurn(event.agent, timeline, paseo))
+      .catch((e) => logFailure("Workflow insights commands not recorded:", e));
   });
-  server.on("agent.permission_requested", async (event, { paseo }) => {
+  server.addHook("agent.permission.before", async (event, { paseo }) => {
     tools.attach(paseo);
     const identity = await managedTask(event.agent);
     if (!identity) return;
@@ -781,7 +781,7 @@ export default function contribute(host: PluginServerContext) {
   process.on("uncaughtExceptionMonitor", onUncaught);
   server.handle(rpc.telemetryStatus, () => ({ forcedOff: telemetry.forcedOff() }));
   console.log("Flowly store ready:", store.directory);
-  server.before("agent.session_open", ({ request }, { paseo }) =>
+  server.addHook("agent.open.before", async ({ request }, { paseo }) =>
     openKanbanSession(request, tools, store.directory, paseo),
   );
   return () => {
