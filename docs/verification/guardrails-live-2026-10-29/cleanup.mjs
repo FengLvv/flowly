@@ -1,5 +1,6 @@
 import { connect, task, readItems, PROJECT_ID, record } from './lib.mjs';
 import { readFile } from 'node:fs/promises';
+import { homedir } from 'node:os';
 const log = JSON.parse(await readFile(new URL('./created.json', import.meta.url), 'utf8'));
 const cards = log.created.filter((c) => c.kind === 'card');
 const p = await connect();
@@ -7,6 +8,8 @@ try {
   for (const c of cards) {
     const t = task(c.id);
     const out = await p.rpc('tasks.delete', { id: c.id, revision: t.revision, archive: true, acknowledgeWarnings: true });
+    // The backup path names the local home directory; keep it out of the committed log.
+    if (typeof out?.backup === 'string') out.backup = out.backup.replace(homedir(), '~');
     await record({ kind: 'cleanup', note: 'card deleted with archive (sessions and worktree workspace)', key: c.key, id: c.id, out: JSON.stringify(out).slice(0, 300) });
     console.log('deleted', c.key, c.id.slice(0, 8), JSON.stringify(out).slice(0, 200));
   }

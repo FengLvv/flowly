@@ -6,13 +6,13 @@ Haiku · A · [guardrails-live A] Add GET /health
 你这次交付不对：新接口没写进 README，以后新接口都必须写进 README
 12:56 AM
 Shell
-cd /Users/bofan.wang/Developer/personal/flowly-test/tinylink && git status --short && git branch --show-current && grep -n "health" README.md; echo "---worktree---"; cd /Users/bofan.wang/.paseo/worktrees/246o38bv/kanban-guardrails-live-a-add-get-health-f432b3 && git branch --show-current && git diff -- README.md && git log --oneline -1
+cd ~/Developer/personal/flowly-test/tinylink && git status --short && git branch --show-current && grep -n "health" README.md; echo "---worktree---"; cd ~/.paseo/worktrees/246o38bv/kanban-guardrails-live-a-add-get-health-f432b3 && git branch --show-current && git diff -- README.md && git log --oneline -1
 Read
-/Users/bofan.wang/.claude/projects/-Users-bofan-wang-Developer-personal-flowly-test-tinylink/memory/MEMORY.md
+~/.claude/projects/-Users-USER-Developer-personal-flowly-test-tinylink/memory/MEMORY.md
 Write
-/Users/bofan.wang/.claude/projects/-Users-bofan-wang-Developer-personal-flowly-test-tinylink/memory/feedback-readme-new-endpoints.md
+~/.claude/projects/-Users-USER-Developer-personal-flowly-test-tinylink/memory/feedback-readme-new-endpoints.md
 Write
-/Users/bofan.wang/.claude/projects/-Users-bofan-wang-Developer-personal-flowly-test-tinylink/memory/MEMORY.md
+~/.claude/projects/-Users-USER-Developer-personal-flowly-test-tinylink/memory/MEMORY.md
 你说得对，问题出在提交上。README 的改动只存在于卡片的工作树分支
 kanban/guardrails-live-a-add-get-health-f432b3
 里，还没有提交。你看到的
