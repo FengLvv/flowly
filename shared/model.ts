@@ -213,6 +213,8 @@ export const reviewSchema = z.preprocess(legacyReview, z.object({
     taskRevision: z.number().int().nonnegative(),
     workpadRevision: z.number().int().nonnegative(),
     sha: z.string().max(40).optional(),
+    /** A linked root: each repository's commit by name; `sha` is then a digest of them (GUARDRAILS-SPEC §6.2). */
+    repos: z.record(z.string().max(300), z.string().max(40)).optional(),
     dirty: z.boolean(),
   }),
   /** The workspace is not a worktree: other cards' uncommitted changes are in it too. */

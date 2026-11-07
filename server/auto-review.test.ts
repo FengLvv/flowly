@@ -1,9 +1,27 @@
 import { afterEach, expect, test } from "vitest";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { agentFixture } from "./agent-fixture";
-import { AutoReviewService, numstatShape, repoPath, reviewDiff, reviewShape, type Git, type LlmReview, type LlmReviewInput, type RunCheck } from "./auto-review";
+import {
+  AutoReviewService,
+  changedRepos,
+  commandApplies,
+  defaultGit,
+  linkedHead,
+  linkedRepos,
+  linkedReviewDiff,
+  linkedShape,
+  numstatShape,
+  repoPath,
+  reviewDiff,
+  reviewShape,
+  type Git,
+  type LlmReview,
+  type LlmReviewInput,
+  type RunCheck,
+} from "./auto-review";
 import { GuardrailsService } from "./guardrails";
 import type { AgentService } from "./agent-service";
 import type { ChangeShape, Lane } from "../shared/model";
@@ -73,6 +91,10 @@ async function setup(
     exists?: (path: string) => Promise<boolean>;
     memory?: boolean;
     baseRef?: string;
+    /** The workspace directory and git to use, with the real diff and shape (a linked root); default: fakes. */
+    directory?: string;
+    git?: Git;
+    run?: RunCheck;
   } = {},
 ) {
   const x = await agentFixture();
@@ -103,33 +125,39 @@ async function setup(
     return { exitCode: exit, timedOut: false, ms: 5, output: exit ? `\u001b[31mFAIL\u001b[0m expected 1 to be 2\n` : "ok\n" };
   };
   const repo = { head: "aaaaaaaaaaaa" };
-  const git: Git = async (_cwd, args) => {
-    const key = args.join(" ");
-    if (key === "rev-parse --short=12 HEAD") return repo.head;
-    if (key === "rev-parse --abbrev-ref HEAD") return "main";
-    return "";
-  };
+  const git: Git =
+    options.git ??
+    (async (_cwd, args) => {
+      const key = args.join(" ");
+      if (key === "rev-parse --short=12 HEAD") return repo.head;
+      if (key === "rev-parse --abbrev-ref HEAD") return "main";
+      return "";
+    });
   const diffs: (string | undefined)[] = [];
   const bases: (string | undefined)[] = [];
   const sent: { agentId: string; text: string }[] = [];
   const reviews = new AutoReviewService(x.store, {
-    workspace: async () => ({ directory: x.a, worktree: false }),
+    workspace: async () => ({ directory: options.directory ?? x.a, worktree: false }),
     sessionBusy: async (agentId) => x.actors[agentId]?.status === "running",
     sessionLive: async (agentId) => !!x.actors[agentId] && !x.actors[agentId]!.archivedAt,
     send: async (message) => {
       sent.push({ agentId: message.agentId, text: message.text });
     },
-    run,
+    run: options.run ?? run,
     git,
     guardrails,
     llm: options.llm ?? passAll,
     ...(options.conversation ? { conversation: options.conversation } : {}),
-    diff: async (_dir, since, baseRef) => {
-      diffs.push(since);
-      bases.push(baseRef);
-      return "diff --git a/x b/x";
-    },
-    shape: async (_dir, baseRef) => (bases.push(baseRef), { shape: options.shape ?? { files: 1, lines: 10, size: "s" }, paths: new Set(options.paths ?? ["src/a.ts"]) }),
+    ...(options.directory
+      ? {}
+      : {
+          diff: async (_dir: string, since?: string, baseRef?: string) => {
+            diffs.push(since);
+            bases.push(baseRef);
+            return "diff --git a/x b/x";
+          },
+          shape: async (_dir: string, baseRef?: string) => (bases.push(baseRef), { shape: options.shape ?? { files: 1, lines: 10, size: "s" as const }, paths: new Set(options.paths ?? ["src/a.ts"]) }),
+        }),
     exists: options.exists ?? (async () => false),
   });
   let delivering: Promise<void> = Promise.resolve();
@@ -713,3 +741,148 @@ test("review diff: the card's branch since the merge-base, then untracked files 
   expect(await reviewDiff(dir, {}, directory.git)).toContain("# Recent commits\n\n# New files (untracked)\ndiff --git a/docs/new.md");
   expect(directory.calls.slice(0, 3)).toEqual(["diff HEAD --no-color", "log -5 -p --no-color --format=commit %h %s", untracked]);
 });
+
+/** Two Git repositories behind symlinks in a plain folder, like a linked root (PROJECT-PICKER-SPEC), each with one commit. */
+async function linkedRoot() {
+  const base = await mkdtemp(join(tmpdir(), "flowly-linked-"));
+  roots.push(base);
+  const git = (cwd: string, ...args: string[]) => defaultGit(cwd, ["-c", "user.email=t@t", "-c", "user.name=t", "-c", "commit.gpgsign=false", ...args]);
+  for (const name of ["admin", "smith"]) {
+    const repo = join(base, "repos", name);
+    await mkdir(join(repo, "src"), { recursive: true });
+    await git(repo, "init", "-q", "-b", "main");
+    await writeFile(join(repo, "src/app.ts"), "export const a = 1;\n");
+    await writeFile(join(repo, "package.json"), JSON.stringify({ scripts: name === "smith" ? { test: "vitest", typecheck: "tsc" } : { test: "jest" } }));
+    await git(repo, "add", ".");
+    await git(repo, "commit", "-q", "-m", "init");
+  }
+  const root = join(base, "root");
+  await mkdir(root);
+  await symlink(join(base, "repos/admin"), join(root, "Admin"), "dir");
+  await symlink(join(base, "repos/smith"), join(root, "SMITH"), "dir");
+  await mkdir(join(root, "notes"));
+  await mkdir(join(root, ".hidden"));
+  return { base, root, git };
+}
+
+test("linked root: the repositories behind its links, then each one's change with its paths under the link's name (§6.2)", async () => {
+  const { root, base } = await linkedRoot();
+  const repos = await linkedRepos(root);
+  expect(repos).toEqual([
+    { name: "Admin", directory: join(root, "Admin") },
+    { name: "SMITH", directory: join(root, "SMITH") },
+  ]);
+  // A Git repository itself is not a linked root's child list; a folder without .git is skipped.
+  expect(await readHeadOf(root)).toBeNull();
+  await writeFile(join(base, "repos/smith/src/app.ts"), "export const a = 2;\nexport const b = 3;\n");
+  await writeFile(join(base, "repos/smith/src/new.ts"), "x\ny\n");
+  const shape = await linkedShape(repos);
+  // Both repositories' last commits count, as for any directory card (D6), plus SMITH's edit and new file.
+  expect(shape!.paths).toEqual(new Set(["Admin/package.json", "Admin/src/app.ts", "SMITH/package.json", "SMITH/src/app.ts", "SMITH/src/new.ts"]));
+  expect(shape!.shape.files).toBe(5);
+  expect(shape!.shape.lines).toBeGreaterThan(0);
+  const diff = await linkedReviewDiff(repos);
+  expect(diff).toContain("## Repository Admin (its paths start with Admin/)");
+  expect(diff).toContain("## Repository SMITH (its paths start with SMITH/)");
+  expect(diff).toContain("diff --git a/SMITH/src/app.ts b/SMITH/src/app.ts");
+  expect(diff).toContain("+export const b = 3;");
+  expect(diff).toContain("+++ b/SMITH/src/new.ts");
+  expect(diff).not.toMatch(/a\/src\/app\.ts/);
+  // Round 2: each repository since its own previous commit; a new commit in one changes the digest.
+  const first = await linkedHead(repos, defaultGit);
+  expect(Object.keys(first.repos)).toEqual(["Admin", "SMITH"]);
+  expect(first.head).toMatchObject({ dirty: true });
+  expect(first.head!.sha).toMatch(/^[0-9a-f]{12}$/);
+  await writeFile(join(base, "repos/admin/src/app.ts"), "export const a = 9;\n");
+  const later = await linkedReviewDiff(repos, { since: first.repos });
+  expect(later).toContain(`# Changes since the previous delivery (git diff ${first.repos.Admin})`);
+  expect(later).toContain("diff --git a/Admin/src/app.ts b/Admin/src/app.ts");
+}, 20_000);
+const readHeadOf = async (dir: string) => (await linkedHead([{ name: "root", directory: dir }], defaultGit)).head;
+
+test("linked root: a command runs where its script is, and applies nowhere else (§6.3)", async () => {
+  const { root } = await linkedRoot();
+  expect(await commandApplies(["npm", "run", "typecheck"], join(root, "SMITH"))).toBe(true);
+  expect(await commandApplies(["npm", "run", "typecheck"], join(root, "Admin"))).toBe(false);
+  expect(await commandApplies(["npm", "test"], join(root, "Admin"))).toBe(true);
+  expect(await commandApplies(["npm", "ci"], join(root, "Admin"))).toBe(true);
+  expect(await commandApplies(["npm", "test"], join(root, "notes"))).toBe(false);
+  expect(await commandApplies(["make", "check"], join(root, "SMITH"))).toBe(false);
+  expect(await commandApplies(["go", "test", "./..."], join(root, "SMITH"))).toBe(false);
+  expect(await commandApplies(["./scripts/check.sh"], join(root, "SMITH"))).toBe(true);
+  await writeFile(join(root, "SMITH", "Makefile"), "build:\n\ttrue\ncheck: build ## all\n\ttrue\n");
+  expect(await commandApplies(["make", "check"], join(root, "SMITH"))).toBe(true);
+  expect(await commandApplies(["make", "-j", "4", "lint"], join(root, "SMITH"))).toBe(false);
+}, 20_000);
+
+test("linked root review: shape from both repositories, commands per repository, any failure fails, a cited file under a link counts (§6.2, §6.3)", async () => {
+  const { root, base } = await linkedRoot();
+  await writeFile(join(base, "repos/smith/src/app.ts"), "export const a = 2;\n");
+  const seen: LlmReviewInput[] = [];
+  const cwds: string[] = [];
+  const x = await setup({
+    directory: root,
+    run: async (argv, cwd) => (cwds.push(`${argv.join(" ")} @ ${cwd.split("/").pop()}`), { exitCode: 0, timedOut: false, ms: 2, output: "" }),
+    git: defaultGit,
+    entries: [command("tests", ["npm", "test"]), command("types", ["npm", "run", "typecheck"]), command("make", ["make", "check"])],
+    exists: async (path) => existsSync(path),
+    llm: async (input) => {
+      seen.push(input);
+      return { model: "claude/haiku", verdicts: [{ id: "goal", verdict: "fail", detail: "Still returns 1 in Admin.", file: "Admin/src/app.ts", line: 1 }] };
+    },
+  });
+  const board = await x.deliver("development");
+  const review = board.tasks[0]!.review!;
+  // Admin is untouched (its only commit predates the card): only SMITH runs the commands.
+  expect(cwds).toEqual(["npm test @ SMITH", "npm run typecheck @ SMITH"]);
+  expect(review.items.find((i) => i.id === "tests")).toMatchObject({ state: "passed", ms: 2 });
+  expect(review.items.find((i) => i.id === "make")).toMatchObject({ state: "skipped", reason: "No repository this delivery changed has this command." });
+  expect(review.shape!.files).toBeGreaterThan(0);
+  expect(review.fingerprint.repos).toEqual({ Admin: expect.stringMatching(/^[0-9a-f]{12}$/), SMITH: expect.stringMatching(/^[0-9a-f]{12}$/) });
+  expect(seen[0]!.diff).toContain("diff --git a/SMITH/src/app.ts b/SMITH/src/app.ts");
+  // The finding cites a file in a linked repository: evidence, so it fails and the rework message names it.
+  expect(review.items.find((i) => i.id === "goal")).toMatchObject({ state: "failed", file: "Admin/src/app.ts" });
+  expect(x.sent.at(-1)!.text).toContain("Admin/src/app.ts:1");
+}, 20_000);
+
+test("linked root review: a command that fails in one repository fails, with that repository's output", async () => {
+  const { root, base } = await linkedRoot();
+  await writeFile(join(base, "repos/admin/src/app.ts"), "export const a = 2;\n");
+  await writeFile(join(base, "repos/smith/src/app.ts"), "export const a = 2;\n");
+  const x = await setup({
+    directory: root,
+    git: defaultGit,
+    run: async (_argv, cwd) => (cwd.endsWith("SMITH") ? { exitCode: 1, timedOut: false, ms: 3, output: "FAIL smith.test.ts\n" } : { exitCode: 0, timedOut: false, ms: 2, output: "" }),
+  });
+  const review = (await x.deliver("development")).tasks[0]!.review!;
+  expect(review.items.find((i) => i.id === "tests")).toMatchObject({ state: "failed", exitCode: 1, ms: 5 });
+  expect(review.items.find((i) => i.id === "tests")!.tail).toContain("[SMITH]");
+  expect(review.items.find((i) => i.id === "goal")).toMatchObject({ state: "skipped" });
+}, 20_000);
+
+test("linked root: commands run only in the repositories this delivery changed, all of them when none did (§6.3)", async () => {
+  const { root, base, git } = await linkedRoot();
+  const repos = await linkedRepos(root);
+  const since = new Date(Date.now() + 1000).toISOString();
+  expect((await changedRepos(repos, since)).map((r) => r.name)).toEqual(["Admin", "SMITH"]);
+  await writeFile(join(base, "repos/smith/src/new.ts"), "x\n");
+  expect((await changedRepos(repos, since)).map((r) => r.name)).toEqual(["SMITH"]);
+  // A commit after the card was created counts, though the tree is clean again.
+  await git(join(base, "repos/smith"), "add", ".");
+  await git(join(base, "repos/smith"), "commit", "-q", "-m", "work");
+  expect((await changedRepos(repos, new Date(Date.now() - 60_000).toISOString())).map((r) => r.name)).toEqual(["Admin", "SMITH"]);
+  expect((await changedRepos(repos, since)).map((r) => r.name)).toEqual(["Admin", "SMITH"]);
+  const failing: Git = async (cwd, args) => (cwd.endsWith("Admin") ? Promise.reject(new Error("not a repo")) : defaultGit(cwd, args));
+  expect((await changedRepos(repos, since, failing)).map((r) => r.name)).toEqual(["Admin"]);
+}, 20_000);
+
+test("linked root diff: a large change in one repository cannot push the others out of the 64 KiB (§6.2)", async () => {
+  const { root, base } = await linkedRoot();
+  await writeFile(join(base, "repos/admin/src/app.ts"), Array.from({ length: 20_000 }, (_, i) => `export const v${i} = ${i};`).join("\n"));
+  await writeFile(join(base, "repos/smith/src/app.ts"), "export const a = 2;\n");
+  const diff = await linkedReviewDiff(await linkedRepos(root));
+  expect(diff.length).toBeLessThanOrEqual(64 * 1024 + 100);
+  expect(diff).toContain("[Admin: diff truncated]");
+  expect(diff).toContain("## Repository SMITH (its paths start with SMITH/)");
+  expect(diff).toContain("diff --git a/SMITH/src/app.ts b/SMITH/src/app.ts");
+}, 20_000);
