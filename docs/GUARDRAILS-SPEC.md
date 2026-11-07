@@ -334,7 +334,7 @@ Project memory (<n> of <m> shown, flowly_recall finds the others):
    { items: [{ id, verdict: "pass" | "fail" | "na", detail ≤600, file?, line? }] }
    ```
 
-   - `fail` 必须带证据，三种任一（B1）：`file` 出现在 diff 里（改错了）；`file` 在仓库里存在但缺东西（漏改了，例如 `shared/i18n/zh-TW.ts` 没有新词条，daemon 只核对文件存在）；`quote` 引用卡片描述或用户原话里没做到的要求（内置检查和专属项常见）。三样都没有的 `fail` 由 daemon 改为 `na`，`reason: "no evidence"`。这是确定性的降噪，目的是丢掉凭空的意见，不是只许挑改过的代码的毛病。
+   - `fail` 必须带证据，三种任一（B1）：`file` 出现在 diff 里（改错了）；`file` 在仓库里存在但缺东西（漏改了，例如 `shared/i18n/zh-TW.ts` 没有新词条，daemon 只核对文件存在）；`quote` 引用卡片描述或用户原话里没做到的要求（内置检查和专属项常见）；daemon 核对出处（2026-11-07 按 PR #75 评审意见补）：quote 与来源都压缩空白、去首尾、转小写后，quote 必须是卡片标题、卡片描述、评审拿到的过滤后对话里任一条消息、或该检查自己的用户原话的子串，否则不算证据（从 diff 或代码里引的文字要用 `file` 给证据）。三样都没有的 `fail` 由 daemon 改为 `na`，`reason: "no evidence"`。这是确定性的降噪，目的是丢掉凭空的意见，不是只许挑改过的代码的毛病。
    - 输出的每项于是为 `{ id, verdict, detail, file?, line?, quote? }`，`quote` ≤300 字。
    - `na` 按通过处理，不计抓到也不计误判。
    - 返工第 2 轮起：评审输入只给上一轮交付以来的增量 diff（`git diff <上一轮 sha>`）加上一轮的结果，指令写明只复查上一轮不通过的项和增量里的新问题，不重复已经通过的。
