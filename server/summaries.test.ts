@@ -9,12 +9,18 @@ import type { SummarySettings } from "../shared/summary";
 import { summaryRow } from "../shared/native-session";
 
 const roots: string[] = [];
-const settle = () => new Promise((r) => setTimeout(r, 30));
+// A reply held at waitForFinish until release(); reached resolves once the run is waiting there.
+const gated = () => {
+  let release!: () => void, arrive!: () => void;
+  const gate = new Promise<void>((r) => (release = r));
+  const reached = new Promise<void>((r) => (arrive = r));
+  return { gate, arrive, reached, release: () => release() };
+};
 afterEach(async () => {
   await Promise.all(roots.splice(0).map((p) => rm(p, { recursive: true, force: true })));
 });
 
-type Reply = { status?: "idle" | "error" | "permission" | "timeout"; text?: string; error?: string; gate?: Promise<void>; createError?: string; waitError?: string };
+type Reply = { status?: "idle" | "error" | "permission" | "timeout"; text?: string; error?: string; gate?: Promise<void>; arrive?: () => void; createError?: string; waitError?: string };
 
 async function setup(options: { claude?: boolean } = {}) {
   const root = await realpath(await mkdtemp(join(tmpdir(), "ultra-summary-")));
@@ -51,6 +57,7 @@ async function setup(options: { claude?: boolean } = {}) {
         if (reply.createError) throw new Error(reply.createError);
         return {
           waitForFinish: async () => {
+            reply.arrive?.();
             await reply.gate;
             if (reply.waitError) throw new Error(reply.waitError);
             return { status: reply.status || "idle", final: null, error: reply.error || null, lastMessage: reply.text ?? null };
@@ -195,15 +202,15 @@ test("update=false keeps the previous version; the first summary is always writt
 
 test("one run per card; turns ending meanwhile merge into a single follow-up", async () => {
   const x = await setup();
-  let release!: () => void;
-  x.replies.push({ text: x.json("one"), gate: new Promise<void>((r) => (release = r)) }, { text: x.json("two") });
+  const g = gated();
+  x.replies.push({ text: x.json("one"), gate: g.gate, arrive: g.arrive }, { text: x.json("two") });
   const first = x.service.enqueue("t", "a1", x.turn("first"), x.paseo);
-  await settle();
+  await g.reached;
   expect(x.service.running()).toEqual(["t"]);
   await x.service.enqueue("t", "a2", x.turn("second"), x.paseo);
   await x.service.enqueue("t", "a1", x.turn("third"), x.paseo);
   expect(x.created).toHaveLength(1);
-  release();
+  g.release();
   await first;
   expect(x.created).toHaveLength(2);
   expect(x.created[1].prompt).toContain("User: second");
@@ -215,14 +222,14 @@ test("one run per card; turns ending meanwhile merge into a single follow-up", a
 test("settled() resolves only after the card's queued runs have finished and archived", async () => {
   const x = await setup();
   await x.service.settled("t");
-  let release!: () => void;
-  x.replies.push({ text: x.json("one"), gate: new Promise<void>((r) => (release = r)) });
+  const g = gated();
+  x.replies.push({ text: x.json("one"), gate: g.gate, arrive: g.arrive });
   void x.service.enqueue("t", "a1", x.turn("first"), x.paseo);
   let settledYet = false;
   const waiting = x.service.settled("t").then(() => (settledYet = true));
-  await settle();
+  await g.reached;
   expect(settledYet).toBe(false);
-  release();
+  g.release();
   await waiting;
   expect(x.archived()).toBe(1);
   expect(x.service.running()).toEqual([]);
@@ -320,7 +327,7 @@ test("manual refresh summarizes the latest turn of the most recent managed sessi
   await expect(x.service.refresh("t", [], x.paseo)).rejects.toThrow(/no Kanban sessions/);
   x.replies.push({ text: x.json("refreshed") });
   expect(await x.service.refresh("t", ["old", "new"], x.paseo)).toEqual({ queued: true });
-  await settle();
+  await x.service.idle();
   expect(x.created[0].prompt).toContain("User: latest ask");
   expect(x.created[0].prompt).not.toContain("User: earlier");
   expect((await x.store.latest("t"))?.agentIds).toEqual(["new"]);
@@ -358,7 +365,7 @@ test("a new version is appended as one flowly-summary row to the session whose t
   const x = await setup();
   x.replies.push({ text: x.json("实现完成") });
   await x.service.enqueue("t", "a1", x.turn("做登录"), x.paseo, new Date().toISOString());
-  await settle();
+  await x.service.idle();
   const latest = (await x.store.latest("t"))!;
   expect(x.appended).toEqual([{ agentId: "a1", row: summaryRow(latest, "w") }]);
   expect(x.appended[0].row).toMatchObject({ type: "plugin", id: `flowly-summary-${latest.id}`, kind: "flowly-summary", version: 1 });
@@ -366,14 +373,14 @@ test("a new version is appended as one flowly-summary row to the session whose t
 
 test("merged turns append to the last session of the batch", async () => {
   const x = await setup();
-  let release!: () => void;
-  x.replies.push({ text: x.json("one"), gate: new Promise<void>((r) => (release = r)) }, { text: x.json("two") });
+  const g = gated();
+  x.replies.push({ text: x.json("one"), gate: g.gate, arrive: g.arrive }, { text: x.json("two") });
   const first = x.service.enqueue("t", "a1", x.turn("first"), x.paseo);
-  await settle();
+  await g.reached;
   await x.service.enqueue("t", "a2", x.turn("second"), x.paseo);
-  release();
+  g.release();
   await first;
-  await settle();
+  await x.service.idle();
   expect(x.appended.map((a) => a.agentId)).toEqual(["a1", "a2"]);
 });
 
@@ -384,7 +391,7 @@ test("no row for update=false or a failed run", async () => {
   x.replies.push({ text: x.json("same", false) }, { status: "error", error: "boom" });
   await x.service.enqueue("t", "a1", x.turn("thanks"), x.paseo);
   await x.service.enqueue("t", "a1", x.turn("again"), x.paseo);
-  await settle();
+  await x.service.idle();
   expect(x.appended).toHaveLength(1);
 });
 
@@ -396,7 +403,7 @@ test("skips the row when that session started a newer turn, but keeps the versio
   });
   x.replies.push({ text: x.json("s") });
   await x.service.enqueue("t", "a1", x.turn("x"), x.paseo, endedAt);
-  await settle();
+  await x.service.idle();
   expect(await x.store.latest("t")).toMatchObject({ state: "s" });
   expect(x.appended).toEqual([]);
 });
@@ -408,11 +415,11 @@ test("skips the row for an archived or missing session; an append failure keeps 
   x.replies.push({ text: x.json("one") }, { text: x.json("two") }, { text: x.json("three") });
   await x.service.enqueue("t", "a1", x.turn("x"), x.paseo);
   await x.service.enqueue("t", "a2", x.turn("y"), x.paseo);
-  await settle();
+  await x.service.idle();
   expect(x.appended).toEqual([]);
   x.failAppend();
   await x.service.enqueue("t", "a3", x.turn("z"), x.paseo);
-  await settle();
+  await x.service.idle();
   expect(await x.store.latest("t")).toMatchObject({ state: "three" });
   expect((await x.store.read()).errors).toEqual([]);
 });

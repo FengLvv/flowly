@@ -27,6 +27,7 @@ import {
 import { daemonRemoveAgent, type RemoveAgent } from "./summarizer-remove";
 import { runSummaryModels, isWorkspaceGone } from "./summary-models";
 import { logFailure } from "./error-report";
+import { BackgroundJobs } from "./background-jobs";
 export { availableModels } from "./summary-models";
 import { summaryRow } from "../shared/native-session";
 import { correctionOf, type Correction } from "../shared/guardrails";
@@ -173,6 +174,7 @@ export function within<T>(work: Promise<T>, ms: number): Promise<T> {
  */
 export class SummaryService {
   private queues = new Map<string, Batch[]>();
+  private jobs = new BackgroundJobs();
   private drains = new Map<string, Promise<void>>();
   /** Learning from rework turns (GUARDRAILS-SPEC §4.2); absent: summaries only. */
   guardrails?: SummaryGuardrails;
@@ -188,6 +190,11 @@ export class SummaryService {
 
   running() {
     return [...this.queues.keys()];
+  }
+
+  /** Resolves once no background row append or refresh run is left. */
+  idle() {
+    return this.jobs.idle();
   }
 
   async overview(): Promise<SummaryOverview> {
@@ -247,7 +254,7 @@ export class SummaryService {
             .then(() => null),
         );
         // In the background: the native row never holds up or changes Flowly's own summaries.
-        if (entry) void this.appendRow(taskId, merged[merged.length - 1].agentIds[0], batch.endedAt, entry, paseo);
+        if (entry) this.jobs.track(this.appendRow(taskId, merged[merged.length - 1].agentIds[0], batch.endedAt, entry, paseo));
       }
     } finally {
       this.queues.delete(taskId);
@@ -341,7 +348,7 @@ export class SummaryService {
       if (!best || at > best.at) best = { agentId, at, items: lastTurn(entries.map((e) => e.item)) };
     }
     if (!best) throw new Error("No conversation to summarize yet.");
-    void this.enqueue(taskId, best.agentId, best.items, paseo, best.at || undefined);
+    this.jobs.track(this.enqueue(taskId, best.agentId, best.items, paseo, best.at || undefined));
     return { queued: true };
   }
 }
