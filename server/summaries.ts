@@ -25,7 +25,7 @@ import {
   type SummaryState,
 } from "../shared/summary";
 import { daemonRemoveAgent, type RemoveAgent } from "./summarizer-remove";
-import { runSummaryModels } from "./summary-models";
+import { runSummaryModels, isWorkspaceGone } from "./summary-models";
 import { logFailure } from "./error-report";
 export { availableModels } from "./summary-models";
 import { summaryRow } from "../shared/native-session";
@@ -273,7 +273,9 @@ export class SummaryService {
       language: await this.language(),
       ...(section ? { guardrails: section } : {}),
     });
-    const { model, output } = await runSummaryModels(paseo, summaryModelsOf(settings), {
+    // Paseo removes a merged/archived workspace's directory (autoArchiveAfterMerge) right after the turn
+    // ends: the child cannot be created, so skip instead of recording an error against the card.
+    const result = await runSummaryModels(paseo, summaryModelsOf(settings), {
       create: (model) => paseo.workspaces.ref(task.workspaceId).agents.create({
         parent: batch.agentIds[batch.agentIds.length - 1],
         config: readOnlyConfig(model),
@@ -285,7 +287,12 @@ export class SummaryService {
       parse: (text) => ({ ...parseModelOutput(text), correction: section ? correctionOf(text) : null }),
       remove: this.remove,
       timeoutMs: this.timeoutMs,
+    }).catch((error) => {
+      if (!isWorkspaceGone(error)) throw error;
+      return null;
     });
+    if (!result) return null;
+    const { model, output } = result;
     if (section && output.correction && output.correction.kind !== "none")
       await this.guardrails!.learn({ taskId, correction: output.correction, quote: batch.rework! }).catch((e) => logFailure("Flowly guardrail not learned:", e, taskId));
     if (!output.update && previous) {

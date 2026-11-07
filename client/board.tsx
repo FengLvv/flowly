@@ -70,13 +70,16 @@ import { useStableCallback, useStableTheme } from "./stable";
 import { isLegacyScope } from "../shared/scope";
 import { LaneList } from "./lane-list";
 import { perfConfigure, perfMark, usePerfRender } from "./perf";
-import { laneRows, sameRows } from "./lane-rows";
+import { laneRows, sameRows, type LaneRow } from "./lane-rows";
+import { LanePager } from "./lane-pager";
+import { useAndroidBack } from "./android-back";
 import { LiveTaskCard, type CardDrag, type LiveTaskCardProps } from "./card";
 import { useConnections } from "./connectors";
 import { cardProgress, useSummaries } from "./task-progress";
 import { LocaleRoot } from "./i18n";
 import { agentModelFromValues, effectiveAgentModel, startingAgent } from "../shared/agent-defaults";
 import { SettingsFab, SettingsModal, type SettingsSection } from "./summary-settings";
+import { NewTaskFab } from "./new-task-fab";
 import { SettingsOpenerContext } from "./settings-opener";
 import { findingDescription, workflowInsightsSettings, workflowSettingsValues, type Finding } from "../shared/workflow-insights";
 import { WrapupModal } from "./wrapup";
@@ -142,7 +145,7 @@ import { reviewLabel } from "./task-review";
 import { visibleReview } from "../shared/auto-review";
 
 /** One-time tip texts (ONBOARDING-SPEC §5). */
-const tipText: Record<TipId, () => string> = {
+const tipText: Record<TipId, (compact?: boolean) => string> = {
   "first-card": () => t("Your card moves by itself as the agent works. Open it any time to see its sessions, output and summary."),
   "needs-you": () => t("A card is waiting for you. Reply goes straight to the session."),
   "first-idea": () => t("An agent suggested follow-up work. Good idea starts a card or continues here; Dismiss removes it."),
@@ -153,7 +156,7 @@ const tipText: Record<TipId, () => string> = {
   "next-move": () => t("When an agent finishes a turn, its suggested next steps sit above the message box. Tap one to fill it in; nothing is sent until you press Send. Some steps act on the card, like Move to Done."),
   "older-finished": () => t("Cards that finished a while ago fold under “Show older” at the bottom of Done and Cancelled. Settings → Workflow sets how long they stay."),
   "first-ticket": () => t("A card has an item from a connected service as an input. Agents read it every turn and see when it changes. Flowly never changes it there, and its status doesn't move the card."),
-  "jira-connect": () => t("Work from Jira, Confluence, GitHub, GitLab or Azure DevOps: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them."),
+  "jira-connect": () => t("Work from Jira, Confluence, GitHub, GitLab, Azure DevOps or Shortcut: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them."),
   connectors: () => t("The Artifacts + now adds Confluence pages and GitHub or GitLab issues and pull requests too, besides files, links and Jira tickets. Connect services in Settings → Connections."),
   "project-menu": () => t("Drag a project tab to reorder it. Right-click it for its settings, a new task, Insights, Ideas or Remove."),
   subagents: () => t("When a session starts subagents, a Subagents chip appears above its message box. Click it to see their status and open one in Paseo."),
@@ -162,7 +165,11 @@ const tipText: Record<TipId, () => string> = {
   "first-skill-draft": () => t("Insights drafted a skill from your cards. Open Insights to add it to the project."),
   search: () => t("Find past cards, notes, workpads and deliverables with the search button or S."),
   "first-workflow-insight": () => t("Workflow insights found repeated work worth keeping. Open Insights to turn a suggestion into a card."),
-  "card-display": () => t("Cards too busy? Choose what they show in Settings → Cards, or from the Sort menu → Card display."),
+  "lane-swipe": () => t("Swipe left or right to switch lanes."),
+  "card-display": (compact) => compact
+    // Compact puts the Sort choices and Card display… in the Filters dialog.
+    ? t("Cards too busy? Choose what they show in Settings → Cards, or from Filters → Card display.")
+    : t("Cards too busy? Choose what they show in Settings → Cards, or from the Sort menu → Card display."),
   "attention-dismiss": () => t("Not ready to decide? Dismiss a card from Attention. It comes back when something new happens."),
   "sidebar-order": () => t("Arrange an open card your way: reorder its sections and choose which start open in Settings → Cards → Card sidebar."),
   "session-history": () => t("A session's output now starts at the beginning of its current turn. Press Load earlier at the top to read further back."),
@@ -343,6 +350,8 @@ function BoardContent(
     // `idea`: Start session prefilled from an idea on the Ideas page (IDEAS-SPEC §6.3).
     [startRequest, setStartRequest] = useState<{ taskId: string; key: string; idea?: Idea } | null>(null),
     [mobileStatus, setMobileStatus] = useState<Status>("todo"),
+    // Phones: a lane chosen from the status chooser fades in; a swiped one is already on screen (UI-UX-SPEC §5).
+    [lanePick, setLanePick] = useState(0),
     [reveal, setReveal] = useState<{ status: Status; n: number; at: number; center?: boolean; taskId?: string }>({ status: "todo", n: 0, at: 0 }),
     [actionTask, setActionTask] = useState<Task | null>(null),
     [projectForm, setProjectForm] = useState<"new" | "edit" | null>(null),
@@ -645,11 +654,21 @@ function BoardContent(
     const sorted = sortTasks(column, boardSort, taskActivity);
     return older.size ? [...sorted.filter((t) => !older.has(t.id)), ...sorted.filter((t) => older.has(t.id))] : sorted;
   };
-  const laneAll = sortColumn(visible.filter((t) => t.status === mobileStatus));
-  const list = laneAll.filter((t) => !older.has(t.id));
-  const listOlder = laneAll.filter((t) => older.has(t.id));
-  const laneRowsRef = useRef<ReturnType<typeof laneRows<Task>> | undefined>(undefined);
-  const laneRowList = (laneRowsRef.current = sameRows(laneRowsRef.current, laneRows(list, listOlder, olderShown.includes(mobileStatus))));
+  // The phone's lanes: the selected one, plus its neighbours in the native lane pager (UI-UX-SPEC §5).
+  const laneRowsRef = useRef(new Map<Status, LaneRow<Task>[]>());
+  const lanesNow = new Map<Status, { count: number; olderCount: number; rows: LaneRow<Task>[] }>();
+  const laneOf = (status: Status) => {
+    const known = lanesNow.get(status);
+    if (known) return known;
+    const all = sortColumn(visible.filter((t) => t.status === status));
+    const recent = all.filter((t) => !older.has(t.id));
+    const olderCards = all.filter((t) => older.has(t.id));
+    const rows = sameRows(laneRowsRef.current.get(status), laneRows(recent, olderCards, olderShown.includes(status)));
+    laneRowsRef.current.set(status, rows);
+    const lane = { count: all.length, olderCount: olderCards.length, rows };
+    lanesNow.set(status, lane);
+    return lane;
+  };
   // Status-change flash: remember the last snapshot, emphasize cards that moved.
   const statusMemory = useRef<Map<string, string> | null>(null);
   const [flashing, setFlashing] = useState<ReadonlySet<string>>(new Set());
@@ -1232,9 +1251,15 @@ function BoardContent(
           searchable: !task && projectTasks.filter((x) => !x.archivedAt).length >= 10,
           reviewShown: !task && projectTasks.some((x) => !!visibleReview(x)),
           learnedGuideline: !task && !!projectGuardrails?.added,
+          laneSwipe: touch && !task && !page && shownStatuses.length > 1 && projectTasks.some((x) => !x.archivedAt),
         },
         blocked: !onboarding.values || welcomeOpen || welcome === "show" || dialogOpen || settingsHint || whatsNewOpen || whatsNewDue === "show",
       });
+  // A swipe to another lane shows the lane-swipe tip was not needed.
+  const settleLane = (next: Status) => {
+    if (next !== mobileStatus && onboarding.values && !onboarding.values.tipsSeen.includes("lane-swipe")) void onboarding.markTipSeen("lane-swipe");
+    setMobileStatus(next);
+  };
   const dismissTip = (id: TipId) => {
     if (id === "first-done") setMovedToFinished(false);
     void onboarding.markTipSeen(id);
@@ -1317,6 +1342,40 @@ function BoardContent(
       onOpen={openCard}
       onActions={openCardActions}
       menuFor={cardMenuFor}
+    />
+  );
+  const renderLane = (status: Status) => (
+    <LaneList
+      key={status}
+      data={laneOf(status).rows}
+      keyOf={(row) => row.key}
+      renderItem={(row) =>
+        row.kind === "task" ? (
+          renderCard(row.task)
+        ) : row.kind === "older" ? (
+          <OlderToggle count={laneOf(status).olderCount} shown={olderShown.includes(status)} onPress={() => toggleOlder(status)} />
+        ) : row.hasOlder ? (
+          <View style={{ paddingVertical: space[4], alignItems: "center" }}>
+            <Label muted selectable={false}>{t("No recent tasks")}</Label>
+          </View>
+        ) : (
+          <View style={{ paddingVertical: space[6], gap: space[3], alignItems: "center" }}>
+            <Label muted selectable={false}>
+              {filterCount
+                ? t("No tasks match these filters.")
+                : t("No tasks in {lane}.", { lane: nameOf(status) })}
+            </Label>
+            <Button
+              icon="Plus"
+              disabled={!!project?.archivedAt}
+              onPress={() =>
+                setTaskForm({ status })
+              }
+            >
+              {t("Add task")}</Button>
+          </View>
+        )
+      }
     />
   );
   const projectMenuClose = () => setMenu(null);
@@ -1460,6 +1519,8 @@ function BoardContent(
     }
   };
   const keyboardProps = shortcutsOn ? { focusable: true, onKeyDown } : {};
+  // Same steps as Esc; on the bare board Back falls through to the host. Open host modals take Back first.
+  useAndroidBack(rootRef, () => runIntent("escape"));
   // Opening the board from the sidebar leaves keyboard focus on the host's sidebar row, which draws a
   // focus ring while the board scrolls. Hand focus to the board root (it draws no ring of its own).
   // Once per mount: a later compact -> wide resize must not pull focus out of an active control.
@@ -1711,8 +1772,8 @@ function BoardContent(
                 {t("{n} shown", { n: visible.length })}
               </Label>
             )}
-            {!!project && (
-              // Opens the project's own settings (name, lanes, auto status) at once, not through the chooser.
+            {!!project && !compact && (
+              // Opens the project's own settings (name, lanes, auto status) at once; phones use the chooser's Edit row.
               <IconButton
                 icon="SlidersHorizontal"
                 label={t("Project settings")}
@@ -1739,9 +1800,8 @@ function BoardContent(
                 onPress={toggleAttentionMenu}
               />
             </View>
-            <SortButton
+            {!compact && <SortButton
               mode={boardSort}
-              compact={compact}
               onPress={(event) =>
                 openMenu?.(eventPoint(event), t("Sort cards"), [
                   { kind: "label", id: "label", label: t("Sort cards in each column") },
@@ -1764,17 +1824,19 @@ function BoardContent(
                   },
                 ])
               }
-            />
+            />}
             {project && (
               <IconButton icon="Search" label={withKey(t("Search"), "S")} active={page === "search"} onPress={() => (page === "search" ? setPage(null) : openSearch(""))} />
             )}
             <FilterButton
               count={filterCount}
+              // Phones sort from the Filters dialog, so a non-manual sort lights its icon too.
+              lit={compact && boardSort !== "manual"}
               compact={compact}
               shortcut={shortcutsOn ? "/" : ""}
               onPress={() => setMenu("filters")}
             />
-            {project && (
+            {project && !compact && (
               <Button
                 primary
                 icon="Plus"
@@ -1784,7 +1846,7 @@ function BoardContent(
                   setTaskForm({ status: "todo" })
                 }
               >
-                {compact ? "" : t("New task")}
+                {t("New task")}
               </Button>
             )}
           </View>
@@ -1829,7 +1891,7 @@ function BoardContent(
         )}
         {!emptyProjectHint && !!tip && (
           <GuideBanner
-            text={tipText[tip]()}
+            text={tipText[tip](compact)}
             dismissLabel={t("Got it")}
             onDismiss={() => dismissTip(tip)}
           />
@@ -1893,7 +1955,7 @@ function BoardContent(
           <View style={{ flex: 1, minHeight: 0, flexDirection: "row", ...(resizing ? { userSelect: "none" } : null) } as never}>
             {(
               <MotionReveal
-                transitionKey={`${project.id}|${page || (compact ? mobileStatus : "columns")}`}
+                transitionKey={`${project.id}|${page || (compact ? (touch ? `pick${lanePick}` : mobileStatus) : "columns")}`}
                 direction={-1}
                 distance={compact ? 0 : 18}
                 {...covered}
@@ -1959,45 +2021,24 @@ function BoardContent(
                         leading={<StatusIcon status={mobileStatus} size={16} />}
                         trailing={
                           <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
-                            <Label muted size={font.md} selectable={false}>{laneAll.length}</Label>
+                            <Label muted size={font.md} selectable={false}>{laneOf(mobileStatus).count}</Label>
                             <Icon name="ChevronsUpDown" size={14} color={colors.foregroundMuted} />
                           </View>
                         }
                         onPress={() => setMenu("status")}
                       />
                     </View>
-                    <LaneList
-                      key={mobileStatus}
-                      data={laneRowList}
-                      keyOf={(row) => row.key}
-                      renderItem={(row) =>
-                        row.kind === "task" ? (
-                          renderCard(row.task)
-                        ) : row.kind === "older" ? (
-                          <OlderToggle count={listOlder.length} shown={olderShown.includes(mobileStatus)} onPress={() => toggleOlder(mobileStatus)} />
-                        ) : row.hasOlder ? (
-                          <View style={{ paddingVertical: space[4], alignItems: "center" }}>
-                            <Label muted selectable={false}>{t("No recent tasks")}</Label>
-                          </View>
-                        ) : (
-                          <View style={{ paddingVertical: space[6], gap: space[3], alignItems: "center" }}>
-                            <Label muted selectable={false}>
-                              {filterCount
-                                ? t("No tasks match these filters.")
-                                : t("No tasks in {lane}.", { lane: nameOf(mobileStatus) })}
-                            </Label>
-                            <Button
-                              icon="Plus"
-                              disabled={!!project.archivedAt}
-                              onPress={() =>
-                                setTaskForm({ status: mobileStatus })
-                              }
-                            >
-                              {t("Add task")}</Button>
-                          </View>
-                        )
-                      }
-                    />
+                    {touch ? (
+                      <LanePager<Status>
+                        lanes={shownStatuses}
+                        index={Math.max(0, shownStatuses.indexOf(mobileStatus))}
+                        active={!boardHidden}
+                        onSettle={settleLane}
+                        renderLane={renderLane}
+                      />
+                    ) : (
+                      renderLane(mobileStatus)
+                    )}
                   </>
                 ) : (
                   <DesktopColumns
@@ -2194,6 +2235,31 @@ function BoardContent(
                 ]}
                 onChange={setPriority}
               />
+              {compact && (
+                <View style={{ gap: space[1.5] }}>
+                  <Choices
+                    title={t("Sort cards")}
+                    value={boardSort}
+                    options={boardSorts.map((mode) => ({ value: mode, label: t(boardSortText[mode].label) }))}
+                    onChange={chooseSort}
+                  />
+                  <View style={{ flexDirection: "row" }}>
+                    <Button
+                      small
+                      quiet
+                      icon="LayoutList"
+                      onPress={() => {
+                        setMenu(null);
+                        afterModalClose(() => {
+                          setSettingsSection("cards");
+                          setMenu("settings");
+                        });
+                      }}
+                    >
+                      {t("Card display…")}</Button>
+                  </View>
+                </View>
+              )}
               <Actions>
                 <Button
                   quiet
@@ -2279,6 +2345,7 @@ function BoardContent(
                     </Label>
                   }
                   onPress={() => {
+                    if (s !== mobileStatus) setLanePick((n) => n + 1);
                     setMobileStatus(s);
                     setMenu(null);
                   }}
@@ -2506,6 +2573,9 @@ function BoardContent(
           </CardDetailProvider>
         )}
         {compact && drawerView}
+        {compact && !task && !page && !!project && !project.archivedAt && !!board && (
+          <NewTaskFab onPress={() => setTaskForm({ status: "todo" })} />
+        )}
         {!(compact && task) && (
           <SettingsFab
             open={menu === "settings"}
@@ -2659,7 +2729,7 @@ const sortIcons: Record<BoardSort, string> = {
   title: "ArrowDownAZ",
 };
 
-function SortButton({ mode, compact, onPress }: { mode: BoardSort; compact: boolean; onPress(event: GestureResponderEvent): void }) {
+function SortButton({ mode, onPress }: { mode: BoardSort; onPress(event: GestureResponderEvent): void }) {
   const { colors } = useTheme();
   const custom = mode !== "manual";
   return (
@@ -2677,29 +2747,29 @@ function SortButton({ mode, compact, onPress }: { mode: BoardSort; compact: bool
           height: touch ? 44 : 32,
           minWidth: touch ? 44 : 32,
           justifyContent: "center",
-          paddingHorizontal: compact ? 0 : space[2] + 2,
+          paddingHorizontal: space[2] + 2,
           borderRadius: radius.md,
           backgroundColor: hover || pressed ? colors.surface2 : "transparent",
         };
       }}
     >
       <Icon name="ArrowUpDown" size={15} color={custom ? colors.foreground : colors.foregroundMuted} />
-      {!compact && (
-        <Label size={font.md} medium muted={!custom} selectable={false}>
-          {custom ? t(boardSortText[mode].label) : t("Sort")}
-        </Label>
-      )}
+      <Label size={font.md} medium muted={!custom} selectable={false}>
+        {custom ? t(boardSortText[mode].label) : t("Sort")}
+      </Label>
     </Pressable>
   );
 }
 
 function FilterButton({
   count,
+  lit = false,
   compact,
   shortcut,
   onPress,
 }: {
   count: number;
+  lit?: boolean;
   compact: boolean;
   shortcut: string;
   onPress(): void;
@@ -2727,7 +2797,7 @@ function FilterButton({
         };
       }}
     >
-      <Icon name="ListFilter" size={15} color={count ? colors.foreground : colors.foregroundMuted} />
+      <Icon name="ListFilter" size={15} color={count || lit ? colors.foreground : colors.foregroundMuted} />
       {!compact && (
         <Label size={font.md} medium muted={!count} selectable={false}>
           {t("Filter")}</Label>

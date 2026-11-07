@@ -94,6 +94,25 @@ Three findings of [the live verification](verification/guardrails-live-2026-10-2
 - Running review: a strip opens under the card (dot sweep, `Collapse` expand/fold) instead of the "Reviewing" signal (user request 2026-10-28).
 - Not in P1: L3 LLM review and its model setting (P2). Spec updated where the implementation differs (storage on the task, round reset rule, first-failure stop, settings parsing).
 
+## Launch-time Flowly MCP on Paseo 0.14 (card "paseo tools接入") — 2026-11-06
+
+- [PASEO-SESSION-TOOLS-SPEC](PASEO-SESSION-TOOLS-SPEC.md): research of the 0.14 plugin tools (`defineAgentTool`, launch-only `mcpServers`); user chose route B and Paseo `>=0.14.0` (D1, D2).
+- SDK/protocol/client pinned to 0.14.0, manifest `requirements.paseo >=0.14.0`, README/OVERVIEW requirement updated.
+- `server/session-open.ts` (the `agent.session_open` hook) adds `flowly` at launch from `ToolServer.sessionLaunch` when the context records `launch-mcp` and not `mcp` (saved in the config); failures are logged, never thrown.
+- New sessions no longer save `flowly` in their create config (`client/session.ts`, `client/session-create.tsx`); `ToolPreparation` drops `mcp`. `tools.prepare-existing` records `launch-mcp` only once MCP support is confirmed: an idle session is reloaded and kept only if the live snapshot says so; a running one is never interrupted and gets MCP at its next open.
+- Found while implementing: a stored (not loaded) agent's snapshot always reports `supportsMcpServers: false`, so the hook cannot check the provider itself (spec §4.3).
+- Context `methods` gains `launch-mcp` and keeps unknown values; `tools.access-state` shows it as MCP.
+- No onboarding tour or tip change: nothing new to point at in the UI. No telemetry field: no new switch or action.
+
+## Session preview ui-fence notice (card "Recognize ui blocks in flowly's session preview") — 2026-11-05
+
+- ui/app fenced blocks in agent replies render as a compact collapsed notice — "Inline UI — open in Paseo to view it live" — expandable to the still-selectable source, instead of a plain code dump (`isInlineUiFence` in `client/session-markdown.ts`, `UiFenceBlock` in `client/session-content.tsx`). Detection matches genui's rule: the fence's first language word, case-insensitive, so "```ui"/"```app"/"```APP" are caught and "apples" is not. [SESSION-UX-SPEC](SESSION-UX-SPEC.md) §8 updated.
+- Applies everywhere `SessionMarkdown` renders (card session preview, card descriptions, artifact text). Live rendering stays out of scope by design: plugin timeline transformers only run in the host session view (confirmed again on screen — the same block renders live there).
+- One new string in all nine catalogs; fence-detection tests in `client/session-markdown.test.ts`.
+- Verified: `npm run typecheck`, `npm test` (1222 passed; one `server/tool-server.test.ts` timeout appears only under full-suite load and passes in isolation), focused vitest. Real desktop screenshot of the card session preview showing the collapsed notice: [verification/ui-fence-notice-2026-11-05](verification/ui-fence-notice-2026-11-05/).
+- UNRUN: phone preview (SM-S911B not connected via adb this session) and a pixel capture of the expanded state — the web board's lane pager made card targeting nondeterministic for automation; the expand uses the shared `Collapse`/`Chevron` components. Superseded same day: the user confirmed the notice on the phone with the merged build ([verification/ui-fence-notice-2026-11-05/phone-preview-user-confirmed.jpg](verification/ui-fence-notice-2026-11-05/phone-preview-user-confirmed.jpg)).
+- Onboarding: no tour, tip or What's new change — the notice explains itself in context. Telemetry: no new switch or core action, so no heartbeat field.
+
 ## Search (card "搜索功能") — 2026-10-27
 
 - Focus from search: a hit row opens the card at its section and item (Progress, Activity, Workpad, Ideas, Artifacts), widening Activity's last-12 window, Workpad/Artifacts pages and Ideas → Closed to reach it, then a short accent ring; the stored section choices are untouched ([DRAWER-SPEC](DRAWER-SPEC.md#focus-from-search), `client/drawer-focus.tsx`).
@@ -1080,3 +1099,26 @@ Phase 2 spec: [PHASE-02-SPEC.md](PHASE-02-SPEC.md). Three current-card tools; au
 - 根因：Paseo 0.13 的 `publishAgentStream` 对 turn_completed/failed/canceled 一律发 `timeline: []`（SDK 类型仍声明该字段，所以编译无报错）。`SummaryService.enqueue` 对空文本直接返回，无错误记录。同一个空数组还影响 `byUser`/`pick`（Agent habits）、记忆线索、workpad 计划、外部会话 insights。
 - 修复：`server/turn-timeline.ts` 在空时读 timeline 最新一页的最后一轮，`agent.turn_ended` 入口统一使用；`agent.turn_ended` 的 `byUser` 在 10-26 起的事件里被记成 false，未回填。
 
+
+## 2026-11-01 Android 返回键逐级回退
+
+- 用户反馈：Android 返回键在任何位置都直接关闭 Flowly。按 [UI-UX-SPEC §5](UI-UX-SPEC.md#5-phone-and-narrow-layouts) 2026-11-01 Android Back 条：返回键与 Esc 走同一条 `runIntent("escape")`，session 视图 → 卡片 → 页面/看板，看板根部才交给 Paseo。
+- `client/android-back.ts`：仅 Android 订阅 `BackHandler`；每次按下先通过 React fiber 找到 Flowly 所在屏幕的 react-navigation 导航对象并调用 `isFocused()`，Paseo 推入的 agent/workspace 屏幕在上面时不接管。找不到或出错时返回 false，保持宿主行为。fiber 遍历抽到 `client/host-fiber.ts`，与 `host-horizontal-scroll.ts` 共用。AGENTS.md 已加例外。
+- 未处理（未加代码）：宿主侧边栏盖在 Flowly 上时按返回会关掉其后的卡片；宿主弹窗呈现动画期间（约 300 ms）按返回由 Flowly 处理。
+- 引导：标准平台行为，不加提示、不改导览。What's new：补丁版本不加。遥测：不加字段。无新字符串。
+- 测试：`client/android-back.test.ts`（最近的屏幕导航对象、忽略相似对象、抛错的树）。
+
+## 2026-10-31 手机看板左右滑动切换 lane
+
+- 用户要求：手机看板左右滑动切换 lane，不能和 Paseo 滑动打开侧边栏冲突；参照 better-paseo，只有在最左的 lane 才触发侧边栏。按 [UI-UX-SPEC §5](UI-UX-SPEC.md#5-phone-and-narrow-layouts) 2026-10-31 lane swipe 条（替换原“不做横向分页”的规则）。
+- `client/lane-pager.tsx`：iOS/Android 上 lane 是原生横向分页 `ScrollView` 的页，顺序与状态菜单一致，跟手滑动，松手停在最近的 lane 并更新 `mobileStatus`。只挂载当前 lane，闲置 400 ms 后再挂载左右各一个，其余页是空占位。从状态菜单选择直接跳过去，保留原来的淡入（`lanePick`）。Web 不变。
+- 侧边栏：离开第一个 lane 时，`client/host-horizontal-scroll.ts` 通过 React fiber 找到 Paseo 的 `HorizontalScrollContext`，登记横向偏移 100，宿主的右滑打开侧边栏手势随即失败，右滑由分页处理。回到第一个 lane、卡片盖住看板、或卸载时注销。找不到注册表时什么都不做，也不报错。AGENTS.md 已加这条依赖 Paseo 内部实现的例外。
+- 引导：新增一次性提示 `lane-swipe`（"Swipe left or right to switch lanes."，9 个目录），排在 first-card 之后、card-display 之前；滑到别的 lane 也算看过。导览不变。What's new：补丁版本不加。遥测：不加字段（纯手势，不是开关或核心动作）。
+- 测试：`client/host-horizontal-scroll.test.ts`（找到注册表、忽略相似对象、环形树和抛错的树）、`lane-rows.test.ts` 的 `settledPage`、`onboarding-logic.test.ts` 的提示顺序。
+
+## 2026-10-31 手机看板顶栏精简
+
+- 用户反馈：手机顶栏右侧按钮太多，项目名显示不全。按 [UI-UX-SPEC §5](UI-UX-SPEC.md#5-phone-and-narrow-layouts) 2026-10-31 条：紧凑顶栏只留项目选择、Attention、搜索、筛选；New task 改为右下角悬浮按钮（`client/new-task-fab.tsx`，仅在看板列表可见），排序和 Card display… 移入筛选面板，项目设置走项目选择面板的 Edit。桌面端不变；无 RPC/存储改动。
+- 已运行：typecheck、npm test（148 files / 1291 passed / 1 skipped）、make check；web 紧凑宽度截图。未运行：Android 真机（未连接）。[验证记录](verification/mobile-header-2026-10-31/report.md)。
+- 引导：不改导览。`card-display` 提示在紧凑布局改为指向 “Filters → Card display”（桌面仍是 Sort 菜单），新字符串已加入 9 个目录，ONBOARDING-SPEC 提示表同步。What's new / 遥测：无。
+- 润色（同日）：Low/Normal 优先级图标改为 `ArrowDown`/`Minus`（原信号格图标几乎看不见）；分组标题折叠摘要贴行尾右对齐（`SectionHeader`、`Disclosure`）；Ideas/Memory 来源行的状态不再折行。typecheck、npm test（1291 passed, 1 skipped）、make check 均 exit 0；impeccable detect 无发现。真机未验证。证据：`docs/verification/mobile-header-2026-10-31/report.md`。

@@ -23,7 +23,7 @@ export interface WhatsNewRelease {
  */
 export const whatsNew: WhatsNewRelease[] = [
   {
-    // SEARCH-SPEC §8, GUARDRAILS-SPEC §10.
+    // SEARCH-SPEC §8, GUARDRAILS-SPEC §10, CONNECTORS-SPEC §14.
     version: "1.8.0",
     items: [
       { icon: "Search", text: msg("Search past cards, summaries, notes, workpads, ideas and deliverables. Agents can search them too.") },
@@ -38,6 +38,11 @@ export const whatsNew: WhatsNewRelease[] = [
         text: msg("Flowly learns from what you send cards back for: the second card with the same problem turns it into a project guideline, checked on every delivery it applies to."),
       },
       { icon: "BookMarked", text: msg("Memory no longer needs confirming; what agents remember takes effect at once and retires by itself when unused.") },
+      {
+        icon: "PlugZap",
+        text: msg("Shortcut stories and epics can now be card inputs, next to Jira, Confluence, GitHub, GitLab and Azure DevOps."),
+        action: { label: msg("Open settings"), to: "settings", section: "connections" },
+      },
     ],
   },
   {
