@@ -27,6 +27,24 @@ Status: the user requested this on 2026-10-15 and chose option A, a temporary di
   - `workspace_restore_skipped`: unreachable daemon, unrecoverable workspace, or failed restore, with the reason. Skips are recorded only when the plugin's own wrap-up archived the workspace.
   - Silent when the workspace is not archived, which leaves nothing to do.
 
+## Unwrap in place
+
+User request 2026-11-10 (card "Done 卡片支持 Unwrap up"): a wrapped-up card kept on the board can get its workspace and sessions back without leaving Done/Cancelled, so a mistaken wrap-up costs one press.
+
+- **Entry**: the sidebar's *Wrapped up* block has an **Unwrap** button. It calls RPC `tasks.unwrap` (`{ id }` → `{ restored: boolean, failed: string[] }`).
+- **Preconditions**, checked on the daemon:
+  - the card exists (`Task not found.`), is not archived (`Card is archived.`) and is in Done or Cancelled (`Only Done or Cancelled cards can be unwrapped.`); a card outside them is restored by moving it, above;
+  - the card is currently wrapped up (`currentWrapup` in `shared/wrapup-state.ts` is not null). Otherwise the call is a silent no-op: `{ restored: false, failed: [] }`, no Paseo connection, no activity. This covers a second press and a card already unwrapped.
+- **What it restores**: the same as reopening (scope, Paseo behavior, session window). The card stays in its lane and its revision is unchanged.
+  - The workspace is restored only when the plugin's wrap-up archived it or the card owns it. A shared workspace (e.g. the project main) is never restored; when the wrap-up kept it, only the sessions come back.
+  - A workspace that is already active counts as success: only sessions are revived.
+- **Activity** (actor `human`):
+  - success: `workspace_restored`, with the same note as a reopen (`Workspace already active` when nothing was restored). This ends the wrapped-up state, so the sidebar shows *Finished* again with its Wrap up button.
+  - sessions that fail to revive are listed in the note and returned in `failed`; the workspace and the other sessions still count as restored. The client shows them as an error.
+  - `workspace_restore_skipped` with the reason when Paseo is unreachable, the workspace is unrecoverable, it was archived outside this card's wrap-up, or the restore fails. The RPC then fails with the same reason; the card stays wrapped up and can be retried.
+- **Concurrency**: shares the per-card lock with the reopen restore; concurrent presses run one restore and get the same result.
+- **Auto wrap-up**: runs only when a card enters Done/Cancelled from another lane (`afterStatus` in `index.server.ts`); there is no background scan or restart sweep. An unwrapped card staying in Done is therefore not wrapped up again until it leaves and re-enters Done/Cancelled.
+
 ## Temporary transport: COMPAT(sdk-workspace-restore)
 
 `@getpaseo/client` 0.11.2 gives plugins `PaseoApi.workspaces` with only list/open/create/archive. Its agent handle `refresh()` only re-fetches; it does not unarchive. The `paseo` CLI has no restore command either. The daemon does serve `workspace.recovery.inspect/restore` and agent refresh, and `DaemonClient` exposes them as `inspectWorkspaceRecovery` / `restoreWorkspace` / `refreshAgent`.
@@ -50,5 +68,6 @@ This departs from "use the supplied Paseo SDK"; AGENTS.md lists it as an explici
   - concurrent moves restore once;
   - only wrap-up sessions are revived (summarizer and earlier archives skipped);
   - an already-active workspace still gets its sessions back;
-  - a failed revive is reported while the others come back.
+  - a failed revive is reported while the others come back;
+  - unwrap in place: restores while the card stays in Done and records `workspace_restored`; a kept shared workspace is not restored (only sessions); a card not wrapped up is a silent no-op; unreachable, unrecoverable and failed restores are recorded and rejected; concurrent presses restore once; cards outside Done/Cancelled or archived are rejected.
 - End-to-end against the installed plugin (`docs/verification/fixtures/workspace-restore/e2e.mjs`): [verification](verification/workspace-restore.md).
