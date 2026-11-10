@@ -1,5 +1,14 @@
 # Implementation progress
 
+## Auto wrap up on for new installs (card "Done 卡片支持 Unwrap up", step 2) — 2026-11-10
+
+- How the setting is stored: Paseo saves only the values a user changed (`wrap-up.json` is `{"version":1,"values":{...}}`), readers fill the rest from schema defaults, and the daemon cannot write settings. Changing `default(false)` would therefore have turned it on for every existing user who never touched it, so the default stays off.
+- Instead, the first, auto-opened welcome tour writes `autoWrapup=true` when it closes, but only if no value is stored yet (`firstRunWrapup` in `client/onboarding-logic.ts`, through `saveSure`, which now also accepts a patch function). This is the same pattern as the outside-session switches (ONBOARDING-SETUP-SPEC D3).
+- Also updated: a More features line, the `first-done` tip text, and README and OVERVIEW.md. Two strings were added to all 9 catalogs and the old tip string was removed. No new tip id. There is no What's new entry: per the user's decision (2026-11-10), the release task writes it.
+- Telemetry: `f_auto_wrapup` already exists, so the heartbeat is unchanged. The version was not bumped.
+- Checks: `npm run typecheck` passed (exit 0) and `npm test` passed (exit 0; 153 files, 1353 passed, 6 skipped). The plugin reloaded and runs.
+- Not run: a UI pass of the first-run tour on a clean host, and an independent verification.
+
 ## Telemetry error fixes (card "近期error排查") — 2026-11-10
 
 - 30 days of `$exception` reports grouped by source, type, frames and version: [verification/telemetry-errors-2026-11-10.md](verification/telemetry-errors-2026-11-10.md). Every report still arriving from 1.8.0 comes from the local daemon connection.

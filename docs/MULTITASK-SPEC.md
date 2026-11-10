@@ -79,7 +79,8 @@
 
 用户要求：卡片移到 Done 或 Cancelled 时默认询问是否 wrap up，同意则归档 workspace；设置中可改为自动归档。
 
-- 设置：host 设置 `wrap-up.autoWrapup`（Ultra Kanban settings → Finishing cards → Auto wrap up），默认关闭。
+- 设置：host 设置 `wrap-up.autoWrapup`（Settings → Workflow → Finishing cards → Auto wrap up）。schema 默认值仍是关（`default(false)`）：Paseo 只把用户改过的值写进 `~/.paseo/plugin-settings/flowly/wrap-up.json`（如 `{"version":1,"values":{"autoWrapup":true}}`），读取时缺的键取 schema 默认值，daemon 也写不了设置，所以直接改默认值会让所有没碰过它的老用户一起变成开。
+- 新安装默认开启（2026-11-10，用户决定：有了就地 Unwrap，误收尾只需点一下即可撤回）：首次导览（自动弹出的那次，只有新用户会看到）以任何方式关闭时，若 `wrap-up` 里还没有 `autoWrapup`，写入 `autoWrapup=true`（ONBOARDING-SETUP-SPEC §4，与外部 session 开关同一时机）。已有用户、手动打开的导览、已存过选择的用户都不写，未设置仍等于关；老用户在设置里自己开启（发版时由 What's new 告知）。
 - 触发：人在看板（菜单 Move to、拖拽放置）、侧栏状态、编辑表单中把卡片从非 Done/Cancelled 改为 Done 或 Cancelled。Done ↔ Cancelled 之间互相移动不触发。
 - **关闭（默认）**：该客户端在状态写入成功后弹出 “Wrap up this card?”：
   - 先跑 Wrap up 检查，展示阻止项/警告，规则与手动 Wrap up 相同（有警告时按钮为 “Wrap up anyway”）。
