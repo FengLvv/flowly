@@ -3,7 +3,8 @@
 CI is in `.github/workflows/ci.yml`. PRs and main pushes run Node
 22 and 24 typecheck + Vitest + release guard tests on Ubuntu. Node 24 also packs,
 inspects and installs the actual npm tarball with the plugin manifest commands.
-`CI gate` is the required branch check. Artifacts expire after 7 days.
+`CI gate` and `CodeRabbit` (the CodeRabbit app's review check) are the required
+branch checks. Artifacts expire after 7 days.
 
 No separate application compilation is shipped: Paseo compiles the TypeScript
 plugin entry points on install/load. This CI verifies types and package install;
@@ -18,7 +19,7 @@ package two-factor authentication enabled. The publishing job uses Node 24 and
 npm >=11.5.1; other jobs have neither OIDC nor release write permission.
 
 The `npm` GitHub environment permits main and v* release tags. Main is
-protected with `CI gate`; force pushes and branch deletion are disabled.
+protected with `CI gate` and `CodeRabbit`; force pushes and branch deletion are disabled.
 Changes go through a PR; no second human review is required for this solo repo.
 
 References: [npm trusted publishers](https://docs.npmjs.com/trusted-publishers/),
