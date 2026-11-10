@@ -1156,3 +1156,12 @@ Phase 2 spec: [PHASE-02-SPEC.md](PHASE-02-SPEC.md). Three current-card tools; au
 - `docs/promo/shot-lib.mjs`：`open()` 的 Flowly 入口与项目 tab 改为按横向带（侧栏 / 插件 tab 行）精确文本定点点击，找不到即抛错，不再静默停在错误项目；看板就绪等待改为 testID/aria-label（不依赖语言）。新增 `openCard(s, title)`（仅凭标题：`getByRole("button", { name: /^Open task {title}\./ })` 点击并等待 `task-drawer-motion` 显示该标题）与 `closeCard(s)`（Esc + 等 pointer-events 失效）。
 - 测试：`client/card-label.test.ts`（标题+泳道开头、无泳道省略、信号段顺序、优先级/类型段）。验证脚本 `docs/verification/board-card-open-2026-11-05/run.mjs`：真机 web 上仅凭标题连续 5 次打开并关闭指定卡片侧栏（真实 flowly 项目——本机 daemon 未建过 Tinylink fixture），详见该目录 report。
 - 引导：无 UI/入口变化，不加导览、提示或 What's new。遥测：不加字段。无新用户可见字符串（lane 名为已有本地化数据）。性能：仅多一个字符串段与既有 testID 属性，卡片 memo 比较含 lane 字符串。
+
+## 2026-11-10 项目设置 lane 拖拽手柄修复
+
+- 来源卡：project设置lane调整交互修复。症状：Edit project → Lanes 拖手柄排序常不生效。原因：`SortableList` 手柄模式只在指针仍在 16×14 的手柄上移动满 6 px 时才接管（`onMoveShouldSetPanResponderCapture`），快速拖动时第一批 move 事件已落在手柄外的行/输入框上，手势从未开始。
+- [x] `client/sortable-list.tsx`：手柄模式在鼠标按下时即接管 responder（`onStartShouldSetPanResponder`），之后的 move 无论指针在哪都送达；拖动仍在移动 6 pt 后才开始，单击不抬起、不改顺序。整行可按模式（project tabs）不变。`client/lane-editor.tsx`、`client/card-settings.tsx` 手柄改为 24 宽、撑满行高、`userSelect: none`。契约见 [UI-REFRESH-SPEC](UI-REFRESH-SPEC.md) Lanes 条。
+- [x] `npm run typecheck` 0；`npm test` 153 文件 / 1344 通过、6 跳过。
+- [x] Web 实测（Tinylink，shot-lib，Playwright，表单未保存直接关闭）：按住 Todo 手柄先横移 40 px 离开手柄再下拉 100 px → Todo 移到 Development 之后；单击 Design 手柄不改顺序。同一脚本在修复前代码上顺序不变（复现原问题）。
+- [ ] 未跑：Card sidebar 布局设置与 project tabs 拖拽的实机回归（共用同一组件，逻辑路径仅手柄模式变化）；触屏仍用箭头，不受影响。
+- 引导/What's new/遥测：bug 修复，不加。无新字符串。
