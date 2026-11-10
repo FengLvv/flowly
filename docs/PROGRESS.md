@@ -1,5 +1,17 @@
 # Implementation progress
 
+## Auto wrap up first-run write fixed (card "Done 卡片支持 Unwrap up", step 2) — 2026-11-10
+
+- A UI test on an isolated daemon (separate home, port 6868, empty board) showed that the first-run tour never wrote `wrap-up.json`. The host hands plugins schema output with defaults filled in, so `autoWrapup` was always `false` and `firstRunWrapup` read it as "already chosen". The unit test missed this because it passed raw objects.
+- Fix: `autoWrapup` is `z.boolean().optional()`, and `wrapupSettingsValues` maps unset to off. A new test feeds `wrapupSettings.schema.parse(...)`, which is what the host hands out.
+- UI results on the isolated daemon, after the fix:
+  - Fresh install, tour closed from its last page (Create project): `{"autoWrapup":true,"archiveOnDelete":false}`.
+  - Fresh install, Skip on the first page: the same.
+  - Stored `{"autoWrapup":false}`, Skip: unchanged.
+  - Stored `{"autoWrapup":false,"archiveOnDelete":true}`, last page: unchanged.
+  - Before the fix, the same run wrote no `wrap-up.json`.
+- The fixture daemon, its home and its temp directory were removed. The real `~/.paseo` settings were never touched.
+
 ## Auto wrap up on for new installs (card "Done 卡片支持 Unwrap up", step 2) — 2026-11-10
 
 - How the setting is stored: Paseo saves only the values a user changed (`wrap-up.json` is `{"version":1,"values":{...}}`), readers fill the rest from schema defaults, and the daemon cannot write settings. Changing `default(false)` would therefore have turned it on for every existing user who never touched it, so the default stays off.

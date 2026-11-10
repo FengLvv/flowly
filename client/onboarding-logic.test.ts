@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { TIPS_SEEN_MAX, firstRunOutside, firstRunWrapup, loopAutoStep, nextTip, outsidePatch, outsideShown, settingsHintDue, stepPage, tipIds, tourKey, welcomeDecision, welcomePageCount, withTipSeen, type TipFacts } from "./onboarding-logic";
-import { featureSettingsValues, nativeSessionSettingsValues, onboardingSettingsValues, wrapupSettingsValues } from "../shared/settings";
+import { featureSettingsValues, nativeSessionSettingsValues, onboardingSettingsValues, wrapupSettings, wrapupSettingsValues } from "../shared/settings";
 
 const base = { settingsStatus: "ready", welcomeSeen: false, boardLoaded: true, projectCount: 0, blocked: false };
 
@@ -216,6 +216,12 @@ describe("tour setup (ONBOARDING-SETUP-SPEC)", () => {
     expect(firstRunWrapup({ archiveOnDelete: true })).toEqual({ autoWrapup: true });
     expect(firstRunWrapup({ autoWrapup: false })).toBeNull();
     expect(firstRunWrapup({ autoWrapup: true })).toBeNull();
+  });
+  test("the host's schema-parsed values still show an unset Auto wrap up as unset", () => {
+    // The host hands out schema output, defaults filled in; a missing wrap-up.json must still be "no choice".
+    expect(firstRunWrapup(wrapupSettings.schema.parse({}))).toEqual({ autoWrapup: true });
+    expect(firstRunWrapup(wrapupSettings.schema.parse({ archiveOnDelete: true }))).toEqual({ autoWrapup: true });
+    expect(firstRunWrapup(wrapupSettings.schema.parse({ autoWrapup: false }))).toBeNull();
   });
   test("an existing user who never touched Auto wrap up keeps it off", () => {
     expect(wrapupSettingsValues({}).autoWrapup).toBe(false);
