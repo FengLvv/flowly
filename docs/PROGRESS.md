@@ -1165,3 +1165,15 @@ Phase 2 spec: [PHASE-02-SPEC.md](PHASE-02-SPEC.md). Three current-card tools; au
 - [x] Web 实测（Tinylink，shot-lib，Playwright，表单未保存直接关闭）：按住 Todo 手柄先横移 40 px 离开手柄再下拉 100 px → Todo 移到 Development 之后；单击 Design 手柄不改顺序。同一脚本在修复前代码上顺序不变（复现原问题）。
 - [ ] 未跑：Card sidebar 布局设置与 project tabs 拖拽的实机回归（共用同一组件，逻辑路径仅手柄模式变化）；触屏仍用箭头，不受影响。
 - 引导/What's new/遥测：bug 修复，不加。无新字符串。
+
+## 2026-11-10 Done 卡片就地 Unwrap
+
+- 来源卡：Done 卡片支持 Unwrap up（第一步；默认开启 Auto wrap up 为第二步，待本改动合入后另做）。规格：`docs/WORKSPACE-RESTORE-SPEC.md` “Unwrap in place”，`docs/MULTITASK-SPEC.md` 已收尾状态。
+- [x] 核实：自动收尾只在卡片从其它列进入 Done/Cancelled 时由 `index.server.ts` `afterStatus` 触发，无后台扫描或重启重扫；Unwrap 后留在 Done 的卡片不会被再收一遍。
+- [x] `server/workspace-restore.ts`：`WorkspaceRestoreService.unwrap` 与移出 Done 的恢复共用同一流程和每卡锁；手动入口要求卡片在 Done/Cancelled、未归档，未处于已收尾状态时静默返回；成功（含工作区本就活着、只回来会话）记 `workspace_restored`（actor human），失败/跳过记 `workspace_restore_skipped` 并以原因拒绝。新 RPC `tasks.unwrap`。
+- [x] 侧栏 Wrapped up 块：说明精简为“归档了什么（时间）”，加 Unwrap 按钮；成功 toast “Unwrapped”，有会话未恢复时显示错误。5 条新字符串补齐 9 个目录。README 的 wrap-up 一句补上 Unwrap。
+- [x] `npm run typecheck` 0；`npm test` 153 文件 / 1351 通过、6 跳过（含 `server/workspace-restore.test.ts` 新增 7 个 Unwrap 用例）。注意：工作区同时有其它会话未提交的改动（`client/native-popovers.tsx`、`docs/NATIVE-SESSION-SPEC.md` 等），全量测试跑在混合树上。
+- [x] 本机已装插件端到端（`docs/verification/unwrap-2026-11-10/`，基于 602f5f4 加未提交改动）：在 Tinylink 里新建一张 worktree fixture 卡片和一个 Haiku 会话，移到 Done 后被自动收尾；在桌面侧栏点 Unwrap 后，同一工作区 ID 恢复、worktree 在原分支重建、会话解档，卡片仍在 Done 且 revision 不变，10 秒内没有再次自动收尾，手机宽度侧栏显示 Finished。结果 22/22 PASS，exit 0。fixture 卡片、会话、worktree 和分支都已清理，Tinylink 原有卡片不受影响。
+- 端到端测出并修复：Unwrap 后侧栏仍显示 "Workspace is unavailable or archived."（工作区查询缓存的还是归档状态）；现在 Unwrap 后会像 Refresh details 那样重新读取。
+- [ ] 未跑：真机手机（只在浏览器手机宽度下验证）、独立会话复验。
+- 引导/提示/What's new：本步不加，Unwrap 只在已收尾卡片的侧栏里出现、按钮自明；第二步默认开启 Auto wrap up 时一并更新 `first-done` 提示、导览和 What's new。遥测：不加字段，第二步再定。
