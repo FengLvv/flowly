@@ -109,7 +109,7 @@ The interface follows your device language, or pick one in **Flowly settings →
 
 ## Quick start
 
-The first time you open Flowly, a short welcome tour explains projects, cards and sessions and sets the basics: interface and AI output language, the progress model, whether progress, next steps and ideas also apply to sessions outside Flowly (on by default; each of their turns then runs the summary model once), and whether Guardrails and Insights are on. Skip keeps the defaults. Change any of it later from the gear at the bottom left.
+The first time you open Flowly, a short welcome tour explains projects, cards and sessions and sets the basics: interface and AI output language, the progress model, whether progress, next steps and ideas also apply to sessions outside Flowly (on by default; each of their turns then runs the summary model once), and whether Guardrails and Insights are on. Closing it also turns on *Auto wrap up* unless you already chose. Skip keeps the defaults. Change any of it later from the gear at the bottom left.
 
 1. **New project**: pick a directory (or several repositories) to register as a native Paseo project.
 2. **New task**: describe the work; optionally start an agent together with the card.
@@ -121,7 +121,7 @@ The first time you open Flowly, a short welcome tour explains projects, cards an
 - **One card = one workspace**, with any number of sessions in it. You choose which session receives an instruction; ordinary follow-ups send exactly what you type.
 - **Agent tools.** Sessions created from a card get scoped MCP tools: `flowly_get_task`, `flowly_update_status`, `flowly_report_progress`, `flowly_propose_idea`, `flowly_suggest_next_moves`, `flowly_set_tags`, `flowly_set_type`, `flowly_add_artifact`, `flowly_remove_artifact`, `flowly_update_workpad`, `flowly_search` and `flowly_read_external` (`flowly_read_ticket` remains as an alias for older sessions), plus the `flowly` skill that explains them. An agent can move its card between the work stages and In review; a person decides Done and Cancelled. The call that delivers or asks (`flowly_update_status`, `flowly_report_progress`) can also carry `nextMoves`, the suggested next steps shown above the message box, or `[]` when nothing needs the user. A CLI fallback is provided for sessions without MCP.
 - **Card status and session status are independent.** A turn ending never completes a card.
-- **Also included:** drag and drop (including within a column), card links (follow-up, blocks, related), task types and priorities, wrap-up of Done cards (archive their sessions and own workspace, after a preflight; Unwrap brings them back in place), keyboard shortcuts (`?`), per-card token usage, a compact phone layout, and *Settings → Cards* to choose what board cards show (with a live preview).
+- **Also included:** drag and drop (including within a column), card links (follow-up, blocks, related), task types and priorities, wrap-up of Done cards (archive their sessions and own workspace, after a preflight; Unwrap brings them back in place; *Auto wrap up* does it without asking when nothing is left unsaved, on for new installs, *Settings → Workflow*), keyboard shortcuts (`?`), per-card token usage, a compact phone layout, and *Settings → Cards* to choose what board cards show (with a live preview).
 
 ### Models
 

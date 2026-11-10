@@ -28,7 +28,11 @@ References: [npm trusted publishers](https://docs.npmjs.com/trusted-publishers/)
 
 1. Merge reviewed changes and green CI into main. Work from a clean checkout
    synchronized with origin/main.
-2. The version is bumped only here, never in feature, fix or docs PRs (a bumped
+2. For a minor or major release, first summarize the main user-visible changes
+   from the previous release tag to the current main: write the release notes
+   and, when existing users would otherwise miss something, the What's new entry
+   in `client/whats-new.ts` (feature PRs never add it; `docs/WHATS-NEW-SPEC.md`).
+   The version is bumped only here, never in feature, fix or docs PRs (a bumped
    `main` makes unreleased dev builds report the new version in telemetry).
    On a release branch run `make bump VERSION=1.5.0` (or `1.5.0-rc.1`; it also sets `shared/version.ts`),
    commit package.json/package-lock.json and merge that PR after CI passes. Then

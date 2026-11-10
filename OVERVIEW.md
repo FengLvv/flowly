@@ -34,6 +34,10 @@ Auto review is on for new projects and off for existing ones until you turn it o
 
 Guidelines grow from the cards you send back: the second card returned for the same problem turns it into a project guideline. Project memory (decisions, pitfalls, conventions, contacts) is saved by agents or by the review of a finished card and takes effect at once in new sessions' first instructions; unused entries retire by themselves. You can edit, pause, archive or delete any guideline or memory entry, and turn guardrails or memory off per project. Both are stored in the plugin's data folder on your machine, never in the repository.
 
+## Auto wrap up
+
+Auto wrap up is on for new installs (set when the first welcome tour closes) and off for existing users until they turn it on in Settings → Workflow. When a card moves to Done or Cancelled and no session is running and no work is uncommitted or unpushed, Flowly archives that card's sessions and its own workspace in Paseo; a worktree directory may then be removed, its branch is kept. The project's shared workspace is never archived. **Unwrap** in the card brings the workspace and sessions back without moving it out of Done.
+
 ## Skills
 
 Skills are on by default; turn them off in the welcome tour or Settings → AI features. Once a week, the model you choose in Settings reads the project's cards, project memory and the redacted shell commands agents ran, and drafts reusable skills from practices that keep coming back. Drafts only appear on the Insights page. Flowly writes files into your project only when you click **Add to project**: the skill goes to `.agents/skills/<name>/` with a symlink under `.claude/skills/`. Flowly never commits or pushes it, and never edits skills you wrote yourself. Later runs propose updates to the skills Flowly added, shown as a diff.
