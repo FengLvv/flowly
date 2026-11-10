@@ -249,7 +249,7 @@ Content-Type: application/json
 **Flowly 之外的失败**（`outsideError`，`server/error-report.ts`）在 RPC 和 `logFailure` 两处都只记日志、不上报（2026-10-27，卡片“遥测错误分析”：前两天 34 条事件里约一半属于这类，代码修不了）：
 
 - `DaemonConnectionError`：到 Paseo daemon 的连接断开（daemon 重启时进行中的请求）。宿主的 client 是另一份代码，所以按 `name` 判断；
-- `LocalDaemonUnavailable`：本地连接（`server/local-daemon.ts`）没有地址（Paseo 的 supervisor 正在重启 daemon，`paseo.pid` 的 `listen` 为 `null`）或没有本地凭据；
+- `LocalDaemonUnavailable`：本地连接（`server/local-daemon.ts`）没有地址（Paseo 的 supervisor 正在重启 daemon，`paseo.pid` 的 `listen` 为 `null`）、没有 `paseo.pid`（daemon 没在运行）、`paseo.pid` 重试后仍是空的或写了一半（Paseo 原地改写这个文件，见 WORKSPACE-RESTORE-SPEC 第 1 步）、daemon 不应答连接（超时、拒绝、连接关闭；关了自动重连的 client 这时抛普通 `Error`），或没有本地凭据。daemon 拒绝本地凭据（`DaemonAuthenticationError`）和连上之后 Paseo 版本缺少所需方法的错误照常上报（2026-11-10，卡片“近期error排查”）；
 - `SummaryModelError`：所有摘要模型都失败或没有可用模型（provider 的问题，卡片或洞察里会显示错误）。
 
 ### 11.3 事件内容（白名单）
@@ -269,6 +269,7 @@ Content-Type: application/json
 - `paseo_version`：插件 SDK 不提供宿主版本（`COMPAT(sdk-paseo-version)`），所以用 `server/paseo-version.ts` 开一次短连接（同 `server/local-daemon.ts`，AGENTS.md 的本地连接例外），读 daemon 在连接时发来的 `server_info.version`，只保留符合 `^\d+\.\d+\.\d+(?:[-+.][\w.-]{1,20})?$` 的值。成功后在内存里缓存到 daemon 重启；取不到（连不上、没有凭据、格式不符）时发 `""`，下一条错误再试，不影响上报。bundle 行号取决于 Paseo 的版本（它自带的 esbuild 和包装头），所以还原行号时用这个值作 `--paseo`。
 - `type`：`error.name`，符合标识符格式（`^[A-Za-z_$][\w$]{0,60}$`）才用，否则为 `Error`；抛出的不是 `Error` 时为 `NonError`。
 - `value`：`error.code` 符合 `^[A-Z][A-Z0-9_]{1,40}$`（如 `ENOENT`、`SQLITE_BUSY`）时为它，否则为 `""`。**从不发送错误消息**：消息里常有路径、标题或命令。
+  - 例外：`DaemonRpcError`（Paseo RPC 返回错误，`@getpaseo/client`；宿主的 client 是另一份拷贝，所以按 `name` 识别）时为 `请求类型:错误码`（如 `fetch_agent_timeline_request:agent_refresh_failed`），取自它的 `requestType` 和 `code` 字段，转成小写后整段符合 `^[a-z][a-z0-9_.]{0,59}$` 才保留，否则该部分为空（不截取、不删字符拼成标识符）；没有错误码时只有请求类型。它的消息含服务端的错误文本，同样不发送（2026-11-10，卡片“近期error排查”）。
 - `handled`：未捕获异常为 `false`，其余为 `true`。
 - `frames`：只保留 Flowly 自身文件的帧，最多 20 个，按最早的调用在前排列。"自身文件"指在插件目录下、且不在 `node_modules` 里的文件；插件目录在运行时从 `server/error-report.ts` 自己的堆栈帧推出（从源码加载时是 `server/` 的上一级，打包加载时是包文件所在目录），所以不依赖 Paseo 的加载方式。Paseo 0.13 把插件服务端编成一个 esbuild bundle，再用 `eval` 执行（`bundle-evaluator.js`，没有文件名和 source map），这时帧的形式是 `eval at evaluateBundle (…), <anonymous>:行:列`：插件目录记为 bundle 模式，这类帧的 `filename` 固定为 `flowly-bundle.js`，`lineno`/`colno` 是 bundle 内的位置，函数名照常保留（2026-10-26 Coder 端到端测试发现）。其他插件的 eval 帧形式相同、无法区分，只可能出现在未捕获异常里，接受这一点。每帧只有 `filename`（相对插件目录的路径，如 `server/service.ts`）、`function`（符合 `^[\w$.<> ]{1,80}$` 才保留，否则为 `""`）、`lineno`、`colno`、`in_app: true`、`platform: "node:javascript"`。插件目录本身和插件以外的任何路径都不发送。
 

@@ -1,5 +1,14 @@
 # Implementation progress
 
+## Telemetry error fixes (card "近期error排查") — 2026-11-10
+
+- 30 days of `$exception` reports grouped by source, type, frames and version: [verification/telemetry-errors-2026-11-10.md](verification/telemetry-errors-2026-11-10.md). Every report still arriving from 1.8.0 comes from the local daemon connection.
+- `server/local-daemon.ts`: `paseo.pid` is read again (10 × 50 ms, like Paseo's `readPidLock`) while Paseo rewrites it in place; a missing or still unreadable file and a connection the daemon does not complete are `LocalDaemonUnavailable` (logged, not reported). A rejected local credential (`DaemonAuthenticationError`, found by the independent Haiku check) and a Paseo without the needed methods stay reported. [WORKSPACE-RESTORE-SPEC](WORKSPACE-RESTORE-SPEC.md) step 1, [TELEMETRY-SPEC §11.2](TELEMETRY-SPEC.md).
+- `DaemonRpcError` reports (6 in 30 days, 4 installs, unknown cause) now carry `value` = `requestType:code` from the error's fields, lowercased, each part kept only when wholly `^[a-z][a-z0-9_.]{0,59}$`; never the message. No new property: the `$exception` key set is unchanged. [TELEMETRY-SPEC §11.3](TELEMETRY-SPEC.md). The in-app notice is unchanged (a Paseo request name is not user content); README and OVERVIEW.md now say a failed Paseo request sends the request's name.
+- Independent check of eb62c81 (before the two items above): [verification/telemetry-errors-2026-11-10-verify.md](verification/telemetry-errors-2026-11-10-verify.md), pass with notes; its Medium finding (auth failures hidden) is fixed, the timing-dependent retry test now waits within a 200 ms retry.
+- Open, proposed as an idea: Windows linked roots (`symlink` EPERM without Developer Mode).
+- Onboarding and heartbeat fields: none (internal fixes; nothing new to learn or count).
+
 ## Auto review reads every repository of a linked root — 2026-11-07
 
 - Bug: in a linked root (PROJECT-PICKER-SPEC) the workspace directory is not a Git repository, so the review's `git diff`, HEAD and `ls-files` were empty, the shape was 0 and the commands ran in a folder without code (Admin+SMITH, 2026-10-30: "diff is empty, this workspace is not a git repository").
