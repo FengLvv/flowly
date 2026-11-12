@@ -1437,5 +1437,10 @@ const catalog: Catalog = {
   "Memory could not be read": "メモリを読み込めませんでした",
   "Find memory in finished cards": "完了したカードからメモリを見つける",
   "Back from session, then close sidebar, then leave a project page": "セッションから戻る → サイドバーを閉じる → プロジェクトページを離れる",
+  "Context from": "コンテキストの取得元",
+  "Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.": "最近の対話テキストのみ、最大 60,000 文字。画像とツールの結果は含まれません。",
+  "Session context": "セッションのコンテキスト",
+  "Start a new session with dialogue text from another session in the same project, even with a different model.": "同じプロジェクト内の別のセッションの対話テキストを使って新規セッションを開始できます。異なるモデルも選べます。",
+  "New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged.": "新規セッション → コンテキストの取得元で、同じプロジェクトの別の対話テキストを再利用できます。元のセッションは変更されません。",
 };
 export default catalog;

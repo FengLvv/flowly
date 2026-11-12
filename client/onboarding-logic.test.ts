@@ -112,7 +112,9 @@ describe("tips", () => {
     const facts = { ...none, cardOpen: true, cardWithSession: true, fullSidebar: true };
     expect(nextTip({ tipsSeen: [], facts, blocked: false })).toBe("connectors");
     expect(nextTip({ tipsSeen: ["connectors"], facts, blocked: false })).toBe("session-history");
-    expect(nextTip({ tipsSeen: ["connectors", "session-history"], facts, blocked: false })).toBe("sidebar-order");
+    expect(nextTip({ tipsSeen: ["connectors", "session-history"], facts, blocked: false })).toBe("session-context");
+    expect(nextTip({ tipsSeen: ["connectors", "session-history"], facts: { ...none, cardWithSession: true }, blocked: true })).toBeNull();
+    expect(nextTip({ tipsSeen: ["connectors", "session-history", "session-context"], facts, blocked: false })).toBe("sidebar-order");
     expect(nextTip({ tipsSeen: ["connectors"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
   });
   test("subagents are announced after the workpad tip, before ideas", () => {

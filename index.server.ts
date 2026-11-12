@@ -15,6 +15,7 @@ import { WrapupService } from "./server/wrapup";
 import { WorkspaceRestoreService } from "./server/workspace-restore";
 import { SessionImageService } from "./server/session-images";
 import { SessionTailService } from "./server/session-tail";
+import { SessionContextService } from "./server/session-context";
 import { ArchivedSessionsService } from "./server/archived-sessions";
 import { ifChanged } from "./server/etag";
 import { BoardDeltas } from "./server/board-delta";
@@ -258,6 +259,9 @@ export default function contribute(host: PluginServerContext) {
   const images = new SessionImageService(store);
   server.handle(rpc.sessionImage, (input, { paseo }) => images.read(input, paseo));
   const tails = new SessionTailService(store);
+  const sessionContexts = new SessionContextService(store);
+  server.handle(rpc.sessionContextSources, (input, { paseo }) => sessionContexts.sources(input.taskId, paseo));
+  server.handle(rpc.sessionContextRead, (input, { paseo }) => sessionContexts.read(input.taskId, input.agentId, paseo));
   const archived = new ArchivedSessionsService(store);
   server.handle(rpc.archivedSessions, (input, { paseo }) => archived.list(input.taskId, paseo));
   server.handle(rpc.archivedSessionRefs, (_, { paseo }) => archived.refs(paseo));

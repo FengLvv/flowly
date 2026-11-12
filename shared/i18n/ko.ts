@@ -1437,5 +1437,10 @@ const catalog: Catalog = {
   "Memory could not be read": "메모리를 읽을 수 없습니다",
   "Find memory in finished cards": "완료된 카드에서 메모리 찾기",
   "Back from session, then close sidebar, then leave a project page": "세션에서 돌아가기, 사이드바 닫기, 프로젝트 페이지 나가기 순",
+  "Context from": "컨텍스트 출처",
+  "Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.": "최근 대화 텍스트만 최대 60,000자까지 포함합니다. 이미지와 도구 결과는 제외됩니다.",
+  "Session context": "세션 컨텍스트",
+  "Start a new session with dialogue text from another session in the same project, even with a different model.": "같은 프로젝트의 다른 세션에서 대화 텍스트를 가져와 새 세션을 시작하세요. 다른 모델도 사용할 수 있습니다.",
+  "New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged.": "새 세션 → 컨텍스트 출처에서 같은 프로젝트의 다른 대화 텍스트를 재사용하세요. 원본 세션은 변경되지 않습니다.",
 };
 export default catalog;

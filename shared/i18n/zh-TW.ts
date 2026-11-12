@@ -1437,5 +1437,10 @@ const catalog: Catalog = {
   "Memory could not be read": "無法讀取記憶",
   "Find memory in finished cards": "從完成的卡片裡找記憶",
   "Back from session, then close sidebar, then leave a project page": "退出工作階段，再關閉側欄，再離開專案頁面",
+  "Context from": "上下文來源",
+  "Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.": "僅繼承近期對話文字，最多 60,000 字元。不包含圖片和工具結果。",
+  "Session context": "工作階段上下文",
+  "Start a new session with dialogue text from another session in the same project, even with a different model.": "建立工作階段時可繼承同專案其他工作階段的對話文字，也可使用不同模型。",
+  "New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged.": "在「新建工作階段 → 上下文來源」中重用同專案其他工作階段的對話文字，來源工作階段維持不變。",
 };
 export default catalog;

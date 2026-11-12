@@ -173,6 +173,7 @@ const tipText: Record<TipId, (compact?: boolean) => string> = {
   "attention-dismiss": () => t("Not ready to decide? Dismiss a card from Attention. It comes back when something new happens."),
   "sidebar-order": () => t("Arrange an open card your way: reorder its sections and choose which start open in Settings → Cards → Card sidebar."),
   "session-history": () => t("A session's output now starts at the beginning of its current turn. Press Load earlier at the top to read further back."),
+  "session-context": () => t("New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged."),
   "settings-entry": () => t("Turn features on or off and change settings here."),
   "auto-review": () => t("Auto review checked this card after the agent delivered; open it to see each check's result."),
   "first-guardrail": () => t("Flowly learned a check from a card you sent back. Open Guardrails to see what it checks now."),

@@ -1,5 +1,14 @@
 # Implementation progress
 
+## Session dialogue context — 2026-11-12
+
+- User chose public SDK dialogue-text inheritance (same project, cross-model, excluding images/tool results) over a new internal-daemon exception. [Contract](SESSION-CONTEXT-SPEC.md).
+- New session has a Context from picker, default None. Daemon filters source membership, exports only bounded chronological user/assistant text at submit, checks ownership again after paging, and rejects empty, stale or unavailable history. The target gets a text attachment and its own current card instructions/credentials in its existing workspace. Prepared creation recovery still runs before source reads.
+- Guidance: More features tour entry, one-time session-context tip, READMEs and all nine catalogs. No What's new, version bump, board schema or telemetry field change. Corrected the i18n test's Windows file URL conversion so the catalog assertions can run.
+- PASS: `npm run typecheck` (0); focused `server/session-context.test.ts client/session.test.ts client/onboarding-logic.test.ts shared/i18n.test.ts` (0), 115 passed. No assertions were weakened.
+- FAILED: full `npm test` (1), final local run 1336 passed / 33 failed / 7 skipped, plus 2 Unix-socket errors on Windows; the previous run had 1337 / 32 / 7 and the same errors. Baseline comparison and independent verification are recorded separately when complete; do not count the full suite as passed.
+- Live verification and cleanup, independent exact-commit checks and PR state: see [verification report](verification/session-context.md). Android/iOS device checks remain unrun. This project's Test and In review lanes are disabled; verification/delivery receipts therefore use Development plus a result note.
+
 ## Session preview Next moves appear without reopening (card "side bar session next move chip修复") — 2026-11-11
 
 - Symptom: with a session open in the card sidebar, a turn that ended with next moves sometimes showed no chips until the session was closed and reopened.
