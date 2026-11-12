@@ -1,0 +1,90 @@
+Flowly
+Session context acceptance
+Attention
+Sort
+Filter
+New task
+2
+tasks
+· 0 done
+Idle
+Ideas
+Insights
+Backlog
+0
+No tasks
+Todo
+2
+Feature
+#sessions
+Source dialogue
+2
+Feature
+#sessions
+Target dialogue
+0
+Design
+Development
+0
+No tasks
+Test
+0
+No tasks
+In review
+0
+No tasks
+Blocked
+0
+No tasks
+Done
+0
+No tasks
+0
+Cancelled
+Session context acceptance
+Target dialogue
+Todo
+Normal
+Feature
+#sessions
+Add
+Owned session-context acceptance fixture
+Progress
+Refresh
+Updates after each agent turn.
+Sessions
+0
+Start session
+No sessions yet
+Start session
+Artifacts
+0
+Links
+0
+Details & workspace
+Target dialogue
+Usage
+No token data
+Activity
+1
+New session
+Session title (optional)
+Instruction
+Add images
+or paste or drop them here
+Agent
+Provider
+Codex
+Model
+GPT-6-Luna
+Reasoning
+Model default (medium)
+Permissions
+Full Access
+Context from
+Context source empty · Source dialogue
+Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.
+The task's title and description are included automatically, along with Kanban tools.
+Request failed: Context session has no dialogue text to inherit. requestType=plugin.rpc.invoke.request code=handler_error
+Cancel
+Create session
