@@ -1,5 +1,12 @@
 # Implementation progress
 
+## Windows workspace containment — 2026-11-12
+
+- `server/repos.ts` checks parent traversal with the host path separator; Windows siblings no longer match as descendants. Canonical Git common-dir matching still permits external worktrees. Legacy scope and workspace ownership writes are unchanged. [Contract](SINGLE-ROOT-SPEC.md).
+- PASS: typecheck (exit 0), focused repo/platform/service/store checks 33/33, and independent Haiku 5.5 verification on exact code commit `6005d4f` against `a597cc8` (baseline focused 27 passed / 3 failed). No new full-suite failure identities.
+- FAILED: exact candidate full suite (exit 1), 1284 passed / 28 failed / 7 skipped, 2 Windows Unix-socket errors and an i18n file collection failure; independent baseline 1276 / 33 / 7 with the same errors. No assertions were weakened.
+- UNRUN: real cross-drive/UNC filesystems, POSIX hardware, UI/phone, install/reload. No new onboarding or telemetry action is introduced. [Verification](verification/windows-containment.md), including independent evidence and resource cleanup.
+
 ## Session preview Next moves appear without reopening (card "side bar session next move chip修复") — 2026-11-11
 
 - Symptom: with a session open in the card sidebar, a turn that ended with next moves sometimes showed no chips until the session was closed and reopened.
