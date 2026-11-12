@@ -8,6 +8,7 @@
 - PASS: `npm run typecheck` (0); focused `server/session-context.test.ts client/session.test.ts client/onboarding-logic.test.ts shared/i18n.test.ts` (0), 115 passed. No assertions were weakened.
 - FAILED: full `npm test` (1), final local run 1336 passed / 33 failed / 7 skipped, plus 2 Unix-socket errors on Windows; the previous run had 1337 / 32 / 7 and the same errors. Baseline comparison and independent verification are recorded separately when complete; do not count the full suite as passed.
 - Live verification and cleanup, independent exact-commit checks and PR state: see [verification report](verification/session-context.md). Android/iOS device checks remain unrun. Test was enabled during this turn; final verification uses Test. In review remains disabled, so delivery uses a result receipt.
+- Integrated with pending description-images PR #1 to preserve both installed capabilities; the context PR is stacked on that branch. Independent Haiku final commit `90a18dc`: typecheck 0, focused 128/128, full 1350 passed/32 failed/7 skipped plus 2 Windows socket errors; all failure identities match the baseline. Live cross-model text delivery, source preservation, empty-source failure and original description action passed (12 checks including cleanup); native fixtures removed. Owned temporary directory cleanup was denied by automatic policy and was not bypassed.
 
 ## Session preview Next moves appear without reopening (card "side bar session next move chip修复") — 2026-11-11
 

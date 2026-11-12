@@ -12,7 +12,7 @@
 
 ## 独立验证
 
-原实现 f996043 已由指定 Haiku 5.5 在临时 worktree 复核：类型检查0、115/115相关测试；全量1337通过、32失败，32个失败名称与基线完全一致。见 [独立报告](session-context-independent.md)，实现者不编辑该报告。集成描述图片分支后的最终提交将由同一会话追加复验。
+原实现 f996043 已由指定 Haiku 5.5 在临时 worktree 复核：类型检查0、115/115相关测试；全量1337通过、32失败，32个失败名称与基线完全一致。最终集成提交 `90a18dcb8d5255ed662d80b2c0ea12488fbdeac6` 复验：类型检查exit 0、6文件128测试通过exit 0；全量1350通过、32失败、7跳过、2个Windows socket错误exit 1，与原候选32个失败名称完全一致，没有新失败身份。见 [独立报告](session-context-independent.md)，实现者未编辑该报告。验证会话 `2e9502dd-de41-4355-890d-40c844290088`；其临时worktree及junction已清理。
 
 ## 未运行
 
@@ -22,6 +22,10 @@
 
 ## 集成检查
 
-为保留本机已交付但尚未合并的描述图片功能，本分支合入 PR #1（`feat/card-description-images`）；新PR以该分支为base，差异只包含本卡功能。集成后类型检查exit 0；6文件focused suite 128通过、exit 0。全量最终本地运行1349通过、33失败、7跳过，2个Windows socket错误，exit 1；原始日志 `session-context-integrated-final-tests.log`。PR尚待创建/检查。
+为保留本机已交付但尚未合并的描述图片功能，本分支合入 PR #1（`feat/card-description-images`）；新PR以该分支为base，差异只包含本卡功能。集成后类型检查exit 0；6文件focused suite 128通过、exit 0。全量最终本地运行1349通过、33失败、7跳过，2个Windows socket错误，exit 1；原始日志 `session-context-integrated-final-tests.log`。独立精确提交复验的32个失败身份与基线一致，以上一次本地多出的失败不作为新增回归结论。
 
 桌面截图见 `session-context-live/desktop-selected.png`、`desktop-picker.png`。紧凑web为750×900，弹窗边界x=115/y=87.91/w=520/h=724.19，创建成功；截图器排除了左侧320px，所以紧凑截图本身不是完整弹窗视觉验收。未操作用户的Paseo窗口。
+
+## 清理边界
+
+最终实际检查12/12通过，`results.json.cleanupReadback` 回读确认两个fixture工作区和三个fixture会话均不再活跃，原生项目及插件卡片已移除。自动审批拒绝 `.test-data/session-context-live` 的递归删除（仅返回 `blocked by policy`）；未用其他方式绕过，因此该自有harness/fixture目录保留。早期失败截图/文本删除在同一被拒命令中，也未删除，不计作最终通过截图。浏览器测试的设备语言已通过正常客户端流程恢复为测试前的 `zh-CN`。
