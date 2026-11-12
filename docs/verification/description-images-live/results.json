@@ -1,0 +1,76 @@
+{
+  "commit": "96e82444700a0fb0746b8b978d4b8f6f76fe2bf3",
+  "provider": "claude/claude-haiku-5-5",
+  "mode": "bypassPermissions",
+  "reference": {
+    "file": "red.png",
+    "dimensions": [
+      64,
+      64
+    ],
+    "color": "#FF0000",
+    "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+  },
+  "firstRunPassed": [
+    {
+      "ui": "new task description copy, independent removal and Create and start passed"
+    },
+    {
+      "firstSession": "a161b8e2-7aa9-41e5-9c75-e945afd2e4bd",
+      "redInTranscript": true
+    },
+    {
+      "persistence": "plugin reload preserved exact bytes"
+    }
+  ],
+  "latestRun": [
+    {
+      "ui": "edit removed, replaced and saved description image"
+    },
+    {
+      "ui": "combined image limit is four; overflow toast shown"
+    },
+    {
+      "compactModalBounds": {
+        "x": 115,
+        "y": 87.90625,
+        "width": 520,
+        "height": 724.1875
+      },
+      "viewport": {
+        "width": 750,
+        "height": 900
+      }
+    },
+    {
+      "secondSession": "22a6e389-46c6-4551-88d7-8f6464e9594c",
+      "redInTranscript": true
+    },
+    {
+      "ui": "compact Use card description and Create session passed"
+    }
+  ],
+  "responses": [
+    {
+      "sessionId": "22a6e389-46c6-4551-88d7-8f6464e9594c",
+      "responses": [
+        "#FF0000 (red)"
+      ]
+    },
+    {
+      "sessionId": "6180247d-257f-44f0-a692-a53c139ac7c9",
+      "responses": [
+        "Red (#FF0000)"
+      ]
+    },
+    {
+      "sessionId": "a161b8e2-7aa9-41e5-9c75-e945afd2e4bd",
+      "responses": [
+        "Red (#FF0000)"
+      ]
+    }
+  ],
+  "pluginAndNativeCleanup": true,
+  "retainedDirectory": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-images-live-ac0c619d-77a6-4346-8503-09d5fc5b309f",
+  "retainedReason": "Recursive directory cleanup was rejected by automatic approval: blocked by policy."
+}
