@@ -19,13 +19,14 @@ try {
   let ever = new Set();
   const workspacesVisible = new Set();
   for (let n = 0; n < 60; n++) {
-    const h = await helpers(paseo, x.project);
+    const h = await helpers(paseo);
     h.visible.forEach(([id]) => ever.add(id));
     const key = JSON.stringify(h.all.filter((a) => !seen.has(a[0] + a[3])));
     h.all.forEach((a) => seen.add(a[0] + a[3]));
     if (key !== '[]') log('helpers', key);
-    const ws = await paseo.workspaces.list().catch(() => []);
-    for (const w of (ws.entries ?? ws)) { const t = (w.workspace ?? w).title ?? (w.workspace ?? w).name; if (/Flowly background/i.test(t ?? '')) workspacesVisible.add(t); }
+    // The default list is what the sidebar shows; a failed read is recorded, never taken as "none visible".
+    const ws = await paseo.workspaces.list().catch((e) => (workspacesVisible.add(`list failed: ${e}`), null));
+    for (const w of ws ? (ws.entries ?? ws) : []) { const v = w.workspace ?? w; if (/Flowly background/i.test(v.title ?? v.name ?? '')) workspacesVisible.add(v.id); }
     if (n > 5 && h.all.filter((a) => a[3] === 'live').length === 0) break;
     await sleep(5000);
   }

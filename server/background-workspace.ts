@@ -6,7 +6,7 @@ import { z } from "zod";
 import type { Project } from "../shared/model";
 import { daemonWorkspaceRecovery, type WorkspaceRecovery } from "./workspace-restore";
 import { logFailure } from "./error-report";
-import { backgroundAgentsSupported } from "./background-agent";
+import { backgroundAgentsSupported, isBackgroundRefusal } from "./background-agent";
 
 export const BACKGROUND_TITLE = "Flowly background";
 
@@ -64,7 +64,17 @@ export class BackgroundWorkspaces {
 
   /** Runs `work` with the project's background workspace open; archives it after the last run. */
   async use<T>(project: Project, paseo: PaseoApi, work: (workspaceId: string) => Promise<T>): Promise<T> {
-    if (backgroundAgentsSupported() === true) return work(await this.locked(project.id, () => this.hidden(project, paseo)));
+    // Support is learned from the first create after a plugin start; until then a background workspace stored for
+    // any project is the evidence (support belongs to the host), so the first run after a restart is not shown
+    // (PASEO-0.16-SPEC §3.1).
+    const supported = backgroundAgentsSupported();
+    if (supported === true || (supported === null && Object.keys((await this.read()).hidden ?? {}).length > 0)) {
+      const hidden = await this.locked(project.id, () => this.hidden(project, paseo)).catch((error) => {
+        if (supported === null && isBackgroundRefusal(error)) return null;
+        throw error;
+      });
+      if (hidden) return work(hidden);
+    }
     const id = await this.locked(project.id, async () => {
       const slot = this.slots.get(project.id);
       if (slot) {

@@ -27,7 +27,7 @@ Card "Paseo 0.16 接入：后台任务", 2026-11-11; `docs/PASEO-0.16-SPEC.md` �
 - Its id is stored per project under `hidden` in `background-workspaces.json` (`{ version: 1, projects, hidden?: { <projectId>: <workspaceId> } }`); the visible id in `projects` is left alone for a later 0.15 host.
 - Before a run the stored id is checked with the SDK (`workspaces.ref(id).refresh()`): reused while it exists and is not being archived; otherwise a new hidden workspace is created and stored. Opening is serialized per project.
 - The sessions themselves are background agents and are archived through the SDK when done (they do not show in the user's archive), see `server/summarizer-remove.ts`.
-- While support is unknown (the first run after a plugin start) or the host refused background agents, the visible flow above is used unchanged. The first card-level run (summary, review) usually settles it before any project-level run.
+- While support is unknown (the first run after a plugin start), the hidden path is used when any project has a stored hidden workspace: support belongs to the host, and that id shows it created background workspaces before. If the host refuses the background create, that run falls back to the visible flow. With no stored hidden workspace at all (the very first run on this install), or on a host that refused background agents, the visible flow above is used unchanged. The first card-level run (summary, review) usually settles support before any project-level run. (2026-11-12: after a plugin reload, the first digest showed a visible `Flowly background` workspace and then archived it into the user's archive; found in the live beta.2 check and by CodeRabbit on PR #100.)
 
 ## Code
 

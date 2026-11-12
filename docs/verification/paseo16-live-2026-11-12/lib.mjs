@@ -14,9 +14,10 @@ export async function open() {
 export const ids = async () => JSON.parse(await readFile(idsFile, 'utf8'));
 export const save = (x) => writeFile(idsFile, JSON.stringify(x, null, 2));
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-/** Flowly helper agents (summarizer labels) visible in the default list vs only with includeBackground. */
-export async function helpers(paseo, projectId) {
-  const pick = (r) => r.entries.map((e) => e.agent ?? e).filter((a) => a.labels?.flowly === 'summarizer');
+/** This fixture's Flowly helper agents (summarizer labels, fixture titles) visible in the default list vs only with includeBackground. */
+const FIXTURE_TITLE = /Write HELLO\.md|p16 live e2e/;
+export async function helpers(paseo) {
+  const pick = (r) => r.entries.map((e) => e.agent ?? e).filter((a) => a.labels?.flowly === 'summarizer' && FIXTURE_TITLE.test(a.title ?? ''));
   const visible = pick(await paseo.agents.list({ filter: { includeArchived: true } }));
   const all = pick(await paseo.agents.list({ filter: { includeArchived: true, includeBackground: true } }));
   return { visible: visible.map((a) => [a.id, a.title]), all: all.map((a) => [a.id.slice(0, 8), a.title, a.background, a.archivedAt ? 'archived' : 'live']) };

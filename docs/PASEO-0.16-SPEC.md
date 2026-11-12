@@ -43,7 +43,7 @@
 - **契约**：
   - 创建（`server/background-agent.ts` 的 `createHidden`）：先带 `background: true` 创建；遇到上面的拒绝文案时记日志（不进 `$exception`），本次插件启动内不再尝试，并立即按 0.15 方式重建这一次。其它创建失败照旧按各功能的失败处理。
   - 卡片级运行（卡片总结、窗外 insight、自动验收）仍在卡片自己的工作区里创建，只是加上 `background: true`。
-  - 项目级运行（记忆复盘、Insights 摘要、workflow insights）在已知支持后台 agent 时，改用每个项目一个**后台工作区**（`workspaces.create({ background: true })`，标题仍为 `Flowly background`，id 记在 `background-workspaces.json` 的 `hidden`）。它本身不出现在侧栏，所以不归档、不恢复，一直复用；被删或已归档时新建一个。支持情况未知或不支持时走原来的可见工作区流程（`docs/BACKGROUND-WORKSPACE-SPEC.md`）。
+  - 项目级运行（记忆复盘、Insights 摘要、workflow insights）在已知支持后台 agent 时，改用每个项目一个**后台工作区**（`workspaces.create({ background: true })`，标题仍为 `Flowly background`，id 记在 `background-workspaces.json` 的 `hidden`）。它本身不出现在侧栏，所以不归档、不恢复，一直复用；被删或已归档时新建一个。支持情况未知（插件启动后的第一次运行）时，只要任一项目记有隐藏工作区（支持与否是宿主的属性）就按隐藏路径走，宿主拒绝后台创建再回到可见流程；一条记录都没有（本机第一次运行）或已知不支持时走原来的可见工作区流程（`docs/BACKGROUND-WORKSPACE-SPEC.md`）。
   - 结束清理（`server/summarizer-remove.ts`）：后台 agent 用 SDK 的 `archive()`，不再走本地连接硬删除；归档失败时退回硬删除。非后台 agent（旧宿主）仍硬删除。代价：后台 agent 的记录留在宿主磁盘上，只是不显示；用户界面里看不到，也不占归档列表。
 - **旧宿主**：现有临时 session、`Flowly background` 工作区与硬删除流程不变。
 - **验收**：0.16 宿主上上述运行期间，Paseo 的 agent 列表、标签页和通知中看不到它们；运行结果与 0.15 一致；运行结束后 Paseo 归档列表里不新增条目；0.15 宿主行为不变。

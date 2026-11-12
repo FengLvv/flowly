@@ -139,3 +139,27 @@ test("a stored background workspace Paseo no longer lists is replaced; the old v
   expect(x.log).toEqual(["refresh stale", `create ${BACKGROUND_TITLE} background=true /repo`, "run hidden-1"]);
   expect(JSON.parse(await readFile(join(x.dir, "background-workspaces.json"), "utf8"))).toEqual({ version: 1, projects: { p: "old-visible" }, hidden: { p: "hidden-1" } });
 });
+
+test("after a plugin start, before support is known, a project's stored background workspace is used, not a visible one", async () => {
+  const x = await hiddenSetup();
+  resetBackgroundAgents(null);
+  await writeFile(join(x.dir, "background-workspaces.json"), JSON.stringify({ version: 1, projects: { p: "old-visible" }, hidden: { p: "hidden-0" } }));
+  await x.bg.use(project, x.paseo, async (id) => void x.log.push(`run ${id}`));
+  expect(x.log).toEqual(["refresh hidden-0", "run hidden-0"]);
+  // Support belongs to the host: another project's first run is hidden too.
+  await x.bg.use({ ...project, id: "q" }, x.paseo, async (id) => void x.log.push(`run ${id}`));
+  expect(x.log.slice(2)).toEqual([`create ${BACKGROUND_TITLE} background=true /repo`, "run hidden-1"]);
+});
+
+test("before support is known, a host that refuses a background workspace gets the visible one", async () => {
+  const x = await hiddenSetup(() => null);
+  resetBackgroundAgents(null);
+  (x.paseo.workspaces as { create: unknown }).create = async (o: { background?: boolean }) => {
+    if (o.background) throw new Error("Update the host to use background workspaces.");
+    x.log.push("create visible");
+    return { id: "visible-1" };
+  };
+  await writeFile(join(x.dir, "background-workspaces.json"), JSON.stringify({ version: 1, projects: {}, hidden: { p: "hidden-0" } }));
+  await x.bg.use(project, x.paseo, async (id) => void x.log.push(`run ${id}`));
+  expect(x.log).toEqual(["refresh hidden-0", "create visible", "run visible-1", "archive visible-1"]);
+});
