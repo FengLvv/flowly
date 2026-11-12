@@ -1,3 +1,5 @@
+import { DescriptionImages } from "./description-images";
+import { descriptionKey, hasInstruction } from "../shared/description-images";
 import { enabledStatuses, laneName, projectLanes } from "../shared/lanes";
 import { LaneEditor } from "./lane-editor";
 import { useBoardView } from "./board-view";
@@ -537,9 +539,21 @@ export function TaskForm({
   const [prompt, setPrompt] = useState("");
   // Images with the agent's first message (web: paste, drop or Add images).
   const attachments = useImageAttachments();
+  const [savedDescriptionImages, setSavedDescriptionImages] = useState(task?.descriptionImages || []);
+  const removeDescriptionImage = useStableCallback((id: string) => setSavedDescriptionImages((images) => images.filter((i) => i.id !== id)));
+  const descriptionAttachments = useImageAttachments(4 - savedDescriptionImages.length);
+  const [descriptionSource, setDescriptionSource] = useState<string | null>(null);
+  const descriptionInputs = () => descriptionAttachments.attachments.map(({ data, mimeType, name }) => ({ data, mimeType, name }));
+  const descriptionSnapshot = () => descriptionKey(description, descriptionInputs());
+  function useDescription() {
+    attachments.replace(descriptionAttachments.attachments);
+    setPrompt(description);
+    setDescriptionSource(descriptionSnapshot());
+  }
   const [firstMessageId] = useState(newMessageId);
   const contextRead = useRpc(rpc.taskContext),
     prepare = useRpc(rpc.prepareSession),
+    readDescription = useRpc(rpc.readDescriptionImages),
     paseo = usePaseo();
   const eligible = (resources.data?.workspaces || []).filter((w) =>
     w.repoPaths.includes(project.primaryPath),
@@ -555,12 +569,15 @@ export function TaskForm({
     setPending(true);
     setError("");
     try {
+      if (startChosen && descriptionSource !== null && descriptionSource !== descriptionSnapshot())
+        throw new Error(t("Description changed. Use card description again."));
       const result = task
         ? await update({
             id: task.id,
             revision: task.revision,
             title,
             description,
+            descriptionImages: [...savedDescriptionImages.map(({ id }) => ({ id })), ...descriptionInputs()],
             status,
             priority,
             type: type || null,
@@ -571,6 +588,7 @@ export function TaskForm({
             operationId,
             title,
             description,
+            descriptionImages: descriptionInputs(),
             status,
             priority,
             type: type || undefined,
@@ -589,12 +607,18 @@ export function TaskForm({
       if (task) return onSaved(result.id, undefined, result.status);
       if (!startChosen) return onSaved(result.id);
       try {
+        if (descriptionSource !== null) {
+          const saved = await readDescription({ taskId: result.id, revision: result.revision });
+          if (descriptionKey(saved.description, saved.images.map(({ data, mimeType, name }) => ({ data, mimeType, name }))) !== descriptionSource)
+            throw new Error(t("Description changed. Use card description again."));
+        }
         const session = await launchKanbanSession({ paseo, contextRead, prepare }, result, {
           provider: choice.provider,
           model: choice.chosenModel,
           mode: choice.chosenMode,
           thinking: choice.chosenThinking,
           prompt: prompt.trim(),
+          ...(descriptionSource !== null ? { descriptionRevision: result.revision } : {}),
           ...(attachments.attachments.length ? { images: attachments.images(), clientMessageId: firstMessageId } : {}),
           operationId: `first-session-${operationId}`,
         });
@@ -615,7 +639,7 @@ export function TaskForm({
     !pending &&
     !!title.trim() &&
     !(!task && mode === "existing" && !workspaceId) &&
-    !(startChosen && (!choice.ready || !prompt.trim()));
+    !(startChosen && (!choice.ready || !hasInstruction(prompt, attachments.attachments)));
   // Enter submits, Shift+Enter is a new line.
   const submit = canSave ? () => void save() : undefined;
   return (
@@ -633,13 +657,10 @@ export function TaskForm({
             <Label muted size={font.sm} lines={1}>{t("Follow-up of {title}", { title: seed.followUpTitle })}</Label>
           )}
           <Field title={t("Title")} value={title} onChange={setTitle} placeholder={t("What needs doing?")} onSubmit={submit} />
-          <Field
-            title={t("Description")}
-            value={description}
-            onChange={setDescription}
-            multiline
-            onSubmit={submit}
-          />
+          <ImageAttachments state={descriptionAttachments} disabled={pending}>
+            <Field title={t("Description")} value={description} onChange={setDescription} multiline editable={!pending} onSubmit={submit} />
+            {task && <DescriptionImages task={task} images={savedDescriptionImages} onRemove={pending ? undefined : removeDescriptionImage} />}
+          </ImageAttachments>
           {ready ? <>
           {!task && byFamily.size > 0 && (
             <View style={{ gap: space[2] }}>
@@ -806,6 +827,7 @@ export function TaskForm({
               {startChosen && (
                 <>
                   <AgentPicker choice={choice} disabled={pending} />
+                  {hasInstruction(description, descriptionAttachments.attachments) && <Button quiet disabled={pending} onPress={useDescription}>{t("Use card description")}</Button>}
                   <ImageAttachments state={attachments} disabled={pending}>
                     <Field
                       title={t("Instruction")}

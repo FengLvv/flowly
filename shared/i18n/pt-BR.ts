@@ -1,6 +1,12 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Use card description": "Usar descrição do cartão",
+  "Description changed. Use card description again.": "A descrição mudou. Use a descrição do cartão novamente.",
+  "Description images": "Imagens da descrição",
+  "Save pictures with a card description and use its text and pictures as a session instruction.": "Salve imagens na descrição de um cartão e use o texto e as imagens como instrução da sessão.",
+  "Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.": "Adicione imagens à descrição de um cartão e escolha Usar descrição do cartão ao iniciar uma sessão para enviar o texto e as imagens juntos.",
+
   "Command": "Comando",
   "Project default model": "Modelo padrão do projeto",
   "Review model": "Modelo de revisão",

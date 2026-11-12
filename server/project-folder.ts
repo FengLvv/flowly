@@ -1,3 +1,4 @@
+import { DescriptionImageFiles } from "./description-images";
 import { mkdir, readFile, writeFile, rename, unlink, copyFile, lstat } from "node:fs/promises";
 import { constants } from "node:fs";
 import { join } from "node:path";
@@ -122,6 +123,7 @@ export class ProjectFolders {
     private readonly read: () => Promise<Board>,
     private readonly summaries: () => Promise<readonly SummaryEntry[]> = async () => [],
     readonly delay = 1000,
+    private readonly imageFiles?: DescriptionImageFiles,
   ) {}
   /** Called after each board commit. */
   schedule() {
@@ -207,6 +209,11 @@ export class ProjectFolders {
     try {
       await prepareFolder(root);
       await setAsideForeign(root, project.id, savedAt);
+      const images = records.tasks.flatMap((t) => t.descriptionImages || []);
+      if (images.length) {
+        if (!this.imageFiles) throw new Error("Description image storage is unavailable.");
+        await this.imageFiles.copyTo(new DescriptionImageFiles(folderOf(root)), images);
+      }
       const temporary = `${path}.${randomUUID()}.tmp`;
       const body = { format: "flowly-project", version: 1, savedAt, boardVersion: board.version, ...records };
       try {

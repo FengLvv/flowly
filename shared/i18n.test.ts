@@ -1,10 +1,11 @@
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { catalogs } from "./i18n-all";
 import { deviceLocale, localeCodes, localizedLabels, resolveLocale, setLocale, t, tn, withLocale, type CatalogEntry } from "./i18n";
 import { sourceKeys } from "./i18n-keys";
 import { statusLabels, taskTypeLabels } from "./model";
 
-const root = new URL("..", import.meta.url).pathname;
+const root = fileURLToPath(new URL("..", import.meta.url));
 const keys = sourceKeys(root);
 const sources = new Map<string, string>();
 for (const k of keys) sources.set(k.key, k.file + ":" + k.line);

@@ -1,3 +1,5 @@
+import { DescriptionImageFiles } from "./description-images";
+import type { DescriptionImage } from "../shared/description-images";
 import { laneName, laneProblem } from "../shared/lanes";
 import { linkContextLines, linksOf } from "../shared/links";
 import { artifactContextLines, artifactsOf } from "../shared/artifacts";
@@ -403,6 +405,9 @@ export class BoardService {
       const board = await this.store.read();
       if (board.projects.some((p) => p.id === snapshot.project.id)) throw new Error("This project is already on the board.");
       const native = await this.nativeProject(primaryPath, paseo);
+      await new DescriptionImageFiles(join(primaryPath, ".flowly")).copyTo(
+        new DescriptionImageFiles(this.store.directory), snapshot.tasks.flatMap((t) => t.descriptionImages || []),
+      );
       const restored = await this.store.restoreProject(snapshot, { primaryPath, paseoProjectId: native.projectId });
       // Linked projects: drop recorded links whose symlink is gone.
       if (restored.project.links?.length) {
@@ -487,6 +492,9 @@ export class BoardService {
       const laneError = laneProblem(project, input.status);
       if (laneError) throw new Error(laneError);
       // Validated before any workspace exists (CARD-TAGS-SPEC §3).
+      const imageFiles = new DescriptionImageFiles(this.store.directory);
+      imageFiles.validate(input.descriptionImages || []);
+      const addedImages: DescriptionImage[] = [];
       const tags = normalizeTags(input.tags || []);
       if (tags.length > tagLimits.perTask) throw new Error(`A card can have at most ${tagLimits.perTask} tags.`);
       // Checked before any workspace exists, and again when the card is written (IDEAS-SPEC §6).
@@ -572,7 +580,7 @@ export class BoardService {
       }
       const id = workspaceId!;
       try {
-        return await this.store.mutate((current) => {
+        return await this.store.mutate(async (current) => {
           const duplicate = current.tasks.find(
             (t) => t.operationId === input.operationId,
           );
@@ -583,7 +591,9 @@ export class BoardService {
           const idea = input.ideaId ? openIdea(current, input.ideaId, project.id) : undefined;
           if (input.followUpOf) followUpSource(current, input.followUpOf, project.id);
           const now = new Date().toISOString();
+          const descriptionImages = await imageFiles.save(input.descriptionImages || [], [], addedImages);
           const task = {
+            ...(descriptionImages.length ? { descriptionImages } : {}),
             id: randomUUID(),
             projectId: project.id,
             workspaceId: id,
@@ -640,6 +650,7 @@ export class BoardService {
           return task;
         });
       } catch (error) {
+        await imageFiles.cleanup(this.store, addedImages);
         throw new Error(
           `Card was not saved. Workspace ${id} remains available; retry with the same operation or link it. ${error instanceof Error ? error.message : String(error)}`,
         );
@@ -677,6 +688,7 @@ export class BoardService {
           : repo,
     }));
     return {
+      revision: task.revision,
       available,
       reason:
         task.archivedAt || project.archivedAt

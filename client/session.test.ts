@@ -1,3 +1,4 @@
+import { launchKanbanSession } from "./session";
 import { expect, test, vi } from "vitest";
 import type { PaseoApi } from "@getpaseo/client";
 import {
@@ -146,4 +147,35 @@ test("archived sessions accept a restoring send but not live-only writes", async
   await expect(workspaceSession(paseo, "a", "w", true)).rejects.toThrow(/archived/);
   await expect(workspaceSession(paseo, "a", "w", "restore")).resolves.toMatchObject({ id: "a" });
   await expect(workspaceSession(paseo, "a", "other", "restore")).rejects.toThrow(/different workspace/);
+});
+
+
+test("description launch attaches real bytes once and rejects a stale description", async () => {
+  const x = fixture();
+  const image = { data: "aW1hZ2U=", mimeType: "image/png" as const };
+  const contextRead = vi.fn(async () => ({ available: true, reason: "", context: "Card context", revision: 7 }));
+  const prepare = vi.fn(async () => ({ agentId: "allocated", instructions: "Kanban instructions", contextFile: "context", cliPath: "cli", skillPath: "skill" }));
+  const choice = { provider: "codex", model: "gpt-6-luna", mode: "full-access", prompt: "Read this picture", images: [image], clientMessageId: "message", operationId: "op", descriptionRevision: 7 };
+  const task = { id: "t", workspaceId: "w", title: "Task" };
+  x.create.mockResolvedValue({ id: "allocated" });
+  await launchKanbanSession({ paseo: x.paseo, contextRead, prepare }, task, choice);
+  expect(x.create).toHaveBeenCalledWith(expect.objectContaining({ prompt: "Read this picture", images: [image], clientMessageId: "message" }));
+  x.found({ agent: { id: "allocated", workspaceId: "w" } });
+  await launchKanbanSession({ paseo: x.paseo, contextRead, prepare }, task, choice);
+  expect(x.create).toHaveBeenCalledTimes(1);
+  await expect(launchKanbanSession({ paseo: x.paseo, contextRead, prepare }, task, { ...choice, descriptionRevision: 6 })).rejects.toThrow(/Description changed/);
+  expect(x.create).toHaveBeenCalledTimes(1);
+});
+
+test("image-only card launch supplies its title as first instruction", async () => {
+  const x = fixture();
+  x.create.mockResolvedValue({ id: "allocated" });
+  await launchKanbanSession({
+    paseo: x.paseo,
+    contextRead: async () => ({ available: true, reason: "", context: "Scope" }),
+    prepare: async () => ({ agentId: "allocated", instructions: "Instructions", contextFile: "c", cliPath: "cli", skillPath: "s" }),
+  }, { id: "t", title: "Inspect reference", workspaceId: "w" }, {
+    provider: "codex", model: "gpt-6-luna", mode: "full-access", operationId: "op", images: [{ data: "cGlj", mimeType: "image/png" }],
+  });
+  expect(x.create).toHaveBeenCalledWith(expect.objectContaining({ prompt: "Inspect reference" }));
 });

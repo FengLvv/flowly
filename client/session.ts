@@ -1,3 +1,4 @@
+import { instructionText } from "../shared/description-images";
 import type { OutgoingImage } from "../shared/composer";
 import type {
   PaseoApi,
@@ -64,7 +65,7 @@ export async function sendCardInstruction(
   agentId: string,
   contextRead: (input: {
     id: string;
-  }) => Promise<{ available: boolean; reason: string; context: string }>,
+  }) => Promise<{ available: boolean; reason: string; context: string; revision?: number }>,
   instruction: string,
   mode: "steer" | "interrupt" = "steer",
   images: OutgoingImage[] = [],
@@ -93,7 +94,7 @@ export async function sendCardInstruction(
 export async function launchKanbanSession(
   deps: {
     paseo: PaseoApi;
-    contextRead: (input: { id: string }) => Promise<{ available: boolean; reason: string; context: string }>;
+    contextRead: (input: { id: string }) => Promise<{ available: boolean; reason: string; context: string; revision?: number }>;
     prepare: (input: { id: string; operationId: string }) => Promise<{
       agentId: string;
       instructions: string;
@@ -114,10 +115,13 @@ export async function launchKanbanSession(
     images?: OutgoingImage[];
     clientMessageId?: string;
     operationId: string;
+    descriptionRevision?: number;
   },
 ) {
   const scope = await deps.contextRead({ id: task.id });
   if (!scope.available) throw new Error(scope.reason);
+  if (choice.descriptionRevision !== undefined && scope.revision !== choice.descriptionRevision)
+    throw new Error(t("Description changed. Use card description again."));
   const preparation = await deps.prepare({ id: task.id, operationId: choice.operationId });
   return createPreparedSession(deps.paseo, task.workspaceId, {
     agentId: preparation.agentId,
@@ -136,7 +140,7 @@ export async function launchKanbanSession(
     },
     title: choice.title?.trim() || task.title,
     labels: { "flowly-task": task.id },
-    prompt: choice.prompt?.trim() || undefined,
+    prompt: instructionText(choice.prompt || "", task.title, choice.images || []) || undefined,
     ...(choice.images?.length ? { images: choice.images } : {}),
     ...(choice.clientMessageId ? { clientMessageId: choice.clientMessageId } : {}),
   });

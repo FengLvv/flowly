@@ -1,6 +1,12 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Use card description": "使用卡片描述",
+  "Description changed. Use card description again.": "描述已更改，请重新使用卡片描述。",
+  "Description images": "描述图片",
+  "Save pictures with a card description and use its text and pictures as a session instruction.": "将图片保存在卡片描述中，并使用描述图文作为会话指令。",
+  "Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.": "在卡片描述中添加图片，启动会话时选择“使用卡片描述”，一起发送文字和图片。",
+
   "Command": "命令",
   "Project default model": "项目默认模型",
   "Review model": "评审模型",

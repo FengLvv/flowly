@@ -1205,3 +1205,10 @@ Phase 2 spec: [PHASE-02-SPEC.md](PHASE-02-SPEC.md). Three current-card tools; au
 - 端到端测出并修复：Unwrap 后侧栏仍显示 "Workspace is unavailable or archived."（工作区查询缓存的还是归档状态）；现在 Unwrap 后会像 Refresh details 那样重新读取。
 - [ ] 未跑：真机手机（只在浏览器手机宽度下验证）、独立会话复验。
 - 引导/提示/What's new：本步不加，Unwrap 只在已收尾卡片的侧栏里出现、按钮自明；第二步默认开启 Auto wrap up 时一并更新 `first-done` 提示、导览和 What's new。遥测：不加字段，第二步再定。
+## Card description images — 2026-11-12
+
+- User-approved [DESCRIPTION-IMAGES-SPEC](DESCRIPTION-IMAGES-SPEC.md): descriptions keep Markdown text plus up to four persisted images; both launch forms explicitly copy the description into an editable first instruction, including real SDK image attachments. Image-only launches use the card title. Ordinary follow-ups are unchanged.
+- Implemented immutable daemon image files, signature/size/base64 validation, card membership and revision checks, failed-write cleanup, and project-folder image export/import. Historical image files remain available to record/database backups after replacement or deletion. No board/overview/system-prompt image bytes, dependency or version bump.
+- Guidance: new one-time tip, More features tour entry, both READMEs, all nine catalogs; no What's new change. No new telemetry field or switch; existing session creation counting applies.
+- PASS: typecheck (exit 0); focused storage/launch/onboarding/i18n/store checks 126 passed, and focus-ring audit passed. Full Windows suite: 1334 passed, 32 failed, 7 skipped, 2 unhandled Unix-socket errors (exit 1). Exact baseline `a597cc8` independently checked in a temporary checkout: 1273 passed, 36 failed, 7 skipped, 2 errors. No new failure identities after the focus-ring fix. i18n test URL now uses `fileURLToPath` so all catalog checks run on Windows. Other pre-existing platform failures are preserved, not skipped or weakened.
+- Installed under ID `flowly` from this checkout through official CLI (prior registry configuration replaced; plugin data/settings preserved), daemon not restarted. UI/runtime and independent commit verification results will be recorded separately under `docs/verification/description-images*`.
