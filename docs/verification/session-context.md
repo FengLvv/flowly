@@ -29,3 +29,10 @@
 ## 清理边界
 
 最终实际检查12/12通过，`results.json.cleanupReadback` 回读确认两个fixture工作区和三个fixture会话均不再活跃，原生项目及插件卡片已移除。自动审批拒绝 `.test-data/session-context-live` 的递归删除（仅返回 `blocked by policy`）；未用其他方式绕过，因此该自有harness/fixture目录保留。早期失败截图/文本删除在同一被拒命令中，也未删除，不计作最终通过截图。浏览器测试的设备语言已通过正常客户端流程恢复为测试前的 `zh-CN`。
+
+## PR前最终冻结检查与状态
+
+- PR前精确提交 `1d9d0a816d272f9530473c439db44bbffe2a566c` 在自有临时 worktree 中运行 `npm run typecheck`（exit 0）及 `npm test -- --reporter=dot`（exit 1：1350通过、32失败、7跳过、2个Windows socket错误）。与独立集成验收一致；其后的提交仅更新此验收记录，没有代码变更。该冻结检查避开了共享主工作区里其他会话正在修改的 `server/repos.ts`、`server/repos.test.ts`、`docs/SINGLE-ROOT-SPEC.md`，这些改动保留且未纳入本PR。
+- [PR #2](https://github.com/FengLvv/flowly/pull/2) 已打开并推送，draft，base 为 PR #1 的 `feat/card-description-images`。先合并前置PR，再将本PR重定向到main。当前fork无CI/workflow/评审记录；自动合并调用明确拒绝：`Auto-merge is not enabled for repository FengLvv/flowly`，未绕过检查。
+- 冻结检查的 `node_modules` junction/worktree 清理也被自动审批拒绝（`blocked by policy`），未换方法绕过。第二个保留路径为 `.test-data/session-context-pr-check`，原始检查日志在其中的 `pr-exact-tests.log`。它没有关联额外的原生Paseo资源。
+- 独立验证会话已归档；其自己创建的临时worktree/junction均清理完毕。本机已装的 `flowly` 保持运行，未重启daemon。
