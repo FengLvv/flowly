@@ -64,6 +64,7 @@ import { workspaceSession } from "./session";
 import { TaskProgress } from "./task-progress";
 import { TaskUsage } from "./task-usage";
 import { SessionMarkdown } from "./session-content";
+import { Clamped } from "./content-card";
 import { TaskIdeas } from "./task-ideas";
 import { LinkOrigin, TaskLinks } from "./task-links";
 import { TaskArtifacts } from "./task-artifacts";
@@ -1069,7 +1070,10 @@ function TaskDrawerView({
             )}
             {onOpenTask && <LinkOrigin taskId={task.id} onOpenTask={onOpenTask} />}
             {!!task.description && (
-              <SessionMarkdown text={task.description} />
+              // Long descriptions (often from an idea) start clamped so Sessions stay in view.
+              <Clamped key={task.id} background={colors.surface0} bare>
+                <SessionMarkdown text={task.description} />
+              </Clamped>
             )}
             {!!detailState.error && <Notice>{message(detailState.error)}</Notice>}
             {!detailState.detail ? <Button quiet onPress={detailState.retry}>{detailState.error ? t("Retry") : t("Loading cards…")}</Button> : order.map((id) => <Fragment key={id}>{section(id)}</Fragment>)}
