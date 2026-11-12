@@ -19,6 +19,8 @@ On every daemon start (`ProjectFolders.migrate`, before any debounced write), ev
 
 The migration only copies. `board.json` stays the source of truth in the plugin data folder; no board record, workspace or directory is changed or moved, so a downgrade keeps working.
 
+Description picture assets are copied into `.flowly/description-images/` before the snapshot is published; restore validates and imports them first. A folder snapshot therefore carries the actual pictures, not only their references. See [DESCRIPTION-IMAGES-SPEC](DESCRIPTION-IMAGES-SPEC.md).
+
 ## 2. Snapshot file
 
 `<primaryPath>/.flowly/project.json`, 0600, atomic replace (temp file + rename), pretty JSON:

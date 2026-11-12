@@ -21,6 +21,8 @@
 - 不变：summaries、memory、digests、workflow insights、outside sessions、composer（草稿/队列/图片）、各类已读水位、flow/commands 日志、project 文件夹里的 `.flowly/project.json`。它们仍是各自的原子 JSON 文件。
 - 读取行为不变：所有 RPC 仍拿到同样的 Board。加载优化（按需读取、局部刷新）是下一步，在本方案稳定后另做，复用同一个数据库。
 
+Description images (2026-11-12): the board stores only optional card-owned metadata. Immutable files in `description-images/` remain alongside database/JSON backups, even after replacement or deletion, so restoring older references remains valid. See [DESCRIPTION-IMAGES-SPEC](DESCRIPTION-IMAGES-SPEC.md).
+
 ## 3. 文件
 
 都在 `dataDirectory()` 下：

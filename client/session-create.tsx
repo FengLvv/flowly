@@ -1,3 +1,4 @@
+import { hasInstruction, instructionText } from "../shared/description-images";
 import { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import { Modal } from "./modal";
@@ -44,7 +45,8 @@ export function SessionCreate({
     prepare = useRpc(rpc.prepareSession),
     healthRead = useRpc(rpc.toolsHealth),
     sourcesRead = useRpc(rpc.sessionContextSources),
-    dialogueRead = useRpc(rpc.sessionContextRead);
+    dialogueRead = useRpc(rpc.sessionContextRead),
+    readDescription = useRpc(rpc.readDescriptionImages);
   const [contextSource, setContextSource] = useState("");
   const [sourcePicker, setSourcePicker] = useState(false);
   const sources = useQuery({
@@ -62,6 +64,19 @@ export function SessionCreate({
     [creationPending, setCreationPending] = useState(false);
   // Images with the first message (web: paste, drop or Add images).
   const attachments = useImageAttachments();
+  const [descriptionRevision, setDescriptionRevision] = useState<number>();
+  const [loadingDescription, setLoadingDescription] = useState(false);
+  async function useDescription() {
+    setLoadingDescription(true);
+    setError("");
+    try {
+      const source = await readDescription({ taskId: task.id, revision: task.revision });
+      attachments.replace(source.images.map((image) => ({ ...image, uri: `data:${image.mimeType};base64,${image.data}` })));
+      setPrompt(source.description);
+      setDescriptionRevision(source.revision);
+    } catch (e) { setError(message(e)); refresh(); }
+    finally { setLoadingDescription(false); }
+  }
   // Reset each time the form opens. The instruction starts empty: the task's
   // title and description already reach the session as its work instructions.
   const wasOpen = useRef(false);
@@ -73,6 +88,7 @@ export function SessionCreate({
       setContextSource("");
       setSourcePicker(false);
       attachments.clear();
+      setDescriptionRevision(undefined);
       setError("");
     }
     wasOpen.current = open;
@@ -88,12 +104,11 @@ export function SessionCreate({
     enabled: open,
     refetchInterval: open ? 5000 : false,
   });
-  const hasInstruction = !!newPrompt.trim();
   const canCreate =
-    !sending &&
+    !sending && !loadingDescription &&
     !unavailable &&
     choice.ready &&
-    hasInstruction;
+    hasInstruction(newPrompt, attachments.attachments);
   async function perform(action: () => Promise<unknown>) {
     if (lock.current) return;
     lock.current = true;
@@ -123,6 +138,8 @@ export function SessionCreate({
         newPrompt,
         ordinary,
         contextSource,
+        attachments.images(),
+        descriptionRevision,
       ]);
       if (attempt.current?.prepared) {
         const existing = await paseo.agents
@@ -147,6 +164,8 @@ export function SessionCreate({
           return;
         }
       }
+      if (descriptionRevision !== undefined && latestScope.revision !== descriptionRevision)
+        throw new Error(t("Description changed. Use card description again."));
       if (!attempt.current || attempt.current.fingerprint !== fingerprint)
         attempt.current = {
           operationId: `session-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -189,7 +208,7 @@ export function SessionCreate({
           : { idempotencyKey: attempt.current.operationId }),
         title: newTitle.trim() || task.title,
         labels: { "flowly-task": task.id },
-        prompt: newPrompt.trim(),
+        prompt: instructionText(newPrompt, task.title, images),
         ...(dialogue ? { attachments: [{ type: "text" as const, mimeType: "text/plain" as const, title: dialogue.title, text: dialogue.text }] } : {}),
         ...(images.length ? { images, clientMessageId: messageId } : {}),
       };
@@ -224,7 +243,7 @@ export function SessionCreate({
       open={open}
       title={t("New session")}
       onOpenChange={(next) => {
-        if (!next && !lock.current) onClose();
+        if (!next && !lock.current && !loadingDescription) onClose();
       }}
     >
       <Modal.Content>
@@ -237,14 +256,15 @@ export function SessionCreate({
           editable={!sending}
           onSubmit={submit}
         />
-        <ImageAttachments state={attachments} disabled={sending}>
+        {(task.description.trim() || task.descriptionImages?.length) ? <Button quiet disabled={sending || loadingDescription} onPress={() => void useDescription()}>{t("Use card description")}</Button> : null}
+        <ImageAttachments state={attachments} disabled={sending || loadingDescription}>
           <Field
             title={t("Instruction")}
             value={newPrompt}
             onChange={setPrompt}
             multiline
             placeholder={t("What should this session do first?")}
-            editable={!sending}
+            editable={!sending && !loadingDescription}
             onSubmit={submit}
           />
         </ImageAttachments>
@@ -256,7 +276,7 @@ export function SessionCreate({
             open={sourcePicker} disabled={sending} loading={sources.isFetching}
             options={[{ value: "", label: t("None") }, ...(sources.data?.entries || []).map((s) => ({ value: s.id, label: `${s.title} · ${s.workspaceName}` }))]}
             onToggle={() => setSourcePicker(!sourcePicker)}
-            onChange={(id) => { setContextSource(id); setSourcePicker(false); }}
+            onChange={(id) => { setContextSource(id); setSourcePicker(false); setError(""); }}
           />
         </PickerGroup>
         {contextSource && <Label muted size={font.sm}>{t("Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.")}</Label>}
@@ -307,7 +327,7 @@ export function SessionCreate({
             >
               {t("Create ordinary session")}</Button>
           )}
-          <Button quiet disabled={sending} onPress={onClose}>
+          <Button quiet disabled={sending || loadingDescription} onPress={onClose}>
             {t("Cancel")}</Button>
           <Button
             primary

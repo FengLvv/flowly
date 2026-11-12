@@ -1,3 +1,4 @@
+import { DescriptionImageFiles, DescriptionImages } from "./server/description-images";
 import { readCardDetail, readProjectCardIndex, readProjectIdeas } from "./server/card-detail";
 import type { PluginServerContext } from "@getpaseo/plugin/server";
 import type { PaseoApi } from "@getpaseo/client";
@@ -206,7 +207,7 @@ export default function contribute(host: PluginServerContext) {
   };
   service.connectors = connectors;
   // Each project's board copy in `<root>/.flowly/` (PROJECT-FOLDER-SPEC).
-  const folders = new ProjectFolders(() => store.read(), async () => (await summaries.store.read()).entries);
+  const folders = new ProjectFolders(() => store.read(), async () => (await summaries.store.read()).entries, 1000, new DescriptionImageFiles(store.directory));
   store.onCommit = () => folders.schedule();
   // Existing projects get their folder copy on the first start after the upgrade (and failed ones on every start).
   void folders.migrate(store.directory).catch((e) =>
@@ -419,6 +420,8 @@ export default function contribute(host: PluginServerContext) {
     detectCommands(project.id);
     return project;
   });
+  const descriptionImages = new DescriptionImages(store);
+  server.handle(rpc.readDescriptionImages, (input) => descriptionImages.read(input));
   server.handle(rpc.createTask, (input, { paseo }) =>
     service.createTask(input, paseo),
   );

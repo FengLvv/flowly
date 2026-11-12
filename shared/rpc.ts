@@ -1,3 +1,4 @@
+import { descriptionImageSchema } from "./description-images";
 import { cardDetailSchema, projectCardIndexSchema, projectIdeasSchema } from "./card-detail";
 import { attentionDismissInput, attentionDismissalSchema, attentionRestoreInput } from "./attention-dismiss";
 import { defineRpc } from "@getpaseo/plugin";
@@ -431,6 +432,7 @@ export const taskContext = defineRpc({
   name: "tasks.context",
   input: z.object({ id: z.string() }),
   output: z.object({
+    revision: z.number().int(),
     available: z.boolean(),
     reason: z.string(),
     context: z.string(),
@@ -845,3 +847,10 @@ export const useSqliteStorage = defineRpc({ name: "storage.use-sqlite", input: z
 
 /** Whether telemetry is forced off on the daemon's host by DO_NOT_TRACK / FLOWLY_TELEMETRY=0 / NODE_ENV=test (TELEMETRY-SPEC §5, §6). */
 export const telemetryStatus = defineRpc({ name: "telemetry.status", input: z.strictObject({}), output: z.object({ forcedOff: z.boolean() }) });
+
+/** On-demand card-scoped image bytes, also used to copy a consistent instruction snapshot. */
+export const readDescriptionImages = defineRpc({
+  name: "tasks.description-images",
+  input: z.strictObject({ taskId: z.string(), revision: z.number().int(), imageId: z.string().uuid().optional() }),
+  output: z.strictObject({ revision: z.number().int(), description: z.string(), images: z.array(descriptionImageSchema.extend({ data: z.string() })) }),
+});

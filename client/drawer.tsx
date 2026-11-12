@@ -1,3 +1,4 @@
+import { DescriptionImages } from "./description-images";
 import { useCardDetailQuery, useTaskDetail } from "./card-detail-query";
 import { drawerDetailPoll } from "./query-activity";
 import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -1075,6 +1076,7 @@ function TaskDrawerView({
                 <SessionMarkdown text={task.description} />
               </Clamped>
             )}
+            {!!task.descriptionImages?.length && <DescriptionImages task={task} />}
             {!!detailState.error && <Notice>{message(detailState.error)}</Notice>}
             {!detailState.detail ? <Button quiet onPress={detailState.retry}>{detailState.error ? t("Retry") : t("Loading cards…")}</Button> : order.map((id) => <Fragment key={id}>{section(id)}</Fragment>)}
             {settled && (
