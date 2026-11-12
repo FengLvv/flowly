@@ -23,6 +23,7 @@ test("matches canonical subdirectories and external Git worktrees without path-p
   await mkdir(repo);
   await mkdir(other);
   await mkdir(join(repo, "subdir"));
+  await mkdir(join(repo, "..valid-child"));
   await run("git", ["-C", repo, "init", "-b", "main"]);
   await run("git", [
     "-C",
@@ -37,9 +38,15 @@ test("matches canonical subdirectories and external Git worktrees without path-p
     "fixture",
   ]);
   await run("git", ["-C", repo, "worktree", "add", "-b", "fixture", worktree]);
+  await run("git", ["-C", other, "init", "-b", "main"]);
+  await mkdir(join(worktree, "subdir"));
   const match = repoMatcher([repo]);
   expect(await match(worktree)).toEqual([repo]);
+  expect(await match(join(worktree, "subdir"))).toEqual([repo]);
+  expect(await match(repo)).toEqual([repo]);
   expect(await match(join(repo, "subdir"))).toEqual([repo]);
+  expect(await match(join(repo, "..valid-child"))).toEqual([repo]);
+  expect(await match(root)).toEqual([]);
   expect(await match(other)).toEqual([]);
   expect(await match(join(root, "missing"))).toEqual([]);
 });

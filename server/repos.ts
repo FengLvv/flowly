@@ -1,5 +1,5 @@
 import { realpath } from "node:fs/promises";
-import { relative, isAbsolute, resolve } from "node:path";
+import { relative, isAbsolute, resolve, sep } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
@@ -8,7 +8,7 @@ function contains(root: string, path: string) {
   const suffix = relative(root, path);
   return (
     !suffix ||
-    (!isAbsolute(suffix) && suffix !== ".." && !suffix.startsWith("../"))
+    (!isAbsolute(suffix) && suffix !== ".." && !suffix.startsWith(`..${sep}`))
   );
 }
 // A per-operation cache avoids repeated Git probes, while subsequent reads see repository changes.
