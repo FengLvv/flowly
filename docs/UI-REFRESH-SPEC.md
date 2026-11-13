@@ -202,6 +202,8 @@ Status: authorized by the user's 2026-10-14 request to redesign the whole Kanban
 
 ## 7s. Session instruction is required and starts empty (2026-10-15, user feedback)
 
+2026-11-12 amendment: custom instructions still start empty. An explicit **Use card description** action copies description text and saved images into the first instruction; image-only instructions are allowed. See [DESCRIPTION-IMAGES-SPEC](DESCRIPTION-IMAGES-SPEC.md).
+
 - New session: the field is now "Instruction". It is required (Create is disabled until it has text) and starts empty each time the dialog opens; it is no longer prefilled with the task title and description. Session title stays optional.
 - New task → Start an agent now: same rule. "Instruction" is empty and required for "Create and start". "Create task" without an agent is unaffected.
 - Why: the session's system prompt already carries the task title, description and scope (`sessionContext` in `shared/scope.ts`, wrapped by `workingInstructions`). A prefilled copy duplicated that context and sent it as if it were the user's own message. The hint now says this context is included automatically.

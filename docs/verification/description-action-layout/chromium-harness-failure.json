@@ -1,0 +1,74 @@
+{
+  "root": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture",
+  "checks": [
+    {
+      "pass": true,
+      "name": "plugin fixture cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native project cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native workspace cleaned"
+    }
+  ],
+  "project": {
+    "id": "159a1b63-744c-4f49-9cf5-1d00fdcca0c9",
+    "title": "Description action layout fixture",
+    "description": "Temporary owned UI fixture",
+    "paseoProjectId": "prj_f63f459bda68e25b",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture"
+    ],
+    "revision": 1,
+    "createdAt": "2026-11-12T13:01:12.742Z",
+    "updatedAt": "2026-11-12T13:01:12.742Z",
+    "archivedAt": null,
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    }
+  },
+  "card": {
+    "descriptionImages": [
+      {
+        "id": "76a75934-4592-4d6f-a1ae-11242d1e7bf6",
+        "name": "red.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      }
+    ],
+    "id": "a2faf327-f077-46e5-a484-5003d186cbb0",
+    "projectId": "159a1b63-744c-4f49-9cf5-1d00fdcca0c9",
+    "workspaceId": "wks_d83e3ba590afda6f",
+    "sourcePath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture",
+    "repoPaths": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture"
+    ],
+    "title": "Description action layout",
+    "description": "Layout fixture instruction",
+    "status": "todo",
+    "priority": "normal",
+    "type": "bugfix",
+    "tags": [
+      {
+        "tag": "sessions",
+        "by": "human",
+        "at": "2026-11-12T13:01:13.738Z"
+      }
+    ],
+    "position": 0,
+    "revision": 1,
+    "operationId": "7a3f21ae-21d4-464a-9087-f7ed0654df18",
+    "createdAt": "2026-11-12T13:01:13.738Z",
+    "updatedAt": "2026-11-12T13:01:13.738Z",
+    "archivedAt": null,
+    "ownsWorkspace": true
+  },
+  "error": "Chromium not found (Error: browserType.launch: Executable doesn't exist at C:\\Users\\vilolu\\AppData\\Local\\ms-playwright\\chromium_headless_shell-1237\\chrome-headless-shell-win64\\chrome-headless-shell.exe). Run `npx playwright install chromium` or set PLAYWRIGHT_CHROMIUM_PATH.",
+  "cleanupError": "EBUSY: resource busy or locked, rmdir 'F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture'"
+}

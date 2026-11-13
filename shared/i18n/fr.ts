@@ -1,6 +1,12 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Use card description": "Utiliser la description de la carte",
+  "Description changed. Use card description again.": "La description a changé. Rechargez la description de la carte.",
+  "Description images": "Images de la description",
+  "Save pictures with a card description and use its text and pictures as a session instruction.": "Enregistrez des images avec la description d’une carte et utilisez le texte et les images comme instruction de session.",
+  "Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.": "Ajoutez des images à la description d’une carte, puis choisissez Utiliser la description de la carte au démarrage d’une session pour envoyer le texte et les images ensemble.",
+
   "Command": "Commande",
   "Project default model": "Modèle par défaut du projet",
   "Review model": "Modèle de revue",
@@ -1437,5 +1443,10 @@ const catalog: Catalog = {
   "Memory could not be read": "Impossible de lire la mémoire",
   "Find memory in finished cards": "Trouver des souvenirs dans les cartes terminées",
   "Back from session, then close sidebar, then leave a project page": "Revenir de la session, puis fermer la barre latérale, puis quitter la page du projet",
+  "Context from": "Contexte depuis",
+  "Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.": "Texte récent du dialogue uniquement, jusqu’à 60 000 caractères. Images et résultats des outils exclus.",
+  "Session context": "Contexte de session",
+  "Start a new session with dialogue text from another session in the same project, even with a different model.": "Démarrez une session avec le texte du dialogue d’une autre session du même projet, même avec un modèle différent.",
+  "New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged.": "Nouvelle session → Contexte depuis réutilise le dialogue d’une autre session de ce projet. La session source reste inchangée.",
 };
 export default catalog;

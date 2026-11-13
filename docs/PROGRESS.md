@@ -7,6 +7,24 @@
 - FAILED: exact candidate full suite (exit 1), 1284 passed / 28 failed / 7 skipped, 2 Windows Unix-socket errors and an i18n file collection failure; independent baseline 1276 / 33 / 7 with the same errors. No assertions were weakened.
 - UNRUN: real cross-drive/UNC filesystems, POSIX hardware, UI/phone, install/reload. No new onboarding or telemetry action is introduced. [Verification](verification/windows-containment.md), including independent evidence and resource cleanup.
 
+## Use card description action placement — 2026-11-12
+
+- Moved the quiet action below the instruction field, to the trailing edge of the image controls, in both launch forms. Text/image copying, loading/error handling and sending are unchanged. [Contract](DESCRIPTION-IMAGES-SPEC.md).
+- PASS: typecheck exit 0; focused suite 112/112 (5 files, excluding the retained old worktree); desktop and 750px live layout/copy checks 12/12, plus 3 fixture cleanup checks. Installed `flowly` reloaded and running. No new onboarding concept or telemetry action.
+- FAILED: project full suite exit 1, 1356 passed / 29 failed / 7 skipped, 2 Windows socket errors. The default command also collected the retained old worktree; see report for separate counts. No assertions weakened.
+- UNRUN/INCOMPLETE: 390px dialog lookup timed out; device, dark theme, new-card live form and independent exact-commit checks not run. In review disabled, result receipt used. [Verification](verification/description-action-layout.md).
+- 2026-11-13 commit/install follow-up: typecheck exit 0 and focused 112/112 passed again. Commit scope is this card only on its existing feature branch. The same `flowly` ID already points at this checkout; duplicate install was refused, so the existing local installation was reloaded and reads running. Other sessions' changes are preserved.
+
+## Session dialogue context — 2026-11-12
+
+- User chose public SDK dialogue-text inheritance (same project, cross-model, excluding images/tool results) over a new internal-daemon exception. [Contract](SESSION-CONTEXT-SPEC.md).
+- New session has a Context from picker, default None. Daemon filters source membership, exports only bounded chronological user/assistant text at submit, checks ownership again after paging, and rejects empty, stale or unavailable history. The target gets a text attachment and its own current card instructions/credentials in its existing workspace. Prepared creation recovery still runs before source reads.
+- Guidance: More features tour entry, one-time session-context tip, READMEs and all nine catalogs. No What's new, version bump, board schema or telemetry field change. Corrected the i18n test's Windows file URL conversion so the catalog assertions can run.
+- PASS: `npm run typecheck` (0); focused `server/session-context.test.ts client/session.test.ts client/onboarding-logic.test.ts shared/i18n.test.ts` (0), 115 passed. No assertions were weakened.
+- FAILED: full `npm test` (1), final local run 1336 passed / 33 failed / 7 skipped, plus 2 Unix-socket errors on Windows; the previous run had 1337 / 32 / 7 and the same errors. Baseline comparison and independent verification are recorded separately when complete; do not count the full suite as passed.
+- Live verification and cleanup, independent exact-commit checks and PR state: see [verification report](verification/session-context.md). Android/iOS device checks remain unrun. Test was enabled during this turn; final verification uses Test. In review remains disabled, so delivery uses a result receipt.
+- Integrated with pending description-images PR #1 to preserve both installed capabilities; the context PR is stacked on that branch. Independent Haiku final commit `90a18dc`: typecheck 0, focused 128/128, full 1350 passed/32 failed/7 skipped plus 2 Windows socket errors; all failure identities match the baseline. Live cross-model text delivery, source preservation, empty-source failure and original description action passed (12 checks including cleanup); native fixtures removed. Owned temporary directory cleanup was denied by automatic policy and was not bypassed.
+
 ## Session preview Next moves appear without reopening (card "side bar session next move chip修复") — 2026-11-11
 
 - Symptom: with a session open in the card sidebar, a turn that ended with next moves sometimes showed no chips until the session was closed and reopened.
@@ -1212,3 +1230,11 @@ Phase 2 spec: [PHASE-02-SPEC.md](PHASE-02-SPEC.md). Three current-card tools; au
 - 端到端测出并修复：Unwrap 后侧栏仍显示 "Workspace is unavailable or archived."（工作区查询缓存的还是归档状态）；现在 Unwrap 后会像 Refresh details 那样重新读取。
 - [ ] 未跑：真机手机（只在浏览器手机宽度下验证）、独立会话复验。
 - 引导/提示/What's new：本步不加，Unwrap 只在已收尾卡片的侧栏里出现、按钮自明；第二步默认开启 Auto wrap up 时一并更新 `first-done` 提示、导览和 What's new。遥测：不加字段，第二步再定。
+## Card description images — 2026-11-12
+
+- User-approved [DESCRIPTION-IMAGES-SPEC](DESCRIPTION-IMAGES-SPEC.md): descriptions keep Markdown text plus up to four persisted images; both launch forms explicitly copy the description into an editable first instruction, including real SDK image attachments. Image-only launches use the card title. Ordinary follow-ups are unchanged.
+- Implemented immutable daemon image files, signature/size/base64 validation, card membership and revision checks, failed-write cleanup, and project-folder image export/import. Historical image files remain available to record/database backups after replacement or deletion. No board/overview/system-prompt image bytes, dependency or version bump.
+- Guidance: new one-time tip, More features tour entry, both READMEs, all nine catalogs; no What's new change. No new telemetry field or switch; existing session creation counting applies.
+- PASS: typecheck (exit 0); focused storage/launch/onboarding/i18n/store checks 126 passed, and focus-ring audit passed. Full Windows suite: 1334 passed, 32 failed, 7 skipped, 2 unhandled Unix-socket errors (exit 1). Exact baseline `a597cc8` independently checked in a temporary checkout: 1273 passed, 36 failed, 7 skipped, 2 errors. No new failure identities after the focus-ring fix. i18n test URL now uses `fileURLToPath` so all catalog checks run on Windows. Other pre-existing platform failures are preserved, not skipped or weakened.
+- Installed under ID `flowly` from this checkout through official CLI (prior registry configuration replaced; plugin data/settings preserved), daemon not restarted. UI/runtime and independent commit verification results will be recorded separately under `docs/verification/description-images*`.
+- Live verification complete: both UI launch paths sent the saved image to Haiku 5.5, which identified red; desktop edit/replace, independent instruction removal, combined-limit toast and compact creation passed. Plugin reload preserved bytes. [Report](verification/description-images.md), [independent 127/127](verification/description-images-independent.md). Fixture board/native projects and active workspaces are gone; one owned fixture directory remains because recursive cleanup was denied by automatic policy. PR [#1](https://github.com/FengLvv/flowly/pull/1) is open: this fork has no CI/CodeRabbit runs and auto-merge is disabled; no merge bypass was used.

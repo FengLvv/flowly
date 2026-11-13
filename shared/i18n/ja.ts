@@ -1,6 +1,12 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Use card description": "カードの説明を使用",
+  "Description changed. Use card description again.": "説明が変更されました。カードの説明を再度読み込んでください。",
+  "Description images": "説明の画像",
+  "Save pictures with a card description and use its text and pictures as a session instruction.": "カードの説明に画像を保存し、説明文と画像をセッションへの指示に使えます。",
+  "Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.": "カードの説明に画像を追加し、セッション開始時に「カードの説明を使用」を選ぶと、説明文と画像をまとめて送信できます。",
+
   "Command": "コマンド",
   "Project default model": "プロジェクトの既定モデル",
   "Review model": "レビューモデル",
@@ -1437,5 +1443,10 @@ const catalog: Catalog = {
   "Memory could not be read": "メモリを読み込めませんでした",
   "Find memory in finished cards": "完了したカードからメモリを見つける",
   "Back from session, then close sidebar, then leave a project page": "セッションから戻る → サイドバーを閉じる → プロジェクトページを離れる",
+  "Context from": "コンテキストの取得元",
+  "Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.": "最近の対話テキストのみ、最大 60,000 文字。画像とツールの結果は含まれません。",
+  "Session context": "セッションのコンテキスト",
+  "Start a new session with dialogue text from another session in the same project, even with a different model.": "同じプロジェクト内の別のセッションの対話テキストを使って新規セッションを開始できます。異なるモデルも選べます。",
+  "New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged.": "新規セッション → コンテキストの取得元で、同じプロジェクトの別の対話テキストを再利用できます。元のセッションは変更されません。",
 };
 export default catalog;

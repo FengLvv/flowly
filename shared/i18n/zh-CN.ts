@@ -1,6 +1,12 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Use card description": "使用卡片描述",
+  "Description changed. Use card description again.": "描述已更改，请重新使用卡片描述。",
+  "Description images": "描述图片",
+  "Save pictures with a card description and use its text and pictures as a session instruction.": "将图片保存在卡片描述中，并使用描述图文作为会话指令。",
+  "Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.": "在卡片描述中添加图片，启动会话时选择“使用卡片描述”，一起发送文字和图片。",
+
   "Command": "命令",
   "Project default model": "项目默认模型",
   "Review model": "评审模型",
@@ -1437,5 +1443,10 @@ const catalog: Catalog = {
   "Memory could not be read": "无法读取记忆",
   "Find memory in finished cards": "从完成的卡片里找记忆",
   "Back from session, then close sidebar, then leave a project page": "退出会话，再关闭侧栏，再离开项目页面",
+  "Context from": "上下文来源",
+  "Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.": "仅继承近期对话文本，最多 60,000 字符。不包含图片和工具结果。",
+  "Session context": "会话上下文",
+  "Start a new session with dialogue text from another session in the same project, even with a different model.": "新建会话时可继承同项目其他会话的对话文本，也可使用不同模型。",
+  "New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged.": "在“新建会话 → 上下文来源”中复用同项目其他会话的对话文本，源会话保持不变。",
 };
 export default catalog;

@@ -1,3 +1,5 @@
+import { DescriptionImageFiles } from "./description-images";
+import type { DescriptionImage } from "../shared/description-images";
 import { laneName, laneProblem } from "../shared/lanes";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
@@ -165,7 +167,9 @@ export class BoardStore {
     return this.storage;
   }
   async editTask(input: TaskEdit): Promise<Task> {
-    return this.mutate((board) => {
+    const files = new DescriptionImageFiles(this.directory);
+    const added: DescriptionImage[] = [];
+    try { return await this.mutate(async (board) => {
       const task = board.tasks.find((t) => t.id === input.id);
       if (!task) throw new Error("Task not found.");
       if (task.revision !== input.revision)
@@ -186,6 +190,11 @@ export class BoardStore {
       if (tagChange) setTags(task, tagChange.tags);
       if (input.title !== undefined) task.title = input.title;
       if (input.description !== undefined) task.description = input.description;
+      if (input.descriptionImages !== undefined) {
+        const images = await files.save(input.descriptionImages, task.descriptionImages || [], added);
+        if (images.length) task.descriptionImages = images;
+        else delete task.descriptionImages;
+      }
       if (input.priority !== undefined) task.priority = input.priority;
       if (input.type === null) delete task.type;
       else if (input.type !== undefined) task.type = input.type;
@@ -211,7 +220,7 @@ export class BoardStore {
       if (tagChange && (tagChange.added.length || tagChange.removed.length))
         this.event(board, { taskId: task.id, actor: "human", action: "tags_changed", note: tagChangeNote(tagChange) });
       return task;
-    });
+    }); } catch (error) { await files.cleanup(this, added); throw error; }
   }
   /**
    * Single tag adds/removes from the drawer (CARD-TAGS-SPEC §3). Only the board revision

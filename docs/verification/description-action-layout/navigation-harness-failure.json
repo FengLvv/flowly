@@ -1,0 +1,74 @@
+{
+  "root": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture",
+  "checks": [
+    {
+      "pass": true,
+      "name": "plugin fixture cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native project cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native workspace cleaned"
+    }
+  ],
+  "project": {
+    "id": "cd155dbc-97bd-4e75-a2a3-7f8c9d851d46",
+    "title": "Description action layout fixture",
+    "description": "Temporary owned UI fixture",
+    "paseoProjectId": "prj_d3f23196feecc10c",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture"
+    ],
+    "revision": 1,
+    "createdAt": "2026-11-12T13:02:17.652Z",
+    "updatedAt": "2026-11-12T13:02:17.652Z",
+    "archivedAt": null,
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    }
+  },
+  "card": {
+    "descriptionImages": [
+      {
+        "id": "c12cba8b-fa64-4b1c-9f15-6431667f25b9",
+        "name": "red.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      }
+    ],
+    "id": "51346963-b976-43fd-b5e4-68b6436e8c4c",
+    "projectId": "cd155dbc-97bd-4e75-a2a3-7f8c9d851d46",
+    "workspaceId": "wks_bdd8717d4e4affe9",
+    "sourcePath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture",
+    "repoPaths": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture"
+    ],
+    "title": "Description action layout",
+    "description": "Layout fixture instruction",
+    "status": "todo",
+    "priority": "normal",
+    "type": "bugfix",
+    "tags": [
+      {
+        "tag": "sessions",
+        "by": "human",
+        "at": "2026-11-12T13:02:18.439Z"
+      }
+    ],
+    "position": 0,
+    "revision": 1,
+    "operationId": "2faa8d88-be23-467a-94e9-3ab8785a24ce",
+    "createdAt": "2026-11-12T13:02:18.439Z",
+    "updatedAt": "2026-11-12T13:02:18.439Z",
+    "archivedAt": null,
+    "ownsWorkspace": true
+  },
+  "error": "page.goto: Timeout 45000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"[URL] waiting until \"domcontentloaded\"\u001b[22m\n",
+  "directoryCleaned": true
+}

@@ -154,6 +154,8 @@ Each step: focused tests (`shared/session-tail` merge/paging, follower anchoring
 
 ## 6. Images in first messages (user request, 2026-10-21)
 
+2026-11-12: saved card description pictures can be copied into the first message with **Use card description** on all platforms. Description editing adds desktop paste/drop/picker; the phone picker restriction below remains. See [DESCRIPTION-IMAGES-SPEC](DESCRIPTION-IMAGES-SPEC.md).
+
 Request: phones cannot attach images to a session message; New task (with its first agent) and the sidebar's New session cannot attach images at all.
 
 - **Web / desktop (done):** New task's agent instruction and New session's instruction take images like the session composer: paste or drop on the field, or **Add images** (browser file chooser), at most 4 per message, PNG/JPEG/GIF/WebP up to 5 MB each, thumbnails with remove. They are sent with the session's first message (`agents.create({ images, clientMessageId })`), and the transcript shows them beside that message (`rememberSentImages`). Shared code: `client/image-attach.tsx` (`useImageAttachments`, `ImageAttachments`, `AttachmentThumb`), reading files through `client/web-images.ts`.

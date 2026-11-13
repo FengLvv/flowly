@@ -423,6 +423,8 @@ function Hint({ icon, text }: { icon: string; text: string }) {
 function MoreFeatures() {
   const { colors } = useTheme();
   const more = [
+    { icon: "MessagesSquare", title: t("Session context"), text: t("Start a new session with dialogue text from another session in the same project, even with a different model.") },
+    { icon: "Images", title: t("Description images"), text: t("Save pictures with a card description and use its text and pictures as a session instruction.") },
     { icon: "ListChecks", title: t("Workpad"), text: t("Agents set the card's type and tags and write an acceptance list before they start; the card shows how many items are met, next to the latest review.") },
     { icon: "ShieldCheck", title: t("Auto review"), text: t("Deliveries are checked before they reach you, and go back to the agent when they fall short.") },
     { icon: "PackageCheck", title: t("Auto wrap up"), text: t("Cards moved to Done or Cancelled have their sessions and workspace archived when nothing is left unsaved. Unwrap in the card brings them back.") },

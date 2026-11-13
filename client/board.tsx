@@ -146,6 +146,7 @@ import { visibleReview } from "../shared/auto-review";
 
 /** One-time tip texts (ONBOARDING-SPEC §5). */
 const tipText: Record<TipId, (compact?: boolean) => string> = {
+  "description-images": () => t("Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together."),
   "first-card": () => t("Your card moves by itself as the agent works. Open it any time to see its sessions, output and summary."),
   "needs-you": () => t("A card is waiting for you. Reply goes straight to the session."),
   "first-idea": () => t("An agent suggested follow-up work. Good idea starts a card or continues here; Dismiss removes it."),
@@ -173,6 +174,7 @@ const tipText: Record<TipId, (compact?: boolean) => string> = {
   "attention-dismiss": () => t("Not ready to decide? Dismiss a card from Attention. It comes back when something new happens."),
   "sidebar-order": () => t("Arrange an open card your way: reorder its sections and choose which start open in Settings → Cards → Card sidebar."),
   "session-history": () => t("A session's output now starts at the beginning of its current turn. Press Load earlier at the top to read further back."),
+  "session-context": () => t("New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged."),
   "settings-entry": () => t("Turn features on or off and change settings here."),
   "auto-review": () => t("Auto review checked this card after the agent delivered; open it to see each check's result."),
   "first-guardrail": () => t("Flowly learned a check from a card you sent back. Open Guardrails to see what it checks now."),

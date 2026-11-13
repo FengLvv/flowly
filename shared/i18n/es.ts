@@ -1,6 +1,12 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Use card description": "Usar descripción de la tarjeta",
+  "Description changed. Use card description again.": "La descripción cambió. Vuelve a usar la descripción de la tarjeta.",
+  "Description images": "Imágenes de la descripción",
+  "Save pictures with a card description and use its text and pictures as a session instruction.": "Guarda imágenes en la descripción de una tarjeta y usa el texto y las imágenes como instrucción de sesión.",
+  "Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.": "Añade imágenes a la descripción de una tarjeta y elige Usar descripción de la tarjeta al iniciar una sesión para enviar el texto y las imágenes juntos.",
+
   "Command": "Comando",
   "Project default model": "Modelo predeterminado del proyecto",
   "Review model": "Modelo de revisión",
@@ -1437,5 +1443,10 @@ const catalog: Catalog = {
   "Memory could not be read": "No se pudo leer la memoria",
   "Find memory in finished cards": "Buscar recuerdos en tarjetas terminadas",
   "Back from session, then close sidebar, then leave a project page": "Volver de la sesión, luego cerrar la barra lateral y luego salir de la página del proyecto",
+  "Context from": "Contexto de",
+  "Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.": "Solo texto reciente del diálogo, hasta 60.000 caracteres. Se excluyen imágenes y resultados de herramientas.",
+  "Session context": "Contexto de sesión",
+  "Start a new session with dialogue text from another session in the same project, even with a different model.": "Inicia una sesión con el texto del diálogo de otra sesión del mismo proyecto, incluso con un modelo diferente.",
+  "New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged.": "Nueva sesión → Contexto de reutiliza el diálogo de otra sesión de este proyecto. La sesión de origen no cambia.",
 };
 export default catalog;

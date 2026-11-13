@@ -1,6 +1,12 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Use card description": "Kartenbeschreibung verwenden",
+  "Description changed. Use card description again.": "Die Beschreibung wurde geändert. Laden Sie die Kartenbeschreibung erneut.",
+  "Description images": "Beschreibungsbilder",
+  "Save pictures with a card description and use its text and pictures as a session instruction.": "Speichern Sie Bilder mit der Kartenbeschreibung und verwenden Sie Text und Bilder als Sitzungsanweisung.",
+  "Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.": "Fügen Sie Bilder zur Kartenbeschreibung hinzu und wählen Sie beim Sitzungsstart Kartenbeschreibung verwenden, um Text und Bilder zusammen zu senden.",
+
   "Command": "Befehl",
   "Project default model": "Standardmodell des Projekts",
   "Review model": "Prüfmodell",
@@ -1437,5 +1443,10 @@ const catalog: Catalog = {
   "Memory could not be read": "Gedächtnis konnte nicht gelesen werden",
   "Find memory in finished cards": "Merkenswertes in fertigen Karten finden",
   "Back from session, then close sidebar, then leave a project page": "Zurück aus der Sitzung, dann Seitenleiste schließen, dann Projektseite verlassen",
+  "Context from": "Kontext aus",
+  "Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.": "Nur aktueller Dialogtext, bis zu 60.000 Zeichen. Bilder und Werkzeugergebnisse sind ausgeschlossen.",
+  "Session context": "Sitzungskontext",
+  "Start a new session with dialogue text from another session in the same project, even with a different model.": "Starten Sie eine neue Sitzung mit Dialogtext aus einer anderen Sitzung desselben Projekts, auch mit einem anderen Modell.",
+  "New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged.": "Neue Sitzung → Kontext aus übernimmt Dialogtext einer anderen Sitzung dieses Projekts. Die Quellsitzung bleibt unverändert.",
 };
 export default catalog;

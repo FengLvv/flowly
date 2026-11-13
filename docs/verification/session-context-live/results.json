@@ -1,0 +1,128 @@
+{
+  "directory": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\session-context-live\\fixture",
+  "project": {
+    "id": "d96a265e-370c-45ec-8078-2323b4136404",
+    "title": "Session context acceptance",
+    "description": "Owned temporary verification",
+    "paseoProjectId": "prj_b764d25e68708c9f",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\session-context-live\\fixture",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\session-context-live\\fixture"
+    ],
+    "revision": 1,
+    "createdAt": "2026-11-12T09:36:28.096Z",
+    "updatedAt": "2026-11-12T09:36:28.096Z",
+    "archivedAt": null,
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    }
+  },
+  "cards": [
+    {
+      "id": "80284561-4321-4491-983f-452bc8779d0e",
+      "workspaceId": "wks_87a4e09923354e27"
+    },
+    {
+      "id": "09abf79e-b425-4a3f-a9a5-91fbd5ae6c27",
+      "workspaceId": "wks_99cac85e86a6ad49"
+    }
+  ],
+  "agents": [
+    "c9c20738-7e99-41d4-bba6-ee73b9f8de12",
+    "f49cf8a5-058a-4150-8d2d-3f561b1538f1",
+    "bd23cfb8-1ce9-4a10-ac28-cda150fd2cbc"
+  ],
+  "checks": [
+    {
+      "name": "other-card source is listed",
+      "pass": true
+    },
+    {
+      "name": "real SDK history exported",
+      "pass": true
+    },
+    {
+      "name": "description instruction action preserved",
+      "pass": true
+    },
+    {
+      "name": "blank context is default",
+      "pass": true
+    },
+    {
+      "name": "empty source fails visibly before target creation",
+      "pass": true
+    },
+    {
+      "name": "compact dialog fits viewport",
+      "pass": true
+    },
+    {
+      "name": "exactly one target session created",
+      "pass": true
+    },
+    {
+      "name": "different-model target receives inherited context",
+      "pass": true
+    },
+    {
+      "name": "source session preserved",
+      "pass": true
+    },
+    {
+      "name": "source dialogue still available after reload",
+      "pass": true
+    },
+    {
+      "name": "fixture removed from board",
+      "pass": true
+    },
+    {
+      "name": "fixture native project removed",
+      "pass": true
+    }
+  ],
+  "cleaned": true,
+  "telemetryForcedOff": false,
+  "compactBounds": {
+    "x": 115,
+    "y": 87.90625,
+    "width": 520,
+    "height": 724.1875
+  },
+  "target": {
+    "id": "bd23cfb8-1ce9-4a10-ac28-cda150fd2cbc",
+    "workspaceId": "wks_99cac85e86a6ad49",
+    "provider": "codex",
+    "answers": [
+      "VIOLET-5839"
+    ]
+  },
+  "cleanupReadback": {
+    "workspaces": [
+      {
+        "id": "wks_87a4e09923354e27",
+        "active": false
+      },
+      {
+        "id": "wks_99cac85e86a6ad49",
+        "active": false
+      }
+    ],
+    "agents": [
+      {
+        "id": "c9c20738-7e99-41d4-bba6-ee73b9f8de12",
+        "active": false
+      },
+      {
+        "id": "f49cf8a5-058a-4150-8d2d-3f561b1538f1",
+        "active": false
+      },
+      {
+        "id": "bd23cfb8-1ce9-4a10-ac28-cda150fd2cbc",
+        "active": false
+      }
+    ]
+  }
+}
