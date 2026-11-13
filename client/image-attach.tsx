@@ -95,15 +95,17 @@ export function useImageAttachments(limit = maxImages) {
 /**
  * Wraps a message field: pasted or dropped images on it are attached, and an
  * "Add images" button with the thumbnails sits below. Renders only the field
- * where image input is unsupported (phones).
+ * where image input is unsupported (phones), plus any supplied trailing action.
  */
 export function ImageAttachments({
   state,
   disabled,
+  trailingAction,
   children,
 }: {
   state: ReturnType<typeof useImageAttachments>;
   disabled?: boolean;
+  trailingAction?: ReactNode;
   children: ReactNode;
 }) {
   const [node, setNode] = useState<View | null>(null);
@@ -117,17 +119,20 @@ export function ImageAttachments({
     <View ref={setNode} style={{ gap: space[2] }}>
       {children}
       <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: space[2] }}>
-        {state.attachments.map((a) => (
-          <AttachmentThumb key={a.id} attachment={a} onRemove={() => !disabled && state.remove(a.id)} />
-        ))}
-        {imageInputSupported && <Button quiet icon="ImagePlus" disabled={disabled || full} onPress={() => void pickImageFiles().then((files) => state.add(files))}>
-          {t("Add images")}
-        </Button>}
-        {imageInputSupported && !state.attachments.length && (
-          <Label muted size={font.sm}>
-            {t("or paste or drop them here")}
-          </Label>
-        )}
+        <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", flexGrow: 1, flexShrink: 1, gap: space[2] }}>
+          {state.attachments.map((a) => (
+            <AttachmentThumb key={a.id} attachment={a} onRemove={() => !disabled && state.remove(a.id)} />
+          ))}
+          {imageInputSupported && <Button quiet icon="ImagePlus" disabled={disabled || full} onPress={() => void pickImageFiles().then((files) => state.add(files))}>
+            {t("Add images")}
+          </Button>}
+          {imageInputSupported && !state.attachments.length && (
+            <Label muted size={font.sm}>
+              {t("or paste or drop them here")}
+            </Label>
+          )}
+        </View>
+        {trailingAction && <View style={{ marginLeft: "auto", maxWidth: "100%" }}>{trailingAction}</View>}
       </View>
     </View>
   );

@@ -1,5 +1,13 @@
 # Implementation progress
 
+## Use card description action placement — 2026-11-12
+
+- Moved the quiet action below the instruction field, to the trailing edge of the image controls, in both launch forms. Text/image copying, loading/error handling and sending are unchanged. [Contract](DESCRIPTION-IMAGES-SPEC.md).
+- PASS: typecheck exit 0; focused suite 112/112 (5 files, excluding the retained old worktree); desktop and 750px live layout/copy checks 12/12, plus 3 fixture cleanup checks. Installed `flowly` reloaded and running. No new onboarding concept or telemetry action.
+- FAILED: project full suite exit 1, 1356 passed / 29 failed / 7 skipped, 2 Windows socket errors. The default command also collected the retained old worktree; see report for separate counts. No assertions weakened.
+- UNRUN/INCOMPLETE: 390px dialog lookup timed out; device, dark theme, new-card live form and independent exact-commit checks not run. In review disabled, result receipt used. [Verification](verification/description-action-layout.md).
+- 2026-11-13 commit/install follow-up: typecheck exit 0 and focused 112/112 passed again. Commit scope is this card only on its existing feature branch. The same `flowly` ID already points at this checkout; duplicate install was refused, so the existing local installation was reloaded and reads running. Other sessions' changes are preserved.
+
 ## Session dialogue context — 2026-11-12
 
 - User chose public SDK dialogue-text inheritance (same project, cross-model, excluding images/tool results) over a new internal-daemon exception. [Contract](SESSION-CONTEXT-SPEC.md).

@@ -256,8 +256,11 @@ export function SessionCreate({
           editable={!sending}
           onSubmit={submit}
         />
-        {(task.description.trim() || task.descriptionImages?.length) ? <Button quiet disabled={sending || loadingDescription} onPress={() => void useDescription()}>{t("Use card description")}</Button> : null}
-        <ImageAttachments state={attachments} disabled={sending || loadingDescription}>
+        <ImageAttachments
+          state={attachments}
+          disabled={sending || loadingDescription}
+          trailingAction={(task.description.trim() || task.descriptionImages?.length) ? <Button quiet disabled={sending || loadingDescription} onPress={() => void useDescription()}>{t("Use card description")}</Button> : null}
+        >
           <Field
             title={t("Instruction")}
             value={newPrompt}

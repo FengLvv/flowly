@@ -41,6 +41,12 @@ UI-REFRESH-SPEC §7s). An image-only instruction is allowed; include the card ti
 as its text when sending. The combined instruction limit is four images; overflow
 is reported, never silently truncated.
 
+In both launch forms, place this action below the instruction field, at the
+trailing edge of the image-attachment controls, rather than above the field as a
+full-width button. Keep the existing quiet button styling. At narrow widths the
+controls may wrap without overflowing; the description action remains available
+on phones even though their image picker is unavailable.
+
 For an existing card the action reads fresh text/metadata/bytes with one revision.
 Before session creation, recheck that revision; stale data requires reloading the
 description. A new task tracks its local description snapshot and requires
