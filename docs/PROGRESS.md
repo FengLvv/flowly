@@ -7,6 +7,8 @@
 - PASS: typecheck exit 0; focused 6 files / 117 tests exit 0, covering >4 images, >5 MiB, reload/edit/snapshot and failed-send retry. Installed flowly reloaded/running after typecheck.
 - FAILED: project full suite exit 1, 1360 passed / 30 failed / 7 skipped plus 2 Windows socket errors; no claim of baseline parity until independent comparison. Initial test-shape assertion corrected without weakening byte equality; first UI harness could not locate cached Playwright, fixture registry cleanup passed, directory EBUSY pending retry.
 - Exact-commit independent results, live UI, cleanup and main push follow in [verification](verification/image-limits.md). Phone and actual model large-image acceptance unrun. User chose direct main delivery in their fork; existing committed features preserved, other sessions' dirty work excluded.
+- FINAL PASS: independent exact-commit archive snapshot typecheck 0 and focused 123/123; full candidate 1361 passed / 29 failed / 7 pending versus baseline 1355 / 30 / 7, no new failing identities. Independent evidence is verifier-owned.
+- LIVE PASS: 15 desktop/750px and registry checks; copied 8, appended 6 including >5 MiB, kept all 14, reread original bytes. No model messages sent. Directory removal first returned EBUSY, then automatic policy denied the explicit PowerShell cleanup; owned on-disk fixture remains, board/native resources are gone. Report and screenshots linked above.
 
 ## Windows workspace containment — 2026-11-12
 

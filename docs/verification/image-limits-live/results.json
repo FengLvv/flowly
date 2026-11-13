@@ -1,0 +1,170 @@
+{
+  "root": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture",
+  "checks": [
+    {
+      "pass": true,
+      "name": "1700px: all eight description images copied"
+    },
+    {
+      "pass": true,
+      "name": "1700px: add images remains enabled above four"
+    },
+    {
+      "pass": true,
+      "name": "1700px: picker appends all six including >5MiB"
+    },
+    {
+      "pass": true,
+      "name": "1700px: add remains enabled after fourteen"
+    },
+    {
+      "pass": true,
+      "name": "1700px: reuse description restores complete ordered snapshot"
+    },
+    {
+      "pass": true,
+      "name": "750px: all eight description images copied"
+    },
+    {
+      "pass": true,
+      "name": "750px: add images remains enabled above four"
+    },
+    {
+      "pass": true,
+      "name": "750px: picker appends all six including >5MiB"
+    },
+    {
+      "pass": true,
+      "name": "750px: add remains enabled after fourteen"
+    },
+    {
+      "pass": true,
+      "name": "750px: reuse description restores complete ordered snapshot"
+    },
+    {
+      "pass": true,
+      "name": "installed RPC preserved all images and exact large bytes"
+    },
+    {
+      "pass": true,
+      "name": "no session was submitted"
+    },
+    {
+      "pass": true,
+      "name": "plugin fixture cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native project cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native workspace cleaned"
+    }
+  ],
+  "project": {
+    "id": "8978de22-2d5c-4f1b-8d00-51d78d98e7f4",
+    "title": "Image limits fixture",
+    "description": "Temporary owned UI fixture",
+    "paseoProjectId": "prj_4d4a72904668e3d5",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture"
+    ],
+    "revision": 1,
+    "createdAt": "2026-11-13T02:55:31.641Z",
+    "updatedAt": "2026-11-13T02:55:31.641Z",
+    "archivedAt": null,
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    }
+  },
+  "card": {
+    "descriptionImages": [
+      {
+        "id": "ef24b758-b169-4b4f-9970-7c107e54d3ad",
+        "name": "saved-0.png",
+        "mimeType": "image/png",
+        "bytes": 5243048,
+        "sha256": "67d7e817f3c30ce37987d0a367164a20c1f826deead613ee5281e015fa7206db"
+      },
+      {
+        "id": "6f011641-2a63-49ad-9b98-1a821e95876a",
+        "name": "saved-1.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "a061d3e5-3a07-49de-b0a7-ce342dc670d6",
+        "name": "saved-2.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "45b084a8-a544-43ad-8d0e-ab82eb811811",
+        "name": "saved-3.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "9f6769ed-76be-43c1-8e92-f75dd9f594f2",
+        "name": "saved-4.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "aea1ecd5-e852-4c9b-a59d-0750a0d133db",
+        "name": "saved-5.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "46a521ca-9057-4845-9227-35f00bc76c06",
+        "name": "saved-6.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "d3499e34-54dc-410e-a9b5-0553496a799a",
+        "name": "saved-7.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      }
+    ],
+    "id": "4771e9d7-32cb-45a0-8f0d-f44822c3f504",
+    "projectId": "8978de22-2d5c-4f1b-8d00-51d78d98e7f4",
+    "workspaceId": "wks_14ae0f7a8d4562ea",
+    "sourcePath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture",
+    "repoPaths": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture"
+    ],
+    "title": "Unlimited image input",
+    "description": "Layout fixture instruction",
+    "status": "todo",
+    "priority": "normal",
+    "type": "bugfix",
+    "tags": [
+      {
+        "tag": "sessions",
+        "by": "human",
+        "at": "2026-11-13T02:55:33.309Z"
+      }
+    ],
+    "position": 0,
+    "revision": 1,
+    "operationId": "9e097c67-6427-4fbc-af18-be8f07222618",
+    "createdAt": "2026-11-13T02:55:33.309Z",
+    "updatedAt": "2026-11-13T02:55:33.309Z",
+    "archivedAt": null,
+    "ownsWorkspace": true
+  },
+  "cleanupError": "EBUSY: resource busy or locked, rmdir 'F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture'"
+}

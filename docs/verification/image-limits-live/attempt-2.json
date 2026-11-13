@@ -1,0 +1,123 @@
+{
+  "root": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture",
+  "checks": [
+    {
+      "pass": true,
+      "name": "plugin fixture cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native project cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native workspace cleaned"
+    }
+  ],
+  "project": {
+    "id": "8e30c7ee-ee8e-4b74-b582-4e430efc0518",
+    "title": "Image limits fixture",
+    "description": "Temporary owned UI fixture",
+    "paseoProjectId": "prj_e660b37ae34e913b",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture"
+    ],
+    "revision": 1,
+    "createdAt": "2026-11-13T02:54:58.027Z",
+    "updatedAt": "2026-11-13T02:54:58.027Z",
+    "archivedAt": null,
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    }
+  },
+  "card": {
+    "descriptionImages": [
+      {
+        "id": "06bd924e-3a12-497f-a2d0-6a93683d838f",
+        "name": "saved-0.png",
+        "mimeType": "image/png",
+        "bytes": 5243048,
+        "sha256": "67d7e817f3c30ce37987d0a367164a20c1f826deead613ee5281e015fa7206db"
+      },
+      {
+        "id": "5910969c-c303-48e0-a206-f3989feae7a4",
+        "name": "saved-1.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "40cba02d-61df-4f0b-9b92-77a2ad5bbd02",
+        "name": "saved-2.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "577f8c72-9168-4431-a00f-ac870a646056",
+        "name": "saved-3.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "cdf1b3ba-f856-49e9-9a82-341c2e29be0a",
+        "name": "saved-4.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "2082d3ee-50da-4ef2-92bf-5149a1171ae0",
+        "name": "saved-5.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "89930c0d-bac6-4d40-9316-e2a440c8959b",
+        "name": "saved-6.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "ccf4be9e-06ec-46ca-945f-bae675616f9d",
+        "name": "saved-7.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      }
+    ],
+    "id": "0063da7b-4521-4ec7-82dc-43c3c1ff7afa",
+    "projectId": "8e30c7ee-ee8e-4b74-b582-4e430efc0518",
+    "workspaceId": "wks_beb4a4b816668f5f",
+    "sourcePath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture",
+    "repoPaths": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture"
+    ],
+    "title": "Unlimited image input",
+    "description": "Layout fixture instruction",
+    "status": "todo",
+    "priority": "normal",
+    "type": "bugfix",
+    "tags": [
+      {
+        "tag": "sessions",
+        "by": "human",
+        "at": "2026-11-13T02:55:00.159Z"
+      }
+    ],
+    "position": 0,
+    "revision": 1,
+    "operationId": "64b94cf6-280b-4503-8ac2-fb7d2bf3e9e3",
+    "createdAt": "2026-11-13T02:55:00.159Z",
+    "updatedAt": "2026-11-13T02:55:00.159Z",
+    "archivedAt": null,
+    "ownsWorkspace": true
+  },
+  "error": "Chromium not found (Error: browserType.launch: Executable doesn't exist at C:\\Users\\vilolu\\AppData\\Local\\ms-playwright\\chromium_headless_shell-1237\\chrome-headless-shell-win64\\chrome-headless-shell.exe). Run `npx playwright install chromium` or set PLAYWRIGHT_CHROMIUM_PATH.",
+  "cleanupError": "EBUSY: resource busy or locked, rmdir 'F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture'"
+}

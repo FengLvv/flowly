@@ -1,0 +1,123 @@
+{
+  "root": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture",
+  "checks": [
+    {
+      "pass": true,
+      "name": "plugin fixture cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native project cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native workspace cleaned"
+    }
+  ],
+  "project": {
+    "id": "f5627209-6d95-4fbf-94c7-44a30039bd13",
+    "title": "Image limits fixture",
+    "description": "Temporary owned UI fixture",
+    "paseoProjectId": "prj_3d9e4dfa0509baed",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture"
+    ],
+    "revision": 1,
+    "createdAt": "2026-11-13T02:52:36.658Z",
+    "updatedAt": "2026-11-13T02:52:36.658Z",
+    "archivedAt": null,
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    }
+  },
+  "card": {
+    "descriptionImages": [
+      {
+        "id": "cf42e7db-d4f8-4c20-b07e-14e1767881e3",
+        "name": "saved-0.png",
+        "mimeType": "image/png",
+        "bytes": 5243048,
+        "sha256": "67d7e817f3c30ce37987d0a367164a20c1f826deead613ee5281e015fa7206db"
+      },
+      {
+        "id": "e7d3b2e3-e286-4295-b578-b863099b17fa",
+        "name": "saved-1.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "4a9f6641-c504-4436-9a60-01493f221212",
+        "name": "saved-2.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "8763035a-74bc-4ba7-8d08-6f2b40d3514c",
+        "name": "saved-3.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "bcc97730-0946-4908-b281-dae7a520f609",
+        "name": "saved-4.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "5fcd6ece-08ac-4e77-a73a-26cc67681c48",
+        "name": "saved-5.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "a5ac7497-4ab1-4f8e-b91e-29b846744e8a",
+        "name": "saved-6.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      },
+      {
+        "id": "3d7c4d6b-9573-4469-9d92-c485cea89b70",
+        "name": "saved-7.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      }
+    ],
+    "id": "7cf3af5c-38b9-4253-8e1a-49d5e2221677",
+    "projectId": "f5627209-6d95-4fbf-94c7-44a30039bd13",
+    "workspaceId": "wks_79237d44d2ebf303",
+    "sourcePath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture",
+    "repoPaths": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture"
+    ],
+    "title": "Unlimited image input",
+    "description": "Layout fixture instruction",
+    "status": "todo",
+    "priority": "normal",
+    "type": "bugfix",
+    "tags": [
+      {
+        "tag": "sessions",
+        "by": "human",
+        "at": "2026-11-13T02:52:38.001Z"
+      }
+    ],
+    "position": 0,
+    "revision": 1,
+    "operationId": "5a56800e-5bfc-48ec-af9c-fc74e44eef04",
+    "createdAt": "2026-11-13T02:52:38.001Z",
+    "updatedAt": "2026-11-13T02:52:38.001Z",
+    "archivedAt": null,
+    "ownsWorkspace": true
+  },
+  "error": "Playwright not found. Run `npm i --no-save playwright` (or set PLAYWRIGHT_MODULE=/path/to/playwright).",
+  "cleanupError": "EBUSY: resource busy or locked, rmdir 'F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\image-limits-live-4c6242ed\\fixture'"
+}
