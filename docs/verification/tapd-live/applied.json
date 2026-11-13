@@ -1,0 +1,35 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Development telemetry disabled using settings without daemon restart"
+    },
+    {
+      "pass": true,
+      "label": "Daily Flowly reloaded and running"
+    },
+    {
+      "pass": true,
+      "label": "Development telemetry remains disabled"
+    },
+    {
+      "pass": true,
+      "label": "Daily TAPD project connected without copied credential"
+    },
+    {
+      "pass": true,
+      "label": "Daily host MCP authentication and project membership verified"
+    },
+    {
+      "pass": true,
+      "label": "Infinite canvas bundle unchanged and plugin still running"
+    },
+    {
+      "pass": true,
+      "label": "Daily client bundle contains TAPD entry"
+    }
+  ],
+  "daemonRestarted": false,
+  "canvasReloaded": false,
+  "clientBundleBytes": 1023431
+}

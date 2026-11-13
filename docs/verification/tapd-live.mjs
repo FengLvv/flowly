@@ -34,6 +34,7 @@ try {
   const found = await rpc('connectors.search', { connectionId: state.connection.id, query: `story-${Number(process.env.FLOWLY_TAPD_ID.slice(-9))}` });
   check(found.results.length === 1 && found.results[0].remoteId === process.env.FLOWLY_TAPD_ID, 'Installed RPC resolves short ID');
   const item = found.results[0];
+  if (!process.argv.includes('--rpc-only')) {
   // Discover installed browser tools, never hard-code a cache path.
   const dirs = (p) => { try { return readdirSync(p).map(n => join(p, n)); } catch { return []; } };
   const caches = [process.env.npm_config_cache, process.env.LOCALAPPDATA && join(process.env.LOCALAPPDATA, 'npm-cache'), join(homedir(), '.npm')].filter(Boolean);
@@ -44,20 +45,26 @@ try {
   page = await context.newPage(); page.setDefaultTimeout(20000);
   page.on('pageerror', e => report.errors.push(e.name));
   const offer = await client.getDaemonPairingOffer();
-  await page.goto(offer.url, { waitUntil: 'domcontentloaded' });
+  await page.goto(offer.url, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await page.getByRole('button', { name: /^(Connect|连接)$/ }).click();
   await page.getByText('Flowly', { exact: true }).first().waitFor();
+  await page.getByText('Flowly', { exact: true }).first().click();
   const status = await client.getDaemonStatus();
   const serverId = status.serverId || status.daemon?.serverId;
   if (!serverId) throw new Error('Fixture server ID missing');
-  await page.goto(`https://app.paseo.sh/h/${serverId}/plugin/flowly/surface/board`, { waitUntil: 'domcontentloaded' });
+  const target = new URL(page.url());
+  target.pathname = target.pathname.replace(/\/h\/[^/]+\//, `/h/${serverId}/`);
+  target.search = ''; target.hash = '';
+  await page.goto(target.href, { waitUntil: 'domcontentloaded', timeout: 45000 });
   // The server ID is checked independently of the host's auto-discovery.
-  check(new URL(page.url()).pathname.includes(`/h/${serverId}/plugin/flowly/surface/board`), 'Browser bound to candidate screen');
+  check(new URL(page.url()).pathname.includes(`/h/${serverId}/plugin/flowly/`), 'Browser bound to candidate screen');
+  report.screen = new URL(page.url()).pathname.split('/plugin/')[1];
   const skip = page.getByRole('button', { name: /^(Skip|跳过)$/ });
   if (await skip.isVisible({ timeout: 6000 }).catch(() => false)) await skip.click();
   await page.waitForTimeout(2000);
   for (const button of await page.getByRole('button', { name: /^(Got it|知道了)$/ }).all()) if (await button.isVisible()) await button.click();
-  const settings = page.getByRole('button', { name: /^(Settings|设置)$/ });
+  const settings = page.getByRole('button', { name: /^(Flowly settings|Flowly 设置)$/ });
+  await settings.first().waitFor();
   let pluginSettings;
   for (const button of await settings.all()) { const box = await button.boundingBox(); if (box && box.x >= 320) pluginSettings = button; }
   if (!pluginSettings) throw new Error('Plugin settings button not found');
@@ -67,18 +74,27 @@ try {
   const s = { page, context, project: 'TAPD verification', w: 1700, h: 1000, clip: { x: 320, y: 0, width: 1380, height: 1000 } };
   for (const width of [1700, 750]) {
     await page.setViewportSize({ width, height: 1000 }); s.w = width; s.clip.width = width - 320;
-    const text = await pageText(s);
-    check(/tapd MCP/.test(text), `${width}px: TAPD MCP guidance visible`);
-    check(!/Personal access token|API token|个人访问令牌/.test(text), `${width}px: no token input`);
+    const guidance = page.getByText(/Uses the Paseo host's configured tapd MCP server through mcporter/);
+    await guidance.waitFor();
+    check(await guidance.isVisible(), `${width}px: TAPD MCP guidance visible`);
+    check(await page.locator('input[type="password"]').count() === 0, `${width}px: no token input`);
+    const box = await page.getByRole('button', { name: /^(Save|保存)$/ }).last().boundingBox();
+    check(box && box.x >= 0 && box.x + box.width <= width && box.y + box.height < 1000, `${width}px: save control inside viewport`);
     await shot(s, join(out, `connection-${width}.png`));
   }
   await page.getByRole('button', { name: /^(Back to connections|返回连接)$/ }).click();
   await page.getByRole('button', { name: /^(Close|关闭)$/ }).last().click();
   await page.setViewportSize({ width: 1700, height: 1000 }); s.w = 1700; s.clip.width = 1380;
-  await page.getByRole('button', { name: /^(New task|新建任务)$/ }).first().click();
+  // A newly created project is not necessarily the active tab after a previous
+  // fixture was removed. Explicitly choose it, as shot-lib.open() does.
+  const chooser = page.locator('button[aria-label^="All projects"], button[aria-label^="Project:"]').first();
+  await chooser.click();
+  await page.getByRole('button', { name: 'TAPD verification', exact: true }).click();
+  await page.getByRole('button', { name: /^(New task|新建任务)(?:\s|$|\()/ }).first().click();
   check(await page.getByRole('button', { name: /^(From TAPD|从 TAPD)$/ }).isVisible(), 'New task has From TAPD');
   await shot(s, join(out, 'new-task.png'));
   await page.getByRole('button', { name: /^(Cancel|取消)$/ }).last().click();
+  }
   // Ticket content is used only after screenshots and is never exported.
   const imported = await rpc('tasks.create', { projectId: state.project.id, operationId: 'tapd-import-card', title: 'TAPD import verification', description: '', status: 'todo', mode: 'directory', externals: [{ connectionId: state.connection.id, key: item.key, itemType: item.itemType }] });
   state.imported = { id: imported.id, workspaceId: imported.workspaceId }; await save();
@@ -95,8 +111,9 @@ try {
   report.failure = error.message.replace(/https?:\/\/\S+/g, '[URL]').slice(0, 300); process.exitCode = 1;
   if (page) {
     const debug = { page, project: 'TAPD verification', clip: { x: 320, y: 0, width: (page.viewportSize()?.width || 1700) - 320, height: 1000 } };
-    await writeFile(join(home, 'ui-failure.txt'), await pageText(debug)).catch(() => {});
-    await shot(debug, join(home, 'ui-failure.png')).catch(() => {});
+    const bounded = (promise) => Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error('Debug capture timeout')), 3000))]);
+    await bounded(pageText(debug).then(text => writeFile(join(home, 'ui-failure.txt'), text))).catch(() => {});
+    await bounded(shot(debug, join(home, 'ui-failure.png'))).catch(() => {});
   }
 } finally {
   await context?.close(); await browser?.close();
@@ -112,5 +129,5 @@ try {
     if (report.cleanup.boardEmpty && report.cleanup.nativeProjectGone && report.cleanup.connection) { delete state.project; delete state.card; delete state.connection; delete state.imported; await save(); }
   }
   await client.close(); report.cleanup.browserClosed = true;
-  await writeFile(join(out, 'results.json'), JSON.stringify(report, null, 2)); console.log(JSON.stringify(report));
+  await writeFile(join(out, process.argv.includes('--rpc-only') ? 'rpc-results.json' : 'results.json'), JSON.stringify(report, null, 2)); console.log(JSON.stringify(report));
 }

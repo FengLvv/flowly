@@ -6,7 +6,7 @@
 - Requirements, bugs and tasks use canonical project/kind/19-digit keys. Internal detail/dialog/legacy links, short-ID conversion, recent/title search, preview, artifact inputs and agent reads share the connector framework. Empty new-card descriptions import the first TAPD body before creating a workspace; user descriptions stay. Tour, tip, README and all nine catalogs updated. No new telemetry fields, dependencies or version bump.
 - PASS: typecheck exit 0; focused six files / 170 tests exit 0; opt-in real internal MCP adapter check exit 0 (membership, recent list, exact body/comments interface and short-ID mapping). No ticket title/body or credential exported.
 - FAILED: connector regression 229 passed / 1 failed (Windows POSIX mode assertion in existing Jira test); full suite 1425 passed / 29 failed / 8 pending, exit 1. No assertion weakened, no claim of exact baseline parity. Isolated installed-plugin RPC resolves short IDs, public connection has no credential, fixture telemetry forced off, and fixture board/native cleanup passed; UI/persistence and independent exact-commit checks still in progress.
-
+- FINAL: independent candidate 1411/29/8 vs baseline 1361/29/7, identical failed identities and 51 additional cases without failures. Installed RPC 8/8 including real import and reload persistence; Settings UI 11 checks at desktop/750px passed before unrelated harness navigation timed out (From TAPD visual selection unaccepted). Daily Flowly applied, QQSpeed TAPD connection verified, 7/7, canvas bundle unchanged/running with no daemon restart or canvas reload. Dev telemetry disabled through settings. PR #3 open: fork has no CI/CodeRabbit check. [Evidence and limitations](verification/tapd.md).
 
 ## Image attachment limits removed — 2026-11-13
 
