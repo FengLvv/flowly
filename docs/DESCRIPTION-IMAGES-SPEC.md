@@ -8,8 +8,13 @@ automatic remote-image download is introduced.
 
 ## Contract
 
-- Up to four PNG/JPEG/GIF/WebP images, each at most 5 MiB. The daemon validates
-  canonical base64, decoded size and file signature, not just the supplied MIME.
+- PNG/JPEG/GIF/WebP images have no Flowly-imposed count, byte-size or pixel-size
+  limit (user decision 2026-11-13). This applies to descriptions, first instructions,
+  follow-ups and queued messages. Images keep their original bytes; Flowly does
+  not resize, compress, truncate or silently drop them. Host, provider, available
+  memory and transport constraints still apply and failures remain visible.
+  The daemon validates nonempty canonical base64 and file signature, not just
+  the supplied MIME; saved images retain membership, size and hash integrity checks.
 - `Task.descriptionImages?` contains ordered `{id, name, mimeType, bytes, sha256}`
   metadata, never image data. Absent means empty, preserving existing cards.
   Task create accepts new image payloads; task edit accepts new payloads or IDs
@@ -38,8 +43,8 @@ with a copy of the description and its image list. The user can edit the text,
 remove images or add others; this never edits the card. Repeating the action
 reloads the description. Custom instructions still start empty (amends
 UI-REFRESH-SPEC §7s). An image-only instruction is allowed; include the card title
-as its text when sending. The combined instruction limit is four images; overflow
-is reported, never silently truncated.
+as its text when sending. Copy and submission preserve every selected image in
+order, including more than four images and files larger than 5 MiB.
 
 In both launch forms, place this action below the instruction field, at the
 trailing edge of the image-attachment controls, rather than above the field as a
@@ -60,6 +65,8 @@ exactly the user's text. New/changed descriptions do not send messages on their 
 
 Add a one-time `description-images` tip on an open card, and a More features tour
 entry. Update README and all interface catalogs; no What's new or version bump.
+The 2026-11-13 `image-limits` tip announces the removed caps once on an open card;
+the tour and README clarify that host and model constraints still apply.
 No new heartbeat fields: existing session creation counts already cover the
 action. Image bytes, names and paths never become telemetry properties.
 
@@ -70,9 +77,10 @@ action. Image bytes, names and paths never become telemetry properties.
 2. Use description in both launch forms; preview/edit/remove the copied material;
    verify a real agent receives and identifies the actual image. Custom and
    ordinary follow-up instructions retain their existing behavior.
-3. Reject count/size/type/foreign IDs/corrupt files and stale edits; preserve
+3. Accept more than four images and files above 5 MiB; reject invalid type/base64,
+   foreign IDs/corrupt files and stale edits; preserve
    drafts, old card state and startup idempotency on failures.
-4. Verify image-only launches, combined limits, snapshot restore and historical
+4. Verify image-only launches, complete copied image lists, snapshot restore and historical
    backup image availability after replacement/deletion; clean owned fixtures.
 5. Run typecheck and full tests, including focused daemon, launch and onboarding
    coverage. Record UI, runtime and independent checks separately from static tests.

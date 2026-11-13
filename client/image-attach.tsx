@@ -5,7 +5,7 @@ import { Icon, useToast } from "@getpaseo/plugin/client/react-native";
 import { Button, Label, font, message, noFocusRing, radius, space, useTheme } from "./ui";
 import { Enter } from "./motion";
 import { imageInputSupported, listenForImages, pickImageFiles, readImages, type Attachment } from "./web-images";
-import { maxImages, type OutgoingImage } from "../shared/composer";
+import type { OutgoingImage } from "../shared/composer";
 import { t } from "../shared/i18n";
 
 /** An image waiting to be sent: thumbnail with a remove button. */
@@ -47,7 +47,7 @@ export function AttachmentThumb({ attachment, onRemove }: { attachment: Attachme
  * drop or the file chooser (`client/web-images.ts`); phones have no
  * plugin-accessible picker (user decision 2026-10-21, SESSION-PANE-SPEC §6).
  */
-export function useImageAttachments(limit = maxImages) {
+export function useImageAttachments() {
   const toast = useToast();
   const [attachments, setState] = useState<Attachment[]>([]);
   const current = useRef<Attachment[]>([]);
@@ -65,10 +65,9 @@ export function useImageAttachments(limit = maxImages) {
   const add = async (files: Parameters<typeof readImages>[0]) => {
     if (!files.length) return;
     try {
-      const { images, problems } = await readImages(files, limit - current.current.length);
+      const { images, problems } = await readImages(files);
       if (!alive.current) return;
-      if (images.length && images.length + current.current.length <= limit) set([...current.current, ...images]);
-      else if (images.length) toast.error(t("At most {maxImages} images per message.", { maxImages }));
+      if (images.length) set([...current.current, ...images]);
       if (problems.length) toast.error(problems.join(" "));
     } catch (e) {
       toast.error(message(e));
@@ -85,10 +84,8 @@ export function useImageAttachments(limit = maxImages) {
     remove: (id: string) => set(current.current.filter((a) => a.id !== id)),
     clear: () => set([]),
     replace: (images: readonly Attachment[]) => {
-      if (images.length > limit) throw new Error(t("At most {maxImages} images per message.", { maxImages }));
       set(images.map((image) => ({ ...image })));
     },
-    full: attachments.length >= limit,
   };
 }
 
@@ -114,7 +111,6 @@ export function ImageAttachments({
   const blocked = useRef(disabled);
   blocked.current = disabled;
   useEffect(() => listenForImages(node, (files) => !blocked.current && void add.current(files)), [node]);
-  const full = state.full;
   return (
     <View ref={setNode} style={{ gap: space[2] }}>
       {children}
@@ -123,7 +119,7 @@ export function ImageAttachments({
           {state.attachments.map((a) => (
             <AttachmentThumb key={a.id} attachment={a} onRemove={() => !disabled && state.remove(a.id)} />
           ))}
-          {imageInputSupported && <Button quiet icon="ImagePlus" disabled={disabled || full} onPress={() => void pickImageFiles().then((files) => state.add(files))}>
+          {imageInputSupported && <Button quiet icon="ImagePlus" disabled={disabled} onPress={() => void pickImageFiles().then((files) => state.add(files))}>
             {t("Add images")}
           </Button>}
           {imageInputSupported && !state.attachments.length && (

@@ -1,6 +1,7 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly 不限制圖片數量或大小，模型和宿主仍可能有限制。",
   "Use card description": "使用卡片描述",
   "Description changed. Use card description again.": "描述已變更，請重新使用卡片描述。",
   "Description images": "描述圖片",
@@ -699,8 +700,6 @@ const catalog: Catalog = {
   "Pasted image": "貼上的圖片",
   "{name} is not a PNG, JPEG, GIF or WebP image.": "{name} 不是 PNG、JPEG、GIF 或 WebP 圖片。",
   "File": "檔案",
-  "{name} is larger than 5 MB.": "{name} 超過了 5 MB。",
-  "At most {maxImages} images per message.": "每條訊息最多 {maxImages} 張圖片。",
   "Wrapped up: workspace and sessions archived": "已收尾：工作區和工作階段已封存",
   "Wrapped up: {n} sessions archived": "已收尾：已封存 {n} 個工作階段",
   "Wrap up this card?": "要給這張卡片收尾嗎？",

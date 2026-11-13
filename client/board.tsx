@@ -146,6 +146,7 @@ import { visibleReview } from "../shared/auto-review";
 
 /** One-time tip texts (ONBOARDING-SPEC §5). */
 const tipText: Record<TipId, (compact?: boolean) => string> = {
+  "image-limits": () => t("Flowly does not limit image count or size. Model and host limits still apply."),
   "description-images": () => t("Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together."),
   "first-card": () => t("Your card moves by itself as the agent works. Open it any time to see its sessions, output and summary."),
   "needs-you": () => t("A card is waiting for you. Reply goes straight to the session."),

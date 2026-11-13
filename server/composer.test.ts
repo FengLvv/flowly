@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { BoardStore } from "./store";
 import { ComposerService, ComposerStore } from "./composer";
+import { queueMessage } from "../shared/rpc";
 
 const roots: string[] = [];
 afterEach(async () => {
@@ -118,4 +119,23 @@ test("queued images are kept as daemon files, sent with their message, then dele
   const other = await x.service.push({ taskId: "t", agentId: "a", text: "x", images: [png] }, x.paseo);
   await x.service.remove({ agentId: "a", id: other.id });
   await expect(readFile(join(dir, `${other.id}-0.png`))).rejects.toThrow();
+});
+
+test("large image batches survive queue reload and provider failure before a complete retry", async () => {
+  const x = await setup("running");
+  const images = Array.from({ length: 8 }, (_, i) => ({ data: Buffer.alloc(i ? 3 : 5 * 1024 * 1024 + 1, i + 1).toString("base64"), mimeType: "image/png" as const }));
+  const input = queueMessage.input.parse({ taskId: "t", agentId: "a", text: "", images });
+  const item = await x.service.push(input, x.paseo);
+  await x.service.idle();
+  const store = new ComposerStore(x.board.directory);
+  expect((await store.read()).sessions.a.queue[0].images).toHaveLength(8);
+  expect(await store.readImages(item.images)).toEqual(images);
+  x.setFail(true);
+  await expect(x.service.sendNow({ taskId: "t", agentId: "a", id: item.id }, x.paseo)).rejects.toThrow("offline");
+  expect(await store.readImages((await store.read()).sessions.a.queue[0].images)).toEqual(images);
+  x.setFail(false);
+  await x.service.sendNow({ taskId: "t", agentId: "a", id: item.id }, x.paseo);
+  expect(x.images).toEqual(images);
+  expect((await store.read()).sessions.a).toBeUndefined();
+  await expect(readFile(join(store.imageDirectory, item.images![0].file))).rejects.toThrow();
 });

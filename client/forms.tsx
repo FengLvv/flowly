@@ -541,7 +541,7 @@ export function TaskForm({
   const attachments = useImageAttachments();
   const [savedDescriptionImages, setSavedDescriptionImages] = useState(task?.descriptionImages || []);
   const removeDescriptionImage = useStableCallback((id: string) => setSavedDescriptionImages((images) => images.filter((i) => i.id !== id)));
-  const descriptionAttachments = useImageAttachments(4 - savedDescriptionImages.length);
+  const descriptionAttachments = useImageAttachments();
   const [descriptionSource, setDescriptionSource] = useState<string | null>(null);
   const descriptionInputs = () => descriptionAttachments.attachments.map(({ data, mimeType, name }) => ({ data, mimeType, name }));
   const descriptionSnapshot = () => descriptionKey(description, descriptionInputs());

@@ -1,6 +1,7 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly ne limite ni le nombre ni la taille des images. Les limites du modèle et de l’hôte restent applicables.",
   "Use card description": "Utiliser la description de la carte",
   "Description changed. Use card description again.": "La description a changé. Rechargez la description de la carte.",
   "Description images": "Images de la description",
@@ -699,8 +700,6 @@ const catalog: Catalog = {
   "Pasted image": "Image collée",
   "{name} is not a PNG, JPEG, GIF or WebP image.": "{name} n’est pas une image PNG, JPEG, GIF ou WebP.",
   "File": "Fichier",
-  "{name} is larger than 5 MB.": "{name} dépasse 5 Mo.",
-  "At most {maxImages} images per message.": "{maxImages} images maximum par message.",
   "Wrapped up: workspace and sessions archived": "Clôturée : espace de travail et sessions archivés",
   "Wrapped up: {n} sessions archived": {"one": "Clôturée : {n} session archivée", "other": "Clôturée : {n} sessions archivées"},
   "Wrap up this card?": "Clôturer cette carte ?",

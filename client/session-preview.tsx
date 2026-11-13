@@ -48,7 +48,6 @@ import { queuedRowKey, useComposer } from "./composer";
 import { useLiveAgents } from "./queries";
 import { imageInputSupported, listenForImages, pickImageFiles, readImages, type Attachment } from "./web-images";
 import { AttachmentThumb } from "./image-attach";
-import { maxImages } from "../shared/composer";
 import { newMessageId, rememberSentImages } from "./sent-images";
 import { eventPoint, menuHandlers, useMenuOpener, type MenuEntry } from "./context-menu";
 import { useBoardView } from "./board-view";
@@ -321,9 +320,9 @@ function SessionPreviewView({
   const addImageFiles = async (files: Parameters<typeof readImages>[0]) => {
     if (!files.length) return;
     try {
-      const { images, problems } = await readImages(files, maxImages - attachmentsRef.current.length);
+      const { images, problems } = await readImages(files);
       if (!mounted.current) return;
-      if (images.length) setAttachments([...attachmentsRef.current, ...images].slice(0, maxImages));
+      if (images.length) setAttachments([...attachmentsRef.current, ...images]);
       if (problems.length) toast.error(problems.join(" "));
     } catch (e) {
       toast.error(message(e));
@@ -441,7 +440,7 @@ function SessionPreviewView({
         // Never lose the text or images: put them back in the composer.
         flushReport();
         onDraftChange(sessionId, restoredDraft(instruction, draftBuffer.read()));
-        if (mounted.current) setAttachments([...attached, ...attachmentsRef.current].slice(0, maxImages));
+        if (mounted.current) setAttachments([...attached, ...attachmentsRef.current]);
         setError(message(e));
       });
       draftBuffer.clear(instruction);
@@ -467,7 +466,7 @@ function SessionPreviewView({
         flushReport();
         const typed = draftBuffer.read();
         onDraftChange(sessionId, restoredDraft(instruction, typed));
-        if (mounted.current) setAttachments([...attached, ...attachmentsRef.current].slice(0, maxImages));
+        if (mounted.current) setAttachments([...attached, ...attachmentsRef.current]);
         throw e;
       }
       if (mounted.current) transcript.current?.jumpToLatest();
@@ -738,7 +737,7 @@ function SessionPreviewView({
                 icon="ImagePlus"
                 size={sendSize}
                 label={t("Attach images")}
-                disabled={!canWrite || attachments.length >= maxImages}
+                disabled={!canWrite}
                 onPress={() => void pickImageFiles().then((files) => addImages.current(files))}
               />
             ) : (

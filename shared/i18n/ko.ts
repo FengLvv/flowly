@@ -1,6 +1,7 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly는 이미지 수나 크기를 제한하지 않습니다. 모델과 호스트의 제한은 계속 적용됩니다.",
   "Use card description": "카드 설명 사용",
   "Description changed. Use card description again.": "설명이 변경되었습니다. 카드 설명을 다시 불러오세요.",
   "Description images": "설명 이미지",
@@ -699,8 +700,6 @@ const catalog: Catalog = {
   "Pasted image": "붙여넣은 이미지",
   "{name} is not a PNG, JPEG, GIF or WebP image.": "{name}은(는) PNG, JPEG, GIF, WebP 이미지가 아닙니다.",
   "File": "파일",
-  "{name} is larger than 5 MB.": "{name}이(가) 5MB를 초과합니다.",
-  "At most {maxImages} images per message.": "메시지당 이미지는 최대 {maxImages}개입니다.",
   "Wrapped up: workspace and sessions archived": "마무리됨: 워크스페이스와 세션을 보관했습니다",
   "Wrapped up: {n} sessions archived": "마무리됨: 세션 {n}개를 보관했습니다",
   "Wrap up this card?": "이 카드를 마무리할까요?",

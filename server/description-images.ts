@@ -3,7 +3,7 @@ import { mkdir, readFile, unlink, lstat, open } from "node:fs/promises";
 import { join } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { descriptionImageInputsSchema, type DescriptionImageInput, type DescriptionImage } from "../shared/description-images";
-import { maxImageBytes, type OutgoingImage } from "../shared/composer";
+import type { OutgoingImage } from "../shared/composer";
 import type { BoardStore } from "./store";
 import { logFailure } from "./error-report";
 
@@ -17,8 +17,8 @@ async function writeImage(path: string, bytes: Buffer) {
 }
 function decode(image: OutgoingImage) {
   const bytes = Buffer.from(image.data, "base64");
-  if (!bytes.length || bytes.length > maxImageBytes || bytes.toString("base64") !== image.data)
-    throw new Error("Invalid image data or size (maximum 5 MiB).");
+  if (!bytes.length || bytes.toString("base64") !== image.data)
+    throw new Error("Invalid image data (expected nonempty canonical base64).");
   const valid = image.mimeType === "image/png" ? bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
     : image.mimeType === "image/jpeg" ? bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255
     : image.mimeType === "image/gif" ? /^GIF8[79]a$/.test(bytes.subarray(0, 6).toString("ascii"))
@@ -70,7 +70,7 @@ export class DescriptionImageFiles {
     if (!(await lstat(this.directory).catch(() => null))?.isDirectory()) throw new Error("Description image storage is unavailable.");
     const path = this.path(image);
     const info = await lstat(path).catch(() => null);
-    if (!info?.isFile() || info.size !== image.bytes || info.size > maxImageBytes)
+    if (!info?.isFile() || info.size !== image.bytes)
       throw new Error("A description image is missing or invalid. Reload or replace it before continuing.");
     const bytes = await readFile(path);
     if (hash(bytes) !== image.sha256) throw new Error("A description image is corrupt. Replace it before continuing.");

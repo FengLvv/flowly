@@ -1,5 +1,5 @@
 import { Platform } from "react-native";
-import { imageMimeTypes, maxImageBytes, maxImages, type OutgoingImage } from "../shared/composer";
+import { imageMimeTypes, type OutgoingImage } from "../shared/composer";
 import { t } from "../shared/i18n";
 
 /**
@@ -53,19 +53,19 @@ function readFile(file: BrowserFile): Promise<Attachment> {
 }
 
 /**
- * Reads image files, keeping at most `room` of them. Returns readable
- * reasons for anything skipped (type, size, count).
+ * Reads original image files without count or size caps. Returns readable
+ * reasons for unsupported types.
  */
-export async function readImages(files: readonly BrowserFile[], room: number) {
+export async function readImages(files: readonly BrowserFile[]) {
   const problems: string[] = [];
   const accepted: BrowserFile[] = [];
   for (const file of files) {
     if (!(imageMimeTypes as readonly string[]).includes(file.type)) problems.push(t("{name} is not a PNG, JPEG, GIF or WebP image.", { name: file.name || t("File") }));
-    else if (file.size > maxImageBytes) problems.push(t("{name} is larger than 5 MB.", { name: file.name || t("Image") }));
-    else if (accepted.length >= room) problems.push(t("At most {maxImages} images per message.", { maxImages }));
     else accepted.push(file);
   }
-  const images = await Promise.all(accepted.map(readFile));
+  const images: Attachment[] = [];
+  // Avoid starting an unbounded number of FileReaders at once.
+  for (const file of accepted) images.push(await readFile(file));
   return { images, problems: [...new Set(problems)] };
 }
 

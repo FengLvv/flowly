@@ -1,5 +1,13 @@
 # Implementation progress
 
+## Image attachment limits removed — 2026-11-13
+
+- User requested no Flowly image count, byte-size or pixel-size caps. Removed limits from selection, description metadata/input, queue RPC/state and retry restoration. Original data and ordered lists are preserved; format, canonical description data, signatures, membership and integrity checks remain. Host/model and resource constraints still apply. [Contract](DESCRIPTION-IMAGES-SPEC.md).
+- Guidance: More features, README, new once-only image-limits tip and all nine catalogs; obsolete limit errors removed. No new telemetry, dependency or version change.
+- PASS: typecheck exit 0; focused 6 files / 117 tests exit 0, covering >4 images, >5 MiB, reload/edit/snapshot and failed-send retry. Installed flowly reloaded/running after typecheck.
+- FAILED: project full suite exit 1, 1360 passed / 30 failed / 7 skipped plus 2 Windows socket errors; no claim of baseline parity until independent comparison. Initial test-shape assertion corrected without weakening byte equality; first UI harness could not locate cached Playwright, fixture registry cleanup passed, directory EBUSY pending retry.
+- Exact-commit independent results, live UI, cleanup and main push follow in [verification](verification/image-limits.md). Phone and actual model large-image acceptance unrun. User chose direct main delivery in their fork; existing committed features preserved, other sessions' dirty work excluded.
+
 ## Windows workspace containment — 2026-11-12
 
 - `server/repos.ts` checks parent traversal with the host path separator; Windows siblings no longer match as descendants. Canonical Git common-dir matching still permits external worktrees. Legacy scope and workspace ownership writes are unchanged. [Contract](SINGLE-ROOT-SPEC.md).

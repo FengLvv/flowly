@@ -1,5 +1,4 @@
 import { descriptionImageSchema, descriptionImageInputsSchema, newDescriptionImageSchema } from "./description-images";
-import { maxImages } from "./composer";
 import { localizedLabels, msg, t } from "./i18n";
 import { agentModelSchema } from "./agent-defaults";
 import { connectorLimits, externalRefSchema, itemTypeSchema } from "./connectors";
@@ -264,7 +263,7 @@ export const projectSchema = z.object({
   autoReview: autoReviewSchema.optional(),
 });
 export const taskSchema = z.object({
-  descriptionImages: z.array(descriptionImageSchema).max(maxImages).optional(),
+  descriptionImages: z.array(descriptionImageSchema).optional(),
   id: z.string(),
   projectId: z.string(),
   workspaceId: z.string(),
@@ -662,7 +661,7 @@ export const projectEdit = z.strictObject({
   autoReview: autoReviewInput.optional(),
 });
 export const taskInput = z.strictObject({
-  descriptionImages: z.array(newDescriptionImageSchema).max(maxImages).optional(),
+  descriptionImages: z.array(newDescriptionImageSchema).optional(),
   projectId: z.string(),
   operationId: z.string().min(1).max(200),
   title: z.string().trim().min(1).max(200),

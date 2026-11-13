@@ -13,5 +13,5 @@ test("a copied snapshot notices description or picture changes", () => {
   expect(descriptionKey("Goal", [{ id: "a" }])).toBe(copied);
   expect(descriptionKey("New goal", [{ id: "a" }])).not.toBe(copied);
   expect(descriptionKey("Goal", [{ id: "b" }])).not.toBe(copied);
-  expect(descriptionImageInputsSchema.safeParse(Array(5).fill({ id: "00000000-0000-4000-8000-000000000000" })).success).toBe(false);
+  expect(descriptionImageInputsSchema.safeParse(Array(12).fill({ id: "00000000-0000-4000-8000-000000000000" })).success).toBe(true);
 });

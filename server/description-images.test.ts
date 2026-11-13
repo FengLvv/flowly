@@ -7,7 +7,6 @@ import { BoardStore } from "./store";
 import { BoardService } from "./service";
 import { DescriptionImageFiles, DescriptionImages } from "./description-images";
 import { taskEdit, taskInput } from "../shared/model";
-import { maxImageBytes } from "../shared/composer";
 import { ProjectFolders, readSnapshot } from "./project-folder";
 
 const png = { name: "reference.png", mimeType: "image/png" as const, data: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=" };
@@ -39,16 +38,48 @@ test("card creation commits metadata only, replays once and survives a fresh sto
   expect(await readdir(x.files.directory)).toHaveLength(1);
 });
 
-test("invalid type, noncanonical base64, size and counts fail before workspace provisioning", async () => {
+test("invalid type, empty and noncanonical base64 fail before workspace provisioning", async () => {
   const x = await setup();
   for (const images of [
     [{ ...png, data: Buffer.from("not a png").toString("base64") }],
     [{ ...png, data: png.data.slice(0, -1) }],
-    [{ ...png, data: Buffer.alloc(maxImageBytes + 1).toString("base64") }],
-    Array.from({ length: 5 }, () => png),
+    [{ ...png, data: "" }],
+    [{ ...png, data: "!!!!" }],
   ]) await expect(x.service.createTask({ ...x.input, descriptionImages: images }, x.paseo)).rejects.toThrow();
   expect(x.create).not.toHaveBeenCalled();
   expect((await x.store.read()).tasks).toEqual([]);
+});
+
+test("more than four images including one above 5 MiB persist, reload, edit and snapshot intact", async () => {
+  const x = await setup();
+  const large = { ...png, name: "large.png", data: Buffer.concat([Buffer.from(png.data, "base64"), Buffer.alloc(5 * 1024 * 1024)]).toString("base64") };
+  const images = [large, ...Array.from({ length: 7 }, (_, i) => ({ ...png, name: `small-${i}.png` }))];
+  const task = await x.service.createTask({ ...x.input, descriptionImages: images }, x.paseo);
+  expect(task.descriptionImages).toHaveLength(8);
+  expect(task.descriptionImages![0].bytes).toBeGreaterThan(5 * 1024 * 1024);
+  const fresh = new DescriptionImages(new BoardStore(x.store.directory));
+  const expectImages = (actual: Awaited<ReturnType<DescriptionImages["read"]>>["images"], expected: typeof images) => {
+    expect(actual).toHaveLength(expected.length);
+    actual.forEach((image, i) => {
+      expect(image.name).toBe(expected[i].name);
+      expect(image.mimeType).toBe(expected[i].mimeType);
+      // Keep failures small while checking every original byte.
+      expect(image.data === expected[i].data).toBe(true);
+      expect(image.bytes).toBe(Buffer.from(expected[i].data, "base64").length);
+    });
+  };
+  expectImages((await fresh.read({ taskId: task.id, revision: task.revision })).images, images);
+  const edited = await x.store.editTask(taskEdit.parse({ id: task.id, revision: task.revision, descriptionImages: [...task.descriptionImages!.map(({ id }) => ({ id })), png] }));
+  expectImages((await fresh.read({ taskId: task.id, revision: edited.revision })).images, [...images, png]);
+  const folders = new ProjectFolders(() => x.store.read(), async () => [], 0, x.files);
+  await folders.flush();
+  expect(folders.state("p")?.error).toBe("");
+  const snapshot = (await readSnapshot(x.repo))!;
+  const target = new BoardStore(join(x.root, "large-restored"));
+  await new DescriptionImageFiles(join(x.repo, ".flowly")).copyTo(new DescriptionImageFiles(target.directory), snapshot.tasks.flatMap((t) => t.descriptionImages || []));
+  await target.restoreProject(snapshot, { primaryPath: x.repo, paseoProjectId: "native" });
+  const restored = (await target.read()).tasks[0];
+  expectImages((await new DescriptionImages(target).read({ taskId: restored.id, revision: restored.revision })).images, [...images, png]);
 });
 
 test("edit preserves omitted images, rejects foreign IDs/duplicates/stale edits, clears explicitly", async () => {

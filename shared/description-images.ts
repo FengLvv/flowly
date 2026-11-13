@@ -1,16 +1,16 @@
 import { z } from "zod";
-import { imageMimeSchema, outgoingImageSchema, maxImages, maxImageBytes } from "./composer";
+import { imageMimeSchema, outgoingImageSchema } from "./composer";
 
 export const descriptionImageSchema = z.strictObject({
   id: z.string().uuid(),
   name: z.string().min(1).max(200),
   mimeType: imageMimeSchema,
-  bytes: z.number().int().positive().max(maxImageBytes),
+  bytes: z.number().int().positive(),
   sha256: z.string().regex(/^[a-f0-9]{64}$/),
 });
 export const newDescriptionImageSchema = outgoingImageSchema.extend({ name: z.string().min(1).max(200) });
 export const descriptionImageInputSchema = z.union([z.strictObject({ id: z.string().uuid() }), newDescriptionImageSchema]);
-export const descriptionImageInputsSchema = z.array(descriptionImageInputSchema).max(maxImages);
+export const descriptionImageInputsSchema = z.array(descriptionImageInputSchema);
 export type DescriptionImage = z.infer<typeof descriptionImageSchema>;
 export type DescriptionImageInput = z.infer<typeof descriptionImageInputSchema>;
 

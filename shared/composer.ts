@@ -2,9 +2,7 @@ import { z } from "zod";
 
 const id = z.string().min(1).max(200);
 
-/** Images attached to a message: at most 4, each at most 5 MB. */
-export const maxImages = 4;
-export const maxImageBytes = 5 * 1024 * 1024;
+/** Original image attachments; Flowly imposes no count or size cap. */
 export const imageMimeTypes = ["image/png", "image/jpeg", "image/gif", "image/webp"] as const;
 export const imageMimeSchema = z.enum(imageMimeTypes);
 /** An image travelling with a message: base64 data (no data: prefix). */
@@ -12,7 +10,6 @@ export const outgoingImageSchema = z.strictObject({
   data: z
     .string()
     .min(1)
-    .max(Math.ceil((maxImageBytes * 4) / 3) + 4)
     .regex(/^[A-Za-z0-9+/]+=*$/, "Image data must be base64."),
   mimeType: imageMimeSchema,
 });
@@ -25,7 +22,7 @@ export const queuedMessageSchema = z
     id: z.string(),
     text: z.string().max(20000),
     at: z.string(),
-    images: z.array(queuedImageSchema).max(maxImages).optional(),
+    images: z.array(queuedImageSchema).optional(),
   })
   .refine((m) => !!m.text.trim() || !!m.images?.length, "A queued message needs text or an image.");
 export const composerEntrySchema = z.object({

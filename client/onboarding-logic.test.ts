@@ -110,12 +110,12 @@ describe("tips", () => {
   });
   test("session history is announced in an open card with a session, after the connectors tip, before section order", () => {
     const facts = { ...none, cardOpen: true, cardWithSession: true, fullSidebar: true };
-    expect(nextTip({ tipsSeen: ["description-images", ], facts, blocked: false })).toBe("connectors");
-    expect(nextTip({ tipsSeen: ["description-images", "connectors"], facts, blocked: false })).toBe("session-history");
-    expect(nextTip({ tipsSeen: ["description-images", "connectors", "session-history"], facts, blocked: false })).toBe("session-context");
-    expect(nextTip({ tipsSeen: ["description-images", "connectors", "session-history"], facts: { ...none, cardWithSession: true }, blocked: true })).toBeNull();
-    expect(nextTip({ tipsSeen: ["description-images", "connectors", "session-history", "session-context"], facts, blocked: false })).toBe("sidebar-order");
-    expect(nextTip({ tipsSeen: ["description-images", "connectors"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", ], facts, blocked: false })).toBe("connectors");
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors"], facts, blocked: false })).toBe("session-history");
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history"], facts, blocked: false })).toBe("session-context");
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history"], facts: { ...none, cardWithSession: true }, blocked: true })).toBeNull();
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history", "session-context"], facts, blocked: false })).toBe("sidebar-order");
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
   });
   test("subagents are announced after the workpad tip, before ideas", () => {
     const facts = { ...none, hasWorkpad: true, hasSubagent: true, openIdea: true };
@@ -150,12 +150,12 @@ describe("tips", () => {
     expect(nextTip({ tipsSeen: ["first-card"], facts: { ...none, hasCard: true }, blocked: false })).toBeNull();
   });
   test("connectors: the Artifacts + is announced once a card is open, before the section order (CONNECTORS-SPEC §8.5)", () => {
-    expect(nextTip({ tipsSeen: ["description-images"], facts: { ...none, cardOpen: true }, blocked: false })).toBe("connectors");
-    expect(nextTip({ tipsSeen: ["description-images"], facts: { ...none, cardOpen: true, fullSidebar: true }, blocked: false })).toBe("connectors");
-    expect(nextTip({ tipsSeen: ["description-images", "connectors"], facts: { ...none, cardOpen: true, fullSidebar: true }, blocked: false })).toBe("sidebar-order");
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits"], facts: { ...none, cardOpen: true }, blocked: false })).toBe("connectors");
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits"], facts: { ...none, cardOpen: true, fullSidebar: true }, blocked: false })).toBe("connectors");
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors"], facts: { ...none, cardOpen: true, fullSidebar: true }, blocked: false })).toBe("sidebar-order");
     // Users who saw the older Jira tips still get it once: it is a new id.
-    expect(nextTip({ tipsSeen: ["description-images", "first-ticket", "jira-connect"], facts: { ...none, cardOpen: true }, blocked: false })).toBe("connectors");
-    expect(nextTip({ tipsSeen: ["description-images"], facts: none, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "first-ticket", "jira-connect"], facts: { ...none, cardOpen: true }, blocked: false })).toBe("connectors");
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits"], facts: none, blocked: false })).toBeNull();
   });
   test("the project tab menu is announced after the first-card tip, before connecting Jira", () => {
     const facts = { ...none, hasCard: true, noConnection: true, projectTabs: true };
@@ -319,7 +319,18 @@ test("the retired memory-candidate and review-suggest tips are gone", () => {
 test("description picture tip appears once on an open card, after attention", () => {
   const facts = { cardOpen: true } as TipFacts;
   expect(nextTip({ tipsSeen: [], facts, blocked: false })).toBe("description-images");
-  expect(nextTip({ tipsSeen: ["description-images"], facts, blocked: false })).toBe("connectors");
+  expect(nextTip({ tipsSeen: ["description-images", "image-limits"], facts, blocked: false })).toBe("connectors");
   expect(nextTip({ tipsSeen: [], facts: { ...facts, needsYou: true }, blocked: false })).toBe("needs-you");
   expect(nextTip({ tipsSeen: [], facts, blocked: true })).toBeNull();
+});
+
+
+test("removed image limits are announced once to existing users on an open card", () => {
+  const facts = { cardOpen: true } as TipFacts;
+  expect(tipIds).toContain("image-limits");
+  expect(nextTip({ tipsSeen: ["description-images"], facts, blocked: false })).toBe("image-limits");
+  expect(nextTip({ tipsSeen: ["description-images", "image-limits"], facts, blocked: false })).toBe("connectors");
+  expect(nextTip({ tipsSeen: ["description-images"], facts: { cardOpen: false } as TipFacts, blocked: false })).toBeNull();
+  expect(nextTip({ tipsSeen: ["description-images"], facts, blocked: true })).toBeNull();
+  expect(nextTip({ tipsSeen: ["description-images"], facts: { ...facts, needsYou: true }, blocked: false })).toBe("needs-you");
 });
