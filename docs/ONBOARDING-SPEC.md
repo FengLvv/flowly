@@ -63,7 +63,7 @@ The More features tour also includes Description images: save pictures with a ca
 
 ### 5. One-time contextual tips (small, non-modal)
 
-A tip is a single dismissible banner row (icon, one sentence, **Got it**) under the overview bar; only **Got it** records it as seen. Priority when several apply: agent-question, needs-you, attention-dismiss, first-done, older-finished, next-move, auto-review, first-guardrail, first-workpad, subagents, first-idea, first-skill-draft, first-workflow-insight, ai-language, summary-models, first-artifact, first-ticket, first-tag, first-card, lane-swipe, card-display, search, description-images, image-limits, connectors, session-history, session-context, sidebar-order, project-menu, jira-connect. The empty-project hint takes the same slot and wins at the top of the relevant surface, using theme colours. At most one tip is visible at a time; a tip appears at most once per host (`tipsSeen`); dismissing or acting on the feature records it. Tips never block input, never move a focused input, and are not shown while the welcome tour is open or the settings callout (`settings-entry`) shows.
+A tip is a single dismissible banner row (icon, one sentence, **Got it**) under the overview bar; only **Got it** records it as seen. Priority when several apply: agent-question, needs-you, attention-dismiss, first-done, older-finished, next-move, auto-review, first-guardrail, first-workpad, subagents, first-idea, first-skill-draft, first-workflow-insight, ai-language, summary-models, first-artifact, first-ticket, first-tag, first-card, lane-swipe, card-display, search, description-images, image-limits, connectors, session-history, session-context, sidebar-order, project-menu, jira-connect, tapd-connect. The empty-project hint takes the same slot and wins at the top of the relevant surface, using theme colours. At most one tip is visible at a time; a tip appears at most once per host (`tipsSeen`); dismissing or acting on the feature records it. Tips never block input, never move a focused input, and are not shown while the welcome tour is open or the settings callout (`settings-entry`) shows.
 
 | Tip id | Shown when | Text |
 | --- | --- | --- |
@@ -98,6 +98,8 @@ A tip is a single dismissible banner row (icon, one sentence, **Got it**) under 
 | `sidebar-order` | a card is open and it has at least one artifact or idea (DRAWER-SPEC, Section order) | "Arrange an open card your way: reorder its sections and choose which start open in Settings → Cards → Card sidebar." |
 | `project-menu` | desktop project tabs show two or more projects and no card is open (PROJECT-TABS-SPEC) | "Drag a project tab to reorder it. Right-click it for its settings, a new task, Insights, Ideas or Remove." |
 | `jira-connect` | the project has a card, no card is open, and no connection is configured (announces the feature; lowest priority) | "Work from Jira, Confluence, GitHub, GitLab or Azure DevOps: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them." |
+
+| `tapd-connect` | a card is open; after existing tips; new id reaches existing users once | "TAPD work items can be inputs too. Connect a TAPD project in Settings → Connections, then use From TAPD or the Artifacts +." |
 
 Tips are the lowest-priority part of this feature and can ship after the tour (see Delivery).
 
@@ -147,3 +149,5 @@ Covered by unit tests: the pure logic (fresh user shows; existing user silently 
 5. Onboarding state is per host (setting), not per account.
 
 2026-10-23：Progress models 与 Settings → Models 共用有序多模型列表，见 [SUMMARY-MODELS-SPEC](SUMMARY-MODELS-SPEC.md)。
+
+The More features inputs row includes TAPD alongside existing services. TAPD uses the host’s configured MCP account rather than a Flowly token.

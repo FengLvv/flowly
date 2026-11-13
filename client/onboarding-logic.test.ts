@@ -36,6 +36,13 @@ describe("tips", () => {
   test("nothing to show without a fact", () => {
     expect(nextTip({ tipsSeen: [], facts: none, blocked: false })).toBeNull();
   });
+  test("TAPD is announced once to existing users when the input entry is visible", () => {
+    const older = tipIds.filter((id) => id !== "tapd-connect");
+    expect(nextTip({ tipsSeen: older, facts: { ...none, cardOpen: true }, blocked: false })).toBe("tapd-connect");
+    expect(nextTip({ tipsSeen: [...older, "tapd-connect"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: older, facts: none, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: older, facts: { ...none, cardOpen: true }, blocked: true })).toBeNull();
+  });
   test("one tip at a time, waiting-for-you first", () => {
     const facts = { hasCard: true, needsYou: true, openIdea: true, movedToFinished: false, hasArtifact: true, hasAgentTag: true, agentQuestion: false, olderHidden: false, nextMove: false, hasTicket: false, noConnection: false, projectTabs: false, hasWorkpad: false, busyBoard: false, hasSubagent: false, workflowSuggestion: false, crowdedAttention: false, fullSidebar: false, cardOpen: false, cardWithSession: false, hasSummary: false, skillDraft: false, searchable: false, reviewShown: false, learnedGuideline: false, laneSwipe: false };
     expect(nextTip({ tipsSeen: [], facts, blocked: false })).toBe("needs-you");
@@ -115,7 +122,7 @@ describe("tips", () => {
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history"], facts, blocked: false })).toBe("session-context");
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history"], facts: { ...none, cardWithSession: true }, blocked: true })).toBeNull();
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history", "session-context"], facts, blocked: false })).toBe("sidebar-order");
-    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "tapd-connect"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
   });
   test("subagents are announced after the workpad tip, before ideas", () => {
     const facts = { ...none, hasWorkpad: true, hasSubagent: true, openIdea: true };

@@ -1,6 +1,17 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "An empty description imports the first TAPD item's description when creating the card.": "설명이 비어 있으면 카드 생성 시 첫 TAPD 항목의 설명을 가져옵니다.",
+  "TAPD work item": "TAPD 작업 항목",
+  "Work item link, number, story-123, bug-123, task-123 or title words": "링크, 번호, story-123, bug-123, task-123 또는 제목 단어",
+  "Recent work items in this TAPD project": "이 TAPD 프로젝트의 최근 작업 항목",
+  "No work items were found in this TAPD project.": "이 TAPD 프로젝트에서 작업 항목을 찾지 못했습니다.",
+  "Add a TAPD connection": "TAPD 연결 추가",
+  "MCP access refused. Check login and test again.": "MCP 접근이 거부되었습니다. 로그인을 확인하고 다시 테스트하세요.",
+  "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "mcporter를 통해 Paseo 호스트에 설정된 tapd MCP 서버를 사용합니다. 먼저 해당 서버에 로그인하세요. TAPD는 읽기 전용입니다.",
+  "TAPD work items can be inputs too. Connect a TAPD project in Settings → Connections, then use From TAPD or the Artifacts +.": "TAPD 작업 항목도 입력으로 사용할 수 있습니다. 설정 → 연결에서 TAPD 프로젝트를 연결한 뒤 TAPD에서 또는 산출물의 +를 사용하세요.",
+  "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut 또는 TAPD에서 카드를 만들거나 산출물의 +로 항목을 추가하세요. 에이전트가 매 턴 읽으며 Flowly는 변경하지 않습니다.",
+
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly는 이미지 수나 크기를 제한하지 않습니다. 모델과 호스트의 제한은 계속 적용됩니다.",
   "Use card description": "카드 설명 사용",
   "Description changed. Use card description again.": "설명이 변경되었습니다. 카드 설명을 다시 불러오세요.",
@@ -1256,7 +1267,6 @@ const catalog: Catalog = {
   "You have no open stories.": "열린 스토리가 없습니다.",
   "Add a Shortcut connection": "Shortcut 연결 추가",
   "Create one in Shortcut → Settings → API Tokens.": "Shortcut → 설정 → API Tokens에서 만드세요.",
-  "Start a card from a Jira ticket, Confluence page, GitHub/GitLab issue or pull request, Azure DevOps work item, or Shortcut story or epic, or add one with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Jira 티켓, Confluence 페이지, GitHub/GitLab 이슈나 풀 리퀘스트, Azure DevOps 작업 항목, Shortcut 스토리나 에픽으로 카드를 만들거나 산출물의 +로 추가하세요. 에이전트는 매 턴 읽고, Flowly는 변경하지 않습니다.",
   "What's new": "새로운 기능",
   "Flowly {version}": "Flowly {version}",
   "Open settings": "설정 열기",

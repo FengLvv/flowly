@@ -672,6 +672,7 @@ export function TaskForm({
                   onRemove={() => setExternals((current) => current.filter((y) => !(y.item.connectionId === x.item.connectionId && y.item.key === x.item.key)))}
                 />
               ))}
+              {!description.trim() && externals.some((x) => x.provider === "tapd-internal") && <Label muted size={font.xs}>{t("An empty description imports the first TAPD item's description when creating the card.")}</Label>}
               {picking ? (
                 <ExternalPicker
                   family={picking}

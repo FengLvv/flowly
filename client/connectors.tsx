@@ -42,7 +42,7 @@ export function useConnections(enabled = true) {
 }
 
 /** Service names are brands: shown as written in every language. */
-export const familyNames: Record<ConnectorFamily, string> = { jira: "Jira", confluence: "Confluence", github: "GitHub", gitlab: "GitLab", azure: "Azure DevOps", shortcut: "Shortcut" };
+export const familyNames: Record<ConnectorFamily, string> = { jira: "Jira", confluence: "Confluence", github: "GitHub", gitlab: "GitLab", azure: "Azure DevOps", shortcut: "Shortcut", tapd: "TAPD" };
 
 /** The row icon of an item: its kind, not its service. */
 export function itemIcon(provider: ConnectorProvider, itemType: ItemType) {
@@ -59,6 +59,7 @@ export function itemKindLabel(provider: ConnectorProvider, itemType: ItemType) {
   if (family === "jira") return t("Jira ticket");
   if (family === "confluence") return t("Confluence page");
   if (family === "azure") return t("Azure DevOps work item");
+  if (family === "tapd") return t("TAPD work item");
   if (family === "shortcut") return itemType === "epic" ? t("Shortcut epic") : t("Shortcut story");
   const service = familyNames[family];
   if (itemType === "pull") return t("{service} pull request", { service });
@@ -74,6 +75,7 @@ export const linkTitles: Record<ConnectorFamily, string> = {
   gitlab: msg("GitLab issue or merge request"),
   azure: msg("Azure DevOps work item"),
   shortcut: msg("Shortcut story or epic"),
+  tapd: msg("TAPD work item"),
 };
 
 const searchHints: Record<ConnectorFamily, string> = {
@@ -83,6 +85,7 @@ const searchHints: Record<ConnectorFamily, string> = {
   gitlab: msg("group/project!34, #12, !34, a link or words from the title"),
   azure: msg("Work item number, AB#123, a link or words from the title"),
   shortcut: msg("Story number, sc-123, a link or words from the title"),
+  tapd: msg("Work item link, number, story-123, bug-123, task-123 or title words"),
 };
 
 const recentTitles: Record<ConnectorFamily, string> = {
@@ -92,6 +95,7 @@ const recentTitles: Record<ConnectorFamily, string> = {
   gitlab: msg("Open issues and merge requests assigned to me or awaiting my review"),
   azure: msg("Open work items assigned to me"),
   shortcut: msg("My open stories"),
+  tapd: msg("Recent work items in this TAPD project"),
 };
 
 const emptyRecent: Record<ConnectorFamily, string> = {
@@ -101,6 +105,7 @@ const emptyRecent: Record<ConnectorFamily, string> = {
   gitlab: msg("Nothing open is assigned to you or awaiting your review."),
   azure: msg("No open work items are assigned to you."),
   shortcut: msg("You have no open stories."),
+  tapd: msg("No work items were found in this TAPD project."),
 };
 
 /** Identity of an item across connections of one service: keys repeat between services (team/app#12 on GitHub and GitLab). */
@@ -439,6 +444,7 @@ const providerLabels: Record<ConnectorProvider, string> = {
   gitlab: "GitLab",
   "azure-devops": "Azure DevOps",
   shortcut: "Shortcut",
+  "tapd-internal": "TAPD",
 };
 
 const addTitles: Record<ConnectorFamily, string> = {
@@ -448,6 +454,7 @@ const addTitles: Record<ConnectorFamily, string> = {
   gitlab: msg("Add a GitLab connection"),
   azure: msg("Add an Azure DevOps connection"),
   shortcut: msg("Add a Shortcut connection"),
+  tapd: msg("Add a TAPD connection"),
 };
 
 /**
@@ -474,7 +481,7 @@ export function ConnectionsPage() {
                 key={c.id}
                 leading={<BrandIcon family={family} size={20} />}
                 title={c.name}
-                detail={c.authFailed ? t("Token refused. Edit to replace it.") : c.account ? t("Connected as {name}", { name: c.account }) : c.baseUrl}
+                detail={c.authFailed ? (providerInfo[c.provider].mcp ? t("MCP access refused. Check login and test again.") : t("Token refused. Edit to replace it.")) : providerInfo[c.provider].mcp ? c.account || c.baseUrl : c.account ? t("Connected as {name}", { name: c.account }) : c.baseUrl}
                 onPress={() => setEditing({ family, connection: c })}
                 trailing={<Icon name={c.authFailed ? "TriangleAlert" : "ChevronRight"} size={16} color={colors.foregroundMuted} />}
               />
@@ -518,6 +525,7 @@ const addressPlaceholders: Record<ConnectorProvider, string> = {
   gitlab: "https://gitlab.example.com",
   "azure-devops": "https://dev.azure.com/your-organization",
   shortcut: "https://app.shortcut.com/your-workspace",
+  "tapd-internal": "https://tapd.woa.com/tapd_fe/123",
 };
 
 function ConnectionEditor({ family, connection, onClose }: { family: ConnectorFamily; connection: Connection | null; onClose(): void }) {
@@ -547,7 +555,7 @@ function ConnectionEditor({ family, connection, onClose }: { family: ConnectorFa
   const [tested, setTested] = useState<{ key: string; ok: boolean; text: string } | null>(null);
   const [testing, setTesting] = useState(false);
   const address = hosted ? defaultBase : baseUrl.trim();
-  const ready = !pending && !testing && !!address && (!!connection || (!!secret.trim() && (!info.email || !!email.trim())));
+  const ready = !pending && !testing && !!address && (info.mcp || !!connection || (!!secret.trim() && (!info.email || !!email.trim())));
   const values = { ...(connection ? { id: connection.id } : {}), provider, baseUrl: address, name, email, secret };
   const valuesKey = JSON.stringify([provider, address, email.trim(), secret.trim()]);
   const result = tested?.key === valuesKey ? tested : null;
@@ -620,7 +628,7 @@ function ConnectionEditor({ family, connection, onClose }: { family: ConnectorFa
       )}
       <Field title={t("Name")} value={name} onChange={setName} placeholder={t("Defaults to the address")} />
       {info.email && <Field title={t("Account email")} value={email} onChange={setEmail} placeholder={connection ? t("Unchanged") : "you@example.com"} />}
-      <Field
+      {!info.mcp && <Field
         title={info.email ? t("API token") : t("Personal access token")}
         value={secret}
         onChange={setSecret}
@@ -628,7 +636,7 @@ function ConnectionEditor({ family, connection, onClose }: { family: ConnectorFa
         secure
         hint={tokenHint(provider, hosted)}
         onSubmit={ready ? () => void submit() : undefined}
-      />
+      />}
       {result && <Notice tone={result.ok ? "success" : "danger"}>{result.text}</Notice>}
       {confirming && (
         <Notice tone="warning">
@@ -642,7 +650,7 @@ function ConnectionEditor({ family, connection, onClose }: { family: ConnectorFa
             : t("No card has items from this {service}.", { service })}
         </Notice>
       )}
-      <Label muted size={font.xs}>{t("Saving checks the token with {service} first. It is stored only on the computer running Paseo and never shown again.", { service })}</Label>
+      <Label muted size={font.xs}>{info.mcp ? t("Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.") : t("Saving checks the token with {service} first. It is stored only on the computer running Paseo and never shown again.", { service })}</Label>
       <Actions>
         {connection &&
           (confirming ? (

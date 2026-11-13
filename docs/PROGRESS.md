@@ -1,5 +1,13 @@
 # Implementation progress
 
+## Tencent internal TAPD inputs — 2026-11-13
+
+- User selected `tapd.woa.com` and requested discovery through existing MCP rather than supplying a sample. Added project-scoped `tapd-internal` connections backed by the host's configured `tapd` MCP runtime, with a fixed read-only tool/argument whitelist. No copied credentials, external writes, state synchronization or native-scope changes. [Contract](TAPD-CONNECTOR-SPEC.md).
+- Requirements, bugs and tasks use canonical project/kind/19-digit keys. Internal detail/dialog/legacy links, short-ID conversion, recent/title search, preview, artifact inputs and agent reads share the connector framework. Empty new-card descriptions import the first TAPD body before creating a workspace; user descriptions stay. Tour, tip, README and all nine catalogs updated. No new telemetry fields, dependencies or version bump.
+- PASS: typecheck exit 0; focused six files / 170 tests exit 0; opt-in real internal MCP adapter check exit 0 (membership, recent list, exact body/comments interface and short-ID mapping). No ticket title/body or credential exported.
+- FAILED: connector regression 229 passed / 1 failed (Windows POSIX mode assertion in existing Jira test); full suite 1425 passed / 29 failed / 8 pending, exit 1. No assertion weakened, no claim of exact baseline parity. Isolated installed-plugin RPC resolves short IDs, public connection has no credential, fixture telemetry forced off, and fixture board/native cleanup passed; UI/persistence and independent exact-commit checks still in progress.
+
+
 ## Image attachment limits removed — 2026-11-13
 
 - User requested no Flowly image count, byte-size or pixel-size caps. Removed limits from selection, description metadata/input, queue RPC/state and retry restoration. Original data and ordered lists are preserved; format, canonical description data, signatures, membership and integrity checks remain. Host/model and resource constraints still apply. [Contract](DESCRIPTION-IMAGES-SPEC.md).
