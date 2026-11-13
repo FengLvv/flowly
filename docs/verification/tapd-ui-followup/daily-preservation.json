@@ -1,0 +1,9 @@
+{
+  "dailyDaemonReadable": true,
+  "canvasStillRunning": true,
+  "intendedTapdConnectionStillPresent": true,
+  "dailyDaemonRestarted": false,
+  "dailyFlowlyReloaded": false,
+  "canvasReloaded": false,
+  "dailyResourcesCreated": 0
+}

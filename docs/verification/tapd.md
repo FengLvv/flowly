@@ -1,5 +1,7 @@
 # Internal TAPD verification — 2026-11-13
 
+Follow-up: the previously incomplete New task/Artifacts/actual-agent checks are now accepted; the screenshot helper's over-broad hiding caused the navigation failures and is fixed. Full runner 26/26, privacy regression 7/7, actual Haiku response `TAPD_READ_OK`, including expected cross-card refusal. See [follow-up acceptance](tapd-ui-followup.md) for current evidence and cleanup limits. Historical first-delivery results below are retained.
+
 Implemented source: `7a93ef63c78f36f75fb32f833650f8134b795366`, branch `feat/tapd-inputs`, [PR #3](https://github.com/FengLvv/flowly/pull/3). The shared checkout remains on its original main branch; a private temporary Git index excluded the infinite-canvas plugin and other sessions' dirty files.
 
 ## Passed

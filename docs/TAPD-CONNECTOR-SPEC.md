@@ -25,6 +25,8 @@ User decision, 2026-11-13: integrate `tapd.woa.com`, use the user's existing MCP
 
 ## Acceptance
 
+UI verification uses an owned isolated host and session. Capture privacy may hide other project tabs only; it must not hide toolbar actions or the board. The runner proves navigation remains usable after capture, selects rows by their accessible Choose key label, and keeps ticket titles/bodies out of exported evidence. New-card import, artifact linking/preview/deduplication and session-authorized external reads are separate checks.
+
 1. Add/test/save/remove a project-scoped TAPD MCP connection without tokens reaching the client; existing stored connections remain readable.
 2. Links, exact keys, short/long IDs, recent and title search support requirements/bugs/tasks with collision-free keys and no cross-project reads.
 3. New-card title/description import, artifact recognition, preview and scoped agent reads work; body/comment changes mark unread, external status never moves a card.

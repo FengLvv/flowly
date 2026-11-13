@@ -1,0 +1,9 @@
+{
+  "manualAiSessionGone": true,
+  "agentListKeys": [
+    "requestId",
+    "entries",
+    "pageInfo"
+  ],
+  "agentCount": 0
+}

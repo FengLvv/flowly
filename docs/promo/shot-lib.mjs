@@ -47,20 +47,20 @@ export async function launch() {
   }
 }
 
-// Hide every project tab except `project` (the tab row's other labelled children; "+" and the chevron have no text).
+// Hide only other project tabs. The toolbar may share the same row: walking to
+// arbitrary labelled siblings also hid New task/Filter and broke later UI steps.
 export async function hidePrivate(page, project) {
   await page.evaluate(({ project, sidebar }) => {
     const label = (el) => el.textContent.trim();
     const leaf = [...document.querySelectorAll('*')].find((el) => !el.children.length && label(el) === project && el.getBoundingClientRect().x > sidebar && el.getBoundingClientRect().y < 140);
     if (!leaf) return;
-    let tab = leaf;
-    while (tab.parentElement && [...tab.parentElement.children].filter((c) => label(c)).length < 2) tab = tab.parentElement;
-    if (!tab.parentElement) return;
-    // Only siblings on the tab's own row: in the compact header the walk can reach the column that also holds the board.
+    const tab = leaf.closest('[role="tab"]');
+    // Compact layouts use one project switcher, with no other project names on screen.
+    if (!tab) return;
     const row = tab.getBoundingClientRect();
-    for (const sib of tab.parentElement.children) {
+    for (const sib of document.querySelectorAll('[role="tab"]')) {
       const r = sib.getBoundingClientRect();
-      if (sib !== tab && label(sib) && Math.abs(r.y - row.y) < 12 && r.height < 80) sib.style.display = 'none';
+      if (sib !== tab && r.x > sidebar && Math.abs(r.y - row.y) < 12 && r.height < 80) sib.style.display = 'none';
     }
   }, { project, sidebar: SIDEBAR_WIDTH - 20 });
 }
