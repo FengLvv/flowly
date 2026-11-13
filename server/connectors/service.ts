@@ -3,6 +3,7 @@ import { existsSync, renameSync } from "node:fs";
 import { chmod, copyFile, mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";
+import { normalizeTapdBaseUrl } from "../../shared/tapd";
 import {
   connectionInput,
   externalTarget,
@@ -189,8 +190,8 @@ export class ConnectorService {
     const input = connectionInput.parse(raw);
     const info = providerInfo[input.provider];
     const adapter = adapterFor(input.provider);
-    const baseUrl = normalizeBaseUrl(info.defaultBaseUrl && !input.baseUrl ? info.defaultBaseUrl : input.baseUrl);
-    if (!baseUrl) throw new Error(`Enter the ${adapter.label} address, e.g. ${info.defaultBaseUrl || `https://${familyOf(input.provider)}.example.com`}.`);
+    const baseUrl = info.mcp ? normalizeTapdBaseUrl(input.baseUrl) : normalizeBaseUrl(info.defaultBaseUrl && !input.baseUrl ? info.defaultBaseUrl : input.baseUrl);
+    if (!baseUrl) throw new Error(info.mcp ? "Enter a Tencent internal TAPD project address: https://tapd.woa.com/tapd_fe/<project-id>." : `Enter the ${adapter.label} address, e.g. ${info.defaultBaseUrl || `https://${familyOf(input.provider)}.example.com`}.`);
     // Tokens never travel in clear text, except to this machine (local mirrors, tests).
     const url = new URL(baseUrl);
     if (url.protocol !== "https:" && !["localhost", "127.0.0.1", "[::1]"].includes(url.hostname))
@@ -200,8 +201,8 @@ export class ConnectorService {
     const same = !!previous && previous.provider === input.provider && previous.baseUrl === baseUrl;
     const secret = input.secret || (same ? previous.secret : "");
     const email = input.email || (same ? previous.email : "");
-    if (previous && !same && !input.secret) throw new Error("The address or type changed: enter the token again.");
-    if (!secret) throw new Error(info.email ? "Enter an API token." : "Enter a personal access token.");
+    if (previous && !same && !input.secret && !info.mcp) throw new Error("The address or type changed: enter the token again.");
+    if (!secret && !info.mcp) throw new Error(info.email ? "Enter an API token." : "Enter a personal access token.");
     if (info.email && !email) throw new Error("Enter the email of the Atlassian account the API token belongs to.");
     const candidate: StoredConnection = {
       id: previous?.id || randomUUID(),
@@ -209,7 +210,7 @@ export class ConnectorService {
       name: input.name || new URL(baseUrl).host,
       baseUrl,
       email: info.email ? email : "",
-      secret,
+      secret: info.mcp ? "" : secret,
       account: "",
       login: "",
       verifiedAt: "",
@@ -283,7 +284,7 @@ export class ConnectorService {
   private async call<T>(connectionId: string, run: (connection: StoredConnection) => Promise<T>): Promise<T> {
     const connection = await this.connections.get(connectionId);
     const label = adapterFor(connection.provider).label;
-    if (connection.authFailed) throw new ExternalError("EXTERNAL_AUTH", `${label} refused the token. Update the connection in Flowly settings.`);
+    if (connection.authFailed) throw new ExternalError("EXTERNAL_AUTH", providerInfo[connection.provider].mcp ? "TAPD access was refused. Check the host's tapd MCP login and test the connection again in Flowly settings." : `${label} refused the token. Update the connection in Flowly settings.`);
     const blocked = this.blockedUntil.get(connectionId) || 0;
     if (blocked > this.clock()) throw new ExternalError("EXTERNAL_UNAVAILABLE", `${label} asked Flowly to wait; try again shortly.`);
     try {
@@ -375,6 +376,14 @@ export class ConnectorService {
       url: summary.url || itemUrl(connection, summary.itemType, summary.key),
       title: externalTitle(summary.itemType, summary.key, summary.summary),
     };
+  }
+
+  /** Runs before native resources exist; other adapters don't opt in to body import. */
+  async descriptionForImport(ref: ExternalRef): Promise<string> {
+    const adapter = adapterFor(ref.provider);
+    if (!adapter.description) return "";
+    const fetched = await this.call(ref.connectionId, (c) => adapter.get(c, this.fetchImpl, { key: ref.key, itemType: itemTypeOf(ref) }, true));
+    return adapter.description(fetched.full).slice(0, 20000);
   }
 
   /**

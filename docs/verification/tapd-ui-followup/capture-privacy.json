@@ -1,0 +1,32 @@
+{
+  "checks": [
+    {
+      "label": "Other project tab hidden",
+      "pass": true
+    },
+    {
+      "label": "Current project tab visible",
+      "pass": true
+    },
+    {
+      "label": "New task remains actionable",
+      "pass": true
+    },
+    {
+      "label": "Filter remains visible",
+      "pass": true
+    },
+    {
+      "label": "Board content preserved",
+      "pass": true
+    },
+    {
+      "label": "Private project omitted from exported page text",
+      "pass": true
+    },
+    {
+      "label": "Compact switcher does not hide navigation or board",
+      "pass": true
+    }
+  ]
+}

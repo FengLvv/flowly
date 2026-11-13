@@ -1,5 +1,7 @@
 # 更多 connector：Confluence / GitHub / GitLab 作为只读输入
 
+2026-11-13 扩展：[腾讯内网 TAPD](TAPD-CONNECTOR-SPEC.md) 通过宿主已有的 `tapd` MCP 读取需求/缺陷/任务。该 provider 使用固定只读 MCP 白名单，不走 HTTP token；其他连接器和凭据规则保持。
+
 状态：用户 2026-10-20 确认（§11），已实现；Luna 6 验收通过，真实 GitLab（git.garena.com）与 Confluence（confluence.shopee.io）联调通过（[证据](verification/connectors.md)）；GitHub 真实联调待令牌。2026-10-20 · 卡片“更多connector接入”。
 
 前置：[EXTERNAL-TRACKER-SPEC](EXTERNAL-TRACKER-SPEC.md)（Jira 工单作为只读 input，已实现）。本 spec 把那套机制推广为通用的 **connector**，并接入 Confluence、GitHub、GitLab。凡本文没有改写的规则，沿用 EXTERNAL-TRACKER-SPEC。

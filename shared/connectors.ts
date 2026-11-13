@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { splitTapdKey, tapdFromUrl, tapdId, tapdItemType, tapdItemUrl, tapdKey, tapdProject, type TapdKind } from "./tapd";
 
 /**
  * External items as read-only card inputs (CONNECTORS-SPEC; Jira rules in
@@ -7,21 +8,21 @@ import { z } from "zod";
  * picker searches. Nothing here talks to a service.
  */
 
-export const connectorFamilies = ["jira", "confluence", "github", "gitlab", "azure", "shortcut"] as const;
+export const connectorFamilies = ["jira", "confluence", "github", "gitlab", "azure", "shortcut", "tapd"] as const;
 export type ConnectorFamily = (typeof connectorFamilies)[number];
 
-export const connectorProviders = ["jira-dc", "jira-cloud", "confluence-dc", "confluence-cloud", "github", "gitlab", "azure-devops", "shortcut"] as const;
+export const connectorProviders = ["jira-dc", "jira-cloud", "confluence-dc", "confluence-cloud", "github", "gitlab", "azure-devops", "shortcut", "tapd-internal"] as const;
 export type ConnectorProvider = (typeof connectorProviders)[number];
 export const connectorProviderSchema = z.enum(connectorProviders);
 
-export const itemTypes = ["issue", "pull", "merge_request", "page", "story", "epic"] as const;
+export const itemTypes = ["issue", "pull", "merge_request", "page", "story", "epic", "task"] as const;
 export type ItemType = (typeof itemTypes)[number];
 export const itemTypeSchema = z.enum(itemTypes);
 
 /** What a provider needs to connect (CONNECTORS-SPEC §4.1). */
 export const providerInfo: Record<
   ConnectorProvider,
-  { family: ConnectorFamily; email: boolean; defaultBaseUrl?: string }
+  { family: ConnectorFamily; email: boolean; defaultBaseUrl?: string; mcp?: boolean }
 > = {
   "jira-dc": { family: "jira", email: false },
   "jira-cloud": { family: "jira", email: true },
@@ -32,6 +33,7 @@ export const providerInfo: Record<
   "azure-devops": { family: "azure", email: false },
   // One connection is one workspace, so baseUrl carries the slug and there is no default.
   shortcut: { family: "shortcut", email: false },
+  "tapd-internal": { family: "tapd", email: false, mcp: true },
 };
 export const familyOf = (provider: ConnectorProvider) => providerInfo[provider].family;
 export const familyProviders = (family: ConnectorFamily) => connectorProviders.filter((p) => providerInfo[p].family === family);
@@ -386,6 +388,7 @@ export function recognizeUrl(
   if (family === "github") return githubFromUrl(value, connection.baseUrl);
   if (family === "azure") return azureFromUrl(value, connection.baseUrl);
   if (family === "shortcut") return shortcutFromUrl(value, connection.baseUrl);
+  if (family === "tapd") return tapdFromUrl(value, connection.baseUrl);
   return gitlabFromUrl(value, connection.baseUrl);
 }
 
@@ -413,6 +416,10 @@ export function parseKey(value: string, provider: ConnectorProvider): { itemType
     return key ? { itemType: "issue", key } : null;
   }
   if (family === "confluence") return pageId(text) ? { itemType: "page", key: text } : null;
+  if (family === "tapd") {
+    const ref = splitTapdKey(text);
+    return ref ? { itemType: tapdItemType(ref.kind), key: text } : null;
+  }
   if (family === "azure") {
     const id = azureIdOfKey(text);
     return id ? { itemType: "issue", key: azureKey(id) } : null;
@@ -437,6 +444,7 @@ export function itemUrl(connection: Pick<Connection, "provider" | "baseUrl">, it
   if (family === "github") return githubItemUrl(connection.baseUrl, key, itemType);
   if (family === "azure") return azureItemUrl(connection.baseUrl, key);
   if (family === "shortcut") return shortcutItemUrl(connection.baseUrl, key, itemType);
+  if (family === "tapd") return tapdItemUrl(connection.baseUrl, key);
   return gitlabItemUrl(connection.baseUrl, key, itemType);
 }
 
@@ -453,6 +461,7 @@ export function externalTarget(value: string, connections: readonly Pick<Connect
   if (/^[a-z]+:\/\//i.test(trimmed)) return null;
   const matches = connections.flatMap((c) => {
     const found = parseKey(trimmed, c.provider);
+    if (familyOf(c.provider) === "tapd" && splitTapdKey(trimmed)?.project !== tapdProject(c.baseUrl)) return [];
     return found ? [{ connectionId: c.id, ...found }] : [];
   });
   return matches.length === 1 ? matches[0]! : null;
@@ -474,6 +483,16 @@ export function classifyQuery(raw: string, connection: Pick<Connection, "provide
   if (fromUrl) return "key" in fromUrl ? { kind: "key", itemType: fromUrl.itemType, key: fromUrl.key } : { kind: "lookup", space: fromUrl.space, title: fromUrl.title };
   const key = parseKey(value, connection.provider);
   if (key) return { kind: "key", ...key };
+  if (family === "tapd") {
+    const typed = /^(story|bug|task)-([1-9]\d*)$/i.exec(value);
+    const project = tapdProject(connection.baseUrl);
+    if (typed && project && tapdId(typed[2]!)) {
+      const kind = typed[1]!.toLowerCase() as TapdKind;
+      return { kind: "key", itemType: tapdItemType(kind), key: tapdKey(project, kind, typed[2]!) };
+    }
+    if (tapdId(value)) return { kind: "number", number: value };
+    return { kind: "text", text: value.slice(0, connectorLimits.query) };
+  }
   if (family === "azure") {
     // Ids are unique per organization: "123" and "#123" name the work item.
     const id = azureId(/^#?(\d+)$/.exec(value)?.[1]);
@@ -499,6 +518,8 @@ export const externalTitle = (itemType: ItemType, key: string, summary: string) 
 /** The short key shown on a card face (CONNECTORS-SPEC §2); null for pages. */
 export function faceKey(ref: Pick<ExternalRef, "key" | "itemType">): string | null {
   if (itemTypeOf(ref) === "page") return null;
+  const tapd = splitTapdKey(ref.key);
+  if (tapd) return `${tapd.kind}-${tapd.id.slice(-9).replace(/^0+/, "") || "0"}`;
   const parts = splitRepoKey(ref.key);
   if (!parts) return ref.key;
   return `${parts.repo.split("/").pop()}${parts.sep}${parts.number}`;
@@ -510,6 +531,7 @@ export function itemLabel(provider: ConnectorProvider, itemType: ItemType) {
   if (family === "jira") return "Jira ticket";
   if (family === "confluence") return "Confluence page";
   if (family === "azure") return "Azure DevOps work item";
+  if (family === "tapd") return "TAPD work item";
   if (family === "shortcut") return itemType === "epic" ? "Shortcut epic" : "Shortcut story";
   const name = family === "github" ? "GitHub" : "GitLab";
   return `${name} ${itemType === "pull" ? "pull request" : itemType === "merge_request" ? "merge request" : "issue"}`;

@@ -1,5 +1,7 @@
 # Paseo Kanban Plugin：Spec 大纲与路线图
 
+2026-11-13 腾讯内网 TAPD：复用宿主 tapd MCP 的只读项目连接、从工单建卡及正文/评论读取。[规范](TAPD-CONNECTOR-SPEC.md)。
+
 2026-11-12 会话文本上下文：New session 可选择同项目已有对话，跨模型继承近期对话文本；源会话保持，当前卡片工作区与授权独立。见 [SESSION-CONTEXT-SPEC](SESSION-CONTEXT-SPEC.md)。
 2026-11-12 描述图片：卡片描述下保存图片；新建卡片与新会话可显式使用描述图文作为首条指令，独立复制、可修改，普通跟进保持原文。[规范](DESCRIPTION-IMAGES-SPEC.md)。
 

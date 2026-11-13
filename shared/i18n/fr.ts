@@ -1,6 +1,17 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "An empty description imports the first TAPD item's description when creating the card.": "Si la description est vide, celle du premier élément TAPD est importée à la création de la carte.",
+  "TAPD work item": "Élément de travail TAPD",
+  "Work item link, number, story-123, bug-123, task-123 or title words": "Lien, numéro, story-123, bug-123, task-123 ou mots du titre",
+  "Recent work items in this TAPD project": "Éléments récents de ce projet TAPD",
+  "No work items were found in this TAPD project.": "Aucun élément trouvé dans ce projet TAPD.",
+  "Add a TAPD connection": "Ajouter une connexion TAPD",
+  "MCP access refused. Check login and test again.": "Accès MCP refusé. Vérifiez la connexion et réessayez.",
+  "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "Utilise le serveur MCP tapd configuré sur l’hôte Paseo via mcporter. Connectez-vous d’abord à ce serveur. Accès TAPD en lecture seule.",
+  "TAPD work items can be inputs too. Connect a TAPD project in Settings → Connections, then use From TAPD or the Artifacts +.": "Les éléments TAPD peuvent aussi servir d’entrées. Connectez un projet dans Paramètres → Connexions, puis utilisez Depuis TAPD ou le + des artefacts.",
+  "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Créez une carte depuis Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut ou TAPD, ou ajoutez un élément avec le + des artefacts. Les agents le lisent à chaque tour ; Flowly ne le modifie jamais.",
+
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly ne limite ni le nombre ni la taille des images. Les limites du modèle et de l’hôte restent applicables.",
   "Use card description": "Utiliser la description de la carte",
   "Description changed. Use card description again.": "La description a changé. Rechargez la description de la carte.",
@@ -1256,7 +1267,6 @@ const catalog: Catalog = {
   "You have no open stories.": "Aucune story ouverte ne vous est assignée.",
   "Add a Shortcut connection": "Ajouter une connexion Shortcut",
   "Create one in Shortcut → Settings → API Tokens.": "Créez-en un dans Shortcut → Paramètres → API Tokens.",
-  "Start a card from a Jira ticket, Confluence page, GitHub/GitLab issue or pull request, Azure DevOps work item, or Shortcut story or epic, or add one with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Créez une carte à partir d'un ticket Jira, d'une page Confluence, d'un issue ou d'une pull request GitHub/GitLab, d'un élément de travail Azure DevOps ou d'une story ou epic Shortcut, ou ajoutez-le avec le + des Artefacts. Les agents le lisent à chaque tour ; Flowly ne le modifie jamais.",
   "What's new": "Nouveautés",
   "Flowly {version}": "Flowly {version}",
   "Open settings": "Ouvrir les réglages",
