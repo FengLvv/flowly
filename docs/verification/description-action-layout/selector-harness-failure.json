@@ -1,0 +1,74 @@
+{
+  "root": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture",
+  "checks": [
+    {
+      "pass": true,
+      "name": "plugin fixture cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native project cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native workspace cleaned"
+    }
+  ],
+  "project": {
+    "id": "50d841a6-e0d1-4819-9663-a1f6352bddd9",
+    "title": "Description action layout fixture",
+    "description": "Temporary owned UI fixture",
+    "paseoProjectId": "prj_195aa2953e35df3c",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture"
+    ],
+    "revision": 1,
+    "createdAt": "2026-11-12T13:03:49.641Z",
+    "updatedAt": "2026-11-12T13:03:49.641Z",
+    "archivedAt": null,
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    }
+  },
+  "card": {
+    "descriptionImages": [
+      {
+        "id": "03a2b214-0482-4682-a44f-ed3be8cbb32b",
+        "name": "red.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      }
+    ],
+    "id": "8d7017f1-e8b1-40ea-9f52-5f32ab17be6a",
+    "projectId": "50d841a6-e0d1-4819-9663-a1f6352bddd9",
+    "workspaceId": "wks_1ee4f84db716eb36",
+    "sourcePath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture",
+    "repoPaths": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture"
+    ],
+    "title": "Description action layout",
+    "description": "Layout fixture instruction",
+    "status": "todo",
+    "priority": "normal",
+    "type": "bugfix",
+    "tags": [
+      {
+        "tag": "sessions",
+        "by": "human",
+        "at": "2026-11-12T13:03:50.540Z"
+      }
+    ],
+    "position": 0,
+    "revision": 1,
+    "operationId": "34bcad62-a6d1-463e-835c-ecd49d796150",
+    "createdAt": "2026-11-12T13:03:50.540Z",
+    "updatedAt": "2026-11-12T13:03:50.540Z",
+    "archivedAt": null,
+    "ownsWorkspace": true
+  },
+  "error": "locator.click: Error: strict mode violation: getByText('Description action layout', { exact: true }) resolved to 2 elements:\n    1) <div dir=\"auto\" data-cp-win=\"ws-title\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a unistyles_1i3j1z0hdn4 \">Description action layout</div> aka getByTestId('sidebar-workspace-row-srv_y62zR7BlDTB5:wks_1ee4f84db716eb36')\n    2) <div dir=\"auto\" class=\"css-146c3p1 r-8akbws r-krxsd3 r-dnmrzs r-1qsk4np r-1udbk01 r-lrvibr\">Description action layout</div> aka getByTestId('card-8d7017f1-e8b1-40ea-9f52-5f32ab17be6a')\n\nCall log:\n\u001b[2m  - waiting for getByText('Description action layout', { exact: true })\u001b[22m\n",
+  "directoryCleaned": true
+}

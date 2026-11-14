@@ -14,6 +14,7 @@ import { Pressable } from "react-native";
 import { t } from "../shared/i18n";
 import { ImageAttachments, useImageAttachments } from "./image-attach";
 import { newMessageId, rememberSentImages } from "./sent-images";
+import { PickerGroup, PickerRow } from "./picker";
 
 export function SessionCreate({
   task,
@@ -43,7 +44,17 @@ export function SessionCreate({
     contextRead = useRpc(rpc.taskContext),
     prepare = useRpc(rpc.prepareSession),
     healthRead = useRpc(rpc.toolsHealth),
+    sourcesRead = useRpc(rpc.sessionContextSources),
+    dialogueRead = useRpc(rpc.sessionContextRead),
     readDescription = useRpc(rpc.readDescriptionImages);
+  const [contextSource, setContextSource] = useState("");
+  const [sourcePicker, setSourcePicker] = useState(false);
+  const sources = useQuery({
+    queryKey: ["flowly", "session-context-sources", task.id],
+    queryFn: () => sourcesRead({ taskId: task.id }),
+    enabled: open && sourcePicker,
+    staleTime: 0,
+  });
   const choice = useAgentChoice({ enabled: open, cwd: workspaceDirectory, defaults });
   const { provider, chosenModel, chosenMode, providers, models, modes } = choice;
   const [newTitle, setTitle] = useState(""),
@@ -74,6 +85,8 @@ export function SessionCreate({
       choice.reset(defaults);
       setPrompt(seed?.prompt || "");
       setTitle(seed?.title || "");
+      setContextSource("");
+      setSourcePicker(false);
       attachments.clear();
       setDescriptionRevision(undefined);
       setError("");
@@ -124,6 +137,7 @@ export function SessionCreate({
         newTitle,
         newPrompt,
         ordinary,
+        contextSource,
         attachments.images(),
         descriptionRevision,
       ]);
@@ -161,6 +175,9 @@ export function SessionCreate({
       const images = attachments.images();
       const imageUris = attachments.uris();
       const messageId = attempt.current.messageId;
+      // Do not read/copy any source configuration. Target work instructions
+      // and freshly prepared identity remain authoritative for this session.
+      const dialogue = contextSource ? await dialogueRead({ taskId: task.id, agentId: contextSource }) : undefined;
       const preparation = ordinary
         ? undefined
         : await prepare({
@@ -192,6 +209,7 @@ export function SessionCreate({
         title: newTitle.trim() || task.title,
         labels: { "flowly-task": task.id },
         prompt: instructionText(newPrompt, task.title, images),
+        ...(dialogue ? { attachments: [{ type: "text" as const, mimeType: "text/plain" as const, title: dialogue.title, text: dialogue.text }] } : {}),
         ...(images.length ? { images, clientMessageId: messageId } : {}),
       };
       const created = preparation
@@ -238,8 +256,11 @@ export function SessionCreate({
           editable={!sending}
           onSubmit={submit}
         />
-        {(task.description.trim() || task.descriptionImages?.length) ? <Button quiet disabled={sending || loadingDescription} onPress={() => void useDescription()}>{t("Use card description")}</Button> : null}
-        <ImageAttachments state={attachments} disabled={sending || loadingDescription}>
+        <ImageAttachments
+          state={attachments}
+          disabled={sending || loadingDescription}
+          trailingAction={(task.description.trim() || task.descriptionImages?.length) ? <Button quiet disabled={sending || loadingDescription} onPress={() => void useDescription()}>{t("Use card description")}</Button> : null}
+        >
           <Field
             title={t("Instruction")}
             value={newPrompt}
@@ -251,6 +272,18 @@ export function SessionCreate({
           />
         </ImageAttachments>
         <AgentPicker choice={choice} disabled={sending} />
+        <PickerGroup>
+          <PickerRow
+            first title={t("Context from")} icon="MessagesSquare"
+            value={contextSource} placeholder={contextSource || t("None")}
+            open={sourcePicker} disabled={sending} loading={sources.isFetching}
+            options={[{ value: "", label: t("None") }, ...(sources.data?.entries || []).map((s) => ({ value: s.id, label: `${s.title} · ${s.workspaceName}` }))]}
+            onToggle={() => setSourcePicker(!sourcePicker)}
+            onChange={(id) => { setContextSource(id); setSourcePicker(false); setError(""); }}
+          />
+        </PickerGroup>
+        {contextSource && <Label muted size={font.sm}>{t("Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.")}</Label>}
+        {sourcePicker && sources.error && <Notice>{message(sources.error)}</Notice>}
         <Label muted size={font.sm}>
           {t("The task's title and description are included automatically, along with Kanban tools.")}</Label>
         {providers.isSuccess &&

@@ -1,0 +1,150 @@
+{
+  "root": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture",
+  "checks": [
+    {
+      "pass": true,
+      "name": "1700px: action below instruction",
+      "detail": {
+        "action": {
+          "x": 983,
+          "y": 434,
+          "width": 102,
+          "height": 32
+        },
+        "field": {
+          "x": 615,
+          "y": 330,
+          "width": 470,
+          "height": 96
+        }
+      }
+    },
+    {
+      "pass": true,
+      "name": "1700px: action inside dialog"
+    },
+    {
+      "pass": true,
+      "name": "1700px: controls do not overlap"
+    },
+    {
+      "pass": true,
+      "name": "1700px: action aligned with instruction trailing edge"
+    },
+    {
+      "pass": true,
+      "name": "1700px: description replaces custom instruction"
+    },
+    {
+      "pass": true,
+      "name": "1700px: description image copied"
+    },
+    {
+      "pass": true,
+      "name": "750px: action below instruction",
+      "detail": {
+        "action": {
+          "x": 508,
+          "y": 434,
+          "width": 102,
+          "height": 32
+        },
+        "field": {
+          "x": 140,
+          "y": 330,
+          "width": 470,
+          "height": 96
+        }
+      }
+    },
+    {
+      "pass": true,
+      "name": "750px: action inside dialog"
+    },
+    {
+      "pass": true,
+      "name": "750px: controls do not overlap"
+    },
+    {
+      "pass": true,
+      "name": "750px: action aligned with instruction trailing edge"
+    },
+    {
+      "pass": true,
+      "name": "750px: description replaces custom instruction"
+    },
+    {
+      "pass": true,
+      "name": "750px: description image copied"
+    },
+    {
+      "pass": true,
+      "name": "plugin fixture cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native project cleaned"
+    },
+    {
+      "pass": true,
+      "name": "native workspace cleaned"
+    }
+  ],
+  "project": {
+    "id": "0f4bde53-3022-4908-b1b1-57ccff5713c8",
+    "title": "Description action layout fixture",
+    "description": "Temporary owned UI fixture",
+    "paseoProjectId": "prj_5468f84d0a5fbc8c",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture"
+    ],
+    "revision": 1,
+    "createdAt": "2026-11-12T13:04:48.062Z",
+    "updatedAt": "2026-11-12T13:04:48.062Z",
+    "archivedAt": null,
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    }
+  },
+  "card": {
+    "descriptionImages": [
+      {
+        "id": "53924929-3e36-45ff-9697-4d690e80d857",
+        "name": "red.png",
+        "mimeType": "image/png",
+        "bytes": 168,
+        "sha256": "ca96adb50da6a5f6cbfe03c9c5eb8ad8f1a6c88f526b8a4b9d9d7d3b9ef90157"
+      }
+    ],
+    "id": "dd516c6a-05cc-48a5-9b28-82946c881b80",
+    "projectId": "0f4bde53-3022-4908-b1b1-57ccff5713c8",
+    "workspaceId": "wks_ae4a92d01d152640",
+    "sourcePath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture",
+    "repoPaths": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\description-action-layout-fcc5373e\\fixture"
+    ],
+    "title": "Description action layout",
+    "description": "Layout fixture instruction",
+    "status": "todo",
+    "priority": "normal",
+    "type": "bugfix",
+    "tags": [
+      {
+        "tag": "sessions",
+        "by": "human",
+        "at": "2026-11-12T13:04:49.025Z"
+      }
+    ],
+    "position": 0,
+    "revision": 1,
+    "operationId": "09208878-501d-4571-b93a-e47fe47faf21",
+    "createdAt": "2026-11-12T13:04:49.025Z",
+    "updatedAt": "2026-11-12T13:04:49.025Z",
+    "archivedAt": null,
+    "ownsWorkspace": true
+  },
+  "error": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog').last().getByRole('button', { name: /^使用卡片描述$|^Use card description$/ }) to be visible\u001b[22m\n",
+  "directoryCleaned": true
+}

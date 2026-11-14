@@ -1,5 +1,23 @@
 # Implementation progress
 
+## Use card description action placement — 2026-11-12
+
+- Moved the quiet action below the instruction field, to the trailing edge of the image controls, in both launch forms. Text/image copying, loading/error handling and sending are unchanged. [Contract](DESCRIPTION-IMAGES-SPEC.md).
+- PASS: typecheck exit 0; focused suite 112/112 (5 files, excluding the retained old worktree); desktop and 750px live layout/copy checks 12/12, plus 3 fixture cleanup checks. Installed `flowly` reloaded and running. No new onboarding concept or telemetry action.
+- FAILED: project full suite exit 1, 1356 passed / 29 failed / 7 skipped, 2 Windows socket errors. The default command also collected the retained old worktree; see report for separate counts. No assertions weakened.
+- UNRUN/INCOMPLETE: 390px dialog lookup timed out; device, dark theme, new-card live form and independent exact-commit checks not run. In review disabled, result receipt used. [Verification](verification/description-action-layout.md).
+- 2026-11-13 commit/install follow-up: typecheck exit 0 and focused 112/112 passed again. Commit scope is this card only on its existing feature branch. The same `flowly` ID already points at this checkout; duplicate install was refused, so the existing local installation was reloaded and reads running. Other sessions' changes are preserved.
+
+## Session dialogue context — 2026-11-12
+
+- User chose public SDK dialogue-text inheritance (same project, cross-model, excluding images/tool results) over a new internal-daemon exception. [Contract](SESSION-CONTEXT-SPEC.md).
+- New session has a Context from picker, default None. Daemon filters source membership, exports only bounded chronological user/assistant text at submit, checks ownership again after paging, and rejects empty, stale or unavailable history. The target gets a text attachment and its own current card instructions/credentials in its existing workspace. Prepared creation recovery still runs before source reads.
+- Guidance: More features tour entry, one-time session-context tip, READMEs and all nine catalogs. No What's new, version bump, board schema or telemetry field change. Corrected the i18n test's Windows file URL conversion so the catalog assertions can run.
+- PASS: `npm run typecheck` (0); focused `server/session-context.test.ts client/session.test.ts client/onboarding-logic.test.ts shared/i18n.test.ts` (0), 115 passed. No assertions were weakened.
+- FAILED: full `npm test` (1), final local run 1336 passed / 33 failed / 7 skipped, plus 2 Unix-socket errors on Windows; the previous run had 1337 / 32 / 7 and the same errors. Baseline comparison and independent verification are recorded separately when complete; do not count the full suite as passed.
+- Live verification and cleanup, independent exact-commit checks and PR state: see [verification report](verification/session-context.md). Android/iOS device checks remain unrun. Test was enabled during this turn; final verification uses Test. In review remains disabled, so delivery uses a result receipt.
+- Integrated with pending description-images PR #1 to preserve both installed capabilities; the context PR is stacked on that branch. Independent Haiku final commit `90a18dc`: typecheck 0, focused 128/128, full 1350 passed/32 failed/7 skipped plus 2 Windows socket errors; all failure identities match the baseline. Live cross-model text delivery, source preservation, empty-source failure and original description action passed (12 checks including cleanup); native fixtures removed. Owned temporary directory cleanup was denied by automatic policy and was not bypassed.
+
 ## Session preview Next moves appear without reopening (card "side bar session next move chip修复") — 2026-11-11
 
 - Symptom: with a session open in the card sidebar, a turn that ended with next moves sometimes showed no chips until the session was closed and reopened.

@@ -632,6 +632,16 @@ export const readSummariesChanged = defineRpc({
   input: etagInput,
   output: z.object({ etag: z.string(), value: summaryOverviewSchema.optional() }),
 });
+export const sessionContextSources = defineRpc({
+  name: "sessions.context-sources",
+  input: z.strictObject({ taskId: z.string().min(1).max(200) }),
+  output: z.object({ entries: z.array(z.object({ id: z.string(), title: z.string(), workspaceName: z.string() })) }),
+});
+export const sessionContextRead = defineRpc({
+  name: "sessions.context-read",
+  input: z.strictObject({ taskId: z.string().min(1).max(200), agentId: z.string().min(1).max(200) }),
+  output: z.object({ title: z.string(), text: z.string().max(62_000), truncated: z.boolean() }),
+});
 export const sessionTail = defineRpc({
   name: "sessions.tail",
   input: z.strictObject({

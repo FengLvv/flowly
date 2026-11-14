@@ -1443,5 +1443,10 @@ const catalog: Catalog = {
   "Memory could not be read": "Gedächtnis konnte nicht gelesen werden",
   "Find memory in finished cards": "Merkenswertes in fertigen Karten finden",
   "Back from session, then close sidebar, then leave a project page": "Zurück aus der Sitzung, dann Seitenleiste schließen, dann Projektseite verlassen",
+  "Context from": "Kontext aus",
+  "Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.": "Nur aktueller Dialogtext, bis zu 60.000 Zeichen. Bilder und Werkzeugergebnisse sind ausgeschlossen.",
+  "Session context": "Sitzungskontext",
+  "Start a new session with dialogue text from another session in the same project, even with a different model.": "Starten Sie eine neue Sitzung mit Dialogtext aus einer anderen Sitzung desselben Projekts, auch mit einem anderen Modell.",
+  "New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged.": "Neue Sitzung → Kontext aus übernimmt Dialogtext einer anderen Sitzung dieses Projekts. Die Quellsitzung bleibt unverändert.",
 };
 export default catalog;

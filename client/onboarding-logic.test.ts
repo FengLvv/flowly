@@ -110,9 +110,11 @@ describe("tips", () => {
   });
   test("session history is announced in an open card with a session, after the connectors tip, before section order", () => {
     const facts = { ...none, cardOpen: true, cardWithSession: true, fullSidebar: true };
-    expect(nextTip({ tipsSeen: ["description-images"], facts, blocked: false })).toBe("connectors");
+    expect(nextTip({ tipsSeen: ["description-images", ], facts, blocked: false })).toBe("connectors");
     expect(nextTip({ tipsSeen: ["description-images", "connectors"], facts, blocked: false })).toBe("session-history");
-    expect(nextTip({ tipsSeen: ["description-images", "connectors", "session-history"], facts, blocked: false })).toBe("sidebar-order");
+    expect(nextTip({ tipsSeen: ["description-images", "connectors", "session-history"], facts, blocked: false })).toBe("session-context");
+    expect(nextTip({ tipsSeen: ["description-images", "connectors", "session-history"], facts: { ...none, cardWithSession: true }, blocked: true })).toBeNull();
+    expect(nextTip({ tipsSeen: ["description-images", "connectors", "session-history", "session-context"], facts, blocked: false })).toBe("sidebar-order");
     expect(nextTip({ tipsSeen: ["description-images", "connectors"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
   });
   test("subagents are announced after the workpad tip, before ideas", () => {

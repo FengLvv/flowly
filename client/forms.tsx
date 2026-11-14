@@ -827,8 +827,11 @@ export function TaskForm({
               {startChosen && (
                 <>
                   <AgentPicker choice={choice} disabled={pending} />
-                  {hasInstruction(description, descriptionAttachments.attachments) && <Button quiet disabled={pending} onPress={useDescription}>{t("Use card description")}</Button>}
-                  <ImageAttachments state={attachments} disabled={pending}>
+                  <ImageAttachments
+                    state={attachments}
+                    disabled={pending}
+                    trailingAction={hasInstruction(description, descriptionAttachments.attachments) && <Button quiet disabled={pending} onPress={useDescription}>{t("Use card description")}</Button>}
+                  >
                     <Field
                       title={t("Instruction")}
                       value={prompt}
