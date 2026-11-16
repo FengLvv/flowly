@@ -1,0 +1,26 @@
+Flowly
+Flowly
+2
+11
+tasks
+· 7 done
+1 running
+1 unread
+Ideas
+Guardrails
+Memory
+Insights
+Change the model, reasoning, permissions and provider features from the controls below a session message box.
+Got it
+Todo
+0
+No tasks in Todo.
+Add task
+Session controls fixture c9e69c62
+Ready
+· codex/gpt-6.1-sol
+No output yet.
+GPT-6.1-Sol
+low
+Full Access
+Session settings updated

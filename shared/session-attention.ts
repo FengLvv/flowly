@@ -1,10 +1,11 @@
+import { sessionTargetFields, validSessionScope } from "./session-target";
 import { z } from "zod";
 import type { BoardEvent } from "./model";
 import { asksQuestion } from "./permission-question";
 import { parentOf } from "./subagents";
 
 export const sessionReadReceiptSchema = z.strictObject({
-  taskId: z.string().min(1).max(200),
+  taskId: z.string().min(1).max(200).optional(),
   workspaceId: z.string().min(1).max(200),
   agentId: z.string().min(1).max(200),
   token: z.string().min(1).max(512),
@@ -37,16 +38,14 @@ export const sessionReadStateSchema = z
 export const manualUnreadToken = "manual-unread";
 
 export const markSessionReadInput = z.strictObject({
-  taskId: z.string().min(1).max(200),
-  agentId: z.string().min(1).max(200),
+  ...sessionTargetFields,
   /** The attention token the reader saw; omitted when there is none (manual unread only). */
   token: z.string().min(1).max(512).optional(),
-});
+}).refine(validSessionScope, "Give either a task or workspace target.");
 export type MarkSessionReadInput = z.infer<typeof markSessionReadInput>;
 export const markSessionUnreadInput = z.strictObject({
-  taskId: z.string().min(1).max(200),
-  agentId: z.string().min(1).max(200),
-});
+  ...sessionTargetFields,
+}).refine(validSessionScope, "Give either a task or workspace target.");
 export type MarkSessionUnreadInput = z.infer<typeof markSessionUnreadInput>;
 
 export interface AttentionAgent {
@@ -79,7 +78,7 @@ export function nativeAttentionToken(agent: AttentionAgent): string | null {
 
 export function sessionAttention(
   agent: AttentionAgent,
-  taskId: string,
+  taskId: string | undefined,
   receipts: readonly SessionReadReceipt[] = [],
   events: readonly BoardEvent[] = [],
 ) {
@@ -91,15 +90,15 @@ export function sessionAttention(
 /** Same live-state/receipt rules, with the daemon's named last-turn fact. */
 export function sessionAttentionFromTurn(
   agent: AttentionAgent,
-  taskId: string,
+  taskId: string | undefined,
   receipts: readonly SessionReadReceipt[] = [],
   latest?: { action: string; at: string },
 ) {
   const token = nativeAttentionToken(agent);
   const archived = !!agent.archivedAt;
-  const record = receipts.find(
-    (r) => r.taskId === taskId && r.workspaceId === agent.workspaceId && r.agentId === agent.id,
-  );
+  const record = receipts.filter(
+    (r) => (taskId === undefined || r.taskId === undefined || r.taskId === taskId) && r.workspaceId === agent.workspaceId && r.agentId === agent.id,
+  ).at(-1);
   const manualUnread = record?.token === manualUnreadToken;
   // A Paseo subagent's finished turn is its main agent's to read, not the user's (user decision
   // 2026-10-20): it never counts as unread unless the user marked it so. Approvals and errors still do.

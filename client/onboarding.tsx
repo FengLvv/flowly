@@ -423,13 +423,15 @@ function Hint({ icon, text }: { icon: string; text: string }) {
 function MoreFeatures() {
   const { colors } = useTheme();
   const more = [
+    { icon: "Activity", title: t("Runtime"), text: t("Runtime shows all Paseo conversations on this host. Open a conversation to chat in Flowly.") },
     { icon: "MessagesSquare", title: t("Session context"), text: t("Start a new session with dialogue text from another session in the same project, even with a different model.") },
+    { icon: "SlidersHorizontal", title: t("Session controls"), text: t("Change models and provider features inside Flowly. Copy messages or reload a session from its menu.") },
     { icon: "Images", title: t("Description images"), text: t("Save pictures with a card description and use its text and pictures as a session instruction.") + " " + t("Flowly does not limit image count or size. Model and host limits still apply.") },
     { icon: "ListChecks", title: t("Workpad"), text: t("Agents set the card's type and tags and write an acceptance list before they start; the card shows how many items are met, next to the latest review.") },
     { icon: "ShieldCheck", title: t("Auto review"), text: t("Deliveries are checked before they reach you, and go back to the agent when they fall short.") },
     { icon: "PackageCheck", title: t("Auto wrap up"), text: t("Cards moved to Done or Cancelled have their sessions and workspace archived when nothing is left unsaved. Unwrap in the card brings them back.") },
     { icon: "Package", title: t("Inputs and outputs"), text: t("Each card lists the files and links it worked from and delivered, added by agents or by you.") },
-    { icon: "Ticket", title: t("Tickets, docs and PRs as inputs"), text: t("Start a card from a Jira ticket, Confluence page, GitHub/GitLab issue or pull request, Azure DevOps work item, or Shortcut story or epic, or add one with the Artifacts +. Agents read it every turn; Flowly never changes it.") },
+    { icon: "Ticket", title: t("Tickets, docs and PRs as inputs"), text: t("Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.") },
     { icon: "BookMarked", title: t("Memory"), text: t("Agents remember the project's decisions, pitfalls and conventions; new sessions see them. Open Memory to pin, edit or archive them.") },
     { icon: "Search", title: t("Search"), text: t("Search past cards, summaries, notes and deliverables.") },
     { icon: "Tags", title: t("Tags"), text: t("Tag cards by module or direction. Agents tag their own cards too; filter and search by #tag.") },

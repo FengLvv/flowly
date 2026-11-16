@@ -1,3 +1,4 @@
+import { sessionTargetFields, validSessionScope } from "./session-target";
 import { z } from "zod";
 
 const id = z.string().min(1).max(200);
@@ -26,17 +27,18 @@ export const queuedMessageSchema = z
   })
   .refine((m) => !!m.text.trim() || !!m.images?.length, "A queued message needs text or an image.");
 export const composerEntrySchema = z.object({
-  taskId: id,
+  taskId: id.optional(),
+  workspaceId: id.optional(),
   draft: z.string().max(20000),
   draftAt: z.string().nullable(),
   queue: z.array(queuedMessageSchema).max(50),
   /** Last failure sending a queued message; cleared on the next success. */
   lastError: z.string().max(2000).nullable(),
-});
+}).refine(validSessionScope, "Give either a task or workspace target.");
 export const composerStateSchema = z.object({
   version: z.literal(1),
   sessions: z.record(z.string(), composerEntrySchema),
 });
 export type ComposerState = z.infer<typeof composerStateSchema>;
 export type ComposerEntry = z.infer<typeof composerEntrySchema>;
-export const composerTarget = z.strictObject({ taskId: id, agentId: id });
+export const composerTarget = z.strictObject(sessionTargetFields);

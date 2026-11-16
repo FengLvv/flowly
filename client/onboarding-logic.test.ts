@@ -32,6 +32,13 @@ test("tour paging stays inside the pages", () => {
 });
 
 describe("tips", () => {
+  test("runtime entry is announced once without interrupting open details", () => {
+    const older = tipIds.filter(id => id !== "runtime-view");
+    expect(nextTip({ tipsSeen: older, facts: { runtimeView: true } as TipFacts, blocked: false })).toBe("runtime-view");
+    expect(nextTip({ tipsSeen: tipIds, facts: { runtimeView: true } as TipFacts, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: older, facts: {} as TipFacts, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: older, facts: { runtimeView: true } as TipFacts, blocked: true })).toBeNull();
+  });
   test("first-session workspace timing is announced once to existing users", () => {
     const older = tipIds.filter((id) => id !== "lazy-workspace");
     const facts = { cardOpen: true } as TipFacts;
@@ -41,9 +48,24 @@ describe("tips", () => {
     expect(nextTip({ tipsSeen: older, facts, blocked: true })).toBeNull();
   });
 
+  test("right-drag scrolling is announced once on the expanded desktop board", () => {
+    const facts = { hasCard: true, boardPan: true } as TipFacts;
+    expect(nextTip({ tipsSeen: [], facts, blocked: false })).toBe("first-card");
+    expect(nextTip({ tipsSeen: ["first-card"], facts, blocked: false })).toBe("board-pan");
+    expect(nextTip({ tipsSeen: ["first-card", "board-pan"], facts, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: ["first-card"], facts: { ...facts, boardPan: false }, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: ["first-card"], facts, blocked: true })).toBeNull();
+  });
   const none: TipFacts = { hasCard: false, needsYou: false, openIdea: false, movedToFinished: false, hasArtifact: false, hasAgentTag: false, agentQuestion: false, olderHidden: false, nextMove: false, hasTicket: false, noConnection: false, projectTabs: false, hasWorkpad: false, busyBoard: false, hasSubagent: false, workflowSuggestion: false, crowdedAttention: false, fullSidebar: false, cardOpen: false, cardWithSession: false, hasSummary: false, skillDraft: false, searchable: false, reviewShown: false, learnedGuideline: false, laneSwipe: false };
   test("nothing to show without a fact", () => {
     expect(nextTip({ tipsSeen: [], facts: none, blocked: false })).toBeNull();
+  });
+  test("TAPD is announced once to existing users when the input entry is visible", () => {
+    const older = tipIds.filter((id) => id !== "tapd-connect");
+    expect(nextTip({ tipsSeen: older, facts: { ...none, cardOpen: true }, blocked: false })).toBe("tapd-connect");
+    expect(nextTip({ tipsSeen: [...older, "tapd-connect"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: older, facts: none, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: older, facts: { ...none, cardOpen: true }, blocked: true })).toBeNull();
   });
   test("one tip at a time, waiting-for-you first", () => {
     const facts = { hasCard: true, needsYou: true, openIdea: true, movedToFinished: false, hasArtifact: true, hasAgentTag: true, agentQuestion: false, olderHidden: false, nextMove: false, hasTicket: false, noConnection: false, projectTabs: false, hasWorkpad: false, busyBoard: false, hasSubagent: false, workflowSuggestion: false, crowdedAttention: false, fullSidebar: false, cardOpen: false, cardWithSession: false, hasSummary: false, skillDraft: false, searchable: false, reviewShown: false, learnedGuideline: false, laneSwipe: false };
@@ -123,8 +145,8 @@ describe("tips", () => {
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors"], facts, blocked: false })).toBe("session-history");
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history"], facts, blocked: false })).toBe("session-context");
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history"], facts: { ...none, cardWithSession: true }, blocked: true })).toBeNull();
-    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history", "session-context"], facts, blocked: false })).toBe("sidebar-order");
-    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "lazy-workspace"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history", "session-context", "session-controls"], facts, blocked: false })).toBe("sidebar-order");
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "tapd-connect", "lazy-workspace"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
   });
   test("subagents are announced after the workpad tip, before ideas", () => {
     const facts = { ...none, hasWorkpad: true, hasSubagent: true, openIdea: true };
@@ -247,7 +269,7 @@ describe("tour setup (ONBOARDING-SETUP-SPEC)", () => {
     expect(settingsHintDue({ tipsSeen: ["settings-entry"], tourClosed: true, blocked: false })).toBe(false);
   });
   test("the settings callout is never a banner tip", () => {
-    const facts: Array<keyof TipFacts> = ["hasCard", "needsYou", "openIdea", "movedToFinished", "hasArtifact", "hasAgentTag", "agentQuestion", "olderHidden", "nextMove", "hasTicket", "noConnection", "projectTabs", "hasWorkpad", "busyBoard", "hasSubagent", "workflowSuggestion", "crowdedAttention", "fullSidebar", "cardOpen", "cardWithSession", "hasSummary", "skillDraft", "searchable", "reviewShown", "learnedGuideline", "laneSwipe"];
+    const facts: Array<keyof TipFacts> = ["runtimeView", "hasCard", "needsYou", "openIdea", "movedToFinished", "hasArtifact", "hasAgentTag", "agentQuestion", "olderHidden", "nextMove", "hasTicket", "noConnection", "projectTabs", "hasWorkpad", "busyBoard", "hasSubagent", "workflowSuggestion", "crowdedAttention", "fullSidebar", "cardOpen", "cardWithSession", "hasSummary", "skillDraft", "searchable", "reviewShown", "learnedGuideline", "laneSwipe", "boardPan"];
     const all = Object.fromEntries(facts.map((k) => [k, true])) as unknown as TipFacts;
     const seen: string[] = [];
     for (let tip = nextTip({ tipsSeen: seen, facts: all, blocked: false }); tip; tip = nextTip({ tipsSeen: seen, facts: all, blocked: false })) seen.push(tip);
@@ -342,4 +364,14 @@ test("removed image limits are announced once to existing users on an open card"
   expect(nextTip({ tipsSeen: ["description-images"], facts: { cardOpen: false } as TipFacts, blocked: false })).toBeNull();
   expect(nextTip({ tipsSeen: ["description-images"], facts, blocked: true })).toBeNull();
   expect(nextTip({ tipsSeen: ["description-images"], facts: { ...facts, needsYou: true }, blocked: false })).toBe("needs-you");
+});
+
+
+test("session controls reach existing users once after session context", () => {
+  const none = {} as TipFacts;
+  const seen = tipIds.filter((id) => id !== "session-controls");
+  expect(nextTip({ tipsSeen: seen, facts: { ...none, cardWithSession: true }, blocked: false })).toBe("session-controls");
+  expect(nextTip({ tipsSeen: [...seen, "session-controls"], facts: { ...none, cardWithSession: true }, blocked: false })).toBeNull();
+  expect(nextTip({ tipsSeen: seen, facts: none, blocked: false })).toBeNull();
+  expect(nextTip({ tipsSeen: seen, facts: { ...none, cardWithSession: true }, blocked: true })).toBeNull();
 });

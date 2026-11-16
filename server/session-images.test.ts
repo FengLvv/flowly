@@ -3,7 +3,6 @@ import type { PaseoApi } from "@getpaseo/client";
 import { mkdtemp, realpath, rm, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
 import { BoardStore } from "./store";
 import { SessionImageService } from "./session-images";
 
@@ -12,7 +11,7 @@ afterEach(async () => {
   await Promise.all(roots.splice(0).map((p) => rm(p, { recursive: true, force: true })));
 });
 
-async function setup(transcript: string, workspaceId = "w", fileUrl = false) {
+async function setup(transcript: string, workspaceId = "w") {
   const root = await realpath(await mkdtemp(join(tmpdir(), "ultra-images-")));
   roots.push(root);
   const store = new BoardStore(join(root, "data"));
@@ -25,10 +24,11 @@ async function setup(transcript: string, workspaceId = "w", fileUrl = false) {
   await writeFile(png, Buffer.from([0x89, 0x50, 0x4e, 0x47]));
   await writeFile(join(root, "secret.txt"), "nope");
   const paseo = {
+    workspaces: { ref: () => ({ refresh: async () => ({ id: "w", archivingAt: null }) }) },
     agents: {
       ref: () => ({
         refresh: async () => ({ agent: { id: "a", workspaceId } }),
-        timeline: { refetch: async () => ({ entries: [{ item: { type: "user_message", text: transcript.replace("$PNG", fileUrl ? pathToFileURL(png).href : png) } }] }) },
+        timeline: { refetch: async () => ({ entries: [{ item: { type: "user_message", text: transcript.replace("$PNG", png) } }] }) },
       }),
     },
   } as unknown as PaseoApi;
@@ -39,13 +39,6 @@ test("serves an image referenced by the session's transcript as a data URI", asy
   const x = await setup("see [Image: source: $PNG]");
   const { dataUri } = await x.service.read({ taskId: "t", agentId: "a", src: x.png }, x.paseo);
   expect(dataUri).toBe("data:image/png;base64,iVBORw==");
-});
-
-test("serves decoded file URLs only when that reference belongs to the session", async () => {
-  const x = await setup("see [Image: source: $PNG]", "w", true);
-  expect(await x.service.read({ taskId: "t", agentId: "a", src: pathToFileURL(x.png).href }, x.paseo)).toEqual({ dataUri: "data:image/png;base64,iVBORw==" });
-  const y = await setup("nothing here", "w", true);
-  await expect(y.service.read({ taskId: "t", agentId: "a", src: pathToFileURL(y.png).href }, y.paseo)).rejects.toThrow(/not part of this session/);
 });
 
 test("refuses images not in the transcript, other workspaces and non-images", async () => {
@@ -63,4 +56,11 @@ test("an image file that is gone is a plain answer, not a system error", async (
   const error = await x.service.read({ taskId: "t", agentId: "a", src: x.png }, x.paseo).catch((e: unknown) => e);
   expect((error as Error).message).toBe("The image file no longer exists.");
   expect((error as NodeJS.ErrnoException).code).toBeUndefined();
+});
+
+test("native workspace scope serves only that conversation's referenced images", async () => {
+  const x = await setup("see [Image: source: $PNG]");
+  expect(await x.service.read({ workspaceId: "w", agentId: "a", src: x.png }, x.paseo)).toEqual({ dataUri: "data:image/png;base64,iVBORw==" });
+  const other = await setup("see [Image: source: $PNG]", "other");
+  await expect(other.service.read({ workspaceId: "w", agentId: "a", src: other.png }, other.paseo)).rejects.toThrow(/different workspace/);
 });

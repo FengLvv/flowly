@@ -1,0 +1,36 @@
+{
+  "referenceCommit": "4c895e0350ecd425824bfb4ed681b31e1a85e8aa",
+  "knownNames": [
+    "B1: a fail without evidence becomes na; a file in the diff, an existing repository file or a quote found in the reviewer's input keeps it",
+    "Flowly configuration overrides win, with existing environment overrides retained",
+    "a daemon on a Unix socket is reached through that socket with the local credential",
+    "a daemon that rejects the local credential is reported, not treated as unavailable",
+    "a failed snapshot write never fails the board and is reported",
+    "a project whose folder can't be written is marked failed and retried at the next start",
+    "agent tools: add, update own, keep human ones, remove only agent ones, setting off, replay",
+    "an image file that is gone is a plain answer, not a system error",
+    "connections (EXTERNAL-TRACKER-SPEC §2) saving tests the token; the stored file is private and the client never sees the secret",
+    "every listen form Paseo writes resolves to a WebSocket target",
+    "frames: only Flowly's own files, relative, oldest call first; never a path outside the plugin",
+    "linked root review: shape from both repositories, commands per repository, any failure fails, a cited file under a link counts (§6.2, §6.3)",
+    "locator finds Claude logs with subagents and Codex logs in sessions or archive",
+    "nothing the client entry imports reaches the catalogs (they would be in the phone's bundle again)",
+    "plugin root: the folder above server/ from source, the bundle's folder when bundled",
+    "prepared ID and scoped files are stable, selected existing actor verified",
+    "refuses images not in the transcript, other workspaces and non-images",
+    "report: class and safe code only, never the message",
+    "serves an image referenced by the session's transcript as a data URI",
+    "session context signatures survive reload, reject rebinding and credential tampering",
+    "skill drafts: material from cards and memory, Run now without commands, add to project, then an update",
+    "the installed skill source contains the exact live checklist before details",
+    "uncaught errors are reported only when they pass through Flowly's code",
+    "writes the skill under .agents and links it for Claude Code"
+  ],
+  "extraNames": [
+    "linked root: commands run only in the repositories this delivery changed, all of them when none did (§6.3)",
+    "duplicate open titles and an eleventh open idea are refused",
+    "refusals: duplicate title, secrets, a full card, memory off, an unknown supersedes",
+    "writes every kind of write reads back from the database exactly as cached",
+    "CLI runs a complete scoped flow; replay, wrong env, snapshots and flags"
+  ]
+}

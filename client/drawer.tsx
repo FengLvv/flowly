@@ -270,7 +270,7 @@ function TaskDrawerView({
     if (!sessions) return;
     const restore: Record<string, string> = {};
     for (const [agentId, entry] of Object.entries(sessions)) {
-      if (seeded.current.has(agentId) || entry.taskId !== task.id) continue;
+      if (seeded.current.has(agentId) || (entry.taskId !== task.id && entry.workspaceId !== task.workspaceId)) continue;
       seeded.current.add(agentId);
       if (entry.draft) restore[agentId] = entry.draft;
     }

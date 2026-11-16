@@ -1,3 +1,5 @@
+import { nativeSession } from "./native-session";
+import type { SessionTarget } from "../shared/session-target";
 import {
   mkdir,
   readFile,
@@ -94,12 +96,12 @@ export class SessionReadStore {
     const parsed = markSessionReadInput.parse(input);
     return this.update(async (state) => {
       const current = await validate();
-      const existing = state.receipts.find(
+      const existing = state.receipts.filter(
         (r) =>
-          r.taskId === parsed.taskId &&
+          (parsed.taskId === undefined || r.taskId === undefined || r.taskId === parsed.taskId) &&
           r.agentId === parsed.agentId &&
           r.workspaceId === current.workspaceId,
-      );
+      ).at(-1);
       if (!current.token) {
         // Nothing native to acknowledge: only a manual unread mark can be cleared.
         if (existing?.token !== manualUnreadToken) return { value: existing ?? null, changed: false };
@@ -136,9 +138,9 @@ export class SessionReadStore {
     const parsed = markSessionUnreadInput.parse(input);
     return this.update(async (state) => {
       const current = await validate();
-      const existing = state.receipts.find(
-        (r) => r.taskId === parsed.taskId && r.agentId === parsed.agentId && r.workspaceId === current.workspaceId,
-      );
+      const existing = state.receipts.filter(
+        (r) => (parsed.taskId === undefined || r.taskId === undefined || r.taskId === parsed.taskId) && r.agentId === parsed.agentId && r.workspaceId === current.workspaceId,
+      ).at(-1);
       if (existing?.token === manualUnreadToken) return { value: existing, changed: false };
       if (!existing && state.receipts.length >= 10000)
         throw new Error("Session read-state capacity reached. Existing records were preserved.");
@@ -221,7 +223,12 @@ export class SessionReadService {
     readonly native: NativeAttention | null = null,
   ) {}
   /** The task must be live and the session must belong to its workspace. */
-  private async current(input: { taskId: string; agentId: string }, paseo: PaseoApi) {
+  private async current(input: SessionTarget, paseo: PaseoApi) {
+    if (input.workspaceId) {
+      const actor = await nativeSession(paseo, input);
+      if (actor.archivedAt) throw new Error("Archived session is read-only.");
+      return { workspaceId: input.workspaceId, token: nativeAttentionToken(actor) };
+    }
     const board = await this.board.read();
     const task = board.tasks.find((t) => t.id === input.taskId);
     if (!task) throw new Error("Task not found.");

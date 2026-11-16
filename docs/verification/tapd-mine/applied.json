@@ -1,0 +1,46 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Daily Flowly running after reload"
+    },
+    {
+      "pass": true,
+      "label": "Loaded client has My to-dos filter"
+    },
+    {
+      "pass": true,
+      "label": "Canvas bundle unchanged and running"
+    },
+    {
+      "pass": true,
+      "label": "Existing TAPD connection retained"
+    },
+    {
+      "pass": true,
+      "label": "Real account pending items load without empty-endpoint errors"
+    },
+    {
+      "pass": true,
+      "label": "All scope returns additional project items"
+    },
+    {
+      "pass": true,
+      "label": "My title search finds an own item"
+    },
+    {
+      "pass": true,
+      "label": "Existing project/card/workspace bindings preserved"
+    },
+    {
+      "pass": true,
+      "label": "Development telemetry remains off"
+    }
+  ],
+  "counts": {
+    "mine": 5,
+    "all": 10
+  },
+  "daemonRestarted": false,
+  "canvasReloaded": false
+}

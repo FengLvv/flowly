@@ -1,0 +1,120 @@
+Flowly
+QS
+Flowly
+Dark
+Attention
+Sort
+Filter
+New task
+11
+tasks
+· 7 done
+1 running
+Ideas 1
+Guardrails
+Memory
+Insights
+Change the model, reasoning, permissions and provider features from the controls below a session message box.
+Got it
+Development
+0
+No tasks
+Test
+3
+Feature
+#tapd
+#connectors
+接入无限画布
+TAPD UI verification passed; PR #3 awaits CI and CodeRabbit
+3d ago
+2
+Acceptance 4/4
+High
+Feature
+#sessions
+#session-composer
+聊天功能对齐paseo
+核心聊天控制已验收，PR 等待 CI 与 CodeRabbit
+21m ago
+1 running
+Acceptance 3/5
+1
+High
+Feature
+#sessions
+#board
++1
+现在创建卡片的时候就要创建工作区，能不能改成创建第一个对话的时候在创建工作区
+Implementation and focused verification complete; independent acceptance pending
+39m ago
+1
+Acceptance 4/4
+Done
+7
+High
+Bug fix
+#repository
+#windows
+修复 Windows 工作区目录包含关系判断
+修复已推送，等待卡片验收
+4d ago
+Wrapped up
+Acceptance 3/3
+Research
+#images
+现在图片会要求小于5mb？
+本机安装并重载完成
+3d ago
+Wrapped up
+Acceptance 4/4
+Chore
+#repository
+#github
+拉取项目
+已完成：fork、克隆和远端配置均已核对
+4d ago
+Wrapped up
+Acceptance 4/4
+Feature
+#board
+#desktop
++1
+我希望flowly可以右键拖动空白处左右滚动这个面板（现在只能用下面的滚轮很不方便）
+总览第一期方案已确认并写入规划稿
+58m ago
+Wrapped up
+Acceptance 5/5
+Feature
+#task-description
+#images
++1
+在描述中加入图片
+Implemented and verified; PR #1 open, awaiting CI and review
+4d ago
+Wrapped up
+Acceptance 4/4
+Feature
+#sessions
+会话支持从其他会话分支中创建，来利用上下文
+功能已提交并可本机试用，PR #2 草稿等待前置条件
+4d ago
+Wrapped up
+Acceptance 4/4
+Bug fix
+#sessions
+#task-description
+使用卡片描述
+修复已推送，测试有失败，临时目录待清理
+3d ago
+Wrapped up
+Acceptance 5/5
+Cancelled
+0
+No tasks
+Feature icons fixture 76f14500
+Ready
+· codex/gpt-6.1-sol
+No output yet.
+GPT-6.1-Sol
+low
+Full Access

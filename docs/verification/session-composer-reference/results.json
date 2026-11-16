@@ -1,0 +1,117 @@
+{
+  "sessionId": "3be55fe5-f67a-400e-a3aa-9ec7175e6fa5",
+  "workspaceId": "wks_d1504bb406d8b105",
+  "taskId": "37e6fa0a-d586-4447-90dd-855711a5cbb3",
+  "checks": [
+    {
+      "pass": true,
+      "label": "Two selectable Codex models discovered"
+    },
+    {
+      "pass": true,
+      "label": "Fixture initialized in card workspace without sending a prompt"
+    },
+    {
+      "pass": true,
+      "label": "Dark desktop: all controls inside composer frame"
+    },
+    {
+      "pass": true,
+      "label": "Dark desktop: Add, model, reasoning, permissions, Speed, Plan in reading order"
+    },
+    {
+      "pass": true,
+      "label": "Dark desktop: Speed naturally follows permissions without elastic gap"
+    },
+    {
+      "pass": true,
+      "label": "Dark desktop: Plan naturally follows Speed without elastic gap"
+    },
+    {
+      "pass": true,
+      "label": "Dark desktop: Send is inside the same border"
+    },
+    {
+      "pass": true,
+      "label": "Configuration preserves the message draft and unlocks controls"
+    },
+    {
+      "pass": true,
+      "label": "Typed fixture draft can be cleared before navigation"
+    },
+    {
+      "pass": true,
+      "label": "Dark compact 750: all controls inside composer frame"
+    },
+    {
+      "pass": true,
+      "label": "Dark compact 750: Add, model, reasoning, permissions, Speed, Plan in reading order"
+    },
+    {
+      "pass": true,
+      "label": "Dark compact 750: Speed naturally follows permissions without elastic gap"
+    },
+    {
+      "pass": true,
+      "label": "Dark compact 750: Plan naturally follows Speed without elastic gap"
+    },
+    {
+      "pass": true,
+      "label": "Dark compact 750: Send is inside the same border"
+    },
+    {
+      "pass": true,
+      "label": "Dark compact 680: all controls inside composer frame"
+    },
+    {
+      "pass": true,
+      "label": "Dark compact 680: Add, model, reasoning, permissions, Speed, Plan in reading order"
+    },
+    {
+      "pass": true,
+      "label": "Dark compact 680: Speed naturally follows permissions without elastic gap"
+    },
+    {
+      "pass": true,
+      "label": "Dark compact 680: Plan naturally follows Speed without elastic gap"
+    },
+    {
+      "pass": true,
+      "label": "Dark compact 680: Send is inside the same border"
+    },
+    {
+      "pass": true,
+      "label": "Light desktop: all controls inside composer frame"
+    },
+    {
+      "pass": true,
+      "label": "Light desktop: Add, model, reasoning, permissions, Speed, Plan in reading order"
+    },
+    {
+      "pass": true,
+      "label": "Light desktop: Speed naturally follows permissions without elastic gap"
+    },
+    {
+      "pass": true,
+      "label": "Light desktop: Plan naturally follows Speed without elastic gap"
+    },
+    {
+      "pass": true,
+      "label": "Light desktop: Send is inside the same border"
+    },
+    {
+      "pass": true,
+      "label": "Layout and draft checks send no model prompt"
+    },
+    {
+      "pass": true,
+      "label": "No UI page errors"
+    }
+  ],
+  "cleanup": {
+    "sessionAbsent": true,
+    "cardPreserved": true,
+    "browserClosed": true
+  },
+  "pageErrors": []
+}

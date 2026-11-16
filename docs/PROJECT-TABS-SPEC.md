@@ -24,3 +24,8 @@ Status: requested by the user on 2026-10-15 (card “优化project系统”).
 - Onboarding: one-time tip `project-menu` once desktop tabs show two or more projects (`client/onboarding-logic.test.ts`).
 - Unit (`client/project-memory.test.ts`): cold start → first; remembered project restored; explicit choice wins; vanished project falls back to the first.
 - Headless web client at 1440×900 against the reloaded plugin: tabs render; switch → leave the board → return keeps the switched project; page reload opens the first project.
+
+
+## Runtime entry
+
+[RUNTIME-VIEW-SPEC](RUNTIME-VIEW-SPEC.md) adds a fixed Runtime tab before the desktop project tabs and a Runtime row in the compact project chooser. It has no project id, management menu or reorder action. Explicit project selection leaves Runtime; its initial project and last-project rules above remain unchanged. Opening a Runtime conversation directly opens the existing Flowly conversation sidebar without selecting a Flowly task or project. Back/Close preserves Runtime. All native conversations on the host are included, even without a Flowly card.

@@ -78,7 +78,7 @@ import { t, tn } from "../shared/i18n";
 
 /** Composer text area: vertical padding and the one-line height (20 px line). */
 const inputPad = 4;
-const inputMin = 20 + 2 * inputPad;
+const inputMin = 48;
 
 type SessionPreviewProps = Parameters<typeof SessionPreviewView>[0];
 
@@ -95,7 +95,7 @@ export function sameSessionPreviewProps(a: SessionPreviewProps, b: SessionPrevie
   const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<keyof SessionPreviewProps>;
   for (const key of keys) {
     if (key === "task") {
-      if (!samePreviewTask(a.task, b.task)) return false;
+      if (a.task && b.task ? !samePreviewTask(a.task, b.task) : a.task !== b.task) return false;
     } else if (key === "events") {
       if (turnEventKey(a.events, a.sessionId) !== turnEventKey(b.events, b.sessionId)) return false;
     } else if (!Object.is(a[key], b[key])) return false;
@@ -105,6 +105,7 @@ export function sameSessionPreviewProps(a: SessionPreviewProps, b: SessionPrevie
 
 function SessionPreviewView({
   task,
+  workspaceId,
   sessionId,
   compact = false,
   hostId,
@@ -126,7 +127,8 @@ function SessionPreviewView({
   cardFinished = false,
   onMoveToDone,
 }: {
-  task: Task;
+  task?: Task;
+  workspaceId?: string;
   sessionId: string;
   compact?: boolean;
   hostId: string;
@@ -156,6 +158,9 @@ function SessionPreviewView({
   /** Move the card to Done (an action next move); the drawer owns revision and wrap-up. */
   onMoveToDone?(): void;
 }) {
+  const workspace = task?.workspaceId || workspaceId || "";
+  const target = task ? { taskId: task.id } : { workspaceId: workspace };
+  const draftTarget = task?.id || { workspaceId: workspace };
   usePerfRender("switch.preview.commit");
   const switchStart = perfStart();
   const theme = useTheme(),
@@ -216,6 +221,7 @@ function SessionPreviewView({
     [inputHeight, setInputHeight] = useState(inputMin),
     [focused, setFocused] = useState(false),
     [confirmArchive, setConfirmArchive] = useState(false),
+    [confirmReload, setConfirmReload] = useState(false),
     [renaming, setRenaming] = useState(false),
     [chipMenu, setChipMenu] = useState<ChipMenuId | null>(null);
   useShortcutBlock(focused);
@@ -250,7 +256,7 @@ function SessionPreviewView({
   // The stream is fresher than the last poll while it runs.
   const polled = current.data?.agent;
   const actor = streamed && (!polled || streamed.updatedAt >= polled.updatedAt) ? streamed : polled;
-  const belongs = !!actor && actor.workspaceId === task.workspaceId;
+  const belongs = !!actor && actor.workspaceId === workspace;
   const active = belongs ? actor : undefined;
   // The transcript (markdown, images) and the slower reads wait for the open
   // transition to finish (PERFORMANCE-SPEC §3).
@@ -263,14 +269,14 @@ function SessionPreviewView({
     refetchInterval: 5000,
   });
   const access = useQuery({
-    queryKey: ["flowly", "access", task.id, sessionId],
-    queryFn: () => accessRead({ id: task.id, agentId: sessionId }),
-    enabled: visible && belongs && !current.isError && showTools,
+    queryKey: ["flowly", "access", task?.id, sessionId],
+    queryFn: () => accessRead({ id: task!.id, agentId: sessionId }),
+    enabled: !!task && visible && belongs && !current.isError && showTools,
     refetchInterval: 3000,
   });
   const state = active ? sessionState(active, events) : null;
   const attention = active
-    ? sessionAttention(active, task.id, reads.receipts, events)
+    ? sessionAttention(active, task?.id, reads.receipts, events)
     : null;
   // Reading is something the user does: opening the session, or interacting
   // with it (pointer down inside, focusing the composer, sending). A turn that
@@ -289,11 +295,11 @@ function SessionPreviewView({
     if (!visible || !active || !readsReady || handledIntent.current === readIntent) return;
     // Each open/interaction reads what is unread at that moment, once.
     handledIntent.current = readIntent;
-    if (active.archivedAt || task.archivedAt || !attention?.unread || holdUnread.current) return;
+    if (active.archivedAt || task?.archivedAt || !attention?.unread || holdUnread.current) return;
     void reads
-      .markRead({ taskId: task.id, agentId: sessionId, ...(attention.token ? { token: attention.token } : {}) })
+      .markRead({ ...target, agentId: sessionId, ...(attention.token ? { token: attention.token } : {}) })
       .catch(() => undefined);
-  }, [visible, active?.id, active?.archivedAt, task.archivedAt, attention?.unread, attention?.token, readsReady, readIntent]);
+  }, [visible, active?.id, active?.archivedAt, task?.archivedAt, attention?.unread, attention?.token, readsReady, readIntent]);
   const busy = sending || pending;
   const canWrite =
     visible &&
@@ -306,7 +312,9 @@ function SessionPreviewView({
   const preferred: SendBehavior = view.values?.sendBehavior || "steer";
   const composer = useComposer(visible && settled);
   const openMenu = useMenuOpener();
-  const config = useSessionConfig(task.id, active, visible && settled, () => void current.refetch());
+  const config = useSessionConfig(task?.id || { workspaceId: workspace }, active, visible && settled, () => current.refetch(), {
+    canWrite, begin: beginOperation, end: endOperation,
+  });
   const queueEntry = composer.entry(sessionId);
   const queued = queueEntry?.queue || [];
   const running = active?.status === "running" || active?.status === "initializing";
@@ -345,6 +353,11 @@ function SessionPreviewView({
     setSending(true);
     setError("");
     try {
+      if (!task) {
+        const currentWorkspace = await paseo.workspaces.ref(workspace).refresh();
+        if (!currentWorkspace || currentWorkspace.id !== workspace || currentWorkspace.archivingAt) throw new Error("Workspace is unavailable.");
+        await workspaceSession(paseo, sessionId, workspace);
+      }
       await action();
       refresh();
     } catch (e) {
@@ -369,7 +382,7 @@ function SessionPreviewView({
             onPress: () =>
               void perform(async () => {
                 holdUnread.current = false;
-                await reads.markRead({ taskId: task.id, agentId: sessionId, ...(attention.token ? { token: attention.token } : {}) });
+                await reads.markRead({ ...target, agentId: sessionId, ...(attention.token ? { token: attention.token } : {}) });
                 toast.show(t("Marked as read"), { variant: "success" });
                 await current.refetch();
               }),
@@ -383,14 +396,17 @@ function SessionPreviewView({
               void perform(async () => {
                 // Stay unread while this view is open; opening it again reads it.
                 holdUnread.current = true;
-                await reads.markUnread({ taskId: task.id, agentId: sessionId });
+                await reads.markUnread({ ...target, agentId: sessionId });
                 toast.show(t("Marked as unread"), { variant: "success" });
               }),
           },
       ...(!active.archivedAt
         ? [{ id: "rename", label: t("Rename session"), icon: "Pencil", disabled: !canWrite || busy, onPress: () => setRenaming(true) }]
         : []),
-      { id: "tools", label: showTools ? t("Hide Kanban tools") : t("Kanban tools"), icon: "Wrench", onPress: () => setShowTools(!showTools) },
+      ...(!active.archivedAt ? [{ id: "reload", label: t("Reload session"), icon: "RefreshCw", disabled: !canWrite || busy,
+        onPress: () => runningNow ? setConfirmReload(true) : void reloadSession(),
+      }] : []),
+      ...(task ? [{ id: "tools", label: showTools ? t("Hide Kanban tools") : t("Kanban tools"), icon: "Wrench", onPress: () => setShowTools(!showTools) }] : []),
       ...(runningNow
         ? [{ id: "stop", label: t("Stop"), icon: "Square", onPress: () => void config.apply({ stop: true }, t("Session stopped")) }]
         : []),
@@ -409,11 +425,20 @@ function SessionPreviewView({
         : []),
     ];
   };
+  async function reloadSession() {
+    setConfirmReload(false);
+    await perform(async () => {
+      if (task) { const scope = await contextRead({ id: task.id }); if (!scope.available) throw new Error(scope.reason); }
+      await workspaceSession(paseo, sessionId, workspace, true);
+      await agent.reload();
+      if (mounted.current) toast.show(t("Session reloaded"), { variant: "success" });
+    });
+  }
   async function archiveSession() {
     setConfirmArchive(false);
     let archived = false;
     await perform(async () => {
-      await workspaceSession(paseo, sessionId, task.workspaceId);
+      await workspaceSession(paseo, sessionId, workspace);
       await agent.archive();
       archived = true;
     });
@@ -434,7 +459,7 @@ function SessionPreviewView({
     const action = resolveSend(behavior, { running: busyTurn, alternate, pendingPermission });
     if (action.kind === "queue") {
       // Paseo parity: queued messages are sent when the current turn ends.
-      void composer.queue(task.id, sessionId, instruction, images).then((item) =>
+      void composer.queue(draftTarget, sessionId, instruction, images).then((item) =>
         rememberSentImages(item.id, attached.map((a) => a.uri)),
       ).catch((e) => {
         // Never lose the text or images: put them back in the composer.
@@ -460,7 +485,13 @@ function SessionPreviewView({
       transcript.current?.echo(messageId, instruction);
       if (mounted.current) transcript.current?.jumpToLatest();
       try {
-        await sendCardInstruction(paseo, task, sessionId, contextRead, instruction, action.activeTurnBehavior, images, messageId);
+        if (task) await sendCardInstruction(paseo, task, sessionId, contextRead, instruction, action.activeTurnBehavior, images, messageId);
+        else {
+          const actor = await workspaceSession(paseo, sessionId, workspace, "restore");
+          const ws = await paseo.workspaces.ref(workspace).refresh();
+          if (!ws || ws.id !== workspace || ws.archivingAt) throw new Error(t("Workspace unavailable"));
+          await agent.send(instruction, { ...(actor.status === "running" || actor.status === "initializing" ? { activeTurnBehavior: action.activeTurnBehavior } : {}), ...(images.length ? { images } : {}), messageId });
+        }
       } catch (e) {
         transcript.current?.unecho(messageId);
         flushReport();
@@ -480,7 +511,7 @@ function SessionPreviewView({
   const respond = useStableCallback((request: PendingRequest, reply: PermissionReply) => {
     noteInteraction();
     void perform(async () => {
-      const latest = await workspaceSession(paseo, sessionId, task.workspaceId, true);
+      const latest = await workspaceSession(paseo, sessionId, workspace, true);
       if (!pendingRequests(latest).some((r) => r.id === request.id))
         throw new Error(t("This request was already answered or withdrawn."));
       await agent.respondToPermission({ requestId: request.id, response: reply });
@@ -522,7 +553,7 @@ function SessionPreviewView({
   const canSend = canWrite && (!!draft.trim() || attachments.length > 0);
   // Paseo parity: a running session with an empty composer shows Stop.
   const stopMode = running && !draft.trim() && !attachments.length && canWrite && !busy;
-  const sendSize = touch ? 34 : 28;
+  const sendSize = touch ? 36 : 32;
   const inputMax = compact ? 108 : 160;
   const fitInput = (contentHeight: number) => {
     const next = Math.max(inputMin, Math.min(inputMax, Math.ceil(contentHeight)));
@@ -559,7 +590,7 @@ function SessionPreviewView({
                   menu={menuHandlers(openMenu, t("Queued message"), () => [
                     ...(running && !m.id.startsWith("pending-")
                       ? [{ id: "steer", label: t("Send now (steer)"), icon: "CornerDownRight", onPress: () =>
-                          void composer.sendNow(task.id, sessionId, m.id)
+                          void composer.sendNow(draftTarget, sessionId, m.id)
                             .then(() => toast.show(t("Sent to the running turn"), { variant: "success" }))
                             .catch((e) => setError(message(e))) }]
                       : []),
@@ -600,7 +631,7 @@ function SessionPreviewView({
                       onPress={() =>
                         !pending &&
                         void composer
-                          .sendNow(task.id, sessionId, m.id)
+                          .sendNow(draftTarget, sessionId, m.id)
                           .then(() => toast.show(t("Sent to the running turn"), { variant: "success" }))
                           .catch((e) => setError(message(e)))
                       }
@@ -628,16 +659,17 @@ function SessionPreviewView({
           )}
           <View
             ref={setComposerNode}
-            // Text spans the full width; actions sit on their own row below (attach left, send right).
+            testID="session-composer"
+            // One native-style frame: text above a continuous toolbar and Send/Stop.
             style={{
-              gap: space[1],
-              paddingHorizontal: space[1.5],
-              paddingTop: space[2],
-              paddingBottom: space[1.5],
+              gap: space[2],
+              paddingHorizontal: space[2],
+              paddingTop: space[3],
+              paddingBottom: space[2],
               borderWidth: 1,
               borderColor: focused ? colors.foregroundMuted : colors.border,
-              borderRadius: 18,
-              backgroundColor: canWrite ? colors.surface0 : colors.surface1,
+              borderRadius: 20,
+              backgroundColor: colors.surface1,
             }}
           >
             {attachments.length > 0 && (
@@ -708,9 +740,7 @@ function SessionPreviewView({
               placeholder={
                 active.archivedAt
                   ? t("Send a message to restore this session…")
-                  : compact
-                    ? t("Message this session…")
-                    : t("Tell this session what to do next…")
+                  : t("Message this session…")
               }
               placeholderTextColor={colors.foregroundMuted}
               style={{
@@ -731,18 +761,18 @@ function SessionPreviewView({
               } as never}
             />
             </View>
-            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-            {imageInputSupported ? (
-              <IconButton
-                icon="ImagePlus"
-                size={sendSize}
-                label={t("Attach images")}
-                disabled={!canWrite}
-                onPress={() => void pickImageFiles().then((files) => addImages.current(files))}
-              />
-            ) : (
-              <View />
-            )}
+            <View testID="session-composer-controls" style={{ flexDirection: "row", alignItems: "flex-start", gap: space[2], zIndex: 2 }}>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <ComposerChips
+                  config={config}
+                  menu={chipMenu}
+                  setMenu={setChipMenu}
+                  inline={compact}
+                  disabled={!canWrite || busy}
+                  leading={imageInputSupported ? <IconButton icon="Plus" size={32} label={t("Attach images")} disabled={!canWrite} onPress={() => void pickImageFiles().then((files) => addImages.current(files))} /> : undefined}
+                  onOpenInPaseo={typeof navigation?.openAgent === "function" ? () => { setChipMenu(null); openNativeSession(navigation, sessionId, hostId); } : undefined}
+                />
+              </View>
             {stopMode ? (
               <Pressable
                 accessibilityRole="button"
@@ -805,25 +835,6 @@ function SessionPreviewView({
             )}
             </View>
           </View>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: space[2], zIndex: 2 }}>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <ComposerChips
-                config={config}
-                menu={chipMenu}
-                setMenu={setChipMenu}
-                inline={false}
-                disabled={!!active.archivedAt}
-                onOpenInPaseo={
-                  typeof navigation?.openAgent === "function"
-                    ? () => {
-                        setChipMenu(null);
-                        openNativeSession(navigation, sessionId, hostId);
-                      }
-                    : undefined
-                }
-              />
-            </View>
-          </View>
       </>
     );
   };
@@ -871,7 +882,7 @@ function SessionPreviewView({
       >
         {/* A running session's header carries the same dot sweep as its row in the card (MOTION-SPEC, running state). */}
         {state?.active && !active?.archivedAt && <RunningDots color={tone} seed={sessionId} />}
-        <IconButton icon="ArrowLeft" label={t("Back to task")} onPress={onBack} />
+        <IconButton icon="ArrowLeft" label={task ? t("Back to task") : t("Back to Runtime")} onPress={onBack} />
         <View style={{ flex: 1, minWidth: 0, paddingHorizontal: space[1] }}>
           <Label medium size={font.base} lines={1}>
             {active?.title || t("Session preview")}
@@ -898,7 +909,7 @@ function SessionPreviewView({
               </View>
             </View>
           ) : (
-            <Label muted size={font.sm}>{task.title}</Label>
+            <Label muted size={font.sm}>{task?.title}</Label>
           )}
         </View>
         {typeof navigation?.openAgent === "function" && (
@@ -908,7 +919,7 @@ function SessionPreviewView({
             disabled={!visible || !active || current.isError || busy}
             onPress={() =>
               void perform(async () => {
-                await workspaceSession(paseo, sessionId, task.workspaceId);
+                await workspaceSession(paseo, sessionId, workspace);
                 if (mounted.current)
                   openNativeSession(navigation, sessionId, hostId);
               })
@@ -924,7 +935,7 @@ function SessionPreviewView({
         )}
         {onClose && <IconButton icon="X" label={t("Close side bar")} onPress={onClose} />}
       </View>
-      {active && showTools && (
+      {task && active && showTools && (
         <MotionReveal transitionKey="session-tools" distance={8} style={{ flexShrink: 0 }}>
           <View
             style={{
@@ -970,11 +981,11 @@ function SessionPreviewView({
                     const latest = await workspaceSession(
                       paseo,
                       sessionId,
-                      task.workspaceId,
+                      workspace,
                       true,
                     );
                     const prepared = await prepareExisting({
-                      id: task.id,
+                      id: task!.id,
                       agentId: sessionId,
                     });
                     await agent.send(
@@ -994,9 +1005,21 @@ function SessionPreviewView({
           </View>
         </MotionReveal>
       )}
+      <Modal title={t("Reload session")} open={confirmReload && visible} onOpenChange={setConfirmReload}>
+        <Modal.Content>
+          <Theme.Provider value={theme}>
+          <Label>{t("Reloading interrupts the running turn. Reload this session?")}</Label>
+          <Actions>
+            <Button quiet onPress={() => setConfirmReload(false)}>{t("Cancel")}</Button>
+            <Button disabled={!canWrite || busy} onPress={() => void reloadSession()}>{t("Reload session")}</Button>
+          </Actions>
+          </Theme.Provider>
+        </Modal.Content>
+      </Modal>
       <SessionTranscript
         handle={transcript}
-        taskId={task.id}
+        taskId={task?.id}
+        workspaceId={task ? undefined : workspace}
         agentId={sessionId}
         enabled={visible && settled && !current.isError}
         subscribe={visible && belongs && !current.isError}

@@ -1,0 +1,44 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Installed candidate running"
+    },
+    {
+      "pass": true,
+      "label": "Fixture telemetry forced off"
+    },
+    {
+      "pass": true,
+      "label": "Public connection has no credential"
+    },
+    {
+      "pass": true,
+      "label": "Installed RPC resolves short ID"
+    },
+    {
+      "pass": true,
+      "label": "Installed card imports body and keeps business status"
+    },
+    {
+      "pass": true,
+      "label": "Card persists TAPD input"
+    },
+    {
+      "pass": true,
+      "label": "Installed artifact reads full body/comments"
+    },
+    {
+      "pass": true,
+      "label": "Connection and imported input survive plugin reload"
+    }
+  ],
+  "errors": [],
+  "cleanup": {
+    "connection": true,
+    "project": true,
+    "boardEmpty": true,
+    "nativeProjectGone": true,
+    "browserClosed": true
+  }
+}

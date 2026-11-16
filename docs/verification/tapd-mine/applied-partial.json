@@ -1,0 +1,12 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Development telemetry remains disabled"
+    },
+    {
+      "pass": true,
+      "label": "Daily Flowly reloaded"
+    }
+  ]
+}

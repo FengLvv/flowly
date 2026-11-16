@@ -253,7 +253,7 @@ export default function contribute(host: PluginServerContext) {
     void composer.drainAll(paseo).catch(() => undefined);
     return composer.read();
   });
-  server.handle(rpc.saveDraft, (input) => composer.saveDraft(input));
+  server.handle(rpc.saveDraft, (input, { paseo }) => composer.saveDraft(input, paseo));
   server.handle(rpc.queueMessage, (input, { paseo }) => composer.push(input, paseo));
   server.handle(rpc.unqueueMessage, (input) => composer.remove(input));
   server.handle(rpc.sendQueuedNow, (input, { paseo }) => composer.sendNow(input, paseo));

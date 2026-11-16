@@ -5,6 +5,8 @@
   </picture>
 </p>
 
+- **运行状态视图** — 按运行状态查看当前主机的全部 Paseo 对话，点击直接打开 Flowly 侧边对话栏。
+
 **Flowly**——给 Paseo 的 agent 原生工作流。
 
 [English](README.md) · **简体中文**
@@ -168,3 +170,5 @@ GitHub Actions 对 PR 和 main 运行 Node 22/24 的类型检查、测试和真�
 [MIT](LICENSE) © 2026 Bofan Wang
 
 另一个单独安装的 `paseo-kanban` 插件是不同的插件，本插件不会覆盖它。
+
+- **会话控制。** 在原会话内切换模型、推理强度、权限及提供方功能，支持复制消息和重载会话。宿主专属聊天功能通过原生 Paseo 入口使用。

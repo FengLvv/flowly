@@ -1,0 +1,91 @@
+Flowly
+QS
+Flowly
+Dark
+Attention
+1
+Sort
+Filter
+New task
+18
+tasks
+· 5 done
+Idle
+1 unread
+手动处理
+1
+Ideas
+Guardrails
+Memory
+Insights
+流转其他人
+2
+Bug fix
+车辆自发光菲涅尔区域太亮
+Workspace unavailable
+Urgent
+Bug fix
+新车局内灯光错误
+下载反射捕获单面预览（PNG）
+4h ago
+1
+Todo
+3
+Bug fix
+轮子横线残影总结发送给程序
+Workspace unavailable
+1112
+Workspace unavailable
+Bug fix
+轮子模糊效果上传并给程序配置
+Workspace unavailable
+手动处理
+1
+Urgent
+Chore
+#vehicle
+#materials
++1
+赛车轮胎和碳纤维高光及固有色确认，排除光照问题，确定贴图明度标准
+根因已确认，诊断状态已恢复，报告已完成
+4d ago
+1
+Acceptance 4/4
+设计开发中
+1
+Urgent
+Bug fix
+#rendering
+#vehicle
++1
+新车新场景BUG
+已补充手动曝光下的压暗方法
+18m ago
+1 unread
+Acceptance 4/4
+Test
+1
+Urgent
+Feature
+#character
+#gfur
++1
+角色bug
+UV groom transfer implemented; compilation and runtime validation pending
+5m ago
+1
+Acceptance 1/5
+5
+Done
+5
+Cancelled
+Projects
+QS
+F:\Project\QSClient
+Flowly
+F:\Project\Paseo_plugins\Flowly
+Dark
+G:\Dark
+Edit QS
+Remove “QS”…
+New project

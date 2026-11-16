@@ -63,10 +63,11 @@ The More features tour also includes Description images: save pictures with a ca
 
 ### 5. One-time contextual tips (small, non-modal)
 
-A tip is a single dismissible banner row (icon, one sentence, **Got it**) under the overview bar; only **Got it** records it as seen. Priority when several apply: agent-question, needs-you, attention-dismiss, first-done, older-finished, next-move, auto-review, first-guardrail, first-workpad, subagents, first-idea, first-skill-draft, first-workflow-insight, ai-language, summary-models, first-artifact, first-ticket, first-tag, first-card, lane-swipe, card-display, search, description-images, image-limits, connectors, session-history, session-context, sidebar-order, project-menu, jira-connect. The empty-project hint takes the same slot and wins at the top of the relevant surface, using theme colours. At most one tip is visible at a time; a tip appears at most once per host (`tipsSeen`); dismissing or acting on the feature records it. Tips never block input, never move a focused input, and are not shown while the welcome tour is open or the settings callout (`settings-entry`) shows.
+A tip is a single dismissible banner row (icon, one sentence, **Got it**) under the overview bar; only **Got it** records it as seen. Priority when several apply: agent-question, needs-you, attention-dismiss, first-done, older-finished, next-move, auto-review, first-guardrail, first-workpad, subagents, first-idea, first-skill-draft, first-workflow-insight, ai-language, summary-models, first-artifact, first-ticket, first-tag, first-card, lane-swipe, board-pan, card-display, search, description-images, image-limits, connectors, session-history, session-context, session-controls, sidebar-order, project-menu, jira-connect, tapd-connect. The empty-project hint takes the same slot and wins at the top of the relevant surface, using theme colours. At most one tip is visible at a time; a tip appears at most once per host (`tipsSeen`); dismissing or acting on the feature records it. Tips never block input, never move a focused input, and are not shown while the welcome tour is open or the settings callout (`settings-entry`) shows.
 
 | Tip id | Shown when | Text |
 | --- | --- | --- |
+| `board-pan` | expanded desktop/web board with two or more shown lanes and no card or page open; after first-card and lane-swipe, before card-display | "Hold the right mouse button on empty board space and drag left or right to scroll." |
 | `settings-entry` | the welcome tour closed during this visit (first run or manual) and nothing else is open; not a banner: a callout above the bottom-left settings button, which is outlined meanwhile; **Got it** or opening Settings records it (ONBOARDING-SETUP-SPEC §5). It outranks every banner tip. | "Turn features on or off and change settings here." |
 | `lazy-workspace` | a card is open; after the existing tips | "Plan cards without creating workspaces. The first session creates the workspace; later sessions share it." |
 | `first-card` | the project has a card and none is open | "Your card moves by itself as the agent works. Open it any time to see its sessions, output and summary." |
@@ -94,11 +95,14 @@ A tip is a single dismissible banner row (icon, one sentence, **Got it**) under 
 | `connectors` | a card is open, so its Artifacts + is in view (CONNECTORS-SPEC §8.5; new id, so every existing user sees it once) | "The Artifacts + now adds Confluence pages and GitHub or GitLab issues and pull requests too, besides files, links and Jira tickets. Connect services in Settings → Connections." |
 | `session-history` | a card is open and it has a session (SESSION-PANE-SPEC §1) | "A session's output now starts at the beginning of its current turn. Press Load earlier at the top to read further back." |
 | `session-context` | a card is open and it has a session; after session-history | "New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged." |
+| `session-controls` | an open card has sessions; after session-context | "Use the controls inside the message box to change the model, reasoning, permissions and provider features." |
 | `ai-language` | a card of the current project has an AI progress summary (AI-LANGUAGE-SPEC §7) | "AI-written text follows Settings → AI features → AI output language. It starts as your interface language." |
 | `summary-models` | the card has a summary; after `ai-language`; seen on visiting Summary models in Settings or the tour | "Choose summary models and their fallback order in Settings → Models. The default is Haiku, then Luna." |
 | `sidebar-order` | a card is open and it has at least one artifact or idea (DRAWER-SPEC, Section order) | "Arrange an open card your way: reorder its sections and choose which start open in Settings → Cards → Card sidebar." |
 | `project-menu` | desktop project tabs show two or more projects and no card is open (PROJECT-TABS-SPEC) | "Drag a project tab to reorder it. Right-click it for its settings, a new task, Insights, Ideas or Remove." |
 | `jira-connect` | the project has a card, no card is open, and no connection is configured (announces the feature; lowest priority) | "Work from Jira, Confluence, GitHub, GitLab or Azure DevOps: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them." |
+
+| `tapd-connect` | a card is open; after existing tips; new id reaches existing users once | "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project." |
 
 Tips are the lowest-priority part of this feature and can ship after the tour (see Delivery).
 
@@ -148,3 +152,13 @@ Covered by unit tests: the pure logic (fresh user shows; existing user silently 
 5. Onboarding state is per host (setting), not per account.
 
 2026-10-23：Progress models 与 Settings → Models 共用有序多模型列表，见 [SUMMARY-MODELS-SPEC](SUMMARY-MODELS-SPEC.md)。
+
+The More features inputs row includes TAPD alongside existing services. TAPD uses the host’s configured MCP account rather than a Flowly token. Its existing connection tip explains My to-dos and All work items. The visible picker control does not warrant another tip ID or a separate tour section.
+
+
+The More features page includes Session controls: "Change models and provider features inside Flowly. Copy messages or reload a session from its menu."
+
+
+## Runtime view guidance
+
+The More features tour includes Runtime. Tip `runtime-view` appears on a populated project board with no card/page open, after first-card and before lane-swipe. Text: "Runtime shows all Paseo conversations on this host. Open a conversation to chat in Flowly." Opening Runtime or dismissing the tip marks it seen once. Card/project-specific tips are hidden while Runtime is selected. It uses daemon onboarding settings and reaches existing users through the new id. No What's new or telemetry field is added.

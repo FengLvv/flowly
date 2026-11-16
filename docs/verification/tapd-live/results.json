@@ -1,0 +1,58 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Installed candidate running"
+    },
+    {
+      "pass": true,
+      "label": "Fixture telemetry forced off"
+    },
+    {
+      "pass": true,
+      "label": "Public connection has no credential"
+    },
+    {
+      "pass": true,
+      "label": "Installed RPC resolves short ID"
+    },
+    {
+      "pass": true,
+      "label": "Browser bound to candidate screen"
+    },
+    {
+      "pass": true,
+      "label": "1700px: TAPD MCP guidance visible"
+    },
+    {
+      "pass": true,
+      "label": "1700px: no token input"
+    },
+    {
+      "pass": true,
+      "label": "1700px: save control inside viewport"
+    },
+    {
+      "pass": true,
+      "label": "750px: TAPD MCP guidance visible"
+    },
+    {
+      "pass": true,
+      "label": "750px: no token input"
+    },
+    {
+      "pass": true,
+      "label": "750px: save control inside viewport"
+    }
+  ],
+  "errors": [],
+  "cleanup": {
+    "connection": true,
+    "project": true,
+    "boardEmpty": true,
+    "nativeProjectGone": true,
+    "browserClosed": true
+  },
+  "screen": "flowly/surface/board",
+  "failure": "locator.click: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button[aria-label^=\"All projects\"], button[aria-label^=\"Project:\"]').first()\u001b[22m\n"
+}

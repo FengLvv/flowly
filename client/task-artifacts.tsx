@@ -16,7 +16,7 @@ import { AiMark, Actions, Button, Choices, Field, IconButton, Label, Notice, The
 import { t, tn } from "../shared/i18n";
 import { BrandIcon } from "./brand-icons";
 import { ExternalPreview, LinkExternal, connectionsByFamily, pickKey, itemKindLabel, linkTitles, useConnections } from "./connectors";
-import { connectorFamilies, familyOf, itemTypeOf, type ConnectorFamily } from "../shared/connectors";
+import { connectorFamilies, externalDisplayTitle, familyOf, itemTypeOf, type ConnectorFamily } from "../shared/connectors";
 import { eventPoint, useMenuOpener, type MenuEntry } from "./context-menu";
 import { useSettingsOpener } from "./settings-opener";
 
@@ -228,7 +228,9 @@ const ArtifactRow = memo(function ArtifactRow({
   const source = agent ? t("Added by an agent") : t("Added by you");
   const role = artifact.role === "input" ? t("Input") : t("Output");
   const external = artifact.external;
-  const detail = external
+  const tapd = external?.provider === "tapd-internal";
+  const title = externalDisplayTitle(artifact.title, external);
+  const detail = tapd ? artifact.note : external
     ? [itemKindLabel(external.provider, itemTypeOf(external)), externalStatus, artifact.note].filter(Boolean).join(" · ")
     : artifact.note || (artifact.kind === "url" ? hostOf(artifact.target) : artifact.target);
   const icon = artifact.kind === "url" ? "Link" : /\/$|^\.\/$/.test(artifact.target) || !/\.[^/]+$/.test(baseName(artifact.target)) ? "Folder" : "FileText";
@@ -236,25 +238,25 @@ const ArtifactRow = memo(function ArtifactRow({
     <View style={{ flexDirection: "row", alignItems: "center", gap: space[1], minHeight: touch ? 44 : 34 }}>
       <Pressable
         accessibilityRole={artifact.kind === "url" && !artifact.external ? "link" : "button"}
-        accessibilityLabel={`${role}: ${artifact.title}, ${source}${missing ? `, ${t("missing")}` : ""}`}
+        accessibilityLabel={`${role}: ${title}, ${source}${missing ? `, ${t("missing")}` : ""}`}
         onPress={() => onOpen(artifact)}
         style={({ pressed }) => ({ ...noFocusRing, flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: space[1.5], opacity: pressed ? 0.7 : 1 })}
       >
         {external ? <BrandIcon family={familyOf(external.provider)} size={14} /> : <Icon name={icon} size={14} color={missing ? colors.foregroundMuted : colors.foreground} />}
         <View style={{ flex: 1, minWidth: 0 }}>
-          <Label size={font.md} muted={missing} lines={mark ? undefined : 1} selectable={false}><Marked text={artifact.title} terms={mark?.terms} /></Label>
-          <Label size={font.sm} muted lines={mark ? undefined : 1} selectable={false}>
+          <Label size={font.md} muted={missing} lines={mark ? undefined : 1} selectable={false}><Marked text={title} terms={mark?.terms} /></Label>
+          {(!!detail || missing) && <Label size={font.sm} muted lines={mark ? undefined : 1} selectable={false}>
             {missing && `${t("Missing")} · `}
             <Marked text={detail} terms={mark?.terms} />
-          </Label>
-          {!!mark && detail !== artifact.target && (
+          </Label>}
+          {!!mark && !tapd && detail !== artifact.target && (
             <Label size={font.sm} muted mono selectable={false}><Marked text={artifact.target} terms={mark.terms} /></Label>
           )}
         </View>
         {agent ? <AiMark size={12} /> : <Icon name="User" size={12} color={colors.foregroundMuted} />}
       </Pressable>
-      <IconButton icon="Pencil" size={touch ? 36 : 24} label={t("Edit artifact: {title}", { title: artifact.title })} disabled={disabled} onPress={() => onEdit(artifact)} />
-      <IconButton icon="X" size={touch ? 36 : 24} label={t("Remove artifact: {title}", { title: artifact.title })} disabled={disabled} onPress={() => onRemove(artifact)} />
+      <IconButton icon="Pencil" size={touch ? 36 : 24} label={t("Edit artifact: {title}", { title })} disabled={disabled} onPress={() => onEdit(artifact)} />
+      <IconButton icon="X" size={touch ? 36 : 24} label={t("Remove artifact: {title}", { title })} disabled={disabled} onPress={() => onRemove(artifact)} />
     </View>
   );
 });

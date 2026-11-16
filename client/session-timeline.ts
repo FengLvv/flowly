@@ -27,25 +27,28 @@ export const transcriptKey = (taskId: string, agentId: string) => ["flowly", "tr
  */
 export function useSessionTimeline({
   taskId,
+  workspaceId,
   agentId,
   enabled,
   streamReady,
 }: {
-  taskId: string;
+  taskId?: string;
+  workspaceId?: string;
   agentId: string;
   enabled: boolean;
   streamReady: boolean;
 }) {
   const read = useRpc(sessionTail);
   const client = useQueryClient();
-  const key = transcriptKey(taskId, agentId);
+  const target = taskId ? { taskId } : { workspaceId };
+  const key = transcriptKey(taskId || `workspace:${workspaceId}`, agentId);
   const cached = () => client.getQueryData<TimelineWindow>(key);
   const readTurn = async () => {
-    const page = await read({ taskId, agentId, limit: HISTORY_PAGE, mode: "turn", maxEntries: TURN_MAX_ENTRIES });
+    const page = await read({ ...target, agentId, limit: HISTORY_PAGE, mode: "turn", maxEntries: TURN_MAX_ENTRIES });
     const window = windowFromPage(page);
     if (window) return window;
     // Rewritten while paging (compaction, reload): one more try; otherwise keep what is shown and retry on the next poll.
-    const again = windowFromPage(await read({ taskId, agentId, limit: HISTORY_PAGE, mode: "turn", maxEntries: TURN_MAX_ENTRIES }));
+    const again = windowFromPage(await read({ ...target, agentId, limit: HISTORY_PAGE, mode: "turn", maxEntries: TURN_MAX_ENTRIES }));
     if (again) return again;
     throw new Error(t("The session's timeline changed while loading. Retrying shortly."));
   };
@@ -55,7 +58,7 @@ export function useSessionTimeline({
       const before = cached();
       const cursor = before?.epoch ? refreshCursor(before) : null;
       if (before && cursor) {
-        const page = await read({ taskId, agentId, limit: HISTORY_PAGE, mode: "after", cursor });
+        const page = await read({ ...target, agentId, limit: HISTORY_PAGE, mode: "after", cursor });
         const merged = mergeNewer(cached() ?? before, page);
         if (merged) return merged;
       }
@@ -74,7 +77,7 @@ export function useSessionTimeline({
     setEarlierError(null);
     try {
       const requested = window.startCursor!;
-      const page = await read({ taskId, agentId, limit: HISTORY_PAGE, mode: "before", cursor: requested });
+      const page = await read({ ...target, agentId, limit: HISTORY_PAGE, mode: "before", cursor: requested });
       const latest = cached() ?? window;
       const merged = mergeOlder(latest, page, requested);
       if (!merged) void client.invalidateQueries({ queryKey: key, exact: true });
@@ -87,6 +90,6 @@ export function useSessionTimeline({
     } finally {
       setLoadingEarlier(false);
     }
-  }, [client, read, taskId, agentId, loadingEarlier]);
+  }, [client, read, taskId, workspaceId, agentId, loadingEarlier]);
   return { query, loadEarlier, loadingEarlier, earlierError, canLoadEarlier: canLoadEarlier(query.data) };
 }

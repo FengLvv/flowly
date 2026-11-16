@@ -29,10 +29,14 @@ export function welcomeDecision(input: {
   return input.blocked ? "wait" : "show";
 }
 
-export const tipIds = ["lazy-workspace","first-card", "needs-you", "first-idea", "first-done", "first-artifact", "first-tag", "agent-question", "older-finished", "next-move", "first-ticket", "jira-connect", "project-menu", "first-workpad", "subagents", "card-display", "first-workflow-insight", "attention-dismiss", "sidebar-order", "connectors", "session-history", "session-context", "ai-language", "summary-models", "first-skill-draft", "search", "lane-swipe", "auto-review", "first-guardrail", "description-images", "image-limits", "settings-entry"] as const;
+export const tipIds = ["runtime-view", "lazy-workspace","first-card", "needs-you", "first-idea", "first-done", "first-artifact", "first-tag", "agent-question", "older-finished", "next-move", "first-ticket", "jira-connect", "project-menu", "first-workpad", "subagents", "card-display", "first-workflow-insight", "attention-dismiss", "sidebar-order", "connectors", "session-history", "session-context", "session-controls", "ai-language", "summary-models", "first-skill-draft", "search", "lane-swipe", "board-pan", "auto-review", "first-guardrail", "description-images", "image-limits", "tapd-connect", "settings-entry"] as const;
 export type TipId = (typeof tipIds)[number];
 
 export interface TipFacts {
+  /** The runtime entry is visible on a populated project board. */
+  runtimeView?: boolean;
+  /** Expanded desktop board with multiple lanes and no card/page covering it. */
+  boardPan?: boolean;
   /** The current project has at least one card. */
   hasCard: boolean;
   /** Some card is waiting for the user (question, approval or error). */
@@ -90,6 +94,8 @@ export interface TipFacts {
 
 /** Banner tips; `settings-entry` is the callout by the settings button instead (settingsHintDue). */
 const tipFact: Record<Exclude<TipId, "settings-entry">, keyof TipFacts> = {
+  "runtime-view": "runtimeView",
+  "board-pan": "boardPan",
   "first-card": "hasCard",
   "lazy-workspace": "cardOpen",
   "needs-you": "needsYou",
@@ -112,8 +118,10 @@ const tipFact: Record<Exclude<TipId, "settings-entry">, keyof TipFacts> = {
   "attention-dismiss": "crowdedAttention",
   "sidebar-order": "fullSidebar",
   connectors: "cardOpen",
+  "tapd-connect": "cardOpen",
   "session-history": "cardWithSession",
   "session-context": "cardWithSession",
+  "session-controls": "cardWithSession",
   "ai-language": "hasSummary",
   "summary-models": "hasSummary",
   "first-skill-draft": "skillDraft",
@@ -127,7 +135,7 @@ const tipFact: Record<Exclude<TipId, "settings-entry">, keyof TipFacts> = {
 export function nextTip(input: { tipsSeen: readonly string[]; facts: TipFacts; blocked: boolean }): TipId | null {
   if (input.blocked) return null;
   // Waiting for the user outranks introductions; the answer-in-session tip is the more specific one.
-  const order: Exclude<TipId, "settings-entry">[] = ["agent-question", "needs-you", "attention-dismiss", "first-done", "older-finished", "next-move", "auto-review", "first-guardrail", "first-workpad", "subagents", "first-idea", "first-skill-draft", "first-workflow-insight", "ai-language", "summary-models", "first-artifact", "first-ticket", "first-tag", "first-card", "lane-swipe", "card-display", "search", "description-images", "image-limits", "connectors", "session-history", "session-context", "sidebar-order", "project-menu", "jira-connect", "lazy-workspace"];
+  const order: Exclude<TipId, "settings-entry">[] = ["agent-question", "needs-you", "attention-dismiss", "first-done", "older-finished", "next-move", "auto-review", "first-guardrail", "first-workpad", "subagents", "first-idea", "first-skill-draft", "first-workflow-insight", "ai-language", "summary-models", "first-artifact", "first-ticket", "first-tag", "first-card", "runtime-view", "lane-swipe", "board-pan", "card-display", "search", "description-images", "image-limits", "connectors", "session-history", "session-context", "session-controls", "sidebar-order", "project-menu", "jira-connect", "tapd-connect", "lazy-workspace"];
   return order.find((id) => input.facts[tipFact[id]] && !input.tipsSeen.includes(id)) ?? null;
 }
 

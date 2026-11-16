@@ -1,10 +1,11 @@
 # Paseo Kanban Plugin：Spec 大纲与路线图
-2026-11-16 Windows 全量门禁：精确隔离基线，区分真实路径/URL缺陷与 fixture 平台假设；保留安全/归属断言与命名管道认证验证。[契约](WINDOWS-BASELINE-SPEC.md)。
-
-
 2026-11-16 测试原生资源隔离：Vitest 独立 home、Windows CLI 子进程替身、旧 worktree 扫描排除与归属核对。[契约](WINDOWS-TEST-ISOLATION-SPEC.md)。
 
 2026-11-16 卡片延迟创建工作区：目录/worktree 卡片先保存计划，首个对话提交时幂等创建，已有绑定保留。[spec](LAZY-WORKSPACE-SPEC.md)。
+
+2026-11-13 腾讯内网 TAPD：复用宿主 tapd MCP 的只读项目连接、从工单建卡及正文/评论读取。[规范](TAPD-CONNECTOR-SPEC.md)。
+
+无限画布已迁至同级独立项目 `F:\Project\Paseo_plugins\InfiniteCanvas`，源码和依赖不再放在 Flowly 内；插件 ID 仍为 `infinite-canvas`。[独立规范](../../InfiniteCanvas/docs/SPEC.md)。
 
 2026-11-12 会话文本上下文：New session 可选择同项目已有对话，跨模型继承近期对话文本；源会话保持，当前卡片工作区与授权独立。见 [SESSION-CONTEXT-SPEC](SESSION-CONTEXT-SPEC.md)。
 2026-11-12 描述图片：卡片描述下保存图片；新建卡片与新会话可显式使用描述图文作为首条指令，独立复制、可修改，普通跟进保持原文。[规范](DESCRIPTION-IMAGES-SPEC.md)。
@@ -310,3 +311,8 @@ releases from validated version tags. [Spec](CI-CD-SPEC.md),
 2026-10-29 Shortcut connector：第六个只读 provider 族，覆盖 story 与 epic，`sc-<id>` key，
 评论内联返回，epic 的 Markdown 带它的 story 列表。见 [spec](CONNECTORS-SPEC.md) §14。connector
 框架本身不变。
+
+2026-11-16 聊天配置对齐：[SESSION-PARITY-SPEC](SESSION-PARITY-SPEC.md)，模型、提供方功能、复制与重载，以及明确的原生功能边界。
+
+
+2026-11-16 Runtime view: the additional host-wide view shows individual Paseo conversations and directly opens the existing Flowly conversation sidebar, including conversations without a Flowly card. No wider Better Paseo feature migration. [Contract](RUNTIME-VIEW-SPEC.md).

@@ -1,0 +1,100 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Fixture telemetry forced off"
+    },
+    {
+      "pass": true,
+      "label": "Four native sessions across three projects create no synthetic cards"
+    },
+    {
+      "pass": true,
+      "label": "1350px isolated host bound"
+    },
+    {
+      "pass": true,
+      "label": "Runtime bottom scrollbar hidden by default"
+    },
+    {
+      "pass": true,
+      "label": "Runtime bottom hover reveals native scrollbar"
+    },
+    {
+      "pass": true,
+      "label": "Runtime native scrollbar remains draggable"
+    },
+    {
+      "pass": true,
+      "label": "Runtime blank right drag pans"
+    },
+    {
+      "pass": true,
+      "label": "Scrollbar hides after blank pan"
+    },
+    {
+      "pass": true,
+      "label": "Every bound and unbound conversation appears separately, including two in one workspace"
+    },
+    {
+      "pass": true,
+      "label": "Conversation card right drag does not pan"
+    },
+    {
+      "pass": true,
+      "label": "Conversation right click keeps its own menu"
+    },
+    {
+      "pass": true,
+      "label": "Unbound conversation opens original chat directly without task overview"
+    },
+    {
+      "pass": true,
+      "label": "Original Flowly conversation navigation is reused"
+    },
+    {
+      "pass": true,
+      "label": "Back preserves horizontal Runtime position"
+    },
+    {
+      "pass": true,
+      "label": "Unbound draft restores after close/reopen"
+    },
+    {
+      "pass": true,
+      "label": "Bound conversation also bypasses task overview"
+    },
+    {
+      "pass": true,
+      "label": "750px isolated host bound"
+    },
+    {
+      "pass": true,
+      "label": "Compact Runtime opens the original conversation page"
+    },
+    {
+      "pass": true,
+      "label": "Compact Back preserves selected group"
+    },
+    {
+      "pass": true,
+      "label": "Runtime operations preserve card business status and native bindings"
+    },
+    {
+      "pass": true,
+      "label": "Opening and draft checks send no prompt"
+    },
+    {
+      "pass": true,
+      "label": "No UI page errors"
+    }
+  ],
+  "cleanup": {
+    "boardEmpty": true,
+    "nativeEmpty": true,
+    "daemonStopped": true,
+    "browserClosed": true,
+    "homeRemoved": true
+  },
+  "pageErrors": []
+}

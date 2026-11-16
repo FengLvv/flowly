@@ -1,0 +1,119 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Fixture telemetry forced off"
+    },
+    {
+      "pass": true,
+      "label": "Fixture starts with empty owned board"
+    },
+    {
+      "pass": true,
+      "label": "Exact test item resolved without numeric long-ID conversion"
+    },
+    {
+      "pass": true,
+      "label": "1700px: isolated host bound and board ready"
+    },
+    {
+      "pass": true,
+      "label": "Capture preserves New task, project chooser and Filter"
+    },
+    {
+      "pass": true,
+      "label": "TAPD UI imported fixture: title prefilled"
+    },
+    {
+      "pass": true,
+      "label": "TAPD UI imported fixture: user description unchanged before save"
+    },
+    {
+      "pass": true,
+      "label": "UI save imports exact body and keeps business status"
+    },
+    {
+      "pass": true,
+      "label": "TAPD UI user-description fixture: title prefilled"
+    },
+    {
+      "pass": true,
+      "label": "TAPD UI user-description fixture: user description unchanged before save"
+    },
+    {
+      "pass": true,
+      "label": "UI save preserves nonempty user description"
+    },
+    {
+      "pass": true,
+      "label": "Artifacts + links one TAPD input by URL"
+    },
+    {
+      "pass": true,
+      "label": "Desktop preview renders actual body"
+    },
+    {
+      "pass": true,
+      "label": "Desktop duplicate selection disabled, one input remains"
+    },
+    {
+      "pass": true,
+      "label": "750px: isolated host bound and board ready"
+    },
+    {
+      "pass": true,
+      "label": "Compact From TAPD control inside full viewport"
+    },
+    {
+      "pass": true,
+      "label": "Compact URL selection prefills title"
+    },
+    {
+      "pass": true,
+      "label": "Compact preview body visible inside full viewport"
+    },
+    {
+      "pass": true,
+      "label": "Compact duplicate selection disabled"
+    },
+    {
+      "pass": true,
+      "label": "Explicit test model/full mode available"
+    },
+    {
+      "pass": true,
+      "label": "Test session created in full access"
+    },
+    {
+      "pass": true,
+      "label": "MCP get_task uses the actual fixture session/card"
+    },
+    {
+      "pass": true,
+      "label": "Actual session MCP reads linked TAPD body"
+    },
+    {
+      "pass": true,
+      "label": "Actual session MCP refuses another card artifact"
+    },
+    {
+      "pass": true,
+      "label": "UI-created descriptions and artifact survive isolated plugin reload"
+    },
+    {
+      "pass": true,
+      "label": "No browser page errors"
+    }
+  ],
+  "cleanup": {
+    "connection": true,
+    "project": true,
+    "boardEmpty": true,
+    "nativeProjectGone": true,
+    "nativeWorkspacesEmpty": true,
+    "nativeAgentsEmpty": true,
+    "browserClosed": true
+  },
+  "pageErrors": [],
+  "dailyHostMutated": false
+}

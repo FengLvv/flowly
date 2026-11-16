@@ -1,3 +1,4 @@
+import { sessionTargetFields, validSessionScope } from "./session-target";
 import { descriptionImageSchema } from "./description-images";
 import { cardDetailSchema, projectCardIndexSchema, projectIdeasSchema } from "./card-detail";
 import { attentionDismissInput, attentionDismissalSchema, attentionRestoreInput } from "./attention-dismiss";
@@ -310,6 +311,7 @@ export const deleteConnection = defineRpc({
 /**
  * Picker rows: my recent items for an empty query, else by key, link, number or text.
  * GitHub/GitLab search the project's repositories unless `all` (CONNECTORS-SPEC §4.3).
+ * TAPD recent/title queries show my to-dos unless `all` (TAPD-CONNECTOR-SPEC).
  */
 export const searchExternal = defineRpc({
   name: "connectors.search",
@@ -568,16 +570,22 @@ export const configureSession = defineRpc({
   name: "sessions.configure",
   input: z
     .strictObject({
-      taskId: z.string().min(1).max(200),
+      taskId: sessionTargetFields.taskId,
+    workspaceId: sessionTargetFields.workspaceId,
       // IDs become CLI arguments: never allow a leading "-" (option injection).
       agentId: z.string().min(1).max(200).regex(/^[A-Za-z0-9][A-Za-z0-9_-]*$/),
       thinkingOptionId: z.string().min(1).max(100).regex(/^[A-Za-z0-9][A-Za-z0-9_.:-]*$/).optional(),
       modeId: z.string().min(1).max(100).regex(/^[A-Za-z0-9][A-Za-z0-9_.:-]*$/).optional(),
+      modelId: z.string().min(1).max(300).regex(/^[^\u0000-\u001f\u007f]+$/).optional(),
+      feature: z.strictObject({ id: z.string().min(1).max(200), value: z.union([z.boolean(), z.string().max(1000)]) }).optional(),
       stop: z.boolean().optional(),
       /** New display name of the session; a single line. */
       title: z.string().trim().min(1).max(200).regex(/^[^\u0000-\u001f\u007f]+$/, "A title is a single line.").optional(),
     })
-    .refine((i) => i.thinkingOptionId || i.modeId || i.stop || i.title, { message: "Nothing to change." }),
+    .refine(validSessionScope, "Give either a task or workspace target.")
+    .refine((i) => i.modelId || i.feature || i.thinkingOptionId || i.modeId || i.stop || i.title, { message: "Nothing to change." })
+    .refine((i) => !(i.modelId || i.feature) || [i.modelId, i.feature, i.thinkingOptionId, i.modeId, i.stop || undefined, i.title].filter((v) => v !== undefined).length === 1,
+      { message: "Change one model or provider feature at a time." }),
   output: z.object({ applied: z.array(z.string()) }),
 });
 export const readComposer = defineRpc({
@@ -587,13 +595,14 @@ export const readComposer = defineRpc({
 });
 export const saveDraft = defineRpc({
   name: "composer.draft",
-  input: composerTarget.extend({ text: z.string().max(20000) }),
+  input: composerTarget.extend({ text: z.string().max(20000) }).refine(validSessionScope, "Give either a task or workspace target."),
   output: z.object({ ok: z.boolean() }),
 });
 export const queueMessage = defineRpc({
   name: "composer.queue",
   input: composerTarget
     .extend({ text: z.string().trim().max(20000), images: z.array(outgoingImageSchema).optional() })
+    .refine(validSessionScope, "Give either a task or workspace target.")
     .refine((v) => !!v.text || !!v.images?.length, "Write a message or attach an image."),
   output: queuedMessageSchema,
 });
@@ -604,16 +613,17 @@ export const unqueueMessage = defineRpc({
 });
 export const sendQueuedNow = defineRpc({
   name: "composer.send-now",
-  input: composerTarget.extend({ id: z.string().min(1).max(200) }),
+  input: composerTarget.extend({ id: z.string().min(1).max(200) }).refine(validSessionScope, "Give either a task or workspace target."),
   output: z.object({ sent: z.boolean() }),
 });
 export const sessionImage = defineRpc({
   name: "sessions.image",
   input: z.strictObject({
-    taskId: z.string().min(1).max(200),
+    taskId: sessionTargetFields.taskId,
+    workspaceId: sessionTargetFields.workspaceId,
     agentId: z.string().min(1).max(200),
     src: z.string().min(1).max(4096),
-  }),
+  }).refine(validSessionScope, "Give either a task or workspace target."),
   output: z.object({ dataUri: z.string() }),
 });
 export const moveProject = defineRpc({
@@ -651,7 +661,8 @@ export const sessionContextRead = defineRpc({
 export const sessionTail = defineRpc({
   name: "sessions.tail",
   input: z.strictObject({
-    taskId: z.string().min(1).max(200),
+    taskId: sessionTargetFields.taskId,
+    workspaceId: sessionTargetFields.workspaceId,
     agentId: z.string().min(1).max(200),
     limit: z.number().int().min(1).max(100),
     /**
@@ -662,7 +673,7 @@ export const sessionTail = defineRpc({
     mode: z.enum(["tail", "turn", "before", "after"]).optional(),
     cursor: timelineCursorSchema.optional(),
     maxEntries: z.number().int().min(1).max(TURN_MAX_ENTRIES).optional(),
-  }),
+  }).refine(validSessionScope, "Give either a task or workspace target."),
   output: tailPageSchema,
 });
 export const archivedSessions = defineRpc({

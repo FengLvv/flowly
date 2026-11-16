@@ -1,0 +1,19 @@
+Flowly
+Runtime
+Attention
+0
+Running
+0
+No sessions
+To review
+0
+No sessions
+Idle
+4
+Runtime unbound 2
+Ready
+· codex/gpt-6.1-sol
+No output yet.
+GPT-6.1-Sol
+Low
+Full access
