@@ -113,6 +113,7 @@ function Chip({ icon, text, open, disabled, onPress, label, iconOnly, checked, h
       accessibilityLabel={label}
       accessibilityHint={hint}
       accessibilityState={{ expanded: checked === undefined ? open : undefined, checked, disabled: !!disabled }}
+      aria-checked={checked}
       disabled={disabled}
       onPress={onPress}
       style={(state) => {
