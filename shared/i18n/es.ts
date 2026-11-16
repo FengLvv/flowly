@@ -1,6 +1,10 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Use the controls inside the message box to change the model, reasoning, permissions and provider features.": "Cambia el modelo, razonamiento, permisos y funciones del proveedor con los controles dentro del cuadro de mensajes.",
+  "Full access": "Acceso completo",
+  "Extra high": "Muy alto",
+  "Medium": "Medio",
   "On": "Activado",
   "Off": "Desactivado",
   "Loading models…": "Cargando modelos…",
@@ -11,7 +15,6 @@ const catalog: Catalog = {
   "Copy message": "Copiar mensaje",
   "Session controls": "Controles de sesión",
   "Change models and provider features inside Flowly. Copy messages or reload a session from its menu.": "Cambia modelos y funciones del proveedor en Flowly. Copia mensajes o recarga una sesión desde su menú.",
-  "Change the model, reasoning, permissions and provider features from the controls below a session message box.": "Cambia el modelo, razonamiento, permisos y funciones del proveedor con los controles bajo el cuadro de mensajes.",
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly no limita la cantidad ni el tamaño de las imágenes. Siguen vigentes los límites del modelo y del host.",
   "Use card description": "Usar descripción de la tarjeta",
   "Description changed. Use card description again.": "La descripción cambió. Vuelve a usar la descripción de la tarjeta.",
@@ -524,7 +527,6 @@ const catalog: Catalog = {
   "Use the keyboard Send action or the send button.": "Usa la acción Enviar del teclado o el botón de enviar.",
   "Send a message to restore this session…": "Envía un mensaje para restaurar esta sesión…",
   "Message this session…": "Escribe a esta sesión…",
-  "Tell this session what to do next…": "Dile a esta sesión qué hacer a continuación…",
   "Attach images": "Adjuntar imágenes",
   "Stop session": "Detener sesión",
   "Sending instruction": "Enviando instrucción",

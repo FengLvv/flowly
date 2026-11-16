@@ -1,6 +1,10 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Use the controls inside the message box to change the model, reasoning, permissions and provider features.": "入力欄内のコントロールでモデル、推論、権限、プロバイダー機能を変更できます。",
+  "Full access": "フルアクセス",
+  "Extra high": "非常に高い",
+  "Medium": "中",
   "On": "オン",
   "Off": "オフ",
   "Loading models…": "モデルを読み込み中…",
@@ -11,7 +15,6 @@ const catalog: Catalog = {
   "Copy message": "メッセージをコピー",
   "Session controls": "セッションの操作",
   "Change models and provider features inside Flowly. Copy messages or reload a session from its menu.": "Flowly 内でモデルとプロバイダー機能を変更できます。メッセージのコピーやメニューからのセッション再読み込みにも対応。",
-  "Change the model, reasoning, permissions and provider features from the controls below a session message box.": "入力欄の下のコントロールでモデル、推論、権限、プロバイダー機能を変更できます。",
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly は画像の枚数やサイズを制限しません。モデルとホストの制限は引き続き適用されます。",
   "Use card description": "カードの説明を使用",
   "Description changed. Use card description again.": "説明が変更されました。カードの説明を再度読み込んでください。",
@@ -524,7 +527,6 @@ const catalog: Catalog = {
   "Use the keyboard Send action or the send button.": "キーボードの送信アクションか送信ボタンを使ってください。",
   "Send a message to restore this session…": "メッセージを送ってこのセッションを復元…",
   "Message this session…": "このセッションにメッセージ…",
-  "Tell this session what to do next…": "このセッションに次の指示を出す…",
   "Attach images": "画像を添付",
   "Stop session": "セッションを停止",
   "Sending instruction": "指示を送信中",

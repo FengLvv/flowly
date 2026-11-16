@@ -176,7 +176,7 @@ const tipText: Record<TipId, (compact?: boolean) => string> = {
   "sidebar-order": () => t("Arrange an open card your way: reorder its sections and choose which start open in Settings → Cards → Card sidebar."),
   "session-history": () => t("A session's output now starts at the beginning of its current turn. Press Load earlier at the top to read further back."),
   "session-context": () => t("New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged."),
-  "session-controls": () => t("Change the model, reasoning, permissions and provider features from the controls below a session message box."),
+  "session-controls": () => t("Use the controls inside the message box to change the model, reasoning, permissions and provider features."),
   "settings-entry": () => t("Turn features on or off and change settings here."),
   "auto-review": () => t("Auto review checked this card after the agent delivered; open it to see each check's result."),
   "first-guardrail": () => t("Flowly learned a check from a card you sent back. Open Guardrails to see what it checks now."),

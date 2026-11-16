@@ -9,6 +9,7 @@ import * as rpc from "../shared/rpc";
 import { Label, font, message, noFocusRing, radius, space, tint, touch, useTheme } from "./ui";
 import { useMotionPresence, lerp } from "./motion";
 import { t } from "../shared/i18n";
+import { SessionProviderIcon } from "./session-provider-icon";
 
 type Feature = NonNullable<PaseoAgent["features"]>[number];
 /** Composer popups; "subagents" is the Subagents chip (SUBAGENTS-SPEC). */
@@ -50,7 +51,8 @@ export function useSessionConfig(taskId: string, agent: PaseoAgent | undefined, 
     staleTime: 60000,
   });
   const model = models.data?.models?.find((m) => m.id === agent?.model || m.aliases?.includes(agent?.model || ""));
-  const thinking = model?.thinkingOptions || [];
+  const thinking = (model?.thinkingOptions || []).map((level) => ({ ...level, label: level.id === "xhigh" ? t("Extra high") : level.id === "high" ? t("High") : level.id === "medium" ? t("Medium") : level.id === "low" ? t("Low") : level.label }));
+  const modes = (agent?.availableModes || []).map((mode) => mode.id === "full-access" ? { ...mode, label: t("Full access"), icon: "ShieldOff" } : mode);
   const currentThinking = agent?.thinkingOptionId || model?.defaultThinkingOptionId || "";
   async function apply(change: { modelId?: string; feature?: { id: string; value: boolean | string }; thinkingOptionId?: string; modeId?: string; stop?: boolean; title?: string }, done: string) {
     if (!agent || !enabled || target.current !== agent.id || !operation.canWrite || locked.current || !operation.begin(agent.id)) return false;
@@ -76,6 +78,7 @@ export function useSessionConfig(taskId: string, agent: PaseoAgent | undefined, 
   }
   return {
     modelLabel: model?.label || agent?.model || t("Default model"),
+    provider: agent?.runtimeInfo?.provider || agent?.provider || "",
     modelId: model?.id || agent?.model || "",
     models: (models.data?.models || []).filter((m) => m.isSelectable !== false),
     modelsLoading: models.isPending,
@@ -85,9 +88,10 @@ export function useSessionConfig(taskId: string, agent: PaseoAgent | undefined, 
     features: agent?.features || [],
     thinking,
     currentThinking,
-    thinkingLabel: thinking.find((t) => t.id === currentThinking)?.label || "",
-    modes: agent?.availableModes || [],
-    modeLabel: agent?.availableModes?.find((m) => m.id === agent.currentModeId)?.label || "",
+    thinkingLabel: thinking.find((level) => level.id === currentThinking)?.label || "",
+    modes,
+    modeLabel: modes.find((mode) => mode.id === agent?.currentModeId)?.label || "",
+    modeIcon: modes.find((mode) => mode.id === agent?.currentModeId)?.icon || "Shield",
     currentMode: agent?.currentModeId || "",
     defaultThinking: model?.defaultThinkingOptionId,
     apply,
@@ -95,7 +99,7 @@ export function useSessionConfig(taskId: string, agent: PaseoAgent | undefined, 
 }
 export type SessionConfig = ReturnType<typeof useSessionConfig>;
 
-function Chip({ icon, text, open, disabled, onPress, label, iconOnly, checked, hint }: {
+function Chip({ icon, text, open, disabled, onPress, label, iconOnly, checked, hint, leading }: {
   icon: string;
   text: string;
   open: boolean;
@@ -105,6 +109,7 @@ function Chip({ icon, text, open, disabled, onPress, label, iconOnly, checked, h
   iconOnly?: boolean;
   checked?: boolean;
   hint?: string;
+  leading?: ReactNode;
 }) {
   const { colors } = useTheme();
   return (
@@ -122,25 +127,24 @@ function Chip({ icon, text, open, disabled, onPress, label, iconOnly, checked, h
           ...noFocusRing,
           flexDirection: "row",
           alignItems: "center",
-          gap: 4,
-          height: touch ? 32 : 26,
-          width: iconOnly ? (touch ? 32 : 26) : undefined,
+          gap: 6,
+          height: 32,
+          width: iconOnly ? 28 : undefined,
           justifyContent: "center",
           maxWidth: 180,
-          paddingHorizontal: iconOnly ? 0 : space[2],
+          paddingHorizontal: iconOnly ? 0 : space[1],
           borderRadius: radius.md,
           backgroundColor: checked ? tint(colors.accent, 0.12) : open || hover || pressed ? colors.surface2 : "transparent",
           opacity: disabled ? 0.5 : 1,
         };
       }}
     >
-      <Icon name={icon} size={13} color={checked ? colors.accent : colors.foregroundMuted} />
+      {leading || <Icon name={icon} size={18} color={checked ? colors.accent : colors.foregroundMuted} />}
       {!iconOnly && <View style={{ flexShrink: 1, minWidth: 0 }}>
-        <Label size={font.sm} medium lines={1} selectable={false}>
+        <Label size={font.base} medium lines={1} selectable={false}>
           {text}
         </Label>
       </View>}
-      {!iconOnly && checked === undefined && <Icon name="ChevronDown" size={12} color={colors.foregroundMuted} />}
     </Pressable>
   );
 }
@@ -223,6 +227,7 @@ export function ComposerChips({
   inline,
   disabled,
   onOpenInPaseo,
+  leading,
 }: {
   config: SessionConfig;
   menu: ChipMenuId | null;
@@ -230,6 +235,7 @@ export function ComposerChips({
   inline: boolean;
   disabled: boolean;
   onOpenInPaseo?: () => void;
+  leading?: ReactNode;
 }) {
   const { colors } = useTheme();
   const blocked = disabled || config.pending;
@@ -323,10 +329,10 @@ export function ComposerChips({
   );
   return (
     <View>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 2 }}>
-        <View style={{ flex: 1, minWidth: 0, flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 2 }}>
+      <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: space[1] }}>
+        {leading}
         {chip("model", (
-          <Chip icon="Cpu" text={config.modelLabel} label={t("Model: {modelLabel}", { modelLabel: config.modelLabel })} open={menu === "model"} disabled={blocked} onPress={() => toggle("model")} />
+          <Chip icon="Cpu" leading={<SessionProviderIcon provider={config.provider} size={20} color={colors.foregroundMuted} />} text={config.modelLabel} label={t("Model: {modelLabel}", { modelLabel: config.modelLabel })} open={menu === "model"} disabled={blocked} onPress={() => toggle("model")} />
         ))}
         {config.thinking.length > 0 &&
           chip("thinking", (
@@ -334,10 +340,8 @@ export function ComposerChips({
           ))}
         {config.modes.length > 0 &&
           chip("mode", (
-            <Chip icon="ShieldCheck" text={config.modeLabel || t("Permissions")} label={t("Permissions: {label}", { label: config.modeLabel || t("default") })} open={menu === "mode"} disabled={blocked} onPress={() => toggle("mode")} />
+            <Chip icon={config.modeIcon.replace(/(^|-)([a-z])/g, (_match, _separator, letter: string) => letter.toUpperCase())} text={config.modeLabel || t("Permissions")} label={t("Permissions: {label}", { label: config.modeLabel || t("default") })} open={menu === "mode"} disabled={blocked} onPress={() => toggle("mode")} />
           ))}
-        </View>
-        {config.features.length > 0 && <View style={{ flexDirection: "row", alignItems: "center", gap: 2, marginLeft: "auto", flexShrink: 0 }}>
         {config.features.map((feature) => {
           const id: ChipMenuId = `feature:${feature.id}`;
           return chip(id, (
@@ -354,7 +358,6 @@ export function ComposerChips({
             />
           ));
         })}
-        </View>}
       </View>
       {inline && menu && menuFor(menu)}
     </View>

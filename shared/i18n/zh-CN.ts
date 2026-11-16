@@ -1,6 +1,10 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Use the controls inside the message box to change the model, reasoning, permissions and provider features.": "通过消息框内的控件切换模型、推理强度、权限及提供方功能。",
+  "Full access": "完全访问",
+  "Extra high": "超高",
+  "Medium": "中",
   "On": "开启",
   "Off": "关闭",
   "Loading models…": "正在加载模型…",
@@ -11,7 +15,6 @@ const catalog: Catalog = {
   "Copy message": "复制消息",
   "Session controls": "会话控制",
   "Change models and provider features inside Flowly. Copy messages or reload a session from its menu.": "在 Flowly 内切换模型和提供方功能，可复制消息或从菜单重载会话。",
-  "Change the model, reasoning, permissions and provider features from the controls below a session message box.": "通过会话输入框下方的控件切换模型、推理强度、权限及提供方功能。",
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly 不限制图片数量或大小，模型和宿主仍可能有限制。",
   "Use card description": "使用卡片描述",
   "Description changed. Use card description again.": "描述已更改，请重新使用卡片描述。",
@@ -524,7 +527,6 @@ const catalog: Catalog = {
   "Use the keyboard Send action or the send button.": "请使用键盘的发送键或发送按钮。",
   "Send a message to restore this session…": "发送一条消息以恢复此会话…",
   "Message this session…": "给此会话发消息…",
-  "Tell this session what to do next…": "告诉此会话接下来做什么…",
   "Attach images": "添加图片",
   "Stop session": "停止会话",
   "Sending instruction": "正在发送指令",

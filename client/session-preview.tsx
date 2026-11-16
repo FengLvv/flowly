@@ -78,7 +78,7 @@ import { t, tn } from "../shared/i18n";
 
 /** Composer text area: vertical padding and the one-line height (20 px line). */
 const inputPad = 4;
-const inputMin = 20 + 2 * inputPad;
+const inputMin = 48;
 
 type SessionPreviewProps = Parameters<typeof SessionPreviewView>[0];
 
@@ -538,7 +538,7 @@ function SessionPreviewView({
   const canSend = canWrite && (!!draft.trim() || attachments.length > 0);
   // Paseo parity: a running session with an empty composer shows Stop.
   const stopMode = running && !draft.trim() && !attachments.length && canWrite && !busy;
-  const sendSize = touch ? 34 : 28;
+  const sendSize = touch ? 36 : 32;
   const inputMax = compact ? 108 : 160;
   const fitInput = (contentHeight: number) => {
     const next = Math.max(inputMin, Math.min(inputMax, Math.ceil(contentHeight)));
@@ -644,16 +644,17 @@ function SessionPreviewView({
           )}
           <View
             ref={setComposerNode}
-            // Text spans the full width; actions sit on their own row below (attach left, send right).
+            testID="session-composer"
+            // One native-style frame: text above a continuous toolbar and Send/Stop.
             style={{
-              gap: space[1],
-              paddingHorizontal: space[1.5],
-              paddingTop: space[2],
-              paddingBottom: space[1.5],
+              gap: space[2],
+              paddingHorizontal: space[2],
+              paddingTop: space[3],
+              paddingBottom: space[2],
               borderWidth: 1,
               borderColor: focused ? colors.foregroundMuted : colors.border,
-              borderRadius: 18,
-              backgroundColor: canWrite ? colors.surface0 : colors.surface1,
+              borderRadius: 20,
+              backgroundColor: colors.surface1,
             }}
           >
             {attachments.length > 0 && (
@@ -724,9 +725,7 @@ function SessionPreviewView({
               placeholder={
                 active.archivedAt
                   ? t("Send a message to restore this session…")
-                  : compact
-                    ? t("Message this session…")
-                    : t("Tell this session what to do next…")
+                  : t("Message this session…")
               }
               placeholderTextColor={colors.foregroundMuted}
               style={{
@@ -747,18 +746,18 @@ function SessionPreviewView({
               } as never}
             />
             </View>
-            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-            {imageInputSupported ? (
-              <IconButton
-                icon="ImagePlus"
-                size={sendSize}
-                label={t("Attach images")}
-                disabled={!canWrite}
-                onPress={() => void pickImageFiles().then((files) => addImages.current(files))}
-              />
-            ) : (
-              <View />
-            )}
+            <View testID="session-composer-controls" style={{ flexDirection: "row", alignItems: "flex-start", gap: space[2], zIndex: 2 }}>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <ComposerChips
+                  config={config}
+                  menu={chipMenu}
+                  setMenu={setChipMenu}
+                  inline={compact}
+                  disabled={!canWrite || busy}
+                  leading={imageInputSupported ? <IconButton icon="Plus" size={32} label={t("Attach images")} disabled={!canWrite} onPress={() => void pickImageFiles().then((files) => addImages.current(files))} /> : undefined}
+                  onOpenInPaseo={typeof navigation?.openAgent === "function" ? () => { setChipMenu(null); openNativeSession(navigation, sessionId, hostId); } : undefined}
+                />
+              </View>
             {stopMode ? (
               <Pressable
                 accessibilityRole="button"
@@ -819,25 +818,6 @@ function SessionPreviewView({
               )}
             </Pressable>
             )}
-            </View>
-          </View>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: space[2], zIndex: 2 }}>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <ComposerChips
-                config={config}
-                menu={chipMenu}
-                setMenu={setChipMenu}
-                inline={compact}
-                disabled={!canWrite || busy}
-                onOpenInPaseo={
-                  typeof navigation?.openAgent === "function"
-                    ? () => {
-                        setChipMenu(null);
-                        openNativeSession(navigation, sessionId, hostId);
-                      }
-                    : undefined
-                }
-              />
             </View>
           </View>
       </>

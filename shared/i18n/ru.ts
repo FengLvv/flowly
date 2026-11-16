@@ -1,6 +1,10 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Use the controls inside the message box to change the model, reasoning, permissions and provider features.": "Меняйте модель, рассуждение, разрешения и функции провайдера с помощью элементов внутри поля сообщения.",
+  "Full access": "Полный доступ",
+  "Extra high": "Очень высокое",
+  "Medium": "Среднее",
   "On": "Вкл.",
   "Off": "Выкл.",
   "Loading models…": "Загрузка моделей…",
@@ -11,7 +15,6 @@ const catalog: Catalog = {
   "Copy message": "Копировать сообщение",
   "Session controls": "Управление сеансом",
   "Change models and provider features inside Flowly. Copy messages or reload a session from its menu.": "Меняйте модели и функции провайдера в Flowly. Копируйте сообщения или перезагружайте сеанс через его меню.",
-  "Change the model, reasoning, permissions and provider features from the controls below a session message box.": "Меняйте модель, рассуждение, разрешения и функции провайдера под полем сообщения сеанса.",
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly не ограничивает количество и размер изображений. Ограничения модели и хоста по-прежнему действуют.",
   "Use card description": "Использовать описание карточки",
   "Description changed. Use card description again.": "Описание изменилось. Загрузите описание карточки заново.",
@@ -524,7 +527,6 @@ const catalog: Catalog = {
   "Use the keyboard Send action or the send button.": "Используйте действие «Отправить» на клавиатуре или кнопку отправки.",
   "Send a message to restore this session…": "Отправьте сообщение, чтобы восстановить эту сессию…",
   "Message this session…": "Написать этой сессии…",
-  "Tell this session what to do next…": "Скажите этой сессии, что делать дальше…",
   "Attach images": "Прикрепить изображения",
   "Stop session": "Остановить сессию",
   "Sending instruction": "Отправляем инструкцию",

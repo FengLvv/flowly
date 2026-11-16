@@ -1,6 +1,10 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Use the controls inside the message box to change the model, reasoning, permissions and provider features.": "메시지 입력란 안의 컨트롤에서 모델, 추론, 권한 및 제공자 기능을 변경하세요.",
+  "Full access": "전체 액세스",
+  "Extra high": "매우 높음",
+  "Medium": "중간",
   "On": "켜짐",
   "Off": "꺼짐",
   "Loading models…": "모델 불러오는 중…",
@@ -11,7 +15,6 @@ const catalog: Catalog = {
   "Copy message": "메시지 복사",
   "Session controls": "세션 제어",
   "Change models and provider features inside Flowly. Copy messages or reload a session from its menu.": "Flowly에서 모델과 제공자 기능을 변경하세요. 메시지를 복사하거나 메뉴에서 세션을 새로 고칠 수 있습니다.",
-  "Change the model, reasoning, permissions and provider features from the controls below a session message box.": "메시지 입력란 아래에서 모델, 추론, 권한 및 제공자 기능을 변경하세요.",
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly는 이미지 수나 크기를 제한하지 않습니다. 모델과 호스트의 제한은 계속 적용됩니다.",
   "Use card description": "카드 설명 사용",
   "Description changed. Use card description again.": "설명이 변경되었습니다. 카드 설명을 다시 불러오세요.",
@@ -524,7 +527,6 @@ const catalog: Catalog = {
   "Use the keyboard Send action or the send button.": "키보드의 보내기 동작이나 보내기 버튼을 사용하세요.",
   "Send a message to restore this session…": "메시지를 보내 이 세션 복원…",
   "Message this session…": "이 세션에 메시지 보내기…",
-  "Tell this session what to do next…": "이 세션에 다음에 할 일을 알려 주세요…",
   "Attach images": "이미지 첨부",
   "Stop session": "세션 중지",
   "Sending instruction": "지시를 보내는 중",
