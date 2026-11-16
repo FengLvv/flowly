@@ -322,8 +322,8 @@ function TaskDrawerView({
   }, [active, escapeRequest]);
   const workspace = useQuery({
     queryKey: ["flowly", "workspace", task.workspaceId],
-    queryFn: () => paseo.workspaces.ref(task.workspaceId).refresh(),
-    enabled: ready,
+    queryFn: () => task.workspaceId ? paseo.workspaces.ref(task.workspaceId).refresh() : Promise.resolve(null),
+    enabled: ready && !!task.workspaceId,
     // Availability rarely changes; sends re-check it fresh anyway.
     refetchInterval: 10000,
   });
@@ -373,8 +373,7 @@ function TaskDrawerView({
     refetch: () => Promise.all([liveAgents.refetch(), workspaceSessions.refetch()]),
   };
   const unavailable =
-    !workspace.data ||
-    workspace.isError ||
+    (!!task.workspaceId && (!workspace.data || workspace.isError)) ||
     scope.isError ||
     !scope.data?.available;
   const legacy = isLegacyScope(task, project);
@@ -1087,7 +1086,7 @@ function TaskDrawerView({
               project={project}
               open={sectionStates.details.open}
               onToggle={sectionStates.details.onToggle}
-              summary={workspace.isPending || scope.isPending ? t("Checking…") : unavailable ? t("Unavailable") : legacy ? t("Legacy") : workspace.data?.name}
+              summary={(!task.workspaceId && task.workspacePlan) ? t("Created with the first session") : workspace.isPending || scope.isPending ? t("Checking…") : unavailable ? t("Unavailable") : legacy ? t("Legacy") : workspace.data?.name}
               legacy={legacy}
               workspaceName={workspace.data?.name}
               workspaceDirectory={workspace.data?.workspaceDirectory}
@@ -1319,6 +1318,7 @@ function Property({
 
 const activityText: Record<string, string> = localizedLabels({
   created: msg("Created the task"),
+  workspace_created: msg("Created the workspace"),
   edited: msg("Edited the task"),
   status_changed: msg("Changed status"),
   archive_changed: msg("Changed archive state"),

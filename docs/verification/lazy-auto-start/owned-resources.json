@@ -1,0 +1,47 @@
+{
+  "owner": "lazy-auto-start-8db3cd2b-9f03-4410-a5e5-30cfc60ae28c",
+  "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-auto-start-8db3cd2b-9f03-4410-a5e5-30cfc60ae28c",
+  "port": 3707,
+  "daemonPid": 61292,
+  "project": {
+    "id": "75490f41-7150-447f-9c21-3c587b44ef39",
+    "title": "Lazy auto-start fixture",
+    "description": "",
+    "paseoProjectId": "prj_76e696994fee3be7",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-auto-start-8db3cd2b-9f03-4410-a5e5-30cfc60ae28c\\project",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-auto-start-8db3cd2b-9f03-4410-a5e5-30cfc60ae28c\\project"
+    ],
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    },
+    "revision": 1,
+    "createdAt": "2026-11-16T13:00:18.519Z",
+    "updatedAt": "2026-11-16T13:00:18.519Z",
+    "archivedAt": null
+  },
+  "task": {
+    "id": "ebec85f9-1666-4003-a38b-e4c09dcb825d",
+    "projectId": "75490f41-7150-447f-9c21-3c587b44ef39",
+    "workspaceId": "wks_9350fafecf29c3ee",
+    "sourcePath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-auto-start-8db3cd2b-9f03-4410-a5e5-30cfc60ae28c\\project",
+    "repoPaths": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-auto-start-8db3cd2b-9f03-4410-a5e5-30cfc60ae28c\\project"
+    ],
+    "title": "Create and start fixture",
+    "description": "Fixture only. Do not change files or call Kanban write tools.",
+    "status": "todo",
+    "priority": "normal",
+    "position": 0,
+    "revision": 2,
+    "operationId": "card-1794834039319-lta11oruefa",
+    "createdAt": "2026-11-16T13:00:45.142Z",
+    "updatedAt": "2026-11-16T13:00:48.038Z",
+    "archivedAt": null,
+    "ownsWorkspace": true
+  },
+  "agents": [
+    "0efc9d46-d8c4-4dcd-864b-e6ad4fbe0a0f"
+  ]
+}

@@ -172,7 +172,7 @@ function summarizeSessions(agents: readonly AttentionAgent[], task: { id: string
   const current = [
     ...new Map(
       agents
-        .filter((a) => a.workspaceId === task.workspaceId)
+        .filter((a) => !!task.workspaceId && a.workspaceId === task.workspaceId)
         .map((a) => [a.id, a]),
     ).values(),
   ].filter((a) => !a.archivedAt);

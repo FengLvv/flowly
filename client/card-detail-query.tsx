@@ -21,7 +21,7 @@ export function detailQueryOptions(client: QueryClient, hostId: string, taskId: 
 export const detailUnavailable = (error: unknown) => error instanceof Error && error.message.includes(CARD_UNAVAILABLE);
 export function useCardDetailQuery(hostId: string, taskId: string, workspaceId: string, enabled: boolean, interval?: number, pollOnly = false) {
   const client = useQueryClient(), read = useRpc(rpc.readCardDetailChanged);
-  return useQuery({ ...detailQueryOptions(client, hostId, taskId, workspaceId, read, pollOnly), enabled: enabled && !!taskId && !!workspaceId, refetchInterval: interval, refetchOnMount: interval ? false : true });
+  return useQuery({ ...detailQueryOptions(client, hostId, taskId, workspaceId, read, pollOnly), enabled: enabled && !!taskId, refetchInterval: interval, refetchOnMount: interval ? false : true });
 }
 export function useProjectIndexQuery(hostId: string, projectId: string, enabled: boolean) {
   const client = useQueryClient(), read = useRpc(rpc.readProjectCardIndexChanged), key = projectIndexKey(hostId, projectId);

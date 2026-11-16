@@ -151,19 +151,20 @@ export async function directory(path: string): Promise<string> {
   return canonical;
 }
 
+const provisioning = new WeakMap<BoardStore, Promise<unknown>>();
+
 export class BoardService {
-  private provision = Promise.resolve<unknown>(undefined);
   /** Reads external items added at creation (EXTERNAL-TRACKER-SPEC §5.4); set by the plugin entry. */
   connectors?: ConnectorService;
   /** Workflow-insights suggestions a card can be created from (WORKFLOW-INSIGHTS-SPEC §5.2); set by the plugin entry. */
   insightFindings?: { check(projectId: string, id: string): Promise<void>; accept(projectId: string, id: string, taskId: string): Promise<void> };
   constructor(readonly store: BoardStore) {}
   private serialize<T>(action: () => Promise<T>) {
-    const result = this.provision.then(action);
-    this.provision = result.then(
+    const result = (provisioning.get(this.store) || Promise.resolve()).then(action);
+    provisioning.set(this.store, result.then(
       () => undefined,
       () => undefined,
-    );
+    ));
     return result;
   }
   async resources(paseo: PaseoApi) {
@@ -392,7 +393,7 @@ export class BoardService {
     const base = { found: true as const, title: snapshot.project.title, cards: snapshot.tasks.length, savedAt: snapshot.savedAt };
     if (board.projects.some((p) => p.id === snapshot.project.id))
       return { ...base, conflict: "on-board" as const, unbound: 0 };
-    return { ...base, conflict: "" as const, unbound: snapshot.tasks.filter((t) => bound.has(t.workspaceId)).length };
+    return { ...base, conflict: "" as const, unbound: snapshot.tasks.filter((t) => !!t.workspaceId && bound.has(t.workspaceId)).length };
   }
   /** Puts a folder's saved project back on the board; the native project is found or created first. */
   restoreProject(input: { path: string }, paseo: PaseoApi) {
@@ -519,7 +520,8 @@ export class BoardService {
         : [];
       const repoPaths = [project.primaryPath];
       const sourcePath = project.primaryPath;
-      let workspaceId = input.workspaceId;
+      let workspaceId = input.mode === "existing" ? input.workspaceId : "";
+      let workspacePlan: import("../shared/model").Task["workspacePlan"];
       let baseRef: string | undefined;
       if (input.mode === "existing") {
         if (!workspaceId) throw new Error("Select a workspace.");
@@ -557,26 +559,13 @@ export class BoardService {
           )
           .digest("hex")
           .slice(0, 24);
-        const created = await paseo.workspaces.create({
+        workspacePlan = {
+          mode: input.mode,
           title: input.title,
           idempotencyKey: `ultra-kanban:${input.operationId}:${intent}`,
-          source:
-            input.mode === "directory"
-              ? {
-                  kind: "directory",
-                  path: sourcePath,
-                  projectId: project.paseoProjectId,
-                }
-              : {
-                  kind: "worktree",
-                  cwd: sourcePath,
-                  projectId: project.paseoProjectId,
-                  action: "branch-off",
-                  refName: baseRef,
-                  branchName,
-                },
-        });
-        workspaceId = created.id;
+          ...(baseRef ? { baseRef } : {}),
+          ...(branchName ? { branchName } : {}),
+        };
       }
       const id = workspaceId!;
       try {
@@ -597,6 +586,7 @@ export class BoardService {
             id: randomUUID(),
             projectId: project.id,
             workspaceId: id,
+            ...(workspacePlan ? { workspacePlan } : {}),
             sourcePath,
             repoPaths,
             title: input.title,
@@ -652,9 +642,51 @@ export class BoardService {
       } catch (error) {
         await imageFiles.cleanup(this.store, addedImages);
         throw new Error(
-          `Card was not saved. Workspace ${id} remains available; retry with the same operation or link it. ${error instanceof Error ? error.message : String(error)}`,
+          `Card was not saved. ${error instanceof Error ? error.message : String(error)}`,
         );
       }
+    });
+  }
+  /** First-session submit only. The native key stays stable across failed saves/restarts. */
+  ensureWorkspace(id: string, paseo: PaseoApi) {
+    return this.serialize(async () => {
+      const board = await this.store.read();
+      const task = board.tasks.find((t) => t.id === id);
+      const project = board.projects.find((p) => p.id === task?.projectId);
+      if (!task || !project || task.archivedAt || project.archivedAt)
+        throw new Error("Task or project is unavailable or archived.");
+      if (task.workspaceId) return task;
+      const plan = task.workspacePlan;
+      if (!plan) throw new Error("Workspace is unavailable; this card has no workspace plan.");
+      const created = await paseo.workspaces.create({
+        title: plan.title,
+        idempotencyKey: plan.idempotencyKey,
+        source: plan.mode === "directory"
+          ? { kind: "directory", path: task.sourcePath, projectId: project.paseoProjectId }
+          : { kind: "worktree", cwd: task.sourcePath, projectId: project.paseoProjectId,
+              action: "branch-off", refName: plan.baseRef, branchName: plan.branchName },
+      });
+      return this.store.mutate((current) => {
+        const live = current.tasks.find((t) => t.id === id);
+        const owner = current.projects.find((p) => p.id === project.id);
+        if (!live || !owner || live.archivedAt || owner.archivedAt ||
+            owner.paseoProjectId !== project.paseoProjectId || owner.primaryPath !== project.primaryPath ||
+            live.sourcePath !== task.sourcePath || live.workspacePlan?.idempotencyKey !== plan.idempotencyKey)
+          throw new Error(`Card changed during workspace creation. Workspace ${created.id} remains available; retry the first session.`);
+        if (live.workspaceId) {
+          if (live.workspaceId !== created.id) throw new Error("Card is already bound to a different workspace.");
+          return live;
+        }
+        if (current.tasks.some((t) => t.id !== id && t.workspaceId === created.id))
+          throw new Error("Workspace is already bound to another card.");
+        live.workspaceId = created.id;
+        live.ownsWorkspace = true;
+        delete live.workspacePlan;
+        live.revision++;
+        live.updatedAt = new Date().toISOString();
+        this.store.event(current, { taskId: id, actor: "system", action: "workspace_created" });
+        return live;
+      });
     });
   }
   /** External inputs whose connection was removed (EXTERNAL-TRACKER-SPEC §2); unreadable stays empty on failure. */
@@ -669,13 +701,12 @@ export class BoardService {
     const task = board.tasks.find((t) => t.id === id);
     const project = board.projects.find((p) => p.id === task?.projectId);
     if (!task || !project) throw new Error("Task or project not found.");
-    const workspace = await paseo.workspaces.ref(task.workspaceId).refresh();
+    const workspace = task.workspaceId ? await paseo.workspaces.ref(task.workspaceId).refresh() : null;
     const matches = workspace
       ? await repoMatcher(project.repos)(workspace.workspaceDirectory)
       : [];
     const available =
-      !!workspace &&
-      !!matches.length &&
+      ((!!workspace && !!matches.length) || (!task.workspaceId && !!task.workspacePlan)) &&
       !task.archivedAt &&
       !project.archivedAt;
     // Project memory for the first instructions (PROJECT-MEMORY-SPEC §6.1); unreadable memory never blocks a session.
@@ -693,9 +724,9 @@ export class BoardService {
       reason:
         task.archivedAt || project.archivedAt
           ? "Task or project is archived."
-          : !workspace
+          : !workspace && !task.workspacePlan
             ? "Workspace is unavailable or archived."
-            : !matches.length
+            : workspace && !matches.length
               ? "Workspace is outside this project's repositories."
               : "",
       context: sessionContext(

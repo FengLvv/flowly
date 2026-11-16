@@ -1,5 +1,19 @@
 # Implementation progress
 
+## Create and start follow-up verification — 2026-11-16
+
+- User reported immediate start did not run, then confirmed reproduction works. The actual New task checkbox/submission/first model reply flow passes in an isolated real host (7/7, exit 0); focused session/service regression 27/27 (0). Owned native/board resources and fixture home cleaned up. No product source or runtime installation changes.
+- Current shared-tree typecheck FAIL (exit 1: timer unref, URL/AbortSignal types and a test spread); no baseline comparison or unrelated fixes. Original failure cause undetermined. Full/independent/other-provider/compact checks unrun this follow-up. [Evidence](verification/lazy-auto-start.md).
+
+
+## Workspace creation on first session — 2026-11-16
+
+- Directory/worktree cards save a persisted plan without a native workspace. First managed/ordinary session submission provisions and binds once; stable native keys survive response/save failures and title changes. Existing/legacy bindings keep ownership and scope. Pending detail, artifacts, attention, archive/wrap-up/restore and project restore handle the empty binding. [Contract](LAZY-WORKSPACE-SPEC.md).
+- PASS: typecheck (0), focused 181/181 (0), first-session scoped-identity test 1/1 (0), real isolated daemon desktop/750px functional checks 20/20 (0), fixture board/native cleanup and owned-home removal; local `flowly` reloaded/running with infinite canvas still running. Tour, new one-time tip, READMEs and all catalogs updated; no new telemetry field, version bump or What's new.
+- FAILED: broader related suite had two Windows permission expectations; existing tool-server slash-specific path assertion also fails. No assertions weakened. UNRUN: full suite, independent exact-commit checks, commit/push/PR, physical/native-window UI, live worktree and model response delivery. Shared work preserved; In review is disabled, so use a result receipt. [Evidence](verification/lazy-workspace.md).
+
+
+
 ## Image attachment limits removed — 2026-11-13
 
 - User requested no Flowly image count, byte-size or pixel-size caps. Removed limits from selection, description metadata/input, queue RPC/state and retry restoration. Original data and ordered lists are preserved; format, canonical description data, signatures, membership and integrity checks remain. Host/model and resource constraints still apply. [Contract](DESCRIPTION-IMAGES-SPEC.md).

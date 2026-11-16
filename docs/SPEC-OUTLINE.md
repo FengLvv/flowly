@@ -1,4 +1,5 @@
 # Paseo Kanban Plugin：Spec 大纲与路线图
+2026-11-16 卡片延迟创建工作区：目录/worktree 卡片先保存计划，首个对话提交时幂等创建，已有绑定保留。[spec](LAZY-WORKSPACE-SPEC.md)。
 
 2026-11-12 会话文本上下文：New session 可选择同项目已有对话，跨模型继承近期对话文本；源会话保持，当前卡片工作区与授权独立。见 [SESSION-CONTEXT-SPEC](SESSION-CONTEXT-SPEC.md)。
 2026-11-12 描述图片：卡片描述下保存图片；新建卡片与新会话可显式使用描述图文作为首条指令，独立复制、可修改，普通跟进保持原文。[规范](DESCRIPTION-IMAGES-SPEC.md)。

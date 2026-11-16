@@ -148,6 +148,7 @@ import { visibleReview } from "../shared/auto-review";
 const tipText: Record<TipId, (compact?: boolean) => string> = {
   "image-limits": () => t("Flowly does not limit image count or size. Model and host limits still apply."),
   "description-images": () => t("Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together."),
+  "lazy-workspace": () => t("Plan cards without creating workspaces. The first session creates the workspace; later sessions share it."),
   "first-card": () => t("Your card moves by itself as the agent works. Open it any time to see its sessions, output and summary."),
   "needs-you": () => t("A card is waiting for you. Reply goes straight to the session."),
   "first-idea": () => t("An agent suggested follow-up work. Good idea starts a card or continues here; Dismiss removes it."),
@@ -1312,7 +1313,7 @@ function BoardContent(
     derived = {
       task: t,
       legacy: !!project && isLegacyScope(t, project),
-      available: cardIndex.workspaceIds.has(t.workspaceId),
+      available: (!t.workspaceId && !!t.workspacePlan) || cardIndex.workspaceIds.has(t.workspaceId),
       wrapped: (t.status === "done" || t.status === "cancelled") && !!facts?.wrapped,
       running: sessions.filter((a) => a.status === "running").length,
       sessions: sessions.length,

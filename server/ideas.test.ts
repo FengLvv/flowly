@@ -149,7 +149,10 @@ test("people dismiss and restore ideas; accepted ideas are final", async () => {
   expect((await x.store.updateIdea({ id: ideaId!, status: "open" })).status).toBe("open");
   expect((await x.store.read()).events.slice(-2).map((e) => e.action)).toEqual(["idea_dismissed", "idea_restored"]);
   const { create, paseo } = creator(x);
-  await new BoardService(x.store).createTask(createInput(ideaId), paseo);
+  const service = new BoardService(x.store);
+  const card = await service.createTask(createInput(ideaId), paseo);
+  expect(create).not.toHaveBeenCalled();
+  await service.ensureWorkspace(card.id, paseo);
   expect(create).toHaveBeenCalledTimes(1);
   await expect(x.store.updateIdea({ id: ideaId!, status: "dismissed" })).rejects.toThrow("already became a card");
 });
@@ -169,6 +172,8 @@ test("creating a card from an idea links both ways in one write", async () => {
   });
   // A repeated submission returns the first card and leaves the idea alone.
   expect((await service.createTask(createInput(ideaId), paseo)).id).toBe(card.id);
+  expect(create).not.toHaveBeenCalled();
+  await service.ensureWorkspace(card.id, paseo);
   expect(create).toHaveBeenCalledTimes(1);
   expect((await service.context(card.id, paseo)).context).toContain("Follow-up of: Card (t) [Todo]\n");
   // The derived link is written with the card, without separate link events.

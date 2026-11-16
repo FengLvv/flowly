@@ -401,6 +401,7 @@ export default function contribute(host: PluginServerContext) {
     await tools.start().catch(() => undefined);
     return tools.health();
   });
+  server.handle(rpc.ensureTaskWorkspace, (input, { paseo }) => service.ensureWorkspace(input.id, paseo));
   server.handle(rpc.prepareSession, (input, { paseo }) =>
     tools.prepareSession(input.id, input.operationId, paseo),
   );

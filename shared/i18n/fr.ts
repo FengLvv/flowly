@@ -1,6 +1,10 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Created the workspace": "Espace de travail créé",
+  "Created with the first session": "Créé à la première session",
+  "Workspace starts with the first session": "L’espace de travail est créé à la première session",
+  "Plan cards without creating workspaces. The first session creates the workspace; later sessions share it.": "Planifiez des cartes sans créer d’espace de travail. La première session le crée ; les suivantes le partagent.",
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly ne limite ni le nombre ni la taille des images. Les limites du modèle et de l’hôte restent applicables.",
   "Use card description": "Utiliser la description de la carte",
   "Description changed. Use card description again.": "La description a changé. Rechargez la description de la carte.",
@@ -755,7 +759,6 @@ const catalog: Catalog = {
   "Paseo workspace": "Espace de travail Paseo",
   "Paseo agent session": "Session d'agent Paseo",
   "One folder": "Un dossier",
-  "One task": "Une tâche",
   "A chat with an agent": "Une conversation avec un agent",
   "How Flowly works": "Comment fonctionne Flowly",
   "Everything on the board is a real Paseo object, so you can always open it in Paseo.": "Tout ce qui est sur le tableau est un vrai objet Paseo : vous pouvez toujours l'ouvrir dans Paseo.",

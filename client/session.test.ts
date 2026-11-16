@@ -2,10 +2,36 @@ import { launchKanbanSession } from "./session";
 import { expect, test, vi } from "vitest";
 import type { PaseoApi } from "@getpaseo/client";
 import {
+  createOrdinarySession,
   createPreparedSession,
   sendCardInstruction,
   workspaceSession,
 } from "./session";
+
+test("first managed launch uses the freshly provisioned workspace, not the pending card prop", async () => {
+  const create = vi.fn(async () => ({ id: "allocated" }));
+  const ref = vi.fn(() => ({ agents: { create } }));
+  const paseo = { workspaces: { ref }, agents: { ref: () => ({ refresh: async () => null }) } } as unknown as PaseoApi;
+  await launchKanbanSession({ paseo,
+    contextRead: async () => ({ available: true, reason: "", context: "", revision: 1 }),
+    prepare: async () => ({ agentId: "allocated", workspaceId: "fresh-workspace", instructions: "Scope", contextFile: "c", cliPath: "cli", skillPath: "s" }),
+  }, { id: "t", workspaceId: "", title: "Task" }, { provider: "claude", model: "haiku", mode: "bypassPermissions", operationId: "op", prompt: "Start" });
+  expect(ref).toHaveBeenCalledWith("fresh-workspace");
+  expect(create).toHaveBeenCalledTimes(1);
+});
+
+test("ordinary first session also provisions on submit, and failed provisioning never sends", async () => {
+  const create = vi.fn(async () => ({ id: "ordinary" }));
+  const ref = vi.fn(() => ({ agents: { create } }));
+  const paseo = { workspaces: { ref } } as unknown as PaseoApi;
+  const ensure = vi.fn(async () => ({ workspaceId: "fresh-workspace" }));
+  await createOrdinarySession(paseo, ensure, "t", { config: { provider: "claude/haiku" }, prompt: "Start", idempotencyKey: "op" });
+  expect(ensure).toHaveBeenCalledWith({ id: "t" });
+  expect(ref).toHaveBeenCalledWith("fresh-workspace");
+  ensure.mockRejectedValueOnce(new Error("Provision failed"));
+  await expect(createOrdinarySession(paseo, ensure, "t", { config: { provider: "claude/haiku" } })).rejects.toThrow("Provision failed");
+  expect(create).toHaveBeenCalledTimes(1);
+});
 function fixture() {
   let found: unknown = null;
   const create = vi.fn(async () => ({ id: "allocated" }));

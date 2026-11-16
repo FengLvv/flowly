@@ -1,4 +1,5 @@
 # Phase 2：Agent tools 与 skill 实施合约
+2026-11-16 创建时机修订：[LAZY-WORKSPACE-SPEC](LAZY-WORKSPACE-SPEC.md) 规定目录/worktree 卡片先保存工作区计划，首个对话提交时才创建工作区；已有工作区关联不变。
 
 2026-11-06 Paseo 0.14 增量：`flowly` MCP server 不再写进 agent 创建配置，改由 `agent.session_open` 在每次启动时注入；“Send Kanban work instructions” 加入的空闲 session 重开后也有 MCP。下文中“创建时写入 MCP 配置”“已有 session 只有 CLI”的描述以 [PASEO-SESSION-TOOLS-SPEC](PASEO-SESSION-TOOLS-SPEC.md) 为准。
 
