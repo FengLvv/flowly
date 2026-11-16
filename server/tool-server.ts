@@ -522,9 +522,7 @@ export class ToolServer {
     this.attach(paseo);
     const job = this.preparation.then(async () => {
       await this.start();
-      const board = await this.store.read(),
-        task = board.tasks.find((t) => t.id === taskId);
-      if (!task) throw new ToolError("RESOURCE_UNAVAILABLE", "Task not found.");
+      const task = await new BoardService(this.store).ensureWorkspace(taskId, paseo);
       const ctx = await new BoardService(this.store).context(taskId, paseo);
       if (!ctx.available)
         throw new ToolError("RESOURCE_UNAVAILABLE", ctx.reason);
@@ -546,7 +544,7 @@ export class ToolServer {
           "Prepared agent ID now belongs to an unavailable/different session.",
         );
       // The session_open hook adds the MCP server when the session opens.
-      return this.prepare(identity, ctx.context, "launch-mcp");
+      return { ...await this.prepare(identity, ctx.context, "launch-mcp"), workspaceId: task.workspaceId };
     });
     this.preparation = job.then(
       () => undefined,

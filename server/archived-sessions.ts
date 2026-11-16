@@ -14,6 +14,7 @@ export class ArchivedSessionsService {
     const board = await this.store.read();
     const task = board.tasks.find((t) => t.id === taskId);
     if (!task) throw new Error("Task not found.");
+    if (!task.workspaceId) return [];
     const found: PaseoAgent[] = [];
     let cursor: string | undefined;
     do {

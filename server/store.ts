@@ -422,7 +422,7 @@ export class BoardStore {
           updatedAt: now,
           operationId: operations.has(t.operationId) ? `restored-${t.id}` : t.operationId,
         };
-        if (bound.has(t.workspaceId)) {
+        if (t.workspaceId && bound.has(t.workspaceId)) {
           // A placeholder that resolves to no workspace: the drawer shows it unavailable.
           task.workspaceId = `unbound-${t.id}`;
           delete task.ownsWorkspace;

@@ -574,6 +574,7 @@ export const healthSchema = z.object({
   version: z.literal(1),
 });
 export const preparationSchema = z.object({
+  workspaceId: z.string().min(1).optional(),
   agentId: z.string(),
   contextFile: z.string(),
   cliPath: z.string(),

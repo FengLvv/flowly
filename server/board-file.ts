@@ -38,7 +38,7 @@ export function assertBoardInvariants(board: Board) {
     const project = board.projects.find((p) => p.id === t.projectId);
     if (!project || !project.repos.includes(t.sourcePath) || t.repoPaths.some((p) => !project.repos.includes(p)) || new Set(t.repoPaths).size !== t.repoPaths.length)
       throw new Error("Task source directory must belong to its project.");
-    if (workspaces.has(t.workspaceId)) throw new Error("Workspace is already bound to another card.");
+    if (t.workspaceId && workspaces.has(t.workspaceId)) throw new Error("Workspace is already bound to another card.");
     if (operations.has(t.operationId)) throw new Error("Duplicate task operation.");
     workspaces.add(t.workspaceId);
     operations.add(t.operationId);

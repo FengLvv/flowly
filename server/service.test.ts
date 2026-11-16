@@ -74,7 +74,9 @@ afterEach(async () => {
 test("new card uses only native root even in a previously multi-repo project", async () => {
   const x = await setup(),
     card = await x.service.createTask(x.input, x.paseo);
-  expect(card).toMatchObject({ sourcePath: x.a, repoPaths: [x.a] });
+  expect(card).toMatchObject({ sourcePath: x.a, repoPaths: [x.a], workspaceId: "", workspacePlan: { mode: "directory" } });
+  expect(x.create).not.toHaveBeenCalled();
+  await x.service.ensureWorkspace(card.id, x.paseo);
   expect(x.create.mock.calls[0][0]).toMatchObject({
     source: { kind: "directory", path: x.a, projectId: "native" },
   });
@@ -93,6 +95,8 @@ test("a common parent directory contains two repositories without registering ea
   expect((await x.service.context(card.id, x.paseo)).context).toContain(
     "Native Paseo project root: " + x.a,
   );
+  expect(x.create).not.toHaveBeenCalled();
+  await x.service.ensureWorkspace(card.id, x.paseo);
   expect(x.create.mock.calls[0][0]).toMatchObject({ source: { path: x.a } });
 });
 test("new board project links the exact native Paseo root and persists only that directory", async () => {
@@ -176,6 +180,8 @@ test("worktree originates from native root and default base resolves its named b
   expect(card.sourcePath).toBe(x.a);
   // Kept on the card for the review's own change (GUARDRAILS-SPEC §6.2).
   expect(card.baseRef).toBe("refs/heads/root-main");
+  expect(x.create).not.toHaveBeenCalled();
+  await x.service.ensureWorkspace(card.id, x.paseo);
   expect(x.create.mock.calls[0][0]).toMatchObject({
     source: {
       kind: "worktree",
@@ -197,27 +203,26 @@ test("non-Git common root requires a directory workspace", async () => {
     ),
   ).rejects.toThrow("Enter a valid base ref");
   expect(x.create).not.toHaveBeenCalled();
-  await x.service.createTask(x.input, x.paseo);
+  const card = await x.service.createTask(x.input, x.paseo);
+  expect(x.create).not.toHaveBeenCalled();
+  await x.service.ensureWorkspace(card.id, x.paseo);
   expect(x.create).toHaveBeenCalledTimes(1);
 });
-test("corrected base ref uses a new native request key in the same card operation", async () => {
-  const x = await setup(),
-    input = {
-      ...x.input,
-      mode: "worktree" as const,
-      branchName: "feature",
-      baseRef: "invalid",
-    };
-  x.create.mockRejectedValueOnce(new Error("Invalid base ref"));
-  await expect(x.service.createTask(input, x.paseo)).rejects.toThrow(
-    "Invalid base ref",
-  );
-  await x.service.createTask({ ...input, baseRef: "main" }, x.paseo);
-  const first = x.create.mock.calls[0][0] as { idempotencyKey: string },
-    second = x.create.mock.calls[1][0] as { idempotencyKey: string };
-  expect(first.idempotencyKey).not.toBe(second.idempotencyKey);
-  expect((await x.store.read()).tasks).toHaveLength(1);
+test("a failed first workspace attempt retries with the persisted native key", async () => {
+  const x = await setup();
+  const card = await x.service.createTask({ ...x.input, mode: "worktree", branchName: "feature", baseRef: "main" }, x.paseo);
+  expect(x.create).not.toHaveBeenCalled();
+  x.create.mockRejectedValueOnce(new Error("temporarily unavailable"));
+  await expect(x.service.ensureWorkspace(card.id, x.paseo)).rejects.toThrow("temporarily unavailable");
+  expect((await x.store.read()).tasks[0].workspaceId).toBe("");
+  await x.store.editTask({ id: card.id, revision: card.revision, title: "Edited", actor: "human" });
+  const recovered = await new BoardService(x.store).ensureWorkspace(card.id, x.paseo);
+  expect(x.create.mock.calls[0][0]).toEqual(x.create.mock.calls[1][0]);
+  expect(recovered.workspaceId).toBe("workspace");
+  expect(recovered.title).toBe("Edited");
+  expect(recovered.workspacePlan).toBeUndefined();
 });
+
 test("existing root workspace retains foreign native owner and cannot bind twice", async () => {
   const x = await setup(),
     input = { ...x.input, mode: "existing" as const, workspaceId: "workspace" };
@@ -337,7 +342,9 @@ test("worktree branch is optional: generated name is stable per operation", asyn
 test("worktree card without a branch name uses the generated branch", async () => {
   const x = await setup();
   await git("git", ["-C", x.a, "init", "-b", "main"]);
-  await x.service.createTask({ ...x.input, mode: "worktree", branchName: "  " }, x.paseo);
+  const card = await x.service.createTask({ ...x.input, mode: "worktree", branchName: "  " }, x.paseo);
+  expect(x.create).not.toHaveBeenCalled();
+  await x.service.ensureWorkspace(card.id, x.paseo);
   expect(x.create.mock.calls[0][0]).toMatchObject({
     source: { kind: "worktree", branchName: expect.stringMatching(/^kanban\/new-card-[0-9a-f]{6}$/) },
   });
@@ -353,4 +360,71 @@ test("a new card is appended after fractional or reordered positions in its colu
   const column = (await x.store.read()).tasks.sort((a, b) => a.position - b.position).map((t) => t.id);
   expect(column).toEqual([second.id, first.id, third.id]);
   expect(third.position).toBeGreaterThan(first.position);
+});
+
+
+test("pending card reads, edits and wrap-up never query or create a native workspace", async () => {
+  const x = await setup();
+  const card = await x.service.createTask(x.input, x.paseo);
+  const ctx = await x.service.context(card.id, x.paseo);
+  expect(ctx.available).toBe(true);
+  expect(ctx.reason).toBe("");
+  const { cardDetail } = await import("../shared/card-detail");
+  expect(cardDetail(await x.store.read(), { taskId: card.id, workspaceId: "" }).task.workspacePlan).toBeDefined();
+  const { WrapupService } = await import("./wrapup");
+  const { ArchivedSessionsService } = await import("./archived-sessions");
+  expect(await new ArchivedSessionsService(x.store).list(card.id, x.paseo)).toEqual([]);
+  await x.store.editTask({ id: card.id, revision: card.revision, title: "Planned", status: "done", actor: "human" });
+  const check = await new WrapupService(x.store).check(card.id, x.paseo);
+  expect(check).toMatchObject({ workspace: null, sessions: 0, blockers: [], warnings: [] });
+  expect(x.refresh).not.toHaveBeenCalled();
+  expect(x.create).not.toHaveBeenCalled();
+});
+
+test("concurrent first sessions across service instances bind exactly one workspace", async () => {
+  const x = await setup();
+  const card = await x.service.createTask(x.input, x.paseo);
+  const [a,b] = await Promise.all([x.service.ensureWorkspace(card.id, x.paseo), new BoardService(x.store).ensureWorkspace(card.id, x.paseo)]);
+  expect(a.workspaceId).toBe("workspace");
+  expect(b.workspaceId).toBe(a.workspaceId);
+  expect(x.create).toHaveBeenCalledTimes(1);
+  expect(a.revision).toBe(card.revision + 1);
+  await x.service.ensureWorkspace(card.id, x.paseo);
+  expect(x.create).toHaveBeenCalledTimes(1);
+});
+
+test("failed binding save recovers with the same native key after reload and title edit", async () => {
+  const x = await setup();
+  const card = await x.service.createTask(x.input, x.paseo);
+  const mutation = vi.spyOn(x.store, "mutate").mockRejectedValueOnce(new Error("disk full"));
+  await expect(x.service.ensureWorkspace(card.id, x.paseo)).rejects.toThrow("disk full");
+  mutation.mockRestore();
+  await x.store.editTask({ id: card.id, revision: card.revision, title: "Renamed", actor: "human" });
+  const store = new BoardStore(x.store.directory);
+  const result = await new BoardService(store).ensureWorkspace(card.id, x.paseo);
+  expect(result.workspaceId).toBe("workspace");
+  expect(x.create.mock.calls[0][0]).toEqual(x.create.mock.calls[1][0]);
+});
+
+test("archived pending cards and projects refuse provisioning", async () => {
+  const x = await setup();
+  const card = await x.service.createTask(x.input, x.paseo);
+  await x.store.editTask({ id: card.id, revision: card.revision, archived: true, actor: "human" });
+  await expect(x.service.ensureWorkspace(card.id, x.paseo)).rejects.toThrow("archived");
+  expect(x.create).not.toHaveBeenCalled();
+});
+
+test("archive during provisioning refuses binding and unarchive retries the same workspace", async () => {
+  const x = await setup();
+  const card = await x.service.createTask(x.input, x.paseo);
+  x.create.mockImplementationOnce(async () => {
+    await x.store.editTask({ id: card.id, revision: card.revision, archived: true, actor: "human" });
+    return { id: "workspace" };
+  });
+  await expect(x.service.ensureWorkspace(card.id, x.paseo)).rejects.toThrow("Card changed");
+  const pending = (await x.store.read()).tasks[0];
+  expect(pending.workspaceId).toBe("");
+  await x.store.editTask({ id: card.id, revision: pending.revision, archived: false, actor: "human" });
+  await x.service.ensureWorkspace(card.id, x.paseo);
+  expect(x.create.mock.calls[0][0]).toEqual(x.create.mock.calls[1][0]);
 });

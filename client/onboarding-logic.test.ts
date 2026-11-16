@@ -32,6 +32,15 @@ test("tour paging stays inside the pages", () => {
 });
 
 describe("tips", () => {
+  test("first-session workspace timing is announced once to existing users", () => {
+    const older = tipIds.filter((id) => id !== "lazy-workspace");
+    const facts = { cardOpen: true } as TipFacts;
+    expect(nextTip({ tipsSeen: older, facts, blocked: false })).toBe("lazy-workspace");
+    expect(nextTip({ tipsSeen: tipIds, facts, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: older, facts: {} as TipFacts, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: older, facts, blocked: true })).toBeNull();
+  });
+
   const none: TipFacts = { hasCard: false, needsYou: false, openIdea: false, movedToFinished: false, hasArtifact: false, hasAgentTag: false, agentQuestion: false, olderHidden: false, nextMove: false, hasTicket: false, noConnection: false, projectTabs: false, hasWorkpad: false, busyBoard: false, hasSubagent: false, workflowSuggestion: false, crowdedAttention: false, fullSidebar: false, cardOpen: false, cardWithSession: false, hasSummary: false, skillDraft: false, searchable: false, reviewShown: false, learnedGuideline: false, laneSwipe: false };
   test("nothing to show without a fact", () => {
     expect(nextTip({ tipsSeen: [], facts: none, blocked: false })).toBeNull();
@@ -115,7 +124,7 @@ describe("tips", () => {
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history"], facts, blocked: false })).toBe("session-context");
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history"], facts: { ...none, cardWithSession: true }, blocked: true })).toBeNull();
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history", "session-context"], facts, blocked: false })).toBe("sidebar-order");
-    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "lazy-workspace"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
   });
   test("subagents are announced after the workpad tip, before ideas", () => {
     const facts = { ...none, hasWorkpad: true, hasSubagent: true, openIdea: true };

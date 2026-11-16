@@ -1,0 +1,92 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Fixture telemetry forced off"
+    },
+    {
+      "pass": true,
+      "label": "Cards persist a plan without a workspace"
+    },
+    {
+      "pass": true,
+      "label": "Two card creations create no native workspaces"
+    },
+    {
+      "pass": true,
+      "label": "Pending card can start a session"
+    },
+    {
+      "pass": true,
+      "label": "1350px isolated host bound"
+    },
+    {
+      "pass": true,
+      "label": "1350px pending card offers session creation"
+    },
+    {
+      "pass": true,
+      "label": "1350px pending card has no missing-workspace warning"
+    },
+    {
+      "pass": true,
+      "label": "1350px opening New session creates nothing"
+    },
+    {
+      "pass": true,
+      "label": "750px isolated host bound"
+    },
+    {
+      "pass": true,
+      "label": "750px pending card offers session creation"
+    },
+    {
+      "pass": true,
+      "label": "750px pending card has no missing-workspace warning"
+    },
+    {
+      "pass": true,
+      "label": "750px opening New session creates nothing"
+    },
+    {
+      "pass": true,
+      "label": "Concurrent first-session submissions return one binding"
+    },
+    {
+      "pass": true,
+      "label": "Exactly one workspace exists after concurrent submit"
+    },
+    {
+      "pass": true,
+      "label": "Managed session preparation returns the bound workspace"
+    },
+    {
+      "pass": true,
+      "label": "Real native session belongs to the lazily created workspace"
+    },
+    {
+      "pass": true,
+      "label": "Later sessions reuse the workspace"
+    },
+    {
+      "pass": true,
+      "label": "Bindings and pending plans survive plugin reload"
+    },
+    {
+      "pass": true,
+      "label": "Deleting a pending card does not touch native workspaces"
+    },
+    {
+      "pass": true,
+      "label": "No UI page errors"
+    }
+  ],
+  "cleanup": {
+    "boardEmpty": true,
+    "nativeEmpty": true,
+    "daemonStopped": true,
+    "browserClosed": true,
+    "homeRemoved": true
+  },
+  "pageErrors": []
+}

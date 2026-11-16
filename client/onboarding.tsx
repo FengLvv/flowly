@@ -20,7 +20,7 @@ import { formatLocale, t, tn } from "../shared/i18n";
 /** The three Kanban objects and the Paseo object each one is (page 1 and the empty-board strip). */
 const objects = [
   { icon: "Folder", name: () => t("Project"), paseo: () => t("Paseo project"), note: () => t("One folder") },
-  { icon: "SquarePlus", name: () => t("Card"), paseo: () => t("Paseo workspace"), note: () => t("One task") },
+  { icon: "SquarePlus", name: () => t("Card"), paseo: () => t("Paseo workspace"), note: () => t("Workspace starts with the first session") },
   { icon: "MessagesSquare", name: () => t("Session"), paseo: () => t("Paseo agent session"), note: () => t("A chat with an agent") },
 ] as const;
 

@@ -65,7 +65,7 @@ export function attentionItemsWithFacts(
     const held = reviewing(task);
     const review = reviewSignal(task);
     const flagged = agents
-      .filter((a) => a.workspaceId === task.workspaceId && !a.archivedAt)
+      .filter((a) => !!task.workspaceId && a.workspaceId === task.workspaceId && !a.archivedAt)
       .map((agent) => ({
         agent,
         facts: factsOf(task, agent.id),

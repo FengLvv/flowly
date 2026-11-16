@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { Task } from "../shared/model";
 import type { ToolPreparation } from "../shared/tools";
 import * as rpc from "../shared/rpc";
-import { createPreparedSession } from "./session";
+import { createOrdinarySession, createPreparedSession } from "./session";
 import { Theme, useTheme, Button, Label, Field, Choices, Notice, Actions, message, font, radius, space } from "./ui";
 import { AgentPicker, useAgentChoice } from "./agent-choice";
 import { Pressable } from "react-native";
@@ -43,6 +43,7 @@ export function SessionCreate({
   const paseo = usePaseo(),
     contextRead = useRpc(rpc.taskContext),
     prepare = useRpc(rpc.prepareSession),
+    ensureWorkspace = useRpc(rpc.ensureTaskWorkspace),
     healthRead = useRpc(rpc.toolsHealth),
     sourcesRead = useRpc(rpc.sessionContextSources),
     dialogueRead = useRpc(rpc.sessionContextRead),
@@ -55,7 +56,7 @@ export function SessionCreate({
     enabled: open && sourcePicker,
     staleTime: 0,
   });
-  const choice = useAgentChoice({ enabled: open, cwd: workspaceDirectory, defaults });
+  const choice = useAgentChoice({ enabled: open, cwd: workspaceDirectory || task.sourcePath, defaults });
   const { provider, chosenModel, chosenMode, providers, models, modes } = choice;
   const [newTitle, setTitle] = useState(""),
     [newPrompt, setPrompt] = useState(""),
@@ -147,7 +148,7 @@ export function SessionCreate({
           .refresh();
         if (existing?.agent) {
           if (
-            existing.agent.workspaceId !== task.workspaceId ||
+            existing.agent.workspaceId !== (attempt.current.prepared.workspaceId || task.workspaceId) ||
             existing.agent.archivedAt
           )
             throw new Error(
@@ -188,6 +189,7 @@ export function SessionCreate({
         attempt.current.prepared = preparation;
         setCreationPending(true);
       }
+      const workspaceId = preparation?.workspaceId || task.workspaceId;
       const options = {
         config: {
           provider: `${provider}/${chosen}`,
@@ -213,11 +215,11 @@ export function SessionCreate({
         ...(images.length ? { images, clientMessageId: messageId } : {}),
       };
       const created = preparation
-        ? await createPreparedSession(paseo, task.workspaceId, {
+        ? await createPreparedSession(paseo, workspaceId, {
             ...options,
             agentId: preparation.agentId,
           })
-        : await paseo.workspaces.ref(task.workspaceId).agents.create(options);
+        : await createOrdinarySession(paseo, ensureWorkspace, task.id, options);
       if (images.length) rememberSentImages(messageId, imageUris);
       attachments.clear();
       onCreated(

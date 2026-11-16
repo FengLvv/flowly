@@ -19,7 +19,7 @@
 
 - One Kanban project corresponds to one native Paseo project root. New projects and cards use that root only. Users can place multiple repositories under a common directory and register that directory as the native project, or let the plugin create a linked root (a new directory under its data folder with one symlink per chosen repository, `docs/PROJECT-PICKER-SPEC.md`). There is no card repo selector; removing a link deletes only the symlink, never the target.
 - Existing multi-repo project/card records are read-only legacy scope data. Preserve their workspace links, scope, activities and receipts; never move directories or reparent native resources implicitly.
-- One card corresponds to one workspace; a workspace cannot be bound to two cards. Card edits do not create additional workspaces.
+- One card corresponds to at most one workspace; a workspace cannot be bound to two cards. New directory/worktree cards create it on the first session, not when saving the card; existing-workspace links bind immediately (user decision 2026-11-16, `docs/LAZY-WORKSPACE-SPEC.md`). Card edits do not create additional workspaces.
 - A card's sessions are the sessions in its workspace. Multiple sessions are supported; users choose which session receives instructions.
 - A card's ordinary follow-up sends exactly the user's text after fresh task/workspace/session authorization. Give task context at session creation or through the explicit Kanban work-instructions action; do not prepend a task header to every message.
 - Card business status and session execution status are independent. A turn ending never automatically completes the card.

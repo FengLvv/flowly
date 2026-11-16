@@ -256,10 +256,10 @@ export class ArtifactService {
     const task = board.tasks.find((t) => t.id === taskId);
     const project = board.projects.find((p) => p.id === task?.projectId);
     if (!task || !project) throw new Error("Task not found.");
-    const workspace = await paseo.workspaces
+    const workspace = task.workspaceId ? await paseo.workspaces
       .ref(task.workspaceId)
       .refresh()
-      .catch(() => null);
+      .catch(() => null) : null;
     return artifactRoots(task, project, workspace?.workspaceDirectory);
   }
 
