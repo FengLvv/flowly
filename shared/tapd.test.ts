@@ -13,7 +13,7 @@ describe("TAPD identities and project boundaries", () => {
     expect(ref.key).toBe(tapdKey("42", kind, id));
     expect(itemUrl(connection, ref.itemType, ref.key)).toBe(`${baseUrl}/${kind}/detail/${id}`);
     expect(externalTarget(`${baseUrl}/${kind}/detail/${id}`, [connection])).toMatchObject({ connectionId: "c", ...ref });
-    expect(faceKey(ref)).toBe(`${kind}-123`);
+    expect(faceKey(ref)).toBeNull(); // User requested title-only TAPD display; the internal key above stays exact.
   });
   test("dialog ID wins over the iteration ID; links cannot cross projects", () => {
     expect(tapdFromUrl(`${baseUrl}/iteration/card/1000000042000000999?dialog_preview_id=bug_${id}`, baseUrl)?.key).toBe(tapdKey("42", "bug", id));

@@ -8,6 +8,7 @@ import type { Artifact } from "../shared/model";
 import {
   classifyQuery,
   connectorFamilies,
+  externalDisplayTitle,
   familyOf,
   familyProviders,
   itemTypeOf,
@@ -125,6 +126,8 @@ export function connectionsByFamily(connections: readonly Connection[]) {
 export function ExternalChip({ item, provider, onRemove }: { item: ExternalSummary; provider: ConnectorProvider; onRemove?(): void }) {
   const { colors } = useTheme();
   const page = item.itemType === "page";
+  const tapd = familyOf(provider) === "tapd";
+  const title = item.summary || (tapd ? t("TAPD work item") : item.key);
   return (
     <View
       style={{
@@ -141,12 +144,12 @@ export function ExternalChip({ item, provider, onRemove }: { item: ExternalSumma
       }}
     >
       <BrandIcon family={familyOf(provider)} size={14} />
-      {!page && <Label medium size={font.sm} selectable={false}>{item.key}</Label>}
+      {!page && !tapd && <Label medium size={font.sm} selectable={false}>{item.key}</Label>}
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Label size={font.sm} lines={1} selectable={false}>{item.summary || item.key}</Label>
+        <Label size={font.sm} lines={1} selectable={false}>{title}</Label>
       </View>
-      {!!item.status && <Badge>{item.status}</Badge>}
-      {onRemove && <IconButton icon="X" size={28} label={t("Remove {key}", { key: page ? item.summary : item.key })} onPress={onRemove} />}
+      {!tapd && !!item.status && <Badge>{item.status}</Badge>}
+      {onRemove && <IconButton icon="X" size={28} label={t("Remove {key}", { key: page || tapd ? title : item.key })} onPress={onRemove} />}
     </View>
   );
 }
@@ -165,17 +168,18 @@ const ExternalResult = memo(function ExternalResult({
   onPick(item: ExternalSummary): void;
 }) {
   const page = item.itemType === "page";
+  const tapd = familyOf(provider) === "tapd";
   const where = page ? item.container : "";
-  const detail = [item.status, page ? where : item.type, item.updated ? relativeTime(item.updated) : ""].filter(Boolean).join(" · ");
-  const title = page ? item.summary : `${item.key}  ${item.summary}`;
+  const detail = tapd ? "" : [item.status, page ? where : item.type, item.updated ? relativeTime(item.updated) : ""].filter(Boolean).join(" · ");
+  const title = tapd ? item.summary || t("TAPD work item") : page ? item.summary : `${item.key}  ${item.summary}`;
   return (
     <Row
       title={title}
-      detail={usedBy ? `${detail} · ${t("On card {title}", { title: usedBy })}` : detail}
+      detail={usedBy ? [detail, t("On card {title}", { title: usedBy })].filter(Boolean).join(" · ") : detail}
       icon={itemIcon(provider, item.itemType)}
       selected={picked}
       disabled={picked}
-      label={t("Choose {key}: {summary}", { key: page ? item.summary : item.key, summary: page ? where : item.summary })}
+      label={tapd ? title : t("Choose {key}: {summary}", { key: page ? item.summary : item.key, summary: page ? where : item.summary })}
       onPress={() => onPick(item)}
     />
   );
@@ -368,7 +372,7 @@ export function LinkExternal({
     try {
       await create({ taskId, role: "input", target: item.url, external: { connectionId: item.connectionId, key: item.key, itemType: item.itemType } });
       await queryClient.invalidateQueries({ queryKey: boardKey });
-      toast.show(t("Linked {key}", { key: item.itemType === "page" ? item.summary : item.key }), { variant: "success" });
+      toast.show(t("Linked {key}", { key: item.itemType === "page" || family === "tapd" ? item.summary : item.key }), { variant: "success" });
       onClose();
     } catch (e) {
       setError(externalError(e, family));
@@ -416,7 +420,7 @@ export function ExternalPreview({ artifact, onClose }: { artifact: Artifact; onC
   });
   const data = preview.data;
   return (
-    <Modal open title={artifact.title} icon={<BrandIcon family={family} size={18} />} onOpenChange={(open) => !open && onClose()}>
+    <Modal open title={externalDisplayTitle(artifact.title, artifact.external)} icon={<BrandIcon family={family} size={18} />} onOpenChange={(open) => !open && onClose()}>
       <Modal.Content>
         <Theme.Provider value={theme}>
           <View style={{ gap: space[2] }}>

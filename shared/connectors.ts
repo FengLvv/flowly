@@ -515,11 +515,17 @@ export function classifyQuery(raw: string, connection: Pick<Connection, "provide
 export const externalTitle = (itemType: ItemType, key: string, summary: string) =>
   (itemType === "page" ? summary || key : `${key} ${summary}`).trim().slice(0, 120);
 
-/** The short key shown on a card face (CONNECTORS-SPEC §2); null for pages. */
+/** Display an existing TAPD artifact title without its generated key prefix. */
+export function externalDisplayTitle(title: string, ref?: Pick<ExternalRef, "provider" | "key">): string {
+  if (ref?.provider !== "tapd-internal") return title;
+  if (title === ref.key) return "TAPD";
+  return title.startsWith(ref.key + " ") ? title.slice(ref.key.length).trim() || "TAPD" : title;
+}
+
+/** The short key shown on a card face (CONNECTORS-SPEC §2); null for pages and TAPD. */
 export function faceKey(ref: Pick<ExternalRef, "key" | "itemType">): string | null {
   if (itemTypeOf(ref) === "page") return null;
-  const tapd = splitTapdKey(ref.key);
-  if (tapd) return `${tapd.kind}-${tapd.id.slice(-9).replace(/^0+/, "") || "0"}`;
+  if (splitTapdKey(ref.key)) return null;
   const parts = splitRepoKey(ref.key);
   if (!parts) return ref.key;
   return `${parts.repo.split("/").pop()}${parts.sep}${parts.number}`;
