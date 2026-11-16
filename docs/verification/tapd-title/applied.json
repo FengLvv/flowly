@@ -1,0 +1,30 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Current Flowly source matches this checkout"
+    },
+    {
+      "pass": true,
+      "label": "Development telemetry off"
+    },
+    {
+      "pass": true,
+      "label": "Flowly reloaded and running"
+    },
+    {
+      "pass": true,
+      "label": "Canvas bundle retained without reload"
+    },
+    {
+      "pass": true,
+      "label": "Loaded client contains title-only label helper"
+    },
+    {
+      "pass": true,
+      "label": "Existing cards, stored artifact titles and references retained"
+    }
+  ],
+  "daemonRestarted": false,
+  "canvasReloaded": false
+}

@@ -11,7 +11,7 @@ import { createServer as createHttpServer } from 'node:http';
 import { launch, shot, pageText, openCard } from '../promo/shot-lib.mjs';
 
 const root = resolve('.'), owner = `tapd-mine-${randomUUID()}`;
-const home = resolve('.test-data', owner), out = resolve('docs/verification/tapd-mine');
+const home = resolve('.test-data', owner), out = resolve(process.env.TAPD_UI_EVIDENCE_DIR || 'docs/verification/tapd-mine');
 const app = join(process.env.LOCALAPPDATA, 'Programs/Paseo/Paseo.exe');
 const resources = join(process.env.LOCALAPPDATA, 'Programs/Paseo/resources');
 const runner = join(resources, 'app.asar.unpacked/dist/daemon/node-entrypoint-runner.js');
@@ -31,9 +31,9 @@ const all = p => p.getByRole('button', { name: 'Search in: All work items', exac
 // The installed desktop renderer drops accessibilityState.selected on buttons.
 // Check the actual selected border together with the result ownership below.
 const selected = locator => locator.evaluate(el => { const s = getComputedStyle(el); return s.borderTopWidth !== '0px' && s.borderTopColor !== 'transparent' && s.borderTopColor !== 'rgba(0, 0, 0, 0)'; });
-const choices = p => p.getByRole('button', { name: /^Choose tapd:/ });
+const choices = p => p.getByRole('button', { name: /^(My|Other) (story|bug|task) item$/ });
 async function ready(p, count) {
-  await p.waitForFunction(n => [...document.querySelectorAll('button[aria-label^="Choose tapd:"]')].length === n, count, { timeout: 30000 });
+  await p.waitForFunction(n => [...document.querySelectorAll('button[aria-label]')].filter(el => /^(My|Other) (story|bug|task) item$/.test(el.getAttribute('aria-label'))).length === n, count, { timeout: 30000 });
 }
 async function settings(id, patch) { const s = await rpc(`settings.${id}.read`); await rpc(`settings.${id}.write`, { revision: s.revision, values: { ...s.values, ...patch } }); }
 async function openPage(width, serverId, first = false) {
@@ -135,6 +135,7 @@ const title=a.name||a.title||'';return [row(kind),row(kind,true)].filter(r=>r.na
   const serverId = (await client.getDaemonStatus()).serverId;
   const wide = await openPage(1700, serverId, true), p = wide.page;
   await newPicker(p);
+  check((await choices(p).allTextContents()).every(t => /^My (story|bug|task) item$/.test(t.trim())), 'Desktop picker rows contain only titles');
   await shot(wide, join(out, 'wide-default.png'));
   check(await selected(mine(p)), 'New task defaults to My to-dos');
   await all(p).click(); await ready(p, 6); check(await selected(all(p)), 'New task switches to All');
@@ -146,6 +147,7 @@ const title=a.name||a.title||'';return [row(kind),row(kind,true)].filter(r=>r.na
   await p.getByRole('textbox', { name: 'Search TAPD', exact: true }).fill('story-124'); await ready(p, 1);
   check(await mine(p).count() === 0, 'Exact lookup hides the scope control');
   await choices(p).click(); check(await p.getByRole('textbox', { name: 'Title', exact: true }).inputValue() === 'Other story item', 'Explicit other-owner import still prefills title');
+  check(await p.getByRole('button', { name: 'Remove Other story item', exact: true }).count() === 1 && await p.getByText(/^tapd:/).count() === 0, 'Selected chip shows title without ID');
   await p.getByRole('button', { name: 'Cancel', exact: true }).click();
   await newPicker(p); check(await selected(mine(p)), 'Reopening resets the picker to My to-dos');
   await p.getByRole('button', { name: 'Cancel', exact: true }).click();
@@ -167,6 +169,7 @@ const title=a.name||a.title||'';return [row(kind),row(kind,true)].filter(r=>r.na
   await p.getByRole('button', { name: 'Cancel', exact: true }).click();
   const compact = await openPage(750, serverId); await newPicker(compact.page);
   check(await selected(mine(compact.page)) && await bound(mine(compact.page)) && await bound(all(compact.page)), '750px My/All controls selected and inside viewport');
+  check((await choices(compact.page).allTextContents()).every(t => /^My (story|bug|task) item$/.test(t.trim())), 'Compact picker rows contain only titles');
   await all(compact.page).click(); await ready(compact.page, 6); await shot(compact, join(out, 'compact-all.png'));
   await compact.page.getByRole('button', { name: 'Cancel', exact: true }).click();
   await openCard(wide, task.title);
@@ -176,10 +179,12 @@ const title=a.name||a.title||'';return [row(kind),row(kind,true)].filter(r=>r.na
   await all(p).click(); await ready(p, 6); await mine(p).click(); await ready(p, 3);
   check((await choices(p).allTextContents()).every(t => !t.includes('Other')), 'Artifacts picker switches both ways');
   await writeFile(join(out, 'page-text.txt'), await pageText(wide));
-  await p.getByRole('button', { name: 'Choose tapd:42:story:1000000042000000123: My story item', exact: true }).click();
+  await p.getByRole('button', { name: 'My story item', exact: true }).click();
   await p.getByRole('textbox', { name: 'Search TAPD', exact: true }).waitFor({ state: 'hidden', timeout: 30000 });
   const board = await rpc('board.read');
   check(board.artifacts.some(a => a.taskId === task.id && a.external?.remoteId === '1000000042000000123'), 'Chosen own item persists as an input');
+  const artifactRow = p.getByRole('button', { name: 'Input: My story item, Added by you', exact: true }); await artifactRow.waitFor();
+  check(!(await artifactRow.textContent()).includes('tapd:') && !(await artifactRow.textContent()).includes('open'), 'Existing-format artifact displays title only without rewriting its reference');
   await client.reloadPlugin('flowly');
   check((await query()).results.length === 3 && (await rpc('board.read')).artifacts.length === 1, 'Filter and input survive fixture reload');
   check(report.pageErrors.length === 0, 'No UI page errors');

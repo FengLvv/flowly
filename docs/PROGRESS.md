@@ -5,6 +5,8 @@
 - User requested work-item content without IDs or extra metadata. TAPD picker rows, selected chips, artifact rows and preview modal titles now show titles; no TAPD card-face ID badge. Existing stored canonical prefixes are removed only for display, while references, stored titles, URLs, custom titles and deduplication remain intact. Other connector presentation is retained. [Contract](TAPD-CONNECTOR-SPEC.md).
 - Presentation-only change: no storage/RPC/agent behavior, new catalog string, onboarding tip/tour or telemetry field. The existing face-key assertion now expects no TAPD badge per the user decision; internal exact-key assertions remain. Typecheck exit 0 and focused six-file suite exit 0, 190/190. Actual desktop/compact verification and installed reload follow in `docs/verification/tapd-title.md`.
 
+- FINAL `441e48d`: exact-tree typecheck 0; focused 190/190; complete desktop/750px runner 27/27 and daily application 6/6. Existing-format artifact labels are title-only without stored-data writes; canvas bundle retained. Full `npm test` exit 1, 1434/26/8, with previously observed Windows/run-order failure identities. Owned board/native fixtures cleared and listener closed; prior blocked filesystem cleanup is not retried. [Evidence](verification/tapd-title.md). PR #3 remains open without CI/CodeRabbit checks.
+
 ## TAPD My to-dos filter — 2026-11-16
 
 - User requested a way to find their own work items among everybody's. Both TAPD pickers default to My to-dos, with All work items available; recent/title queries use the current host MCP account's project-scoped todo endpoints. Exact URLs/keys/numbers stay directly accessible in either scope. [Contract](TAPD-CONNECTOR-SPEC.md).
