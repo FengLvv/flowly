@@ -26,6 +26,9 @@ const schemas = {
 };
 export type TapdTool = keyof typeof schemas;
 export type TapdCall = (tool: TapdTool, args: Record<string, unknown>) => Promise<unknown>;
+const todoLabels: Partial<Record<TapdTool, "需求" | "缺陷" | "任务">> = {
+  user_todo_stories_get: "需求", user_todo_bugs_get: "缺陷", user_todo_tasks_get: "任务",
+};
 
 /** Resolve code only, never read or copy MCP configuration/credentials. */
 export async function tapdRuntimePath(path = process.env.PATH || "") {
@@ -61,7 +64,8 @@ try {
 } finally { if (runtime) await runtime.close().catch(() => {}); }
 `;
 
-export function parseTapdResponse(value: unknown): unknown {
+type EmptyTodo = { project: string; label: "需求" | "缺陷" | "任务" };
+export function parseTapdResponse(value: unknown, todo?: EmptyTodo): unknown {
   if (Array.isArray(value)) return value;
   if (!value || typeof value !== "object") throw new ExternalError("EXTERNAL_INVALID", "TAPD returned an invalid response.");
   const x = value as Record<string, unknown>;
@@ -71,11 +75,17 @@ export function parseTapdResponse(value: unknown): unknown {
     const auth = /401|403|unauthori|forbidden|authentication|permission denied|无权限|未授权|登录/i.test(s);
     throw new ExternalError(auth ? "EXTERNAL_AUTH" : "EXTERNAL_UNAVAILABLE", auth ? "TAPD refused access. Check the host's tapd MCP login and project access, then test the connection again." : "TAPD couldn't complete the read. Try again shortly.");
   }
-  if (x.structuredContent) return parseTapdResponse(x.structuredContent);
+  if (x.structuredContent) return parseTapdResponse(x.structuredContent, todo);
   if (Array.isArray(x.content)) {
     const text = x.content.filter((c) => c?.type === "text").map((c) => c.text).join("\n").trim();
     if (/^没有找到相关的资源数据[,，]/.test(text)) return [];
-    try { return parseTapdResponse(JSON.parse(text)); }
+    // Todo endpoints use a different explicit-empty message. Accept it only
+    // for the requested project and kind; unknown prose remains an error.
+    if (todo) {
+      const empty = `在workspace id ${todo.project}没有待办${todo.label}`;
+      if (text === empty || text.startsWith(empty + "\n\n[TAPD-REQUEST-ID:")) return [];
+    }
+    try { return parseTapdResponse(JSON.parse(text), todo); }
     catch (e) { if (e instanceof ExternalError) throw e; }
     const auth = /401|403|unauthori|forbidden|authentication|无权限|未授权|登录/i.test(text);
     throw new ExternalError(auth ? "EXTERNAL_AUTH" : "EXTERNAL_INVALID", auth ? "TAPD refused access. Check the host's tapd MCP login and project access." : "TAPD returned an unreadable result.");
@@ -101,7 +111,8 @@ export function createTapdReader(execute: typeof execFile = execFile, locate = t
   let value: unknown;
   try { value = JSON.parse(stdout.slice(offset + marker.length)); }
   catch { throw new ExternalError("EXTERNAL_INVALID", "TAPD MCP returned invalid JSON."); }
-  return parseTapdResponse(value);
+  const label = todoLabels[tool];
+  return parseTapdResponse(value, label && "workspace_id" in parsed.data ? { project: String(parsed.data.workspace_id), label } : undefined);
  };
 }
 export const readTapd = createTapdReader();

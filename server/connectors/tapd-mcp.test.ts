@@ -25,6 +25,14 @@ describe("TAPD MCP response boundaries", () => {
     expect(() => parseTapdResponse(error)).toThrow("TAPD couldn't complete the read.");
     try { parseTapdResponse(error); } catch (e) { expect(String(e)).not.toMatch(/private|secret@/); }
   });
+  test("todo empty prose is accepted only for the requested project/kind", () => {
+    const empty = { content: [{ type: "text", text: "在workspace id 42没有待办缺陷\n\n[TAPD-REQUEST-ID: hidden]" }], isError: false };
+    expect(parseTapdResponse(empty, { project: "42", label: "缺陷" })).toEqual([]);
+    expect(() => parseTapdResponse(empty)).toThrow(/unreadable/);
+    expect(() => parseTapdResponse(empty, { project: "43", label: "缺陷" })).toThrow(/unreadable/);
+    expect(() => parseTapdResponse(empty, { project: "42", label: "任务" })).toThrow(/unreadable/);
+    expect(() => parseTapdResponse({ ...empty, isError: true }, { project: "42", label: "缺陷" })).toThrow();
+  });
 });
 describe("TAPD MCP execution", () => {
   test.each([
@@ -48,6 +56,11 @@ describe("TAPD MCP execution", () => {
     expect(await readTapd(tool, { workspace_id: "42" })).toEqual([]);
     expect(run.mock.calls[0]![1].at(-2)).toBe(tool);
     expect(JSON.parse(run.mock.calls[0]![1].at(-1))).toEqual({ workspace_id: "42" });
+  });
+  test("reader passes the validated todo project and kind to explicit-empty parsing", async () => {
+    run.mockImplementation((_file, _args, _options, cb) => cb(null, 'FLOWLY_TAPD_RESULT:{"content":[{"type":"text","text":"在workspace id 42没有待办任务"}]}'));
+    expect(await readTapd("user_todo_tasks_get", { workspace_id: "42" })).toEqual([]);
+    await expect(readTapd("user_todo_tasks_get", { workspace_id: "43" })).rejects.toMatchObject({ code: "EXTERNAL_INVALID" });
   });
   test("uses fixed Node argv and MCP server, bounded execution, no shell, JSON only", async () => {
     run.mockImplementation((_file, _args, _options, cb) => cb(null, 'FLOWLY_TAPD_RESULT:{"content":[{"type":"text","text":"[]"}]}'));
