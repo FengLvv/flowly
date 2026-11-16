@@ -2,6 +2,8 @@
 
 ## Session controls parity — 2026-11-16
 
+- Order correction: model → reasoning → permissions stay in the left group; provider feature icons are the final group pinned right (Codex: Speed → Plan). Typecheck 0, focused 144/144, real desktop/750px/680px geometry 9/9; owned test session/browser cleaned, no messages sent. Local flowly reloaded; same PR #5. No new strings/guidance/telemetry or backend behavior. [Evidence](verification/session-feature-order.md).
+
 - Follow-up: Speed/Plan now have their own provider-supplied toolbar icons; Speed opens its own options, Plan toggles with actual-state accent/checked. Removed provider controls and appended active-feature names from the model menu/label, and fixed web checked forwarding via the RN aria alias. Exact production commit `c170d8c`: typecheck 0 and focused 151/151 in its own isolated checkout; shared-tree focused 156/156; real Codex desktop/750px checks 24/24. Owned fixture session and checkout cleaned. Existing controls guidance remains accurate; no new strings/tip/telemetry/RPC/schema/version. Physical phone/full suite/new independent run unrun for this local UI follow-up. [Evidence](verification/session-feature-icons.md).
 
 - User approved a server-only local-daemon exception for existing-session model and advertised provider feature changes. Added model selection, generic toggle/select controls (Codex Speed and Plan verified), shared action locking, fresh membership validation and failure read-back; also message copying and confirmed running-session reload. Host-only voice, rich plugin timelines, rewind and native commands keep the exact Open in Paseo entry. [Contract](SESSION-PARITY-SPEC.md).
