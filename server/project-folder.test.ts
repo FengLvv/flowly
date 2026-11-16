@@ -1,12 +1,23 @@
-import { afterEach, expect, test } from "vitest";
-import { chmod, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { afterEach, expect, test, vi } from "vitest";
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { BoardStore } from "./store";
 import { ProjectFolders, readSnapshot, snapshotPath, SnapshotInvalidError } from "./project-folder";
 
 const roots: string[] = [];
+vi.mock("node:fs/promises", async original => {
+  const actual = await original<typeof import("node:fs/promises")>();
+  return { ...actual, writeFile: vi.fn(actual.writeFile) };
+});
+function denyNextFolderWrite(root: string) {
+  vi.mocked(writeFile).mockImplementationOnce(async path => {
+    expect(path).toBe(join(root, ".flowly", ".gitignore"));
+    throw Object.assign(new Error("Fixture write denied"), { code: "EACCES" });
+  });
+}
 afterEach(async () => {
+  vi.mocked(writeFile).mockImplementation((await vi.importActual<typeof import("node:fs/promises")>("node:fs/promises")).writeFile);
   await Promise.all(roots.splice(0).map((p) => rm(p, { recursive: true, force: true })));
 });
 
@@ -68,15 +79,11 @@ test("unchanged projects are not rewritten; an edited .gitignore is kept", async
 
 test("a failed snapshot write never fails the board and is reported", async () => {
   const { store, folders, r1 } = await setup();
-  await chmod(r1, 0o500);
-  try {
-    await folders.flush();
-    expect(folders.state("p1")!.error).not.toBe("");
-    expect(folders.state("p2")!.error).toBe("");
-    await expect(store.mutate((b) => void (b.tasks[0].title = "ok"))).resolves.toBeUndefined();
-  } finally {
-    await chmod(r1, 0o700);
-  }
+  denyNextFolderWrite(r1);
+  await folders.flush();
+  expect(folders.state("p1")!.error).not.toBe("");
+  expect(folders.state("p2")!.error).toBe("");
+  await expect(store.mutate((b) => void (b.tasks[0].title = "ok"))).resolves.toBeUndefined();
 });
 
 test("removing a project keeps its snapshot; restore brings the same records back", async () => {
@@ -160,14 +167,10 @@ test("upgrade migration gives every existing project its folder copy and records
 
 test("a project whose folder can't be written is marked failed and retried at the next start", async () => {
   const { store, dir, r1 } = await setup();
-  await chmod(r1, 0o500);
-  try {
-    const record = await new ProjectFolders(() => store.read(), async () => [], 0).migrate(join(dir, "data"));
-    expect(record.projects.p1.result).toBe("failed");
-    expect(record.projects.p2.result).toBe("written");
-  } finally {
-    await chmod(r1, 0o700);
-  }
+  denyNextFolderWrite(r1);
+  const record = await new ProjectFolders(() => store.read(), async () => [], 0).migrate(join(dir, "data"));
+  expect(record.projects.p1.result).toBe("failed");
+  expect(record.projects.p2.result).toBe("written");
   const retry = await new ProjectFolders(() => store.read(), async () => [], 0).migrate(join(dir, "data"));
   expect(retry.projects.p1.result).toBe("written");
   expect(retry.projects.p2.result).toBe("current");

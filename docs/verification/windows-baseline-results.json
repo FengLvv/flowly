@@ -1,0 +1,258 @@
+{
+  "baseline": {
+    "commit": "a06159092cc444105af181e9858fabdfc8007bca",
+    "command": "npm test -- --maxWorkers=4",
+    "exit": 1,
+    "passed": 1377,
+    "failed": 34,
+    "skipped": 7,
+    "failures": [
+      {
+        "file": "client/catalog.test.ts",
+        "name": "nothing the client entry imports reaches the catalogs (they would be in the phone's bundle again)",
+        "failureMessages": [
+          "Error: ENOENT: no such file or directory, open 'F:\\F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\windows-baseline-b9490\\index.client.tsx'\n    at readFileSync (node:fs:439:20)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/client/catalog.test.ts:66:20\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/agent-service.test.ts",
+        "name": "reads live scope and foreign native owner; read telemetry does not write board",
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/agent-service.test.ts:32:1\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async VitestModuleEvaluator._runInlinedModule (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at async VitestModuleRunner.directRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1288:59)\n    at async VitestModuleRunner.cachedRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1195:73)\n    at async VitestModuleRunner.import (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1150:10)"
+        ]
+      },
+      {
+        "file": "server/agent-service.test.ts",
+        "name": "two concurrent state changes have one winner; stale report cannot overwrite human edits",
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/agent-service.test.ts:57:1\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async VitestModuleEvaluator._runInlinedModule (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at async VitestModuleRunner.directRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1288:59)\n    at async VitestModuleRunner.cachedRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1195:73)\n    at async VitestModuleRunner.import (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1150:10)"
+        ]
+      },
+      {
+        "file": "server/agent-service.test.ts",
+        "name": "concurrent progress and same-state reports preserve every task field",
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/agent-service.test.ts:92:1\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async VitestModuleEvaluator._runInlinedModule (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at async VitestModuleRunner.directRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1288:59)\n    at async VitestModuleRunner.cachedRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1195:73)\n    at async VitestModuleRunner.import (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1150:10)"
+        ]
+      },
+      {
+        "file": "server/agent-service.test.ts",
+        "name": "session context signatures survive reload, reject rebinding and credential tampering",
+        "failureMessages": [
+          "AssertionError: expected 438 to be 384 // Object.is equality\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/agent-service.test.ts:314:43\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/artifacts.test.ts",
+        "name": "agent tools: add, update own, keep human ones, remove only agent ones, setting off, replay",
+        "failureMessages": [
+          "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' to be 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' // Object.is equality\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/artifacts.test.ts:94:85\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/auto-review.test.ts",
+        "name": "no L1 any more: an unticked acceptance list delivers; a card without one gets SETUP_INCOMPLETE once (GUARDRAILS-SPEC §6.1)",
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/auto-review.test.ts:189:1\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async VitestModuleEvaluator._runInlinedModule (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at async VitestModuleRunner.directRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1288:59)\n    at async VitestModuleRunner.cachedRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1195:73)\n    at async VitestModuleRunner.import (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1150:10)"
+        ]
+      },
+      {
+        "file": "server/auto-review.test.ts",
+        "name": "a passing review leaves the card in In review; a person's move into In review starts none",
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/auto-review.test.ts:211:1\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async VitestModuleEvaluator._runInlinedModule (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at async VitestModuleRunner.directRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1288:59)\n    at async VitestModuleRunner.cachedRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1195:73)\n    at async VitestModuleRunner.import (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1150:10)"
+        ]
+      },
+      {
+        "file": "server/auto-review.test.ts",
+        "name": "R1: a failure sends the card back to the stage it was delivered from, then the marked rework message",
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/auto-review.test.ts:245:1\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async VitestModuleEvaluator._runInlinedModule (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at async VitestModuleRunner.directRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1288:59)\n    at async VitestModuleRunner.cachedRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1195:73)\n    at async VitestModuleRunner.import (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1150:10)"
+        ]
+      },
+      {
+        "file": "server/auto-review.test.ts",
+        "name": "B1: a fail without evidence becomes na; a file in the diff, an existing repository file or a quote found in the reviewer's input keeps it",
+        "failureMessages": [
+          "AssertionError: expected [ …(8) ] to deeply equal [ …(8) ]\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/auto-review.test.ts:523:55\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/auto-review.test.ts",
+        "name": "linked root review: shape from both repositories, commands per repository, any failure fails, a cited file under a link counts (§6.2, §6.3)",
+        "failureMessages": [
+          "AssertionError: expected [ …(2) ] to deeply equal [ 'npm test @ SMITH', …(1) ]\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/auto-review.test.ts:839:16\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/auto-review.test.ts",
+        "name": "linked root: commands run only in the repositories this delivery changed, all of them when none did (§6.3)",
+        "failureMessages": [
+          "AssertionError: expected [ 'Admin', 'SMITH' ] to deeply equal [ 'SMITH' ]\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/auto-review.test.ts:871:65\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/error-report.test.ts",
+        "name": "plugin root: the folder above server/ from source, the bundle's folder when bundled",
+        "failureMessages": [
+          "AssertionError: expected '.' to be '/home/someone/.paseo/plugins/flowly/d…' // Object.is equality\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/error-report.test.ts:39:88\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64"
+        ]
+      },
+      {
+        "file": "server/error-report.test.ts",
+        "name": "frames: only Flowly's own files, relative, oldest call first; never a path outside the plugin",
+        "failureMessages": [
+          "AssertionError: expected [] to deeply equal [ [ 'index.server.ts', …(2) ], …(1) ]\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/error-report.test.ts:64:65\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64"
+        ]
+      },
+      {
+        "file": "server/error-report.test.ts",
+        "name": "report: class and safe code only, never the message",
+        "failureMessages": [
+          "AssertionError: expected '7f859381c3eb13eb69213d9bf78a2036' not to be '7f859381c3eb13eb69213d9bf78a2036' // Object.is equality\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/error-report.test.ts:84:71\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64"
+        ]
+      },
+      {
+        "file": "server/error-report.test.ts",
+        "name": "uncaught errors are reported only when they pass through Flowly's code",
+        "failureMessages": [
+          "AssertionError: expected false to be true // Object.is equality\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/error-report.test.ts:224:67\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/local-daemon.test.ts",
+        "name": "every listen form Paseo writes resolves to a WebSocket target",
+        "failureMessages": [
+          "AssertionError: expected { url: 'ws://localhost/ws', …(1) } to deeply equal { url: 'ws://localhost/ws', …(1) }\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/local-daemon.test.ts:25:47\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64"
+        ]
+      },
+      {
+        "file": "server/local-daemon.test.ts",
+        "name": "a daemon on a Unix socket is reached through that socket with the local credential",
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/local-daemon.test.ts:36:1\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async VitestModuleEvaluator._runInlinedModule (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at async VitestModuleRunner.directRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1288:59)\n    at async VitestModuleRunner.cachedRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1195:73)\n    at async VitestModuleRunner.import (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1150:10)"
+        ]
+      },
+      {
+        "file": "server/local-daemon.test.ts",
+        "name": "a daemon that rejects the local credential is reported, not treated as unavailable",
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/local-daemon.test.ts:98:1\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async VitestModuleEvaluator._runInlinedModule (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at async VitestModuleRunner.directRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1288:59)\n    at async VitestModuleRunner.cachedRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1195:73)\n    at async VitestModuleRunner.import (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1150:10)"
+        ]
+      },
+      {
+        "file": "server/naming.test.ts",
+        "name": "Flowly configuration overrides win, with existing environment overrides retained",
+        "failureMessages": [
+          "AssertionError: expected 'F:\\fixture\\home\\plugin-data\\flowly' to be '/fixture/home/plugin-data/flowly' // Object.is equality\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/naming.test.ts:29:27\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64"
+        ]
+      },
+      {
+        "file": "server/project-folder.test.ts",
+        "name": "a failed snapshot write never fails the board and is reported",
+        "failureMessages": [
+          "AssertionError: expected '' not to be '' // Object.is equality\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/project-folder.test.ts:74:44\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/project-folder.test.ts",
+        "name": "a project whose folder can't be written is marked failed and retried at the next start",
+        "failureMessages": [
+          "AssertionError: expected 'written' to be 'failed' // Object.is equality\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/project-folder.test.ts:166:39\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/project-skills.test.ts",
+        "name": "writes the skill under .agents and links it for Claude Code",
+        "failureMessages": [
+          "AssertionError: expected { …(2) } to deeply equal { …(2) }\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/project-skills.test.ts:21:18\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/session-images.test.ts",
+        "name": "serves an image referenced by the session's transcript as a data URI",
+        "failureMessages": [
+          "Error: Not a local image reference.\n    at SessionImageService.read (F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/session-images.ts:37:54)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/session-images.test.ts:39:39\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/session-images.test.ts",
+        "name": "refuses images not in the transcript, other workspaces and non-images",
+        "failureMessages": [
+          "Error: expected [Function] to throw error matching /not part of this session/ but got 'Not a local image reference.'\n    at _Assertion.__VITEST_REJECTS__ (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/expect/dist/index.js:1747:17)\n    at _Assertion.propertyGetter (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/chai/index.js:1607:27)\n    at Reflect.get (<anonymous>)\n    at Object.proxyGetter [as get] (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/chai/index.js:1696:22)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/session-images.test.ts:45:83\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/session-images.test.ts",
+        "name": "an image file that is gone is a plain answer, not a system error",
+        "failureMessages": [
+          "AssertionError: expected 'Not a local image reference.' to be 'The image file no longer exists.' // Object.is equality\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/session-images.test.ts:56:36\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/skill-source.test.ts",
+        "name": "the installed skill source contains the exact live checklist before details",
+        "failureMessages": [
+          "AssertionError: expected '---\\r\\nname: flowly\\r\\ndescription: R…' to be '---\\nname: flowly\\ndescription: Read …' // Object.is equality\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/skill-source.test.ts:14:89\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/tool-server.test.ts",
+        "name": "MCP initialize/list can precede actor creation; live calls require SDK context",
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/tool-server.test.ts:43:1\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async VitestModuleEvaluator._runInlinedModule (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at async VitestModuleRunner.directRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1288:59)\n    at async VitestModuleRunner.cachedRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1195:73)\n    at async VitestModuleRunner.import (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1150:10)"
+        ]
+      },
+      {
+        "file": "server/tool-server.test.ts",
+        "name": "prepared ID and scoped files are stable, selected existing actor verified",
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/tool-server.test.ts:305:1\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async VitestModuleEvaluator._runInlinedModule (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at async VitestModuleRunner.directRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1288:59)\n    at async VitestModuleRunner.cachedRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1195:73)\n    at async VitestModuleRunner.import (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1150:10)"
+        ]
+      },
+      {
+        "file": "server/tool-server.test.ts",
+        "name": "CLI runs a complete scoped flow; replay, wrong env, snapshots and flags",
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/tool-server.test.ts:336:1\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async VitestModuleEvaluator._runInlinedModule (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at async VitestModuleRunner.directRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1288:59)\n    at async VitestModuleRunner.cachedRequest (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1195:73)\n    at async VitestModuleRunner.import (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/vite/dist/node/module-runner.js:1150:10)"
+        ]
+      },
+      {
+        "file": "server/usage.test.ts",
+        "name": "locator finds Claude logs with subagents and Codex logs in sessions or archive",
+        "failureMessages": [
+          "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\ul…' to match /sessions\\/2026\\/10\\/15\\/rollout-…/2026\\\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/usage.test.ts:95:36\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/workflow-insights.test.ts",
+        "name": "skill drafts: material from cards and memory, Run now without commands, add to project, then an update",
+        "failureMessages": [
+          "AssertionError: expected { …(3) } to match object { …(2) }\n(1 matching property omitted from actual)\n    at Proxy.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/expect/dist/index.js:1283:10)\n    at Proxy.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/chai/index.js:1737:25)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/workflow-insights.test.ts:412:18\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/connectors/jira.test.ts",
+        "name": "connections (EXTERNAL-TRACKER-SPEC §2) saving tests the token; the stored file is private and the client never sees the secret",
+        "failureMessages": [
+          "AssertionError: expected 438 to be 384 // Object.is equality\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/connectors/jira.test.ts:98:45\n    at async file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      },
+      {
+        "file": "server/connectors/jira.test.ts",
+        "name": "agents (EXTERNAL-TRACKER-SPEC §4) get_task shows external inputs; content changes are unread, status changes are not; read_external marks it read",
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/server/connectors/jira.test.ts:352:3\n    at file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///F:/Project/Paseo_plugins/Flowly/.test-data/windows-baseline-b9490/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)"
+        ]
+      }
+    ]
+  },
+  "repair": {
+    "command": "npm test",
+    "exit": 0,
+    "passed": 1431,
+    "failed": 0,
+    "skipped": 7,
+    "failures": []
+  }
+}

@@ -125,6 +125,7 @@ Status: authorized by the user's 2026-10-14 request to redesign the whole Kanban
 
 - Timeline text carries images as provider placeholders for pasted images (`[Image: source: /abs/path.png]`) and as markdown in agent replies (`![alt](src)`). `extractImages` removes them from the text and renders them under the message: user images right-aligned under the bubble, agent images under the markdown. Thumbnails keep their aspect ratio (bounded), fade in when loaded, and open larger in a sheet.
 - http(s) images load directly. Local paths live on the daemon machine, so the plugin daemon serves them (`sessions.image`) as data URIs, with these limits:
+  - absolute POSIX, Windows drive/UNC paths and valid `file://` URLs are recognized; file URLs decode escaped names and Windows drive prefixes. Relative/drive-relative paths, device namespaces, malformed or encoded-separator URLs are rejected. A file URL must still appear in the session's transcript; decoding never grants access by itself.
   - the session must belong to the card;
   - the path must be an image (png/jpg/gif/webp, ≤ 8 MB) referenced in that session's recent timeline — never a general file reader.
 - Failures show the alt text with the reason.

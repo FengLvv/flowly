@@ -3,12 +3,18 @@ import { createServer, type Server } from "node:http";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
+import { randomUUID } from "node:crypto";
 import { WebSocketServer } from "ws";
 import { outsideError } from "./error-report";
 import { daemonTarget, LocalDaemonUnavailable, openLocalDaemon, readListen } from "./local-daemon";
 
 const dirs: string[] = [];
 const servers: Server[] = [];
+const socketFor = (home: string) => process.platform === "win32" ? `\\\\.\\pipe\\flowly-local-daemon-test-${randomUUID()}` : join(home, "d.sock");
+const listen = (server: Server, path: string) => new Promise<void>((resolve, reject) => {
+  server.once("error", reject);
+  server.listen(path, () => { server.off("error", reject); resolve(); });
+});
 afterEach(async () => {
   await Promise.all(servers.splice(0).map((s) => new Promise((r) => s.close(r))));
   await Promise.all(dirs.splice(0).map((d) => rm(d, { recursive: true, force: true })));
@@ -33,10 +39,10 @@ test("no address (the supervisor is restarting the worker) is a distinct, unavai
   expect(() => daemonTarget("unix://")).toThrow(/no socket path/);
 });
 
-test("a daemon on a Unix socket is reached through that socket with the local credential", async () => {
+test("a daemon on a native socket or pipe is reached with the local credential", async () => {
   const home = await mkdtemp(join(tmpdir(), "flowly-ld-"));
   dirs.push(home);
-  const socketPath = join(home, "d.sock");
+  const socketPath = socketFor(home);
   const token = "a".repeat(43);
   await writeFile(join(home, "paseo.pid"), JSON.stringify({ pid: 1, listen: socketPath }));
   await writeFile(join(home, "local-credential"), `${token}\n`);
@@ -51,7 +57,7 @@ test("a daemon on a Unix socket is reached through that socket with the local cr
       }),
     ),
   );
-  await new Promise<void>((r) => server.listen(socketPath, r));
+  await listen(server, socketPath);
   // The fake daemon closes after the hello, so the connection itself fails.
   const opened = openLocalDaemon(home, "flowly-test", [], "").catch((e: unknown) => e);
   expect(await hello).toContain(token);
@@ -97,13 +103,13 @@ test("a refused connection to the daemon is unavailable, not a Flowly failure", 
 
 test("a daemon that rejects the local credential is reported, not treated as unavailable", async () => {
   const home = await paseoHome();
-  const socketPath = join(home, "d.sock");
+  const socketPath = socketFor(home);
   await writeFile(join(home, "paseo.pid"), JSON.stringify({ pid: 1, listen: socketPath }));
   await writeFile(join(home, "local-credential"), "a".repeat(43));
   const server = createServer();
   servers.push(server);
   new WebSocketServer({ server, path: "/ws" }).on("connection", (socket) => socket.close(4001, "Incorrect password"));
-  await new Promise<void>((r) => server.listen(socketPath, r));
+  await listen(server, socketPath);
   const error = await openLocalDaemon(home, "flowly-test", [], "").catch((e: unknown) => e);
   expect(error).not.toBeInstanceOf(LocalDaemonUnavailable);
   expect((error as Error).name).toBe("DaemonAuthenticationError");

@@ -15,4 +15,4 @@ Before tests, enumerate every native `ultra-linked-*` registration, including cr
 
 - Typecheck and the complete focused suite run; default full tests discover no old worktree tests. Record pass/fail/skipped counts and inherited failures separately.
 - Isolated home has no daily credential/pid, CLI mock rejects unknown commands, and native project/workspace/Flowly binding snapshots show no test-created daily resources.
-- Evidence goes in `docs/verification/windows-test-isolation.md`; no product behavior, weaker business assertions, UI/onboarding, telemetry schema or version changes.
+- Evidence goes in `docs/verification/windows-test-isolation.md`; no unrelated product behavior, weaker business assertions, UI/onboarding, telemetry schema or version changes. The accepted [Windows baseline follow-up](WINDOWS-BASELINE-SPEC.md) adds scoped native path/URL fixes and portable fixtures while retaining this isolation and ownership contract.

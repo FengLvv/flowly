@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import type { PaseoApi } from "@getpaseo/client";
-import { mkdtemp, mkdir, readFile, realpath, rm, stat } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { JiraClient, contentFingerprint, ticketMarkdown, wikiToMarkdown } from "./jira";
@@ -11,6 +11,12 @@ import { BoardService } from "../service";
 import { ArtifactService } from "../artifacts";
 import { artifactContextLines } from "../../shared/artifacts";
 import { agentFixture } from "../agent-fixture";
+import { expectPrivateFile } from "../testing/private-file";
+
+vi.mock("node:fs/promises", async original => {
+  const actual = await original<typeof import("node:fs/promises")>();
+  return { ...actual, writeFile: vi.fn(actual.writeFile) };
+});
 
 const roots: string[] = [];
 const services: ConnectorService[] = [];
@@ -95,7 +101,7 @@ describe("connections (EXTERNAL-TRACKER-SPEC §2)", () => {
     expect(JSON.stringify(await x.service.list())).not.toContain("secret-token");
     expect(x.calls[0]!.auth).toBe("Bearer secret-token");
     const file = join(x.dir, "connectors", "connections.json");
-    expect((await stat(file)).mode & 0o777).toBe(0o600);
+    await expectPrivateFile(file, vi.mocked(writeFile).mock.calls);
     expect(await readFile(file, "utf8")).toContain("secret-token");
   });
 

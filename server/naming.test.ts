@@ -11,7 +11,8 @@ afterEach(async () => {
 });
 
 test("Flowly configuration overrides win, with existing environment overrides retained", () => {
-  vi.stubEnv("PASEO_HOME", "/fixture/home");
+  const home = join(tmpdir(), "fixture-home");
+  vi.stubEnv("PASEO_HOME", home);
   vi.stubEnv("ULTRA_KANBAN_DATA_DIR", "/fixture/legacy-data");
   vi.stubEnv("ULTRA_KANBAN_LINKED_DIR", "/fixture/legacy-links");
   vi.stubEnv("FLOWLY_DATA_DIR", "");
@@ -26,8 +27,8 @@ test("Flowly configuration overrides win, with existing environment overrides re
   vi.stubEnv("FLOWLY_LINKED_DIR", "");
   vi.stubEnv("ULTRA_KANBAN_DATA_DIR", "");
   vi.stubEnv("ULTRA_KANBAN_LINKED_DIR", "");
-  expect(dataDirectory()).toBe("/fixture/home/plugin-data/flowly");
-  expect(linkedDirectory()).toBe("/fixture/home/plugin-data/flowly/projects");
+  expect(dataDirectory()).toBe(join(home, "plugin-data", "flowly"));
+  expect(linkedDirectory()).toBe(join(home, "plugin-data", "flowly", "projects"));
 });
 
 test("legacy data and settings copy once without overwriting either location", async () => {

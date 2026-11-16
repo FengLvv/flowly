@@ -1,5 +1,13 @@
 # Implementation progress
 
+## Portable Windows full-suite gate — 2026-11-16
+
+- Exact baseline `a06159092cc444105af181e9858fabdfc8007bca`, fresh dependencies and isolated home: typecheck 0; full 1377 passed / 34 failed / 7 skipped (1), including known platform failures and transient timeouts. Complete identities retained for comparison.
+- Product fixes: native artifact absolute paths; portable serialized skill paths with native relative links; Windows/POSIX/UNC image/file URL decoding while retaining transcript/workspace authorization; canonical bounded error-report frames; native tilde expansion for local daemon addresses.
+- Fixture fixes: fileURLToPath catalog traversal, native path assertions, CRLF-only normalization, real Windows named-pipe/Unix-socket auth tests, requested private-write modes on all hosts plus actual POSIX mode checks, deterministic EACCES/retry injection. Git fixtures have private config and explicit author/committer dates; Windows default limits workers to four without skipping or raising timeouts.
+- Implementer and independent full-access Luna PASS on exact code commit `c501a4e`: typecheck (0), complete affected 21 files / 258 tests (0), default full 1431 passed / 0 failed / 7 skipped (0), local release-tooling 4/4 (0), package dry-run (0), zero remaining baseline failure identities. No High or Medium finding. [Independent evidence](verification/windows-baseline-independent.md). PR #7 is ready; remote CI gate/CodeRabbit have not appeared, so merge remains pending. UI/non-Windows runtime/Windows ACL audit/PostHog network checks UNRUN; no install/reload. Existing UI guidance covers these compatibility fixes; no tour/tip or telemetry fields/version change.
+- [Contract](WINDOWS-BASELINE-SPEC.md), [run report](verification/windows-baseline.md). Implemented in a dedicated checkout; shared edits, old worktrees and uncertain native registrations preserved.
+
 ## Windows unit-test native resource isolation — 2026-11-16
 
 - POSIX/shim/desktop-runner/npm-node project invocations share a fail-closed fake; only Git can reach the actual subprocess. Existing linked-create/delete business assertions stay intact. Vitest run/watch use a fresh shared test home, deterministic fixture CLI, telemetry off and cleared inherited routing/data overrides; teardown removes that home. Default discovery excludes `.test-data/**`; npm packaging excludes the test helpers.

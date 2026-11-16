@@ -69,6 +69,17 @@ test("frames: only Flowly's own files, relative, oldest call first; never a path
   expect(ownFrames(failure().stack!, "")).toEqual([]);
 });
 
+test.each([
+  { root: "/home/me/Flowly", inside: "file:///home/me/Flowly/server/a%20b.ts", outside: "/home/me/Flowly/../private.ts", sibling: "/home/me/Flowly-other/secret.ts" },
+  { root: "C:\\Users\\me\\Flowly", inside: "file:///C:/Users/me/Flowly/server/a%20b.ts", outside: "C:\\Users\\me\\Flowly\\..\\private.ts", sibling: "C:\\Users\\me\\Flowly-other\\secret.ts" },
+  { root: "\\\\host\\share\\Flowly", inside: "file://host/share/Flowly/server/a%20b.ts", outside: "\\\\host\\share\\Flowly\\..\\private.ts", sibling: "\\\\host\\share\\Flowly-other\\secret.ts" },
+])("frame paths are decoded and bounded for $root on every host", ({ root, inside, outside, sibling }) => {
+  const stack = `Error\n at inside (${inside}:4:2)\n at outside (${outside}:5:2)\n at sibling (${sibling}:6:2)`;
+  expect(ownFrames(stack, root).map(f => f.filename)).toEqual(["server/a b.ts"]);
+  expect(pluginRoot(`Error\n at root (${inside}:4:2)`)).toBe(root);
+  expect(ownFrames(`Error\n at dependency (${root}/node_modules/dependency/index.js:4:2)`, root)).toEqual([]);
+});
+
 test("report: class and safe code only, never the message", () => {
   const report = exceptionReport(failure("SqliteError", "SQLITE_BUSY"), "Kanban auto wrap-up failed:", true, ROOT);
   expect(report).toMatchObject({ type: "SqliteError", value: "SQLITE_BUSY", source: "Kanban auto wrap-up failed", handled: true });

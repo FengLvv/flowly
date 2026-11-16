@@ -83,7 +83,7 @@
 
 ### 4.2 读取
 
-- `flowly_get_task` 新增 `artifacts: [{ id, role, kind, target, absolutePath?, title, note, createdBy, missing, unread }]`，最多返回 100 条。`absolutePath` 仅 file，按当前 workspace 目录解析。
+- `flowly_get_task` 新增 `artifacts: [{ id, role, kind, target, absolutePath?, title, note, createdBy, missing, unread }]`，最多返回 100 条。`absolutePath` 仅 file，按当前 workspace 目录解析，并使用宿主原生路径规范化；存储中的 `./` 相对引用保持可移植格式。
 - `unread`（2026-10-18 用户选 A+B）：该产物在本 session 上次调用 `flowly_get_task` 之后被添加或编辑（按 `updatedAt`），本 session 自己添加的永不算。本 session 从未读过时全部为 true。只有显式的 `flowly_get_task`（MCP 或 CLI `current`/`get`）会把读取时间推进到本次读取开始的时刻；写工具结果里附带的 `current` 只显示标记、不推进。读取时间按 session 存在插件数据目录的 `artifact-reads.json`（不写 board.json，不改看板 revision；原子替换；最多 2000 个 session，超出丢最旧的），重启后保留。
 - 建 session 时注入的任务上下文（`sessionContext`）在描述后加一段，每种角色最多 10 条、超出写 `…and N more`，只列 input 与 output；用户添加的排在前面，每条带来源与说明（说明压成一行，最长 200 字）：
 

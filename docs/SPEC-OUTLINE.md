@@ -1,4 +1,6 @@
 # Paseo Kanban Plugin：Spec 大纲与路线图
+2026-11-16 Windows 全量门禁：精确隔离基线，区分真实路径/URL缺陷与 fixture 平台假设；保留安全/归属断言与命名管道认证验证。[契约](WINDOWS-BASELINE-SPEC.md)。
+
 
 2026-11-16 测试原生资源隔离：Vitest 独立 home、Windows CLI 子进程替身、旧 worktree 扫描排除与归属核对。[契约](WINDOWS-TEST-ISOLATION-SPEC.md)。
 
