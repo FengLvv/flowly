@@ -3,6 +3,7 @@ import type { PaseoApi } from "@getpaseo/client";
 import { mkdtemp, realpath, rm, unlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { BoardStore } from "./store";
 import { SessionImageService } from "./session-images";
 
@@ -11,7 +12,7 @@ afterEach(async () => {
   await Promise.all(roots.splice(0).map((p) => rm(p, { recursive: true, force: true })));
 });
 
-async function setup(transcript: string, workspaceId = "w") {
+async function setup(transcript: string, workspaceId = "w", fileUrl = false) {
   const root = await realpath(await mkdtemp(join(tmpdir(), "ultra-images-")));
   roots.push(root);
   const store = new BoardStore(join(root, "data"));
@@ -27,7 +28,7 @@ async function setup(transcript: string, workspaceId = "w") {
     agents: {
       ref: () => ({
         refresh: async () => ({ agent: { id: "a", workspaceId } }),
-        timeline: { refetch: async () => ({ entries: [{ item: { type: "user_message", text: transcript.replace("$PNG", png) } }] }) },
+        timeline: { refetch: async () => ({ entries: [{ item: { type: "user_message", text: transcript.replace("$PNG", fileUrl ? pathToFileURL(png).href : png) } }] }) },
       }),
     },
   } as unknown as PaseoApi;
@@ -38,6 +39,13 @@ test("serves an image referenced by the session's transcript as a data URI", asy
   const x = await setup("see [Image: source: $PNG]");
   const { dataUri } = await x.service.read({ taskId: "t", agentId: "a", src: x.png }, x.paseo);
   expect(dataUri).toBe("data:image/png;base64,iVBORw==");
+});
+
+test("serves decoded file URLs only when that reference belongs to the session", async () => {
+  const x = await setup("see [Image: source: $PNG]", "w", true);
+  expect(await x.service.read({ taskId: "t", agentId: "a", src: pathToFileURL(x.png).href }, x.paseo)).toEqual({ dataUri: "data:image/png;base64,iVBORw==" });
+  const y = await setup("nothing here", "w", true);
+  await expect(y.service.read({ taskId: "t", agentId: "a", src: pathToFileURL(y.png).href }, y.paseo)).rejects.toThrow(/not part of this session/);
 });
 
 test("refuses images not in the transcript, other workspaces and non-images", async () => {

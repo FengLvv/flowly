@@ -223,6 +223,8 @@ attention per card（介入次数）、时间去向及打断来源、成本与�
 
 `workflow-insights.install-skill`：输入 `{ projectId, findingId, expectedRevision }`，输出 `{ revision, path, linked: boolean, notice?: string }`。在该项目的串行写入里执行。
 
+`path` 是展示/序列化用的项目相对路径，统一使用 `/`（包括 Windows）；文件写入和相对软链接目标使用宿主路径规则。链接必须相对指向同一份 `.agents` 文件，不复制 skill。
+
 ### 4.2 写文件
 
 1. 这条建议必须属于该项目，状态是 open，`target` 为 `skill`，并且有 `skill` 字段；否则报错 `FINDING_NOT_OPEN: …`。`expectedRevision` 不符时报 `REVISION_CONFLICT`。

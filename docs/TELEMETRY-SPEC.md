@@ -278,6 +278,8 @@ Content-Type: application/json
 - `handled`：未捕获异常为 `false`，其余为 `true`。
 - `frames`：只保留 Flowly 自身文件的帧，最多 20 个，按最早的调用在前排列。"自身文件"指在插件目录下、且不在 `node_modules` 里的文件；插件目录在运行时从 `server/error-report.ts` 自己的堆栈帧推出（从源码加载时是 `server/` 的上一级，打包加载时是包文件所在目录），所以不依赖 Paseo 的加载方式。Paseo 0.13 把插件服务端编成一个 esbuild bundle，再用 `eval` 执行（`bundle-evaluator.js`，没有文件名和 source map），这时帧的形式是 `eval at evaluateBundle (…), <anonymous>:行:列`：插件目录记为 bundle 模式，这类帧的 `filename` 固定为 `flowly-bundle.js`，`lineno`/`colno` 是 bundle 内的位置，函数名照常保留（2026-10-26 Coder 端到端测试发现）。其他插件的 eval 帧形式相同、无法区分，只可能出现在未捕获异常里，接受这一点。每帧只有 `filename`（相对插件目录的路径，如 `server/service.ts`）、`function`（符合 `^[\w$.<> ]{1,80}$` 才保留，否则为 `""`）、`lineno`、`colno`、`in_app: true`、`platform: "node:javascript"`。插件目录本身和插件以外的任何路径都不发送。
 
+路径边界按帧来源的 POSIX/Windows 路径规则规范化；`file://` 解码盘符、UNC 和转义文件名。`..` 越界、相邻前缀目录、其他盘符与 `node_modules`（Windows 大小写不敏感）都不作为自身帧发送，输出仍仅为 `/` 分隔的相对路径，不增加字段。
+
 ### 11.4 频率
 
 - 同一个指纹每个 UTC 日最多发一次，每个 UTC 日最多发 20 条（`MAX_ERRORS_PER_DAY`）。计数只在内存里，daemon 重启后重新计（用户偏好最简单的方案）。

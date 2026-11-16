@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { basename, dirname, sep } from "node:path";
+import { posix, win32 } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { PluginServerContext } from "@getpaseo/plugin/server";
 import { ZodError } from "zod";
@@ -46,10 +46,22 @@ export const BUNDLE = "<bundle>";
 /** File name sent for frames of the evaluated bundle; line and column are bundle positions. */
 export const BUNDLE_FILE = "flowly-bundle.js";
 
-function filePath(location: string) {
+const windowsPath = (path: string) => /^(?:[a-z]:[/\\]|\\\\)/i.test(path);
+function pathApi(location: string) {
+  if (windowsPath(location)) return win32;
   if (location.startsWith("file://")) {
     try {
-      return fileURLToPath(location);
+      const url = new URL(location);
+      if (/^\/[a-z]:\//i.test(url.pathname) || (url.hostname && url.hostname !== "localhost")) return win32;
+    } catch { /* invalid URLs are rejected by filePath */ }
+  }
+  return posix;
+}
+
+function filePath(location: string, api = pathApi(location)) {
+  if (location.startsWith("file://")) {
+    try {
+      return fileURLToPath(location, { windows: api === win32 });
     } catch {
       return "";
     }
@@ -65,8 +77,11 @@ export function pluginRoot(stack = new Error().stack ?? ""): string {
   const own = stack.split("\n").map((line) => frameLine.exec(line)).find(Boolean);
   if (!own) return "";
   if (evalFrame.test(own[2]!)) return BUNDLE;
-  const dir = dirname(filePath(own[2]!));
-  return basename(dir) === "server" ? dirname(dir) : dir;
+  const api = pathApi(own[2]!);
+  const file = filePath(own[2]!, api);
+  if (!api.isAbsolute(file)) return "";
+  const dir = api.dirname(file);
+  return api.basename(dir) === "server" ? api.dirname(dir) : dir;
 }
 
 const root = pluginRoot();
@@ -87,10 +102,14 @@ export function ownFrames(stack: string, base = root): ExceptionFrame[] {
       if (!evalFrame.test(match[2]!)) continue;
       relative = BUNDLE_FILE;
     } else {
-      const file = filePath(match[2]!);
-      if (!file.startsWith(base + sep)) continue;
-      relative = file.slice(base.length + 1).split(sep).join("/");
-      if (relative.startsWith("node_modules/") || relative.includes("/node_modules/")) continue;
+      const api = pathApi(base);
+      const file = filePath(match[2]!, api);
+      if (!api.isAbsolute(file) || (api === win32 && !windowsPath(file))) continue;
+      const within = api.relative(api.normalize(base), api.normalize(file));
+      if (!within || api.isAbsolute(within) || within === ".." || within.startsWith(`..${api.sep}`)) continue;
+      relative = within.split(api.sep).join("/");
+      const name = api === win32 ? relative.toLowerCase() : relative;
+      if (name.startsWith("node_modules/") || name.includes("/node_modules/")) continue;
     }
     const fn = match[1] ?? "";
     frames.push({

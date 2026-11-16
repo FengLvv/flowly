@@ -1,5 +1,5 @@
 import { lstat, mkdir, readFile, readdir, readlink, realpath, rename, symlink, writeFile } from "node:fs/promises";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { randomUUID } from "node:crypto";
 import { SKILL_NAME, skillBody, skillDescription, skillFile } from "../shared/workflow-insights";
 
@@ -80,7 +80,7 @@ export async function writeSkill(
   await writeFile(temp, skillFile(skill), "utf8");
   await rename(temp, file);
 
-  const path = relative(root, file);
+  const path = relative(root, file).split(sep).join("/");
   const linkPath = claudeSkillLink(root, skill.name);
   const target = relative(dirname(linkPath), dir); // ../../.agents/skills/<name>
   const current = await lstat(linkPath).catch(() => null);

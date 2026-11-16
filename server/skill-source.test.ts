@@ -11,5 +11,5 @@ test("the installed skill source contains the exact live checklist before detail
   expect(turnChecklist.join("\n").length).toBeLessThan(1800);
   expect(skillText).not.toContain("before starting a work phase");
   expect(skillText).not.toMatch(/Start of every turn, step \d/);
-  expect(await readFile(new URL("../skills/flowly/SKILL.md", import.meta.url), "utf8")).toBe(skillText);
+  expect((await readFile(new URL("../skills/flowly/SKILL.md", import.meta.url), "utf8")).replace(/\r\n/g, "\n")).toBe(skillText);
 });

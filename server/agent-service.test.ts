@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { readFile, rm, writeFile, stat } from "node:fs/promises";
 import { AgentService } from "./agent-service";
 import { BoardStore } from "./store";
@@ -12,6 +12,12 @@ import { putArtifact } from "./artifacts";
 import { ExternalError } from "./connectors/http";
 import { turnChecklist } from "../shared/turn-checklist";
 import { toolContextSchema } from "../shared/tools";
+import { expectPrivateFile } from "./testing/private-file";
+
+vi.mock("node:fs/promises", async original => {
+  const actual = await original<typeof import("node:fs/promises")>();
+  return { ...actual, writeFile: vi.fn(actual.writeFile) };
+});
 
 const roots: string[] = [];
 async function setup(seed?: Parameters<typeof agentFixture>[0]) {
@@ -311,7 +317,7 @@ test("session context signatures survive reload, reject rebinding and credential
     "mcp",
     "cli",
   ]);
-  expect((await stat(path)).mode & 0o777).toBe(0o600);
+  await expectPrivateFile(path, vi.mocked(writeFile).mock.calls);
   const restored = new ToolSecrets(x.store.directory);
   await restored.initialize();
   expect(restored.authenticate(token)).toEqual(x.identity);

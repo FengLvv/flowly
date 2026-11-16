@@ -24,3 +24,15 @@ test("subprocesses inherit only the test home and disabled telemetry", async () 
   const { stdout } = await promisify(execFile)(process.execPath, ["-e", script], { env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" } });
   expect(JSON.parse(stdout)).toEqual([inject("paseoFixture").home, null, "test", "0"]);
 });
+
+test("Git fixtures inherit a dedicated config without user caches, hooks or signing", async () => {
+  const { gitConfig, home } = inject("paseoFixture");
+  expect(process.env.GIT_CONFIG_GLOBAL).toBe(gitConfig);
+  expect(gitConfig.startsWith(home)).toBe(true);
+  expect(process.env.GIT_CONFIG_NOSYSTEM).toBe("1");
+  expect(process.env.GIT_INDEX_FILE).toBeUndefined();
+  expect(process.env.GIT_DIR).toBeUndefined();
+  const run = promisify(execFile);
+  expect((await run("git", ["config", "--global", "--get", "core.untrackedCache"])).stdout.trim()).toBe("false");
+  expect((await run("git", ["config", "--global", "--get", "commit.gpgsign"])).stdout.trim()).toBe("false");
+});

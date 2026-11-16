@@ -92,12 +92,12 @@ test("locator finds Claude logs with subagents and Codex logs in sessions or arc
     subagents: [join(claudeHome, "projects", "-x", SID, "subagents", "agent-a.jsonl")],
   });
   expect(await locator.claude(other)).toBeNull();
-  expect(await locator.codex(SID)).toMatch(/sessions\/2026\/10\/15\/rollout-.*\.jsonl$/);
+  expect(await locator.codex(SID)).toBe(join(codexHome, "sessions", "2026", "10", "15", `rollout-2026-10-15T01-00-00-${SID}.jsonl`));
   await writeFile(join(codexHome, "archived_sessions", `rollout-2026-10-15T02-00-00-${other}.jsonl`), "");
   // Index rebuilds at most every 30 s.
   expect(await locator.codex(other)).toBeNull();
   now += 31_000;
-  expect(await locator.codex(other)).toMatch(/archived_sessions/);
+  expect(await locator.codex(other)).toBe(join(codexHome, "archived_sessions", `rollout-2026-10-15T02-00-00-${other}.jsonl`));
 });
 
 test("task usage lists every workspace session; summarizers are a separate subtotal", async () => {

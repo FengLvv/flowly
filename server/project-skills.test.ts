@@ -1,7 +1,7 @@
 import { afterEach, expect, test } from "vitest";
 import { lstat, mkdir, mkdtemp, readFile, readlink, realpath, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, isAbsolute, join, resolve } from "node:path";
 import { scanSkills, writeSkill } from "./project-skills";
 
 const roots: string[] = [];
@@ -20,7 +20,10 @@ test("writes the skill under .agents and links it for Claude Code", async () => 
   const result = await writeSkill(dir, skill, "new");
   expect(result).toEqual({ path: ".agents/skills/flowly-ship/SKILL.md", linked: true });
   expect(await readFile(join(dir, ".agents/skills/flowly-ship/SKILL.md"), "utf8")).toBe('---\nname: flowly-ship\ndescription: "Use when shipping."\n---\n\n## Steps\n1. Push.\n');
-  expect(await readlink(join(dir, ".claude/skills/flowly-ship"))).toBe("../../.agents/skills/flowly-ship");
+  const link = join(dir, ".claude/skills/flowly-ship");
+  const target = await readlink(link);
+  expect(isAbsolute(target)).toBe(false);
+  expect(resolve(dirname(link), target)).toBe(join(dir, ".agents/skills/flowly-ship"));
   expect(await readFile(join(dir, ".claude/skills/flowly-ship/SKILL.md"), "utf8")).toContain("name: flowly-ship");
   // One copy: scanning both folders finds it once.
   expect((await scanSkills(dir)).map((s) => s.name)).toEqual(["flowly-ship"]);

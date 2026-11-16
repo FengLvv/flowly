@@ -2,6 +2,7 @@ import { afterEach, expect, test, vi } from "vitest";
 import { readFile, rm, writeFile } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { join } from "node:path";
 import { createServer, request } from "node:http";
 import { ToolServer } from "./tool-server";
 import { SearchService } from "./search";
@@ -318,12 +319,12 @@ test("prepared ID and scoped files are stable, selected existing actor verified"
   const existing = await x.server.prepareExisting("t", "actor", x.paseo);
   expect(existing.agentId).toBe("actor");
   expect(existing.instructions).toContain("flowly_get_task");
-  expect(existing.cliPath).toBe(x.store.directory + "/flowly.mjs");
+  expect(existing.cliPath).toBe(join(x.store.directory, "flowly.mjs"));
   expect(existing.instructions).not.toMatch(/ultra[ _-]kanban|kanban_/i);
   expect(skillText).toContain("name: flowly\n");
   await expect(readFile(x.store.directory + "/ultra-kanban.mjs", "utf8")).rejects.toMatchObject({ code: "ENOENT" });
-  expect(await readFile(existing.skillPath, "utf8")).toBe(skillText);
-  expect(await readFile("skills/flowly/SKILL.md", "utf8")).toBe(
+  expect((await readFile(existing.skillPath, "utf8")).replace(/\r\n/g, "\n")).toBe(skillText);
+  expect((await readFile("skills/flowly/SKILL.md", "utf8")).replace(/\r\n/g, "\n")).toBe(
     skillText,
   );
   expect((await x.server.accessState("t", "actor", x.paseo)).methods).toContain(

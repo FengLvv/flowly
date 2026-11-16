@@ -51,8 +51,9 @@ test("every shipped catalog fits the daemon's reply, and English has no request"
 
 test("nothing the client entry imports reaches the catalogs (they would be in the phone's bundle again)", async () => {
   const { existsSync, readFileSync } = await import("node:fs");
-  const { dirname, resolve } = await import("node:path");
-  const root = resolve(new URL("..", import.meta.url).pathname);
+  const { dirname, resolve, relative, sep } = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+  const root = fileURLToPath(new URL("..", import.meta.url));
   const resolveImport = (from: string, spec: string) => {
     const base = resolve(dirname(from), spec);
     return [base, `${base}.ts`, `${base}.tsx`, `${base}/index.ts`].find((f) => existsSync(f) && /\.tsx?$/.test(f));
@@ -69,7 +70,7 @@ test("nothing the client entry imports reaches the catalogs (they would be in th
       if (next) queue.push(next);
     }
   }
-  const names = [...seen].map((f) => f.slice(root.length + 1));
+  const names = [...seen].map((f) => relative(root, f).split(sep).join("/"));
   expect(names).toContain("shared/i18n.ts");
   expect(names.filter((f) => /^shared\/i18n(-all|\/)/.test(f))).toEqual([]);
 });

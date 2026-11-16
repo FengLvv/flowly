@@ -2,7 +2,9 @@ import { afterEach, expect, test } from "vitest";
 import { existsSync } from "node:fs";
 import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { agentFixture } from "./agent-fixture";
 import {
   AutoReviewService,
@@ -517,7 +519,7 @@ test("B1: a fail without evidence becomes na; a file in the diff, an existing re
   });
   const ids = ["g-diff", "g-repo", "g-quote", "g-outside", "g-words", "g-title", "g-invented"];
   const entries = ids.map((id) => guideline(id, id));
-  const x = await setup({ entries, llm, exists: async (path) => path.endsWith("shared/i18n/zh-TW.ts"), conversation: async () => ["Please ADD a\n rerun button next to each failed check."] });
+  const x = await setup({ entries, llm, exists: async (path) => path.endsWith(join("shared", "i18n", "zh-TW.ts")), conversation: async () => ["Please ADD a\n rerun button next to each failed check."] });
   const board = await x.deliver("development");
   const items = board.tasks[0]!.review!.items;
   expect(items.map((i) => [i.id, i.state, i.reason])).toEqual([
@@ -748,7 +750,12 @@ test("review diff: the card's branch since the merge-base, then untracked files 
 async function linkedRoot() {
   const base = await mkdtemp(join(tmpdir(), "flowly-linked-"));
   roots.push(base);
-  const git = (cwd: string, ...args: string[]) => defaultGit(cwd, ["-c", "user.email=t@t", "-c", "user.name=t", "-c", "commit.gpgsign=false", ...args]);
+  let commitTime = "2001-01-01T00:00:00Z";
+  const execute = promisify(execFile);
+  const git = async (cwd: string, ...args: string[]) => (await execute("git", ["-C", cwd, "-c", "user.email=t@t", "-c", "user.name=t", "-c", "commit.gpgsign=false", ...args], {
+    timeout: 20_000, maxBuffer: 16 << 20,
+    env: { ...process.env, GIT_AUTHOR_DATE: commitTime, GIT_COMMITTER_DATE: commitTime },
+  })).stdout;
   for (const name of ["admin", "smith"]) {
     const repo = join(base, "repos", name);
     await mkdir(join(repo, "src"), { recursive: true });
@@ -758,6 +765,8 @@ async function linkedRoot() {
     await git(repo, "add", ".");
     await git(repo, "commit", "-q", "-m", "init");
   }
+  // Real Git integration, with committer dates on both sides of a fixed cutoff.
+  commitTime = "2003-01-01T00:00:00Z";
   const root = join(base, "root");
   await mkdir(root);
   await symlink(join(base, "repos/admin"), join(root, "Admin"), "dir");
@@ -824,7 +833,7 @@ test("linked root review: shape from both repositories, commands per repository,
   const cwds: string[] = [];
   const x = await setup({
     directory: root,
-    run: async (argv, cwd) => (cwds.push(`${argv.join(" ")} @ ${cwd.split("/").pop()}`), { exitCode: 0, timedOut: false, ms: 2, output: "" }),
+    run: async (argv, cwd) => (cwds.push(`${argv.join(" ")} @ ${basename(cwd)}`), { exitCode: 0, timedOut: false, ms: 2, output: "" }),
     git: defaultGit,
     entries: [command("tests", ["npm", "test"]), command("types", ["npm", "run", "typecheck"]), command("make", ["make", "check"])],
     exists: async (path) => existsSync(path),
@@ -865,17 +874,19 @@ test("linked root review: a command that fails in one repository fails, with tha
 test("linked root: commands run only in the repositories this delivery changed, all of them when none did (§6.3)", async () => {
   const { root, base, git } = await linkedRoot();
   const repos = await linkedRepos(root);
-  const since = new Date(Date.now() + 1000).toISOString();
+  const since = "2002-01-01T00:00:00.000Z";
   expect((await changedRepos(repos, since)).map((r) => r.name)).toEqual(["Admin", "SMITH"]);
   await writeFile(join(base, "repos/smith/src/new.ts"), "x\n");
   expect((await changedRepos(repos, since)).map((r) => r.name)).toEqual(["SMITH"]);
   // A commit after the card was created counts, though the tree is clean again.
   await git(join(base, "repos/smith"), "add", ".");
   await git(join(base, "repos/smith"), "commit", "-q", "-m", "work");
-  expect((await changedRepos(repos, new Date(Date.now() - 60_000).toISOString())).map((r) => r.name)).toEqual(["Admin", "SMITH"]);
-  expect((await changedRepos(repos, since)).map((r) => r.name)).toEqual(["Admin", "SMITH"]);
+  expect((await changedRepos(repos, "2000-01-01T00:00:00.000Z")).map((r) => r.name)).toEqual(["Admin", "SMITH"]);
+  expect((await changedRepos(repos, since)).map((r) => r.name)).toEqual(["SMITH"]);
+  const future = "2004-01-01T00:00:00.000Z";
+  expect((await changedRepos(repos, future)).map((r) => r.name)).toEqual(["Admin", "SMITH"]);
   const failing: Git = async (cwd, args) => (cwd.endsWith("Admin") ? Promise.reject(new Error("not a repo")) : defaultGit(cwd, args));
-  expect((await changedRepos(repos, since, failing)).map((r) => r.name)).toEqual(["Admin"]);
+  expect((await changedRepos(repos, future, failing)).map((r) => r.name)).toEqual(["Admin"]);
 }, 20_000);
 
 test("linked root diff: a large change in one repository cannot push the others out of the 64 KiB (§6.2)", async () => {

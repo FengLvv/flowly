@@ -17,7 +17,7 @@ import { ArtifactReadStore } from "./artifact-reads";
 import { ExternalError } from "./connectors/http";
 import { ExternalReadStore, refKey, type ConnectorService } from "./connectors/service";
 import { familyOf, itemTypeOf } from "../shared/connectors";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import type { Artifact, Dispute, NextMove, Workpad } from "../shared/model";
 import { projectScripts } from "./workflow-insights";
 import { mergeWorkpad, plansOf, workpadEnabled, workpadNote, workpadOf, workpadUpdatedAction } from "../shared/workpad";
@@ -375,7 +375,7 @@ export class AgentService {
               role: a.role,
               kind: a.kind,
               target: a.target,
-              ...(a.kind === "file" ? { absolutePath: absoluteTarget(a.target, where.workspace) } : {}),
+              ...(a.kind === "file" ? { absolutePath: resolve(absoluteTarget(a.target, where.workspace)) } : {}),
               title: a.title,
               note: a.note,
               createdBy: a.createdBy,

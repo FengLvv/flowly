@@ -32,7 +32,8 @@ export function daemonTarget(listen: unknown): DaemonTarget {
       : value.startsWith("\\\\.\\pipe\\") || value.startsWith("/") || value.startsWith("~") ? value
         : null;
   if (ipc !== null) {
-    const socketPath = ipc.trim().replace(/^~(?=[/\\]|$)/, homedir());
+    const address = ipc.trim();
+    const socketPath = /^~(?:[/\\]|$)/.test(address) ? join(homedir(), address.slice(2)) : address;
     if (!socketPath) throw new Error("The Paseo daemon address has no socket path.");
     return { url: "ws://localhost/ws", socketPath };
   }

@@ -7,8 +7,8 @@ const imageExt = /\.(png|jpe?g|gif|webp)$/i;
 /** Whether a reference may be shown: http(s) URLs, or absolute/file:// paths to image files. */
 export function displayableImage(src: string) {
   if (/^https?:\/\//i.test(src)) return true;
-  const path = src.replace(/^file:\/\//i, "");
-  return path.startsWith("/") && imageExt.test(path);
+  const path = localImagePath(src);
+  return path !== null && imageExt.test(path);
 }
 
 /**
@@ -37,8 +37,19 @@ export function extractImages(text: string): { text: string; images: ImageRef[] 
   return { text: rest.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim(), images };
 }
 
-/** Local path for a file reference (file:// stripped); null for remote URLs. */
+/** Decode local file URLs without importing Node into the client bundle. */
 export function localImagePath(src: string) {
-  if (/^https?:\/\//i.test(src) || /^data:image\//i.test(src)) return null;
-  return src.replace(/^file:\/\//i, "");
+  if (/^file:/i.test(src)) {
+    if (!/^file:\/\//i.test(src)) return null;
+    try {
+      const url = new URL(src);
+      if (url.protocol !== "file:" || url.search || url.hash || /%(?:2f|5c)/i.test(url.pathname)) return null;
+      let path = decodeURIComponent(url.pathname);
+      if (url.hostname && url.hostname !== "localhost") path = `//${url.hostname}${path}`;
+      else if (/^\/[a-z]:\//i.test(path)) path = path.slice(1);
+      return path.includes("\0") ? null : path;
+    } catch { return null; }
+  }
+  if (src.includes("\0") || /^\\\\[.?]\\/.test(src)) return null;
+  return src.startsWith("/") || /^[a-z]:[/\\]/i.test(src) || /^\\\\[^\\]+\\[^\\]+\\/.test(src) ? src : null;
 }
