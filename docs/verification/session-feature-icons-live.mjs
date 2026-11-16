@@ -9,7 +9,8 @@ import { existsSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { launch, shot, pageText, openCard } from '../promo/shot-lib.mjs';
 
-const out = resolve('docs/verification/session-feature-icons'), temp = resolve('.test-data/session-parity');
+const orderOnly = process.env.FLOWLY_ORDER_ONLY === '1';
+const out = resolve(orderOnly ? 'docs/verification/session-feature-order' : 'docs/verification/session-feature-icons'), temp = resolve('.test-data/session-parity');
 const sessionId = randomUUID(), taskId = '37e6fa0a-d586-4447-90dd-855711a5cbb3', workspaceId = 'wks_d1504bb406d8b105';
 const title = `Feature icons fixture ${sessionId.slice(0, 8)}`;
 const report = { sessionId, workspaceId, taskId, checks: [], cleanup: {}, pageErrors: [] };
@@ -34,6 +35,7 @@ try {
   await client.createAgent({ agentId: sessionId, workspaceId, config: { provider: 'codex', model: first.id, cwd: process.cwd(), modeId: 'full-access', title }, labels: { 'flowly-parity-fixture': sessionId } });
   const before = await waitFor(a => a.status !== 'initializing');
   check(before.workspaceId === workspaceId && !before.lastUserMessageAt, 'Fixture initialized in card workspace without sending a prompt');
+  if (!orderOnly) {
   await configure({ modelId: second.id });
   await waitFor(a => a.model === second.id);
   check(true, 'Installed Flowly model RPC changes the real existing session');
@@ -55,6 +57,8 @@ try {
   await configure({ modelId: first.id });
   const after = await waitFor(a => a.model === first.id);
   check(after.id === sessionId && after.workspaceId === workspaceId && !after.lastUserMessageAt, 'Identity, ownership and no-message state preserved');
+
+  }
 
   // Isolated browser context using installed renderer, never the user's two native windows.
   const webRoot = join(process.env.LOCALAPPDATA, 'Programs/Paseo/resources/app-dist');
@@ -90,6 +94,32 @@ try {
   await openCard(s, '聊天功能对齐paseo');
   await page.getByRole('button', { name: new RegExp(title) }).first().click();
   const modelChip = () => page.locator('button[aria-label^="Model: "]:not([disabled])').last();
+  if (orderOnly) {
+    const order = async label => {
+      await modelChip().waitFor({ state: 'visible' });
+      await sleep(250);
+      const permissions = await page.getByRole('button', { name: /^Permissions:/ }).last().boundingBox();
+      const speed = await page.getByRole('button', { name: /^Speed:/ }).last().boundingBox();
+      const plan = await page.getByRole('switch', { name: /^Plan:/ }).last().boundingBox();
+      check(permissions && speed && plan && permissions.x + permissions.width <= speed.x + 1 && speed.x + speed.width <= plan.x + 1, label + ': permissions precede Speed then Plan');
+      const edge = await page.getByRole('switch', { name: /^Plan:/ }).last().evaluate(el => {
+        let row = el.parentElement;
+        while (row && !row.querySelector('[aria-label^="Permissions:"]')) row = row.parentElement;
+        return row?.getBoundingClientRect().right;
+      });
+      check(edge && Math.abs(plan.x + plan.width - edge) <= 1, label + ': feature group is pinned to toolbar right edge');
+    };
+    await order('Desktop'); await shot(s, join(out, 'desktop-rightmost.png'));
+    for (const width of [750, 680]) {
+      await page.setViewportSize({ width, height: 1000 }); s.w = width; s.clip = { x: 320, y: 0, width: width - 320, height: 1000 };
+      await sleep(350);
+      const row = page.getByRole('button', { name: new RegExp(title) }).first();
+      if (await row.isVisible()) await row.click();
+      await order('Compact ' + width); await shot(s, join(out, 'compact-' + width + '-rightmost.png'));
+    }
+    check(report.pageErrors.length === 0, 'No UI page errors');
+  } else {
+
   await modelChip().click();
   await page.getByRole('button', { name: second.label, exact: true }).click();
   await waitFor(a => a.model === second.id);
@@ -154,6 +184,7 @@ try {
   await client.reloadPlugin('flowly');
   check((await snapshot()).model === first.id, 'Model state survives Flowly reload');
   check(report.pageErrors.length === 0, 'No UI page errors');
+  }
 } catch (e) {
   if (lastSurface) {
     await shot(lastSurface, join(out, 'failure.png')).catch(() => {});

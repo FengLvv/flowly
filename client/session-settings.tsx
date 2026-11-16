@@ -324,6 +324,7 @@ export function ComposerChips({
   return (
     <View>
       <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 2 }}>
+        <View style={{ flex: 1, minWidth: 0, flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 2 }}>
         {chip("model", (
           <Chip icon="Cpu" text={config.modelLabel} label={t("Model: {modelLabel}", { modelLabel: config.modelLabel })} open={menu === "model"} disabled={blocked} onPress={() => toggle("model")} />
         ))}
@@ -331,6 +332,12 @@ export function ComposerChips({
           chip("thinking", (
             <Chip icon="Brain" text={config.thinkingLabel || t("Reasoning")} label={t("Reasoning: {label}", { label: config.thinkingLabel || t("default") })} open={menu === "thinking"} disabled={blocked} onPress={() => toggle("thinking")} />
           ))}
+        {config.modes.length > 0 &&
+          chip("mode", (
+            <Chip icon="ShieldCheck" text={config.modeLabel || t("Permissions")} label={t("Permissions: {label}", { label: config.modeLabel || t("default") })} open={menu === "mode"} disabled={blocked} onPress={() => toggle("mode")} />
+          ))}
+        </View>
+        {config.features.length > 0 && <View style={{ flexDirection: "row", alignItems: "center", gap: 2, marginLeft: "auto", flexShrink: 0 }}>
         {config.features.map((feature) => {
           const id: ChipMenuId = `feature:${feature.id}`;
           return chip(id, (
@@ -347,10 +354,7 @@ export function ComposerChips({
             />
           ));
         })}
-        {config.modes.length > 0 &&
-          chip("mode", (
-            <Chip icon="ShieldCheck" text={config.modeLabel || t("Permissions")} label={t("Permissions: {label}", { label: config.modeLabel || t("default") })} open={menu === "mode"} disabled={blocked} onPress={() => toggle("mode")} />
-          ))}
+        </View>}
       </View>
       {inline && menu && menuFor(menu)}
     </View>
