@@ -216,6 +216,7 @@ function SessionPreviewView({
     [inputHeight, setInputHeight] = useState(inputMin),
     [focused, setFocused] = useState(false),
     [confirmArchive, setConfirmArchive] = useState(false),
+    [confirmReload, setConfirmReload] = useState(false),
     [renaming, setRenaming] = useState(false),
     [chipMenu, setChipMenu] = useState<ChipMenuId | null>(null);
   useShortcutBlock(focused);
@@ -306,7 +307,9 @@ function SessionPreviewView({
   const preferred: SendBehavior = view.values?.sendBehavior || "steer";
   const composer = useComposer(visible && settled);
   const openMenu = useMenuOpener();
-  const config = useSessionConfig(task.id, active, visible && settled, () => void current.refetch());
+  const config = useSessionConfig(task.id, active, visible && settled, () => current.refetch(), {
+    canWrite, begin: beginOperation, end: endOperation,
+  });
   const queueEntry = composer.entry(sessionId);
   const queued = queueEntry?.queue || [];
   const running = active?.status === "running" || active?.status === "initializing";
@@ -390,6 +393,9 @@ function SessionPreviewView({
       ...(!active.archivedAt
         ? [{ id: "rename", label: t("Rename session"), icon: "Pencil", disabled: !canWrite || busy, onPress: () => setRenaming(true) }]
         : []),
+      ...(!active.archivedAt ? [{ id: "reload", label: t("Reload session"), icon: "RefreshCw", disabled: !canWrite || busy,
+        onPress: () => runningNow ? setConfirmReload(true) : void reloadSession(),
+      }] : []),
       { id: "tools", label: showTools ? t("Hide Kanban tools") : t("Kanban tools"), icon: "Wrench", onPress: () => setShowTools(!showTools) },
       ...(runningNow
         ? [{ id: "stop", label: t("Stop"), icon: "Square", onPress: () => void config.apply({ stop: true }, t("Session stopped")) }]
@@ -409,6 +415,16 @@ function SessionPreviewView({
         : []),
     ];
   };
+  async function reloadSession() {
+    setConfirmReload(false);
+    await perform(async () => {
+      const scope = await contextRead({ id: task.id });
+      if (!scope.available) throw new Error(scope.reason);
+      await workspaceSession(paseo, sessionId, task.workspaceId, true);
+      await agent.reload();
+      if (mounted.current) toast.show(t("Session reloaded"), { variant: "success" });
+    });
+  }
   async function archiveSession() {
     setConfirmArchive(false);
     let archived = false;
@@ -811,8 +827,8 @@ function SessionPreviewView({
                 config={config}
                 menu={chipMenu}
                 setMenu={setChipMenu}
-                inline={false}
-                disabled={!!active.archivedAt}
+                inline={compact}
+                disabled={!canWrite || busy}
                 onOpenInPaseo={
                   typeof navigation?.openAgent === "function"
                     ? () => {
@@ -994,6 +1010,17 @@ function SessionPreviewView({
           </View>
         </MotionReveal>
       )}
+      <Modal title={t("Reload session")} open={confirmReload && visible} onOpenChange={setConfirmReload}>
+        <Modal.Content>
+          <Theme.Provider value={theme}>
+          <Label>{t("Reloading interrupts the running turn. Reload this session?")}</Label>
+          <Actions>
+            <Button quiet onPress={() => setConfirmReload(false)}>{t("Cancel")}</Button>
+            <Button disabled={!canWrite || busy} onPress={() => void reloadSession()}>{t("Reload session")}</Button>
+          </Actions>
+          </Theme.Provider>
+        </Modal.Content>
+      </Modal>
       <SessionTranscript
         handle={transcript}
         taskId={task.id}

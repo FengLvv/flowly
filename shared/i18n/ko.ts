@@ -1,6 +1,17 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "On": "켜짐",
+  "Off": "꺼짐",
+  "Loading models…": "모델 불러오는 중…",
+  "Session settings updated": "세션 설정을 업데이트했습니다",
+  "Reload session": "세션 새로 고침",
+  "Session reloaded": "세션을 새로 고쳤습니다",
+  "Reloading interrupts the running turn. Reload this session?": "새로 고치면 실행 중인 턴이 중단됩니다. 이 세션을 새로 고칠까요?",
+  "Copy message": "메시지 복사",
+  "Session controls": "세션 제어",
+  "Change models and provider features inside Flowly. Copy messages or reload a session from its menu.": "Flowly에서 모델과 제공자 기능을 변경하세요. 메시지를 복사하거나 메뉴에서 세션을 새로 고칠 수 있습니다.",
+  "Change the model, reasoning, permissions and provider features from the controls below a session message box.": "메시지 입력란 아래에서 모델, 추론, 권한 및 제공자 기능을 변경하세요.",
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly는 이미지 수나 크기를 제한하지 않습니다. 모델과 호스트의 제한은 계속 적용됩니다.",
   "Use card description": "카드 설명 사용",
   "Description changed. Use card description again.": "설명이 변경되었습니다. 카드 설명을 다시 불러오세요.",
@@ -563,8 +574,6 @@ const catalog: Catalog = {
   "Save": "저장",
   "Default model": "기본 모델",
   "Current model": "현재 모델",
-  "Plugins cannot switch the model or features like Fast mode yet.": "플러그인에서는 아직 모델이나 Fast 모드 같은 기능을 전환할 수 없습니다.",
-  "Change in Paseo": "Paseo에서 변경",
   "Reasoning: {label}": "추론: {label}",
   "Permissions: {label}": "권한: {label}",
   "Model: {modelLabel}": "모델: {modelLabel}",

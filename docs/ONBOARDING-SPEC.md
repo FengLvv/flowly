@@ -63,7 +63,7 @@ The More features tour also includes Description images: save pictures with a ca
 
 ### 5. One-time contextual tips (small, non-modal)
 
-A tip is a single dismissible banner row (icon, one sentence, **Got it**) under the overview bar; only **Got it** records it as seen. Priority when several apply: agent-question, needs-you, attention-dismiss, first-done, older-finished, next-move, auto-review, first-guardrail, first-workpad, subagents, first-idea, first-skill-draft, first-workflow-insight, ai-language, summary-models, first-artifact, first-ticket, first-tag, first-card, lane-swipe, card-display, search, description-images, image-limits, connectors, session-history, session-context, sidebar-order, project-menu, jira-connect. The empty-project hint takes the same slot and wins at the top of the relevant surface, using theme colours. At most one tip is visible at a time; a tip appears at most once per host (`tipsSeen`); dismissing or acting on the feature records it. Tips never block input, never move a focused input, and are not shown while the welcome tour is open or the settings callout (`settings-entry`) shows.
+A tip is a single dismissible banner row (icon, one sentence, **Got it**) under the overview bar; only **Got it** records it as seen. Priority when several apply: agent-question, needs-you, attention-dismiss, first-done, older-finished, next-move, auto-review, first-guardrail, first-workpad, subagents, first-idea, first-skill-draft, first-workflow-insight, ai-language, summary-models, first-artifact, first-ticket, first-tag, first-card, lane-swipe, card-display, search, description-images, image-limits, connectors, session-history, session-context, session-controls, sidebar-order, project-menu, jira-connect. The empty-project hint takes the same slot and wins at the top of the relevant surface, using theme colours. At most one tip is visible at a time; a tip appears at most once per host (`tipsSeen`); dismissing or acting on the feature records it. Tips never block input, never move a focused input, and are not shown while the welcome tour is open or the settings callout (`settings-entry`) shows.
 
 | Tip id | Shown when | Text |
 | --- | --- | --- |
@@ -93,6 +93,7 @@ A tip is a single dismissible banner row (icon, one sentence, **Got it**) under 
 | `connectors` | a card is open, so its Artifacts + is in view (CONNECTORS-SPEC §8.5; new id, so every existing user sees it once) | "The Artifacts + now adds Confluence pages and GitHub or GitLab issues and pull requests too, besides files, links and Jira tickets. Connect services in Settings → Connections." |
 | `session-history` | a card is open and it has a session (SESSION-PANE-SPEC §1) | "A session's output now starts at the beginning of its current turn. Press Load earlier at the top to read further back." |
 | `session-context` | a card is open and it has a session; after session-history | "New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged." |
+| `session-controls` | an open card has sessions; after session-context | "Change the model, reasoning, permissions and provider features from the controls below a session message box." |
 | `ai-language` | a card of the current project has an AI progress summary (AI-LANGUAGE-SPEC §7) | "AI-written text follows Settings → AI features → AI output language. It starts as your interface language." |
 | `summary-models` | the card has a summary; after `ai-language`; seen on visiting Summary models in Settings or the tour | "Choose summary models and their fallback order in Settings → Models. The default is Haiku, then Luna." |
 | `sidebar-order` | a card is open and it has at least one artifact or idea (DRAWER-SPEC, Section order) | "Arrange an open card your way: reorder its sections and choose which start open in Settings → Cards → Card sidebar." |
@@ -147,3 +148,5 @@ Covered by unit tests: the pure logic (fresh user shows; existing user silently 
 5. Onboarding state is per host (setting), not per account.
 
 2026-10-23：Progress models 与 Settings → Models 共用有序多模型列表，见 [SUMMARY-MODELS-SPEC](SUMMARY-MODELS-SPEC.md)。
+
+The More features page includes Session controls: "Change models and provider features inside Flowly. Copy messages or reload a session from its menu."

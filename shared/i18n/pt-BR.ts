@@ -1,6 +1,17 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "On": "Ativado",
+  "Off": "Desativado",
+  "Loading models…": "Carregando modelos…",
+  "Session settings updated": "Configurações da sessão atualizadas",
+  "Reload session": "Recarregar sessão",
+  "Session reloaded": "Sessão recarregada",
+  "Reloading interrupts the running turn. Reload this session?": "Recarregar interrompe o turno em andamento. Recarregar esta sessão?",
+  "Copy message": "Copiar mensagem",
+  "Session controls": "Controles da sessão",
+  "Change models and provider features inside Flowly. Copy messages or reload a session from its menu.": "Altere modelos e recursos do provedor no Flowly. Copie mensagens ou recarregue uma sessão pelo menu.",
+  "Change the model, reasoning, permissions and provider features from the controls below a session message box.": "Altere modelo, raciocínio, permissões e recursos do provedor nos controles abaixo da caixa de mensagens.",
   "Flowly does not limit image count or size. Model and host limits still apply.": "O Flowly não limita a quantidade nem o tamanho das imagens. Os limites do modelo e do host continuam valendo.",
   "Use card description": "Usar descrição do cartão",
   "Description changed. Use card description again.": "A descrição mudou. Use a descrição do cartão novamente.",
@@ -563,8 +574,6 @@ const catalog: Catalog = {
   "Save": "Salvar",
   "Default model": "Modelo padrão",
   "Current model": "Modelo atual",
-  "Plugins cannot switch the model or features like Fast mode yet.": "Os plugins ainda não conseguem trocar o modelo nem recursos como o modo Fast.",
-  "Change in Paseo": "Alterar no Paseo",
   "Reasoning: {label}": "Raciocínio: {label}",
   "Permissions: {label}": "Permissões: {label}",
   "Model: {modelLabel}": "Modelo: {modelLabel}",

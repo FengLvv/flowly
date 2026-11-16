@@ -1,7 +1,7 @@
 import { perfStart, perfEnd, usePerfRender } from "./perf";
 import { memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type Ref } from "react";
 import { ActivityIndicator, Animated, Platform, Pressable, View, type ListRenderItemInfo } from "react-native";
-import { FlatList, Icon, ScrollView } from "@getpaseo/plugin/client/react-native";
+import { FlatList, Icon, ScrollView, copyText, useToast } from "@getpaseo/plugin/client/react-native";
 import { usePaseo } from "@getpaseo/plugin/client";
 import { Label, Notice, font, message, noFocusRing, radius, space, touch, useTheme, verticalContent, verticalScroll, type Tone } from "./ui";
 import { activitySummary, groupTranscript, pendingEchoes, recentSessionOutput, type SentEcho, type TranscriptBlock } from "./session-state";
@@ -425,11 +425,19 @@ export const TranscriptEntry = memo(function TranscriptEntry({
   agentId: string;
 }) {
   const { colors } = useTheme();
+  const toast = useToast();
   const { text, images } = useMemo(
     () => (entry.author === "You" || entry.author === "Agent" ? extractImages(entry.text) : { text: entry.text, images: [] }),
     [entry.author, entry.text],
   );
   const sent = entry.author === "You" ? sentImages(entry.messageId) : [];
+  const copy = text ? (
+    <Pressable accessibilityRole="button" accessibilityLabel={t("Copy message")} onPress={() => {
+      void copyText(text).then(() => toast.show(t("Copied"), { variant: "success" }), (e) => toast.error(message(e)));
+    }} style={{ ...noFocusRing, alignSelf: "flex-start", padding: space[1.5], minWidth: touch ? 44 : 26, minHeight: touch ? 44 : 26, justifyContent: "center", alignItems: "center" }}>
+      <Icon name="Copy" size={13} color={colors.foregroundMuted} />
+    </Pressable>
+  ) : null;
   const pictures = [...images, ...sent.map((src, i) => ({ src, alt: t("Image {n}", { n: i + 1 }) }))].map((image) => (
     // Your own images stay compact beside your message.
     <SessionImage key={image.src} taskId={taskId} agentId={agentId} image={image} maxWidth={entry.author === "You" ? 200 : 360} />
@@ -453,6 +461,7 @@ export const TranscriptEntry = memo(function TranscriptEntry({
           </View>
         )}
         {pictures.length > 0 && <View style={{ width: "100%", alignItems: "flex-end", gap: space[1.5] }}>{pictures}</View>}
+        {copy}
       </View>
     );
   if (entry.author === "Agent")
@@ -460,6 +469,7 @@ export const TranscriptEntry = memo(function TranscriptEntry({
       <View accessibilityLabel={t("Agent")} style={{ minWidth: 0, gap: space[2] }}>
         {!!text && <SessionMarkdown text={text} />}
         {pictures}
+        {copy}
       </View>
     );
   return (

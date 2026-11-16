@@ -304,3 +304,5 @@ releases from validated version tags. [Spec](CI-CD-SPEC.md),
 2026-10-29 Shortcut connector：第六个只读 provider 族，覆盖 story 与 epic，`sc-<id>` key，
 评论内联返回，epic 的 Markdown 带它的 story 列表。见 [spec](CONNECTORS-SPEC.md) §14。connector
 框架本身不变。
+
+2026-11-16 聊天配置对齐：[SESSION-PARITY-SPEC](SESSION-PARITY-SPEC.md)，模型、提供方功能、复制与重载，以及明确的原生功能边界。

@@ -1,6 +1,17 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "On": "開啟",
+  "Off": "關閉",
+  "Loading models…": "正在載入模型…",
+  "Session settings updated": "工作階段設定已更新",
+  "Reload session": "重新載入工作階段",
+  "Session reloaded": "工作階段已重新載入",
+  "Reloading interrupts the running turn. Reload this session?": "重新載入會中斷目前的回合。要重新載入此工作階段嗎？",
+  "Copy message": "複製訊息",
+  "Session controls": "工作階段控制",
+  "Change models and provider features inside Flowly. Copy messages or reload a session from its menu.": "在 Flowly 內切換模型與供應商功能，可複製訊息或從選單重新載入工作階段。",
+  "Change the model, reasoning, permissions and provider features from the controls below a session message box.": "透過訊息框下方的控制項切換模型、推理強度、權限與供應商功能。",
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly 不限制圖片數量或大小，模型和宿主仍可能有限制。",
   "Use card description": "使用卡片描述",
   "Description changed. Use card description again.": "描述已變更，請重新使用卡片描述。",
@@ -563,8 +574,6 @@ const catalog: Catalog = {
   "Save": "儲存",
   "Default model": "預設模型",
   "Current model": "當前模型",
-  "Plugins cannot switch the model or features like Fast mode yet.": "外掛目前無法切換模型，也無法切換 Fast 模式等功能。",
-  "Change in Paseo": "在 Paseo 中更改",
   "Reasoning: {label}": "推理強度：{label}",
   "Permissions: {label}": "許可權：{label}",
   "Model: {modelLabel}": "模型：{modelLabel}",

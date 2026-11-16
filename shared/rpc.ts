@@ -567,11 +567,15 @@ export const configureSession = defineRpc({
       agentId: z.string().min(1).max(200).regex(/^[A-Za-z0-9][A-Za-z0-9_-]*$/),
       thinkingOptionId: z.string().min(1).max(100).regex(/^[A-Za-z0-9][A-Za-z0-9_.:-]*$/).optional(),
       modeId: z.string().min(1).max(100).regex(/^[A-Za-z0-9][A-Za-z0-9_.:-]*$/).optional(),
+      modelId: z.string().min(1).max(300).regex(/^[^\u0000-\u001f\u007f]+$/).optional(),
+      feature: z.strictObject({ id: z.string().min(1).max(200), value: z.union([z.boolean(), z.string().max(1000)]) }).optional(),
       stop: z.boolean().optional(),
       /** New display name of the session; a single line. */
       title: z.string().trim().min(1).max(200).regex(/^[^\u0000-\u001f\u007f]+$/, "A title is a single line.").optional(),
     })
-    .refine((i) => i.thinkingOptionId || i.modeId || i.stop || i.title, { message: "Nothing to change." }),
+    .refine((i) => i.modelId || i.feature || i.thinkingOptionId || i.modeId || i.stop || i.title, { message: "Nothing to change." })
+    .refine((i) => !(i.modelId || i.feature) || [i.modelId, i.feature, i.thinkingOptionId, i.modeId, i.stop || undefined, i.title].filter((v) => v !== undefined).length === 1,
+      { message: "Change one model or provider feature at a time." }),
   output: z.object({ applied: z.array(z.string()) }),
 });
 export const readComposer = defineRpc({

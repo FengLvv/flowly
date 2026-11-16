@@ -114,7 +114,7 @@ describe("tips", () => {
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors"], facts, blocked: false })).toBe("session-history");
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history"], facts, blocked: false })).toBe("session-context");
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history"], facts: { ...none, cardWithSession: true }, blocked: true })).toBeNull();
-    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history", "session-context"], facts, blocked: false })).toBe("sidebar-order");
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history", "session-context", "session-controls"], facts, blocked: false })).toBe("sidebar-order");
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
   });
   test("subagents are announced after the workpad tip, before ideas", () => {
@@ -333,4 +333,14 @@ test("removed image limits are announced once to existing users on an open card"
   expect(nextTip({ tipsSeen: ["description-images"], facts: { cardOpen: false } as TipFacts, blocked: false })).toBeNull();
   expect(nextTip({ tipsSeen: ["description-images"], facts, blocked: true })).toBeNull();
   expect(nextTip({ tipsSeen: ["description-images"], facts: { ...facts, needsYou: true }, blocked: false })).toBe("needs-you");
+});
+
+
+test("session controls reach existing users once after session context", () => {
+  const none = {} as TipFacts;
+  const seen = tipIds.filter((id) => id !== "session-controls");
+  expect(nextTip({ tipsSeen: seen, facts: { ...none, cardWithSession: true }, blocked: false })).toBe("session-controls");
+  expect(nextTip({ tipsSeen: [...seen, "session-controls"], facts: { ...none, cardWithSession: true }, blocked: false })).toBeNull();
+  expect(nextTip({ tipsSeen: seen, facts: none, blocked: false })).toBeNull();
+  expect(nextTip({ tipsSeen: seen, facts: { ...none, cardWithSession: true }, blocked: true })).toBeNull();
 });

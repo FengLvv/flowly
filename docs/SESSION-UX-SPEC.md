@@ -4,6 +4,8 @@ Status: authorized by the user's 2026-10-14 session UI request. Validate native 
 
 ## 1. Capability gate and result
 
+2026-11-16 amendment: [SESSION-PARITY-SPEC](SESSION-PARITY-SPEC.md) authorizes a server-only local-daemon exception for model and advertised provider-feature changes. Native pane embedding remains unsupported; all other boundaries below remain in effect.
+
 The installed plugin/client/protocol SDKs are 0.11.2. The public client UI exports Modal, Icon, ScrollView, FlatList, TextInput and UI helpers; no native AgentPane, AgentPanel or AgentCreatePane is exported. `PluginSurfaceProps.navigation` exposes `openAgent({agentId, serverId?})` and `openWorkspace({workspaceId, serverId?})`, but no native draft/create-pane entry point.
 
 Before product edits, an in-memory TypeScript probe against the installed SDK rejected three native-pane imports (TS2305) and draft navigation (TS2339), while the two supported navigation calls compiled. Evidence: [capability probe](verification/fixtures/session-pane/native-pane-capability.json). The current public [plugin reference](https://paseo.sh/docs/plugins/reference) also restricts runtime imports and marks `/client/host` private. The local host's AgentPanel depends on app pane/focus providers, routes, stores, composer and timeline modules, not a standalone SDK component.
