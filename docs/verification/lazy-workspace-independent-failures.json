@@ -1,0 +1,817 @@
+{
+  "note": "Failed assertions only, from the four full npm-test JSON reports of the verifier (this worktree is removed; these are the raw evidence). Passes and skips omitted.",
+  "runs": [
+    {
+      "run": "candidate-4241395-15s",
+      "commit": "4241395d2c022a30188e71317180348fb71a2749",
+      "total": 1406,
+      "failedCount": 37,
+      "failures": [
+        {
+          "file": "client/catalog.test.ts",
+          "test": "nothing the client entry imports reaches the catalogs (they would be in the phone's bundle again)",
+          "message": "Error: ENOENT: no such file or directory, open 'F:\\F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-indep-3208f43b\\candidate\\index.client.tsx'"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "session context signatures survive reload, reject rebinding and credential tampering",
+          "message": "AssertionError: expected 438 to be 384 // Object.is equality"
+        },
+        {
+          "file": "server/artifacts.test.ts",
+          "test": "agent tools: add, update own, keep human ones, remove only agent ones, setting off, replay",
+          "message": "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' to be 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' // Object.is equality"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "B1: a fail without evidence becomes na; a file in the diff, an existing repository file or a quote found in the reviewer's input keeps it",
+          "message": "AssertionError: expected [ …(8) ] to deeply equal [ …(8) ]"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "linked root review: shape from both repositories, commands per repository, any failure fails, a cited file under a link counts (§6.2, §6.3)",
+          "message": "AssertionError: expected [ …(2) ] to deeply equal [ 'npm test @ SMITH', …(1) ]"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "linked root: commands run only in the repositories this delivery changed, all of them when none did (§6.3)",
+          "message": "AssertionError: expected [ 'Admin', 'SMITH' ] to deeply equal [ 'SMITH' ]"
+        },
+        {
+          "file": "server/description-images.test.ts",
+          "test": "card creation commits metadata only, replays once and survives a fresh store",
+          "message": "AssertionError: expected \"vi.fn()\" to be called 1 times, but got 0 times"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "plugin root: the folder above server/ from source, the bundle's folder when bundled",
+          "message": "AssertionError: expected '.' to be '/home/someone/.paseo/plugins/flowly/d…' // Object.is equality"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "frames: only Flowly's own files, relative, oldest call first; never a path outside the plugin",
+          "message": "AssertionError: expected [] to deeply equal [ [ 'index.server.ts', …(2) ], …(1) ]"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "report: class and safe code only, never the message",
+          "message": "AssertionError: expected '7f859381c3eb13eb69213d9bf78a2036' not to be '7f859381c3eb13eb69213d9bf78a2036' // Object.is equality"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "uncaught errors are reported only when they pass through Flowly's code",
+          "message": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "file": "server/ideas.test.ts",
+          "test": "duplicate open titles and an eleventh open idea are refused",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/ideas.test.ts",
+          "test": "people dismiss and restore ideas; accepted ideas are final",
+          "message": "AssertionError: expected \"vi.fn()\" to be called 1 times, but got 0 times"
+        },
+        {
+          "file": "server/ideas.test.ts",
+          "test": "creating a card from an idea links both ways in one write",
+          "message": "AssertionError: expected \"vi.fn()\" to be called 1 times, but got 0 times"
+        },
+        {
+          "file": "server/linked-projects.test.ts",
+          "test": "linked project creates a new root with one symlink per directory and registers it",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/linked-projects.test.ts",
+          "test": "setLinks adds and removes only Kanban-created links, with CAS",
+          "message": "Error: Command failed: C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\Paseo.exe --disable-warning=DEP0040 C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\resources\\app.asar.unpacked\\dist\\daemon\\node-entryp"
+        },
+        {
+          "file": "server/local-daemon.test.ts",
+          "test": "every listen form Paseo writes resolves to a WebSocket target",
+          "message": "AssertionError: expected { url: 'ws://localhost/ws', …(1) } to deeply equal { url: 'ws://localhost/ws', …(1) }"
+        },
+        {
+          "file": "server/local-daemon.test.ts",
+          "test": "a daemon on a Unix socket is reached through that socket with the local credential",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/local-daemon.test.ts",
+          "test": "a daemon that rejects the local credential is reported, not treated as unavailable",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/naming.test.ts",
+          "test": "Flowly configuration overrides win, with existing environment overrides retained",
+          "message": "AssertionError: expected 'F:\\fixture\\home\\plugin-data\\flowly' to be '/fixture/home/plugin-data/flowly' // Object.is equality"
+        },
+        {
+          "file": "server/project-folder.test.ts",
+          "test": "a failed snapshot write never fails the board and is reported",
+          "message": "AssertionError: expected '' not to be '' // Object.is equality"
+        },
+        {
+          "file": "server/project-folder.test.ts",
+          "test": "a project whose folder can't be written is marked failed and retried at the next start",
+          "message": "AssertionError: expected 'written' to be 'failed' // Object.is equality"
+        },
+        {
+          "file": "server/project-remove-paseo.test.ts",
+          "test": "removing from Paseo deletes the native project after the board record",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/project-remove-paseo.test.ts",
+          "test": "a failed Paseo step is reported while the board removal stands",
+          "message": "AssertionError: expected { Object (removed, workspaces, ...) } to deeply equal { Object (removed, workspaces, ...) }"
+        },
+        {
+          "file": "server/project-skills.test.ts",
+          "test": "writes the skill under .agents and links it for Claude Code",
+          "message": "AssertionError: expected { …(2) } to deeply equal { …(2) }"
+        },
+        {
+          "file": "server/session-images.test.ts",
+          "test": "serves an image referenced by the session's transcript as a data URI",
+          "message": "Error: Not a local image reference."
+        },
+        {
+          "file": "server/session-images.test.ts",
+          "test": "refuses images not in the transcript, other workspaces and non-images",
+          "message": "Error: expected [Function] to throw error matching /not part of this session/ but got 'Not a local image reference.'"
+        },
+        {
+          "file": "server/session-images.test.ts",
+          "test": "an image file that is gone is a plain answer, not a system error",
+          "message": "AssertionError: expected 'Not a local image reference.' to be 'The image file no longer exists.' // Object.is equality"
+        },
+        {
+          "file": "server/skill-source.test.ts",
+          "test": "the installed skill source contains the exact live checklist before details",
+          "message": "AssertionError: expected '---\\r\\nname: flowly\\r\\ndescription: R…' to be '---\\nname: flowly\\ndescription: Read …' // Object.is equality"
+        },
+        {
+          "file": "server/sqlite-crash.test.ts",
+          "test": "a killed Flowly process killed at migrate:before-rename, the next start has the whole board in SQLite",
+          "message": "AssertionError: expected '\\n RUN  v4.1.11 F:/Project/Paseo_plug…' to contain 'Worker exited unexpectedly'"
+        },
+        {
+          "file": "server/sqlite-crash.test.ts",
+          "test": "a killed Flowly process killed at migrate:after-rename, the next start has the whole board in SQLite",
+          "message": "AssertionError: expected '\\n RUN  v4.1.11 F:/Project/Paseo_plug…' to contain 'Worker exited unexpectedly'"
+        },
+        {
+          "file": "server/sqlite-crash.test.ts",
+          "test": "a killed Flowly process killed inside a write transaction, the next start has the board from before that write",
+          "message": "AssertionError: expected '\\n RUN  v4.1.11 F:/Project/Paseo_plug…' to contain 'Worker exited unexpectedly'"
+        },
+        {
+          "file": "server/tool-server.test.ts",
+          "test": "prepared ID and scoped files are stable, selected existing actor verified",
+          "message": "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' to be 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' // Object.is equality"
+        },
+        {
+          "file": "server/tool-server.test.ts",
+          "test": "CLI runs a complete scoped flow; replay, wrong env, snapshots and flags",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/usage.test.ts",
+          "test": "locator finds Claude logs with subagents and Codex logs in sessions or archive",
+          "message": "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\ul…' to match /sessions\\/2026\\/10\\/15\\/rollout-…/2026\\"
+        },
+        {
+          "file": "server/workflow-insights.test.ts",
+          "test": "skill drafts: material from cards and memory, Run now without commands, add to project, then an update",
+          "message": "AssertionError: expected { …(3) } to match object { …(2) }"
+        },
+        {
+          "file": "server/connectors/jira.test.ts",
+          "test": "connections (EXTERNAL-TRACKER-SPEC §2) saving tests the token; the stored file is private and the client never sees the secret",
+          "message": "AssertionError: expected 438 to be 384 // Object.is equality"
+        }
+      ]
+    },
+    {
+      "run": "baseline-a45f4f5-15s-run1",
+      "commit": "a45f4f50f4c3983c30657619c90158fbd3703c56",
+      "total": 1397,
+      "failedCount": 34,
+      "failures": [
+        {
+          "file": "client/catalog.test.ts",
+          "test": "nothing the client entry imports reaches the catalogs (they would be in the phone's bundle again)",
+          "message": "Error: ENOENT: no such file or directory, open 'F:\\F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-indep-3208f43b\\baseline\\index.client.tsx'"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "session context signatures survive reload, reject rebinding and credential tampering",
+          "message": "AssertionError: expected 438 to be 384 // Object.is equality"
+        },
+        {
+          "file": "server/artifacts.test.ts",
+          "test": "agent tools: add, update own, keep human ones, remove only agent ones, setting off, replay",
+          "message": "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' to be 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' // Object.is equality"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "B1: a fail without evidence becomes na; a file in the diff, an existing repository file or a quote found in the reviewer's input keeps it",
+          "message": "AssertionError: expected [ …(8) ] to deeply equal [ …(8) ]"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "linked root review: shape from both repositories, commands per repository, any failure fails, a cited file under a link counts (§6.2, §6.3)",
+          "message": "AssertionError: expected [ …(2) ] to deeply equal [ 'npm test @ SMITH', …(1) ]"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "linked root: commands run only in the repositories this delivery changed, all of them when none did (§6.3)",
+          "message": "AssertionError: expected [ 'Admin', 'SMITH' ] to deeply equal [ 'SMITH' ]"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "plugin root: the folder above server/ from source, the bundle's folder when bundled",
+          "message": "AssertionError: expected '.' to be '/home/someone/.paseo/plugins/flowly/d…' // Object.is equality"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "frames: only Flowly's own files, relative, oldest call first; never a path outside the plugin",
+          "message": "AssertionError: expected [] to deeply equal [ [ 'index.server.ts', …(2) ], …(1) ]"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "report: class and safe code only, never the message",
+          "message": "AssertionError: expected '7f859381c3eb13eb69213d9bf78a2036' not to be '7f859381c3eb13eb69213d9bf78a2036' // Object.is equality"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "uncaught errors are reported only when they pass through Flowly's code",
+          "message": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "file": "server/ideas.test.ts",
+          "test": "duplicate open titles and an eleventh open idea are refused",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/linked-projects.test.ts",
+          "test": "linked project creates a new root with one symlink per directory and registers it",
+          "message": "Error: Command failed: C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\Paseo.exe --disable-warning=DEP0040 C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\resources\\app.asar.unpacked\\dist\\daemon\\node-entryp"
+        },
+        {
+          "file": "server/linked-projects.test.ts",
+          "test": "setLinks adds and removes only Kanban-created links, with CAS",
+          "message": "Error: Command failed: C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\Paseo.exe --disable-warning=DEP0040 C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\resources\\app.asar.unpacked\\dist\\daemon\\node-entryp"
+        },
+        {
+          "file": "server/local-daemon.test.ts",
+          "test": "every listen form Paseo writes resolves to a WebSocket target",
+          "message": "AssertionError: expected { url: 'ws://localhost/ws', …(1) } to deeply equal { url: 'ws://localhost/ws', …(1) }"
+        },
+        {
+          "file": "server/local-daemon.test.ts",
+          "test": "a daemon on a Unix socket is reached through that socket with the local credential",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/local-daemon.test.ts",
+          "test": "a daemon that rejects the local credential is reported, not treated as unavailable",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/naming.test.ts",
+          "test": "Flowly configuration overrides win, with existing environment overrides retained",
+          "message": "AssertionError: expected 'F:\\fixture\\home\\plugin-data\\flowly' to be '/fixture/home/plugin-data/flowly' // Object.is equality"
+        },
+        {
+          "file": "server/project-folder.test.ts",
+          "test": "a failed snapshot write never fails the board and is reported",
+          "message": "AssertionError: expected '' not to be '' // Object.is equality"
+        },
+        {
+          "file": "server/project-folder.test.ts",
+          "test": "a project whose folder can't be written is marked failed and retried at the next start",
+          "message": "AssertionError: expected 'written' to be 'failed' // Object.is equality"
+        },
+        {
+          "file": "server/project-remove-paseo.test.ts",
+          "test": "removing from Paseo deletes the native project after the board record",
+          "message": "AssertionError: expected { Object (removed, workspaces, ...) } to deeply equal { removed: true, workspaces: 2, …(1) }"
+        },
+        {
+          "file": "server/project-remove-paseo.test.ts",
+          "test": "a failed Paseo step is reported while the board removal stands",
+          "message": "AssertionError: expected { Object (removed, workspaces, ...) } to deeply equal { Object (removed, workspaces, ...) }"
+        },
+        {
+          "file": "server/project-skills.test.ts",
+          "test": "writes the skill under .agents and links it for Claude Code",
+          "message": "AssertionError: expected { …(2) } to deeply equal { …(2) }"
+        },
+        {
+          "file": "server/session-images.test.ts",
+          "test": "serves an image referenced by the session's transcript as a data URI",
+          "message": "Error: Not a local image reference."
+        },
+        {
+          "file": "server/session-images.test.ts",
+          "test": "refuses images not in the transcript, other workspaces and non-images",
+          "message": "Error: expected [Function] to throw error matching /not part of this session/ but got 'Not a local image reference.'"
+        },
+        {
+          "file": "server/session-images.test.ts",
+          "test": "an image file that is gone is a plain answer, not a system error",
+          "message": "AssertionError: expected 'Not a local image reference.' to be 'The image file no longer exists.' // Object.is equality"
+        },
+        {
+          "file": "server/skill-source.test.ts",
+          "test": "the installed skill source contains the exact live checklist before details",
+          "message": "AssertionError: expected '---\\r\\nname: flowly\\r\\ndescription: R…' to be '---\\nname: flowly\\ndescription: Read …' // Object.is equality"
+        },
+        {
+          "file": "server/sqlite-crash.test.ts",
+          "test": "a killed Flowly process killed at migrate:before-rename, the next start has the whole board in SQLite",
+          "message": "AssertionError: expected '\\n RUN  v4.1.11 F:/Project/Paseo_plug…' to contain 'Worker exited unexpectedly'"
+        },
+        {
+          "file": "server/sqlite-crash.test.ts",
+          "test": "a killed Flowly process killed at migrate:after-rename, the next start has the whole board in SQLite",
+          "message": "AssertionError: expected '\\n RUN  v4.1.11 F:/Project/Paseo_plug…' to contain 'Worker exited unexpectedly'"
+        },
+        {
+          "file": "server/sqlite-crash.test.ts",
+          "test": "a killed Flowly process killed inside a write transaction, the next start has the board from before that write",
+          "message": "AssertionError: expected '\\n RUN  v4.1.11 F:/Project/Paseo_plug…' to contain 'Worker exited unexpectedly'"
+        },
+        {
+          "file": "server/tool-server.test.ts",
+          "test": "prepared ID and scoped files are stable, selected existing actor verified",
+          "message": "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' to be 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' // Object.is equality"
+        },
+        {
+          "file": "server/tool-server.test.ts",
+          "test": "CLI runs a complete scoped flow; replay, wrong env, snapshots and flags",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/usage.test.ts",
+          "test": "locator finds Claude logs with subagents and Codex logs in sessions or archive",
+          "message": "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\ul…' to match /sessions\\/2026\\/10\\/15\\/rollout-…/2026\\"
+        },
+        {
+          "file": "server/workflow-insights.test.ts",
+          "test": "skill drafts: material from cards and memory, Run now without commands, add to project, then an update",
+          "message": "AssertionError: expected { …(3) } to match object { …(2) }"
+        },
+        {
+          "file": "server/connectors/jira.test.ts",
+          "test": "connections (EXTERNAL-TRACKER-SPEC §2) saving tests the token; the stored file is private and the client never sees the secret",
+          "message": "AssertionError: expected 438 to be 384 // Object.is equality"
+        }
+      ]
+    },
+    {
+      "run": "baseline-a45f4f5-15s-run2",
+      "commit": "a45f4f50f4c3983c30657619c90158fbd3703c56",
+      "total": 1397,
+      "failedCount": 32,
+      "failures": [
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "session context signatures survive reload, reject rebinding and credential tampering",
+          "message": "AssertionError: expected 438 to be 384 // Object.is equality"
+        },
+        {
+          "file": "server/artifacts.test.ts",
+          "test": "agent tools: add, update own, keep human ones, remove only agent ones, setting off, replay",
+          "message": "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' to be 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' // Object.is equality"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "B1: a fail without evidence becomes na; a file in the diff, an existing repository file or a quote found in the reviewer's input keeps it",
+          "message": "AssertionError: expected [ …(8) ] to deeply equal [ …(8) ]"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "linked root review: shape from both repositories, commands per repository, any failure fails, a cited file under a link counts (§6.2, §6.3)",
+          "message": "AssertionError: expected [ …(2) ] to deeply equal [ 'npm test @ SMITH', …(1) ]"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "linked root: commands run only in the repositories this delivery changed, all of them when none did (§6.3)",
+          "message": "AssertionError: expected [ 'Admin', 'SMITH' ] to deeply equal [ 'SMITH' ]"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "plugin root: the folder above server/ from source, the bundle's folder when bundled",
+          "message": "AssertionError: expected '.' to be '/home/someone/.paseo/plugins/flowly/d…' // Object.is equality"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "frames: only Flowly's own files, relative, oldest call first; never a path outside the plugin",
+          "message": "AssertionError: expected [] to deeply equal [ [ 'index.server.ts', …(2) ], …(1) ]"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "report: class and safe code only, never the message",
+          "message": "AssertionError: expected '7f859381c3eb13eb69213d9bf78a2036' not to be '7f859381c3eb13eb69213d9bf78a2036' // Object.is equality"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "uncaught errors are reported only when they pass through Flowly's code",
+          "message": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "file": "server/linked-projects.test.ts",
+          "test": "linked project creates a new root with one symlink per directory and registers it",
+          "message": "Error: Command failed: C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\Paseo.exe --disable-warning=DEP0040 C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\resources\\app.asar.unpacked\\dist\\daemon\\node-entryp"
+        },
+        {
+          "file": "server/linked-projects.test.ts",
+          "test": "setLinks adds and removes only Kanban-created links, with CAS",
+          "message": "Error: Command failed: C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\Paseo.exe --disable-warning=DEP0040 C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\resources\\app.asar.unpacked\\dist\\daemon\\node-entryp"
+        },
+        {
+          "file": "server/local-daemon.test.ts",
+          "test": "every listen form Paseo writes resolves to a WebSocket target",
+          "message": "AssertionError: expected { url: 'ws://localhost/ws', …(1) } to deeply equal { url: 'ws://localhost/ws', …(1) }"
+        },
+        {
+          "file": "server/local-daemon.test.ts",
+          "test": "a daemon on a Unix socket is reached through that socket with the local credential",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/local-daemon.test.ts",
+          "test": "a daemon that rejects the local credential is reported, not treated as unavailable",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/naming.test.ts",
+          "test": "Flowly configuration overrides win, with existing environment overrides retained",
+          "message": "AssertionError: expected 'F:\\fixture\\home\\plugin-data\\flowly' to be '/fixture/home/plugin-data/flowly' // Object.is equality"
+        },
+        {
+          "file": "server/project-folder.test.ts",
+          "test": "a failed snapshot write never fails the board and is reported",
+          "message": "AssertionError: expected '' not to be '' // Object.is equality"
+        },
+        {
+          "file": "server/project-folder.test.ts",
+          "test": "a project whose folder can't be written is marked failed and retried at the next start",
+          "message": "AssertionError: expected 'written' to be 'failed' // Object.is equality"
+        },
+        {
+          "file": "server/project-remove-paseo.test.ts",
+          "test": "removing from Paseo deletes the native project after the board record",
+          "message": "AssertionError: expected { Object (removed, workspaces, ...) } to deeply equal { removed: true, workspaces: 2, …(1) }"
+        },
+        {
+          "file": "server/project-remove-paseo.test.ts",
+          "test": "a failed Paseo step is reported while the board removal stands",
+          "message": "AssertionError: expected { Object (removed, workspaces, ...) } to deeply equal { Object (removed, workspaces, ...) }"
+        },
+        {
+          "file": "server/project-skills.test.ts",
+          "test": "writes the skill under .agents and links it for Claude Code",
+          "message": "AssertionError: expected { …(2) } to deeply equal { …(2) }"
+        },
+        {
+          "file": "server/session-images.test.ts",
+          "test": "serves an image referenced by the session's transcript as a data URI",
+          "message": "Error: Not a local image reference."
+        },
+        {
+          "file": "server/session-images.test.ts",
+          "test": "refuses images not in the transcript, other workspaces and non-images",
+          "message": "Error: expected [Function] to throw error matching /not part of this session/ but got 'Not a local image reference.'"
+        },
+        {
+          "file": "server/session-images.test.ts",
+          "test": "an image file that is gone is a plain answer, not a system error",
+          "message": "AssertionError: expected 'Not a local image reference.' to be 'The image file no longer exists.' // Object.is equality"
+        },
+        {
+          "file": "server/skill-source.test.ts",
+          "test": "the installed skill source contains the exact live checklist before details",
+          "message": "AssertionError: expected '---\\r\\nname: flowly\\r\\ndescription: R…' to be '---\\nname: flowly\\ndescription: Read …' // Object.is equality"
+        },
+        {
+          "file": "server/sqlite-crash.test.ts",
+          "test": "a killed Flowly process killed at migrate:before-rename, the next start has the whole board in SQLite",
+          "message": "AssertionError: expected '\\n RUN  v4.1.11 F:/Project/Paseo_plug…' to contain 'Worker exited unexpectedly'"
+        },
+        {
+          "file": "server/sqlite-crash.test.ts",
+          "test": "a killed Flowly process killed at migrate:after-rename, the next start has the whole board in SQLite",
+          "message": "AssertionError: expected '\\n RUN  v4.1.11 F:/Project/Paseo_plug…' to contain 'Worker exited unexpectedly'"
+        },
+        {
+          "file": "server/sqlite-crash.test.ts",
+          "test": "a killed Flowly process killed inside a write transaction, the next start has the board from before that write",
+          "message": "AssertionError: expected '\\n RUN  v4.1.11 F:/Project/Paseo_plug…' to contain 'Worker exited unexpectedly'"
+        },
+        {
+          "file": "server/tool-server.test.ts",
+          "test": "prepared ID and scoped files are stable, selected existing actor verified",
+          "message": "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' to be 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' // Object.is equality"
+        },
+        {
+          "file": "server/usage.test.ts",
+          "test": "locator finds Claude logs with subagents and Codex logs in sessions or archive",
+          "message": "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\ul…' to match /sessions\\/2026\\/10\\/15\\/rollout-…/2026\\"
+        },
+        {
+          "file": "server/workflow-insights.test.ts",
+          "test": "skill drafts: material from cards and memory, Run now without commands, add to project, then an update",
+          "message": "AssertionError: expected { …(3) } to match object { …(2) }"
+        },
+        {
+          "file": "client/catalog.test.ts",
+          "test": "nothing the client entry imports reaches the catalogs (they would be in the phone's bundle again)",
+          "message": "Error: ENOENT: no such file or directory, open 'F:\\F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-indep-3208f43b\\baseline\\index.client.tsx'"
+        },
+        {
+          "file": "server/connectors/jira.test.ts",
+          "test": "connections (EXTERNAL-TRACKER-SPEC §2) saving tests the token; the stored file is private and the client never sees the secret",
+          "message": "AssertionError: expected 438 to be 384 // Object.is equality"
+        }
+      ]
+    },
+    {
+      "run": "final-f6d7ef3-15s",
+      "commit": "f6d7ef3a4afc2043f62450da15e276509f596d53",
+      "total": 1406,
+      "failedCount": 53,
+      "failures": [
+        {
+          "file": "client/catalog.test.ts",
+          "test": "nothing the client entry imports reaches the catalogs (they would be in the phone's bundle again)",
+          "message": "Error: ENOENT: no such file or directory, open 'F:\\F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-indep-3208f43b\\candidate\\index.client.tsx'"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "session context signatures survive reload, reject rebinding and credential tampering",
+          "message": "AssertionError: expected 438 to be 384 // Object.is equality"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "reminders are absent when the call was made already: moves this turn, Ideas off, ideas proposed, moves on the call",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "a new turn starts over: last turn's moves do not count, this turn's none does",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "only a delivery, an ask or a result reminds: stage changes and plain progress stay quiet",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "a refused call or a finished card carries no reminders",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "setup: get_task names the missing items first; each clears once set, by anyone",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "setup: every write succeeds and reminds of what is still missing; a set type is not mentioned again",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "setup: delivering with missing setup is SETUP_INCOMPLETE until acknowledged; the snapshot records it",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "outputs: omission reminds per call, [] declares none without deleting artifacts; disabled allows []",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "outputs: invalid target, capacity, stale revision and gate refusal roll back the whole delivery",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "outputs: inappropriate action/kind and malformed lists refuse without writes",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "outputs: recognized external keeps output role; unreadable private metadata still saves the explicit URL",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "gate: pre-acknowledgement refuses, same-state retry succeeds; pad/revision/turn/expiry/reload/session invalidate it",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/agent-service.test.ts",
+          "test": "an agent edits and dismisses an open idea of its card without touching the card",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/artifacts.test.ts",
+          "test": "agent tools: add, update own, keep human ones, remove only agent ones, setting off, replay",
+          "message": "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' to be 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' // Object.is equality"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "B1: a fail without evidence becomes na; a file in the diff, an existing repository file or a quote found in the reviewer's input keeps it",
+          "message": "AssertionError: expected [ …(8) ] to deeply equal [ …(8) ]"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "linked root: the repositories behind its links, then each one's change with its paths under the link's name (§6.2)",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "linked root review: shape from both repositories, commands per repository, any failure fails, a cited file under a link counts (§6.2, §6.3)",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "linked root review: a command that fails in one repository fails, with that repository's output",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "linked root: commands run only in the repositories this delivery changed, all of them when none did (§6.3)",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/auto-review.test.ts",
+          "test": "linked root diff: a large change in one repository cannot push the others out of the 64 KiB (§6.2)",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "plugin root: the folder above server/ from source, the bundle's folder when bundled",
+          "message": "AssertionError: expected '.' to be '/home/someone/.paseo/plugins/flowly/d…' // Object.is equality"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "frames: only Flowly's own files, relative, oldest call first; never a path outside the plugin",
+          "message": "AssertionError: expected [] to deeply equal [ [ 'index.server.ts', …(2) ], …(1) ]"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "report: class and safe code only, never the message",
+          "message": "AssertionError: expected '7f859381c3eb13eb69213d9bf78a2036' not to be '7f859381c3eb13eb69213d9bf78a2036' // Object.is equality"
+        },
+        {
+          "file": "server/error-report.test.ts",
+          "test": "uncaught errors are reported only when they pass through Flowly's code",
+          "message": "AssertionError: expected false to be true // Object.is equality"
+        },
+        {
+          "file": "server/linked-projects.test.ts",
+          "test": "linked project creates a new root with one symlink per directory and registers it",
+          "message": "Error: Command failed: C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\Paseo.exe --disable-warning=DEP0040 C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\resources\\app.asar.unpacked\\dist\\daemon\\node-entryp"
+        },
+        {
+          "file": "server/linked-projects.test.ts",
+          "test": "setLinks adds and removes only Kanban-created links, with CAS",
+          "message": "Error: Command failed: C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\Paseo.exe --disable-warning=DEP0040 C:\\Users\\vilolu\\AppData\\Local\\Programs\\Paseo\\resources\\app.asar.unpacked\\dist\\daemon\\node-entryp"
+        },
+        {
+          "file": "server/local-daemon.test.ts",
+          "test": "every listen form Paseo writes resolves to a WebSocket target",
+          "message": "AssertionError: expected { url: 'ws://localhost/ws', …(1) } to deeply equal { url: 'ws://localhost/ws', …(1) }"
+        },
+        {
+          "file": "server/local-daemon.test.ts",
+          "test": "a daemon on a Unix socket is reached through that socket with the local credential",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/local-daemon.test.ts",
+          "test": "a daemon that rejects the local credential is reported, not treated as unavailable",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/naming.test.ts",
+          "test": "Flowly configuration overrides win, with existing environment overrides retained",
+          "message": "AssertionError: expected 'F:\\fixture\\home\\plugin-data\\flowly' to be '/fixture/home/plugin-data/flowly' // Object.is equality"
+        },
+        {
+          "file": "server/project-folder.test.ts",
+          "test": "a failed snapshot write never fails the board and is reported",
+          "message": "AssertionError: expected '' not to be '' // Object.is equality"
+        },
+        {
+          "file": "server/project-folder.test.ts",
+          "test": "a project whose folder can't be written is marked failed and retried at the next start",
+          "message": "AssertionError: expected 'written' to be 'failed' // Object.is equality"
+        },
+        {
+          "file": "server/project-remove-paseo.test.ts",
+          "test": "removing from Paseo deletes the native project after the board record",
+          "message": "AssertionError: expected { Object (removed, workspaces, ...) } to deeply equal { removed: true, workspaces: 2, …(1) }"
+        },
+        {
+          "file": "server/project-remove-paseo.test.ts",
+          "test": "a failed Paseo step is reported while the board removal stands",
+          "message": "AssertionError: expected { Object (removed, workspaces, ...) } to deeply equal { Object (removed, workspaces, ...) }"
+        },
+        {
+          "file": "server/project-skills.test.ts",
+          "test": "writes the skill under .agents and links it for Claude Code",
+          "message": "AssertionError: expected { …(2) } to deeply equal { …(2) }"
+        },
+        {
+          "file": "server/session-images.test.ts",
+          "test": "serves an image referenced by the session's transcript as a data URI",
+          "message": "Error: Not a local image reference."
+        },
+        {
+          "file": "server/session-images.test.ts",
+          "test": "refuses images not in the transcript, other workspaces and non-images",
+          "message": "Error: expected [Function] to throw error matching /not part of this session/ but got 'Not a local image reference.'"
+        },
+        {
+          "file": "server/session-images.test.ts",
+          "test": "an image file that is gone is a plain answer, not a system error",
+          "message": "AssertionError: expected 'Not a local image reference.' to be 'The image file no longer exists.' // Object.is equality"
+        },
+        {
+          "file": "server/skill-source.test.ts",
+          "test": "the installed skill source contains the exact live checklist before details",
+          "message": "AssertionError: expected '---\\r\\nname: flowly\\r\\ndescription: R…' to be '---\\nname: flowly\\ndescription: Read …' // Object.is equality"
+        },
+        {
+          "file": "server/sqlite-crash.test.ts",
+          "test": "a killed Flowly process killed at migrate:before-rename, the next start has the whole board in SQLite",
+          "message": "AssertionError: expected '\\n RUN  v4.1.11 F:/Project/Paseo_plug…' to contain 'Worker exited unexpectedly'"
+        },
+        {
+          "file": "server/sqlite-crash.test.ts",
+          "test": "a killed Flowly process killed at migrate:after-rename, the next start has the whole board in SQLite",
+          "message": "AssertionError: expected '\\n RUN  v4.1.11 F:/Project/Paseo_plug…' to contain 'Worker exited unexpectedly'"
+        },
+        {
+          "file": "server/sqlite-crash.test.ts",
+          "test": "a killed Flowly process killed inside a write transaction, the next start has the board from before that write",
+          "message": "AssertionError: expected '\\n RUN  v4.1.11 F:/Project/Paseo_plug…' to contain 'Worker exited unexpectedly'"
+        },
+        {
+          "file": "server/tool-server.test.ts",
+          "test": "prepared ID and scoped files are stable, selected existing actor verified",
+          "message": "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' to be 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\fl…' // Object.is equality"
+        },
+        {
+          "file": "server/tool-server.test.ts",
+          "test": "CLI runs a complete scoped flow; replay, wrong env, snapshots and flags",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/tool-server.test.ts",
+          "test": "CLI outputs and first refusal: real transport, persisted IDs and exact replay",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/tool-server.test.ts",
+          "test": "flowly_search over HTTP and the CLI: this project only, own card excluded, same result (SEARCH-SPEC §6)",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/tool-server.test.ts",
+          "test": "opting in an existing session records MCP only once its provider is known to take it",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/tool-server.test.ts",
+          "test": "opting in never interrupts a running turn; a failed reopen leaves the CLI",
+          "message": "Error: STACK_TRACE_ERROR"
+        },
+        {
+          "file": "server/usage.test.ts",
+          "test": "locator finds Claude logs with subagents and Codex logs in sessions or archive",
+          "message": "AssertionError: expected 'C:\\Users\\vilolu\\AppData\\Local\\Temp\\ul…' to match /sessions\\/2026\\/10\\/15\\/rollout-…/2026\\"
+        },
+        {
+          "file": "server/workflow-insights.test.ts",
+          "test": "skill drafts: material from cards and memory, Run now without commands, add to project, then an update",
+          "message": "AssertionError: expected { …(3) } to match object { …(2) }"
+        },
+        {
+          "file": "server/connectors/jira.test.ts",
+          "test": "connections (EXTERNAL-TRACKER-SPEC §2) saving tests the token; the stored file is private and the client never sees the secret",
+          "message": "AssertionError: expected 438 to be 384 // Object.is equality"
+        }
+      ]
+    }
+  ]
+}
