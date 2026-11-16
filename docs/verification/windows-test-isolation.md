@@ -62,3 +62,12 @@
 - 本卡未创建 native project/workspace/session/card；自己创建的 Vitest/CLI 临时 home 已清理。未删除任何用户或归属不明目录。没有遗留测试子会话。
 - 未运行独立 session 的冻结提交验证、Linux/macOS 执行、手机/桌面 UI。未提交或推送，未建 PR；没有将共享工作树的失败宣称为精确 HEAD 的基线结论。
 - 本项目禁用了 In review lane，允许的 agent 阶段只有 Design / Development / Test；最终通过 result 回执交付并保持 Test，不擅自修改项目 lanes 或移到 Done。
+
+## 精确提交独立验收与推送
+
+- 用户随后明确要求精确提交、指定 Haiku 全权限验收后仅推送本卡。私有 Git index 从最新 `origin/main` 构建，仅包含本卡 16 个文件；混合的 PROGRESS / SPEC-OUTLINE 只取本卡段落。未切换或覆盖共享工作树，主 index 保持空。日常绑定原始快照只留本机。
+- 初始 `0ca55b459e3bf23cf3fa9f45935d7246fbc0928e` 基于 `a45f4f5`。独立验收期间另一卡片合入 `373998b`，因此重建为 `4c895e0350ecd425824bfb4ed681b31e1a85e8aa`，保留新主线；本卡测试、辅助模块、package 和配置与初始候选内容一致。指定同一会话重新验证最终集成，不把旧 SHA 的结果冒充新 SHA。
+- 指定模型实际可用并确认运行：`claude/claude-haiku-5-5`，`bypassPermissions`，会话 `4d50978f-03b9-4b9d-88ab-3aea1d774b74`，在本卡已有 workspace 中启动；独立 detached checkout 和真实 npm ci 依赖位于本卡目录内。验证者只写自己的 [独立报告](windows-test-isolation-independent.md)，实现者没有修改其证据。
+- 最终精确提交：实现者 typecheck exit 0、五文件聚焦 28/28 exit 0；独立 typecheck exit 0、同组 28/28 exit 0、pack 排除验证 exit 0；独立全量 `npm test -- --maxWorkers=4` exit 1，**1387 passed / 24 failed / 7 skipped**，161 文件。24 个失败身份均在其早先隔离父提交 15 文件对照中出现；可变 auto-review 失败在父提交也复现，无新增失败身份或 High 发现。父对照是 `a45f4f5` 且不是父全量，未对 `373998b` 再跑父基线，不能宣称当前父全量严格等价。原始失败运行记录汇总为 `windows-test-isolation-independent-failures.json`。
+- 已将验证过的原始代码提交 `4c895e0` 正常快进推送至 `origin/main`，没有 force / main 重写。后续文档提交只记录验收与本轮清理，不改已验证代码。未建 PR、安装或重载插件，非 Windows 与 UI 仍未运行。
+- 清理：验证会话完成并回读 idle 后，仅删除记录的测试 session；回读为 `AGENT_NOT_FOUND`。两个本轮 detached worktree、明确记录的空 parent home 和具体 helper 文件均已删除，未执行全局 worktree prune。最初组合清理命令被自动审批以 `blocked by policy` 拒绝（无进一步原因），改为单项精确目标和非递归空目录清理后成功；没有绕过拒绝改用另一种递归删除器。最终 13:59 UTC 原生项目仍为 22、workspace 仍为 93，14 项不明注册与运行前逐项一致，三个受保护旧 worktree 保留。
