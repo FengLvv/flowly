@@ -1,0 +1,45 @@
+{
+  "owner": "tapd-mine-518fe4a9-0a6f-4a8d-8e32-b25d727ce3e3",
+  "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-518fe4a9-0a6f-4a8d-8e32-b25d727ce3e3",
+  "port": 13672,
+  "daemonPid": 52296,
+  "project": {
+    "id": "efad4acd-2589-4fa5-9347-64e2d8e131b6",
+    "title": "TAPD mine fixture",
+    "description": "",
+    "paseoProjectId": "prj_70a434e150017c07",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-518fe4a9-0a6f-4a8d-8e32-b25d727ce3e3\\project",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-518fe4a9-0a6f-4a8d-8e32-b25d727ce3e3\\project"
+    ],
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    },
+    "revision": 1,
+    "createdAt": "2026-11-16T07:57:33.327Z",
+    "updatedAt": "2026-11-16T07:57:33.327Z",
+    "archivedAt": null
+  },
+  "connectionId": "28a8aec2-54aa-47a2-bc14-a62e09eec469",
+  "task": {
+    "id": "03c2c146-ce16-408c-b64c-ed832dc80531",
+    "projectId": "efad4acd-2589-4fa5-9347-64e2d8e131b6",
+    "workspaceId": "wks_944566b74cba7193",
+    "sourcePath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-518fe4a9-0a6f-4a8d-8e32-b25d727ce3e3\\project",
+    "repoPaths": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-518fe4a9-0a6f-4a8d-8e32-b25d727ce3e3\\project"
+    ],
+    "title": "TAPD mine card",
+    "description": "Synthetic fixture",
+    "status": "todo",
+    "priority": "normal",
+    "position": 0,
+    "revision": 1,
+    "operationId": "tapd-mine-518fe4a9-0a6f-4a8d-8e32-b25d727ce3e3",
+    "createdAt": "2026-11-16T07:57:34.482Z",
+    "updatedAt": "2026-11-16T07:57:34.482Z",
+    "archivedAt": null,
+    "ownsWorkspace": true
+  }
+}
