@@ -1,0 +1,24 @@
+# Fork consolidation and upstream carry-forward
+
+User request, 2026-11-17: consolidate all local/origin branches and PRs into the fork's main, then manually integrate the original project's newer main commits and synchronize the local checkout with the personal GitHub repository.
+
+## Contract
+
+- Preserve the existing fork behavior: single-root and lazy card workspaces, unlimited Flowly image attachments, editable description-to-instruction copying, cross-model dialogue context, TAPD, board panning, conversation controls and Runtime conversations.
+- Preserve current Windows fixes and their business/security assertions. Stale shared files must not revert decoded file-URL validation or native resource isolation.
+- Retain all captured local/origin branch tips in the consolidated history. Historical squashed feature branches use the current accepted implementation; their obsolete snapshots, release numbers and replaced UI must not overwrite newer behavior. Resolve overlapping active branches against their latest shared implementation and retain their evidence unchanged.
+- Carry forward the 21 commits from upstream main through `61511d7`, resolving code and contract conflicts manually. Preserve fork-specific behavior while adopting SDK 0.16, background-agent handling, metadata/subscriptions, mobile composer support, Linear, card images, review improvements and fixes. Keep version 1.8.0; no release or What's new entry.
+- Shared working files and index remain untouched until the reviewed integration is ready. Before updating the checkout, detect later edits and preserve them. The final non-ignored checkout and local main must match origin/main. Native projects, workspaces, sessions and daily plugin state are unchanged.
+- Raw local native-registry audits contain unrelated resource identities and paths. Preserve them locally and ignore those two files; do not publish them. Never publish credentials or ignored local data.
+
+## Review and checks
+
+The fork has auto-merge disabled and produces no CodeRabbit check. After being told this limitation, the user explicitly instructed merging all branches/PRs now. Record this one-off instruction and the missing CodeRabbit evidence; do not claim CodeRabbit approval or alter repository protection/settings. Run typecheck, the focused integration suite, full tests and package checks on the exact candidate. The independent verifier is `codex/gpt-6-luna`, full-access, in the card's existing native workspace, using its own detached test checkout and owning its report. Do not substitute a provider/model or edit verifier evidence.
+
+## Acceptance
+
+1. Every captured local/origin branch tip and open PR is accounted for; active features survive and historical branches cannot revert newer behavior.
+2. All 21 upstream commits have an explicit carry-forward disposition, including overlapping card-image, session, storage/RPC and Windows test changes.
+3. Typecheck, focused/full tests, package/CI and independent exact-commit results distinguish pass, fail and unrun checks without weakening assertions.
+4. No existing native resources or other-session edits are lost; private audit files remain local and ignored; only test-owned resources are cleaned.
+5. PR final states, local main, origin/main and the non-ignored working tree are verified after the push. No upstream write or version bump occurs.

@@ -10,3 +10,7 @@ docs/promo/ids.json
 .env
 .env.*
 !.env.example
+
+# Private native-registry audit snapshots (unrelated daily resources).
+docs/verification/windows-test-registry-before.json
+docs/verification/windows-test-registry-after.json
