@@ -1,6 +1,9 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "My to-dos": "Meine Aufgaben",
+  "All work items": "Alle Einträge",
+  "No matching to-dos for your TAPD account in this project.": "Keine passenden Aufgaben für dein TAPD-Konto in diesem Projekt.",
   "An empty description imports the first TAPD item's description when creating the card.": "Bei leerer Beschreibung wird beim Erstellen der Karte die Beschreibung des ersten TAPD-Elements übernommen.",
   "TAPD work item": "TAPD-Arbeitselement",
   "Work item link, number, story-123, bug-123, task-123 or title words": "Link, Nummer, story-123, bug-123, task-123 oder Titelwörter",
@@ -9,7 +12,7 @@ const catalog: Catalog = {
   "Add a TAPD connection": "TAPD-Verbindung hinzufügen",
   "MCP access refused. Check login and test again.": "MCP-Zugriff verweigert. Anmeldung prüfen und erneut testen.",
   "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "Verwendet den konfigurierten tapd-MCP-Server des Paseo-Hosts über mcporter. Melde dich dort zuerst an. TAPD wird nur gelesen.",
-  "TAPD work items can be inputs too. Connect a TAPD project in Settings → Connections, then use From TAPD or the Artifacts +.": "Auch TAPD-Arbeitselemente können Eingaben sein. Verbinde ein TAPD-Projekt unter Einstellungen → Verbindungen und nutze dann Von TAPD oder das + bei Artefakte.",
+  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "Verbinde TAPD unter Einstellungen → Verbindungen. Die Auswahl beginnt mit Meine Aufgaben; wechsle zu Alle Einträge, um das Projekt zu durchsuchen.",
   "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Starte eine Karte aus Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut oder TAPD oder füge über das + bei Artefakte ein Element hinzu. Agents lesen es jede Runde; Flowly ändert es nie.",
 
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly begrenzt weder Anzahl noch Größe der Bilder. Die Grenzen von Modell und Host gelten weiterhin.",

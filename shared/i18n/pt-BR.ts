@@ -1,6 +1,9 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "My to-dos": "Minhas pendências",
+  "All work items": "Todos os itens",
+  "No matching to-dos for your TAPD account in this project.": "Nenhuma pendência correspondente à sua conta TAPD neste projeto.",
   "An empty description imports the first TAPD item's description when creating the card.": "Se a descrição estiver vazia, a descrição do primeiro item TAPD será importada ao criar o cartão.",
   "TAPD work item": "Item de trabalho do TAPD",
   "Work item link, number, story-123, bug-123, task-123 or title words": "Link, número, story-123, bug-123, task-123 ou palavras do título",
@@ -9,7 +12,7 @@ const catalog: Catalog = {
   "Add a TAPD connection": "Adicionar conexão do TAPD",
   "MCP access refused. Check login and test again.": "Acesso MCP recusado. Verifique o login e teste novamente.",
   "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "Usa o servidor MCP tapd configurado no host do Paseo via mcporter. Entre nele primeiro. O acesso ao TAPD é somente leitura.",
-  "TAPD work items can be inputs too. Connect a TAPD project in Settings → Connections, then use From TAPD or the Artifacts +.": "Itens do TAPD também podem ser entradas. Conecte um projeto em Configurações → Conexões e use Do TAPD ou o + de Artefatos.",
+  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "Conecte o TAPD em Configurações → Conexões. O seletor começa em Minhas pendências; mude para Todos os itens para explorar o projeto.",
   "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Crie um cartão a partir do Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut ou TAPD, ou adicione um item pelo + de Artefatos. Os agentes o leem a cada turno; o Flowly nunca o altera.",
 
   "Flowly does not limit image count or size. Model and host limits still apply.": "O Flowly não limita a quantidade nem o tamanho das imagens. Os limites do modelo e do host continuam valendo.",

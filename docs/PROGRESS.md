@@ -1,5 +1,11 @@
 # Implementation progress
 
+## TAPD My to-dos filter — 2026-11-16
+
+- User requested a way to find their own work items among everybody's. Both TAPD pickers default to My to-dos, with All work items available; recent/title queries use the current host MCP account's project-scoped todo endpoints. Exact URLs/keys/numbers stay directly accessible in either scope. [Contract](TAPD-CONNECTOR-SPEC.md).
+- Reused the validated search `all` flag and shared Choices control, with separate query caches; no schema/storage migration, credentials, dependency, version bump or telemetry field. Updated the existing TAPD onboarding tip and README; no additional tip or tour section is warranted for the visible filter.
+- Initial implementer checks: `npm run typecheck` exit 0; focused TAPD/shared/i18n/onboarding suite exit 0, 188/188. The broader connector run exposed the existing Windows POSIX-mode Jira assertion and accidentally included old temporary checkouts; the corrected focused run excludes `.test-data/**`. Installed/UI and independent exact-commit verification follow in `docs/verification/`.
+
 ## Tencent internal TAPD inputs — 2026-11-13
 
 - User selected `tapd.woa.com` and requested discovery through existing MCP rather than supplying a sample. Added project-scoped `tapd-internal` connections backed by the host's configured `tapd` MCP runtime, with a fixed read-only tool/argument whitelist. No copied credentials, external writes, state synchronization or native-scope changes. [Contract](TAPD-CONNECTOR-SPEC.md).

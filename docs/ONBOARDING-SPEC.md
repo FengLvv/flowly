@@ -99,7 +99,7 @@ A tip is a single dismissible banner row (icon, one sentence, **Got it**) under 
 | `project-menu` | desktop project tabs show two or more projects and no card is open (PROJECT-TABS-SPEC) | "Drag a project tab to reorder it. Right-click it for its settings, a new task, Insights, Ideas or Remove." |
 | `jira-connect` | the project has a card, no card is open, and no connection is configured (announces the feature; lowest priority) | "Work from Jira, Confluence, GitHub, GitLab or Azure DevOps: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them." |
 
-| `tapd-connect` | a card is open; after existing tips; new id reaches existing users once | "TAPD work items can be inputs too. Connect a TAPD project in Settings → Connections, then use From TAPD or the Artifacts +." |
+| `tapd-connect` | a card is open; after existing tips; new id reaches existing users once | "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project." |
 
 Tips are the lowest-priority part of this feature and can ship after the tour (see Delivery).
 
@@ -150,4 +150,4 @@ Covered by unit tests: the pure logic (fresh user shows; existing user silently 
 
 2026-10-23：Progress models 与 Settings → Models 共用有序多模型列表，见 [SUMMARY-MODELS-SPEC](SUMMARY-MODELS-SPEC.md)。
 
-The More features inputs row includes TAPD alongside existing services. TAPD uses the host’s configured MCP account rather than a Flowly token.
+The More features inputs row includes TAPD alongside existing services. TAPD uses the host’s configured MCP account rather than a Flowly token. Its existing connection tip explains My to-dos and All work items. The visible picker control does not warrant another tip ID or a separate tour section.

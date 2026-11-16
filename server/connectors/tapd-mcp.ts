@@ -15,6 +15,9 @@ const list = {
 // Exact operations and parameters: no generic proxy is exposed to RPC or agent callers.
 const schemas = {
   user_participant_workspace_get: z.strictObject({}),
+  user_todo_stories_get: z.strictObject({ workspace_id: project }),
+  user_todo_bugs_get: z.strictObject({ workspace_id: project }),
+  user_todo_tasks_get: z.strictObject({ workspace_id: project }),
   tapd_id_get: z.strictObject({ short_id: z.number().int().min(1).max(999999999), type: kind }),
   stories_get: z.strictObject({ ...list, with_v_status: z.literal("1").optional(), name: z.string().max(200).optional(), order: z.literal("modified desc").optional() }),
   bugs_get: z.strictObject({ ...list, title: z.string().max(200).optional(), order: z.literal("modified desc").optional() }),

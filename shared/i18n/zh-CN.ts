@@ -1,6 +1,9 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "My to-dos": "我的待办",
+  "All work items": "全部工单",
+  "No matching to-dos for your TAPD account in this project.": "此项目中没有与你的 TAPD 账号匹配的待办。",
   "An empty description imports the first TAPD item's description when creating the card.": "描述留空时，建卡将导入首个 TAPD 工单的描述。",
   "TAPD work item": "TAPD 工单",
   "Work item link, number, story-123, bug-123, task-123 or title words": "工单链接、单号、story-123、bug-123、task-123 或标题关键词",
@@ -9,7 +12,7 @@ const catalog: Catalog = {
   "Add a TAPD connection": "添加 TAPD 连接",
   "MCP access refused. Check login and test again.": "MCP 访问被拒绝，请检查登录后重新测试。",
   "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "通过 mcporter 使用 Paseo 宿主已配置的 tapd MCP 服务，请先在该服务登录。TAPD 仅作只读访问。",
-  "TAPD work items can be inputs too. Connect a TAPD project in Settings → Connections, then use From TAPD or the Artifacts +.": "TAPD 工单也可作为输入。在设置 → 连接中接入 TAPD 项目，再使用“从 TAPD”或产物的 ＋。",
+  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "在设置 → 连接中接入 TAPD。选择器默认显示“我的待办”，切换到“全部工单”可浏览整个项目。",
   "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "从 Jira、Confluence、GitHub/GitLab、Azure DevOps、Shortcut 或 TAPD 建卡，也可通过产物的 ＋ 添加条目。AI 每轮读取，Flowly 不会修改外部条目。",
 
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly 不限制图片数量或大小，模型和宿主仍可能有限制。",

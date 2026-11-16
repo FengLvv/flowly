@@ -217,13 +217,14 @@ export function ExternalPicker({
   const [query, setQuery] = useState("");
   const [all, setAll] = useState(false);
   const git = family === "github" || family === "gitlab";
+  const tapd = family === "tapd";
   const kind = connection ? classifyQuery(query, connection).kind : "recent";
   // Text needs two characters; keys, links and numbers search at once.
   const ready = !!connection && (kind !== "text" || query.trim().length >= 2);
   const text = kind === "recent" ? "" : query.trim();
   const results = useQuery({
-    queryKey: ["flowly", "external-search", connection?.id ?? "", text, projectId ?? "", git && all],
-    queryFn: () => search({ connectionId: connection!.id, query: text, ...(projectId ? { projectId } : {}), ...(git && all ? { all: true } : {}) }),
+    queryKey: ["flowly", "external-search", connection?.id ?? "", text, projectId ?? "", tapd ? (all ? "all" : "mine") : git && all],
+    queryFn: () => search({ connectionId: connection!.id, query: text, ...(projectId ? { projectId } : {}), ...((git || tapd) && all ? { all: true } : {}) }),
     enabled: ready,
     staleTime: 30_000,
     retry: false,
@@ -239,9 +240,22 @@ export function ExternalPicker({
     <View style={{ borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: space[2], gap: space[2] }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
         <View style={{ flex: 1, minWidth: 0 }}>
-          <Label medium size={font.sm} selectable={false}>
-            {kind === "recent" ? t(recentTitles[family]) : t("Search results")}
-          </Label>
+          {tapd && (kind === "recent" || kind === "text") ? (
+            <Choices
+              title={t("Search in")}
+              hideTitle
+              value={all ? "all" : "mine"}
+              options={[
+                { value: "mine", label: t("My to-dos") },
+                { value: "all", label: t("All work items") },
+              ]}
+              onChange={(v) => setAll(v === "all")}
+            />
+          ) : (
+            <Label medium size={font.sm} selectable={false}>
+              {kind === "recent" ? t(recentTitles[family]) : t("Search results")}
+            </Label>
+          )}
         </View>
         <IconButton icon="X" label={t("Close picker")} onPress={onClose} />
       </View>
@@ -286,7 +300,9 @@ export function ExternalPicker({
         <Label muted size={font.sm}>{t("Loading…")}</Label>
       ) : !list.length ? (
         <Label muted size={font.sm}>
-          {kind === "recent"
+          {tapd && !all && (kind === "recent" || kind === "text")
+            ? t("No matching to-dos for your TAPD account in this project.")
+            : kind === "recent"
             ? t(emptyRecent[family])
             : kind === "number" && git
               ? t("No match in this project's repositories. Try owner/repo#12 or a link.")

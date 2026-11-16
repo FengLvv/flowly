@@ -1,6 +1,9 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "My to-dos": "Мои задачи",
+  "All work items": "Все элементы",
+  "No matching to-dos for your TAPD account in this project.": "В этом проекте нет подходящих задач для вашей учётной записи TAPD.",
   "An empty description imports the first TAPD item's description when creating the card.": "Если описание пустое, при создании карточки импортируется описание первого элемента TAPD.",
   "TAPD work item": "Рабочий элемент TAPD",
   "Work item link, number, story-123, bug-123, task-123 or title words": "Ссылка, номер, story-123, bug-123, task-123 или слова из заголовка",
@@ -9,7 +12,7 @@ const catalog: Catalog = {
   "Add a TAPD connection": "Добавить подключение TAPD",
   "MCP access refused. Check login and test again.": "Доступ MCP отклонён. Проверьте вход и повторите проверку.",
   "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "Использует настроенный на хосте Paseo сервер tapd MCP через mcporter. Сначала войдите в него. Доступ к TAPD только для чтения.",
-  "TAPD work items can be inputs too. Connect a TAPD project in Settings → Connections, then use From TAPD or the Artifacts +.": "Элементы TAPD тоже могут быть входными данными. Подключите проект в Настройки → Подключения, затем используйте Из TAPD или + в артефактах.",
+  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "Подключите TAPD в Настройки → Подключения. Сначала отображаются Мои задачи; переключитесь на Все элементы, чтобы просмотреть проект.",
   "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Создайте карточку из Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut или TAPD либо добавьте элемент через + в артефактах. Агенты читают его каждый ход; Flowly его не меняет.",
 
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly не ограничивает количество и размер изображений. Ограничения модели и хоста по-прежнему действуют.",

@@ -35,9 +35,19 @@ describe("TAPD MCP execution", () => {
     ["stories_get", { workspace_id: "42", id: 1000000042000000123, limit: 1, page: 1 }],
     ["comments_get", { workspace_id: "42", entry_id: "1000000042000000123", entry_type: "wiki", page: 1, limit: 1 }],
     ["tapd_id_get", { short_id: 1000000000, type: "story" }],
+    ["user_todo_stories_get", {}],
+    ["user_todo_bugs_get", { workspace_id: "42", owner: "someone" }],
+    ["user_todo_tasks_get", { workspace_id: "42", page: 1 }],
+    ["user_todo_tasks_get", { workspace_id: "42;bad" }],
   ])("rejects disallowed operations/args before starting Node: %s", async (tool, args) => {
     await expect(readTapd(tool as TapdTool, args as Record<string, unknown>)).rejects.toMatchObject({ code: "EXTERNAL_INVALID" });
     expect(run).not.toHaveBeenCalled();
+  });
+  test.each(["user_todo_stories_get", "user_todo_bugs_get", "user_todo_tasks_get"] as const)("permits project-scoped read-only %s", async (tool) => {
+    run.mockImplementation((_file, _args, _options, cb) => cb(null, 'FLOWLY_TAPD_RESULT:[]'));
+    expect(await readTapd(tool, { workspace_id: "42" })).toEqual([]);
+    expect(run.mock.calls[0]![1].at(-2)).toBe(tool);
+    expect(JSON.parse(run.mock.calls[0]![1].at(-1))).toEqual({ workspace_id: "42" });
   });
   test("uses fixed Node argv and MCP server, bounded execution, no shell, JSON only", async () => {
     run.mockImplementation((_file, _args, _options, cb) => cb(null, 'FLOWLY_TAPD_RESULT:{"content":[{"type":"text","text":"[]"}]}'));

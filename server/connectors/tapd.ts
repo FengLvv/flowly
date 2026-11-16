@@ -14,6 +14,7 @@ const markdown = (x: unknown) => {
   return /<\/?(?:p|div|br|table|img|a|h[1-6]|ul|ol|li|span|strong|em)\b/i.test(s) ? storageToMarkdown(s) : s;
 };
 const tools: Record<TapdKind, TapdTool> = { story: "stories_get", bug: "bugs_get", task: "tasks_get" };
+const todoTools: Record<TapdKind, TapdTool> = { story: "user_todo_stories_get", bug: "user_todo_bugs_get", task: "user_todo_tasks_get" };
 const fields = "id,name,title,description,status,v_status,priority,priority_label,owner,current_owner,modified,workspace_id";
 function rows(value: unknown): Row[] {
   const data = Array.isArray(value) ? value : value && typeof value === "object" ? (value as Row).data : undefined;
@@ -76,7 +77,7 @@ export function createTapdAdapter(call: TapdCall = readTapd): ConnectorAdapter {
       if (!found) throw new ExternalError("EXTERNAL_AUTH", "This TAPD project is not accessible through the host's tapd MCP account. Check the project address and MCP login.");
       return { account: text(found.name) || id, login: "" };
     },
-    async search(c, _fetch, query) {
+    async search(c, _fetch, query, scope) {
       const q = classifyQuery(query, c);
       if (q.kind === "key") return [await get(c, q, false)];
       // A foreign or invalid URL/key must never become a broad title search.
@@ -90,6 +91,25 @@ export function createTapdAdapter(call: TapdCall = readTapd): ConnectorAdapter {
         return found.filter((v): v is Fetched => !!v);
       }
       if (q.kind !== "recent" && q.kind !== "text") return [];
+      if (!scope.all) {
+        // TAPD resolves the current MCP account. Filter before truncating, and
+        // keep the connection's project boundary even if a todo endpoint ignores it.
+        const title = q.kind === "text" ? q.text.toLowerCase() : "";
+        const found = await mapLimit(tapdKinds, 3, async (kind) => {
+          const data = rows(await call(todoTools[kind], { workspace_id: id }));
+          return data.flatMap((item) => {
+            const workspace = text(item.workspace_id);
+            if (!workspace) throw new ExternalError("EXTERNAL_INVALID", "TAPD returned a to-do without a project ID.");
+            if (workspace !== id) return [];
+            const s = summary(c, kind, item);
+            return !title || s.summary.toLowerCase().includes(title)
+              ? [{ summary: s, rank: text(item.modified || item.created) }] : [];
+          });
+        });
+        return found.flat().sort((a, b) => b.rank.localeCompare(a.rank))
+          .slice(0, q.kind === "recent" ? connectorLimits.recent : connectorLimits.search)
+          .map(({ summary }) => ({ summary }));
+      }
       // TAPD's query language uses operators in field values: title input stays literal.
       const title = q.kind === "text" ? q.text.replace(/[<>|*~\\]/g, " ").replace(/^TQL\s*/i, "").trim() : "";
       if (q.kind === "text" && !title) return [];

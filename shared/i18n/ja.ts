@@ -1,6 +1,9 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "My to-dos": "自分の未処理項目",
+  "All work items": "すべての作業項目",
+  "No matching to-dos for your TAPD account in this project.": "このプロジェクトに、TAPDアカウントに一致する未処理項目はありません。",
   "An empty description imports the first TAPD item's description when creating the card.": "説明が空の場合、カード作成時に最初のTAPD項目の説明を取り込みます。",
   "TAPD work item": "TAPD作業項目",
   "Work item link, number, story-123, bug-123, task-123 or title words": "リンク、番号、story-123、bug-123、task-123、またはタイトルの語句",
@@ -9,7 +12,7 @@ const catalog: Catalog = {
   "Add a TAPD connection": "TAPD接続を追加",
   "MCP access refused. Check login and test again.": "MCPアクセスが拒否されました。ログインを確認して再テストしてください。",
   "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "Paseoホストに設定済みのtapd MCPサーバーをmcporter経由で使用します。先にそちらでログインしてください。TAPDは読み取り専用です。",
-  "TAPD work items can be inputs too. Connect a TAPD project in Settings → Connections, then use From TAPD or the Artifacts +.": "TAPDの作業項目も入力にできます。設定 → 接続でTAPDプロジェクトを接続し、「TAPDから」または成果物の＋を使います。",
+  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "設定 → 接続でTAPDを接続します。選択画面は「自分の未処理項目」から始まります。「すべての作業項目」に切り替えるとプロジェクト全体を参照できます。",
   "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Jira、Confluence、GitHub/GitLab、Azure DevOps、Shortcut、TAPDからカードを作成するか、成果物の＋で項目を追加できます。エージェントは毎ターン読み取り、Flowlyは変更しません。",
 
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly は画像の枚数やサイズを制限しません。モデルとホストの制限は引き続き適用されます。",

@@ -1,6 +1,9 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "My to-dos": "내 할 일",
+  "All work items": "모든 작업 항목",
+  "No matching to-dos for your TAPD account in this project.": "이 프로젝트에 TAPD 계정과 일치하는 할 일이 없습니다.",
   "An empty description imports the first TAPD item's description when creating the card.": "설명이 비어 있으면 카드 생성 시 첫 TAPD 항목의 설명을 가져옵니다.",
   "TAPD work item": "TAPD 작업 항목",
   "Work item link, number, story-123, bug-123, task-123 or title words": "링크, 번호, story-123, bug-123, task-123 또는 제목 단어",
@@ -9,7 +12,7 @@ const catalog: Catalog = {
   "Add a TAPD connection": "TAPD 연결 추가",
   "MCP access refused. Check login and test again.": "MCP 접근이 거부되었습니다. 로그인을 확인하고 다시 테스트하세요.",
   "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "mcporter를 통해 Paseo 호스트에 설정된 tapd MCP 서버를 사용합니다. 먼저 해당 서버에 로그인하세요. TAPD는 읽기 전용입니다.",
-  "TAPD work items can be inputs too. Connect a TAPD project in Settings → Connections, then use From TAPD or the Artifacts +.": "TAPD 작업 항목도 입력으로 사용할 수 있습니다. 설정 → 연결에서 TAPD 프로젝트를 연결한 뒤 TAPD에서 또는 산출물의 +를 사용하세요.",
+  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "설정 → 연결에서 TAPD를 연결하세요. 선택기는 기본적으로 내 할 일을 표시합니다. 모든 작업 항목으로 전환하면 프로젝트 전체를 볼 수 있습니다.",
   "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut 또는 TAPD에서 카드를 만들거나 산출물의 +로 항목을 추가하세요. 에이전트가 매 턴 읽으며 Flowly는 변경하지 않습니다.",
 
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly는 이미지 수나 크기를 제한하지 않습니다. 모델과 호스트의 제한은 계속 적용됩니다.",

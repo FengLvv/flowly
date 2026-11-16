@@ -23,6 +23,7 @@ function fixture(override?: (tool: TapdTool, args: Record<string, unknown>) => u
     if (tool === "user_participant_workspace_get") return [{ id: "42", name: "Example" }];
     if (tool === "tapd_id_get") return [{ ShardIdMap: { type: args.type, short_id: String(args.short_id), workspace_id: "42", long_id: id } }];
     if (tool === "comments_get") return { data: [{ id: "c1", workspace_id: "42", entry_id: id, author: "bob", description: "<p>Comment</p>", created: "today" }] };
+    if (tool.startsWith("user_todo_")) return { data: [item] };
     return { data: [item] };
   });
   return { call, adapter: createTapdAdapter(call) };
@@ -75,7 +76,7 @@ describe("TAPD read-only adapter", () => {
   });
   test("recent and title search are bounded and bare long numbers search all kinds", async () => {
     const x = fixture();
-    expect(await x.adapter.search(c, fetch, "", { repos: [], all: false })).toHaveLength(3);
+    expect(await x.adapter.search(c, fetch, "", { repos: [], all: true })).toHaveLength(3);
     expect(x.call.mock.calls.every(([, args]) => args.workspace_id === "42" && args.limit === 10 && args.page === 1)).toBe(true);
     x.call.mockClear();
     await x.adapter.search(c, fetch, 'TQL <title>|*', { repos: [], all: true });
@@ -85,6 +86,55 @@ describe("TAPD read-only adapter", () => {
     x.call.mockClear();
     expect(await x.adapter.search(c, fetch, id, { repos: [], all: false })).toHaveLength(3);
     expect(x.call.mock.calls.every(([, args]) => args.id === id)).toBe(true);
+  });
+  test("my to-dos use the MCP account for each kind with only this project's ID", async () => {
+    const x = fixture();
+    const found = await x.adapter.search(c, fetch, "", { repos: [], all: false });
+    expect(found.map((f) => f.summary.itemType)).toEqual(["story", "issue", "task"]);
+    expect(x.call.mock.calls).toEqual([
+      ["user_todo_stories_get", { workspace_id: "42" }],
+      ["user_todo_bugs_get", { workspace_id: "42" }],
+      ["user_todo_tasks_get", { workspace_id: "42" }],
+    ]);
+  });
+  test("literal, case-insensitive todo search filters before the result limit", async () => {
+    const data = Array.from({ length: 30 }, (_, n) => ({ ...item, id: String(BigInt(id) + BigInt(n)), name: n === 29 ? "Unique <MATCH>|" : "Another item" }));
+    const x = fixture((tool) => tool.startsWith("user_todo_") ? (tool === "user_todo_stories_get" ? data : []) : undefined);
+    const found = await x.adapter.search(c, fetch, "<match>|", { repos: [], all: false });
+    expect(found).toHaveLength(1);
+    expect(found[0]!.summary.summary).toBe("Unique <MATCH>|");
+    expect(found[0]!.summary.remoteId).toBe(data[29]!.id);
+    expect(x.call.mock.calls.every(([, args]) => Object.keys(args).join() === "workspace_id")).toBe(true);
+  });
+  test("todo merging ranks by modification or creation time and bounds recent and title results", async () => {
+    const x = fixture((tool) => tool.startsWith("user_todo_") ? Array.from({ length: 25 }, (_, n) => ({
+      ...item, id: String(BigInt(id) + BigInt(n)), modified: "", created: `2026-11-${String(n + 1).padStart(2, "0")}`,
+    })) : undefined);
+    const recent = await x.adapter.search(c, fetch, "", { repos: [], all: false });
+    expect(recent).toHaveLength(10);
+    expect(recent[0]!.summary.remoteId).toBe(String(BigInt(id) + 24n));
+    expect(await x.adapter.search(c, fetch, "Sample", { repos: [], all: false })).toHaveLength(20);
+  });
+  test("foreign-project todos are excluded; empty todos never fall back to all project items", async () => {
+    const x = fixture((tool) => tool.startsWith("user_todo_") ? [{ ...item, workspace_id: 43 }, item] : undefined);
+    expect((await x.adapter.search(c, fetch, "", { repos: [], all: false })).every((f) => f.summary.key.startsWith("tapd:42:"))).toBe(true);
+    const empty = fixture((tool) => tool.startsWith("user_todo_") ? [] : undefined);
+    expect(await empty.adapter.search(c, fetch, "", { repos: [], all: false })).toEqual([]);
+    expect(empty.call.mock.calls.every(([tool]) => tool.startsWith("user_todo_"))).toBe(true);
+  });
+  test.each([{ ...item, workspace_id: "" }, { ...item, id: Number(id) }])("malformed todos fail instead of looking empty", async (bad) => {
+    const x = fixture((tool) => tool.startsWith("user_todo_") ? [bad] : undefined);
+    await expect(x.adapter.search(c, fetch, "", { repos: [], all: false })).rejects.toMatchObject({ code: "EXTERNAL_INVALID" });
+  });
+  test.each(["EXTERNAL_AUTH", "EXTERNAL_UNAVAILABLE"] as const)("todo %s errors do not broaden the scope or return partial results", async (code) => {
+    const x = fixture((tool) => { if (tool === "user_todo_bugs_get") throw new ExternalError(code, "todo unavailable"); });
+    await expect(x.adapter.search(c, fetch, "", { repos: [], all: false })).rejects.toMatchObject({ code });
+    expect(x.call.mock.calls.every(([tool]) => tool.startsWith("user_todo_"))).toBe(true);
+  });
+  test.each([id, "story-123", `https://tapd.woa.com/tapd_fe/42/story/detail/${id}`])("explicit lookup bypasses the todo filter: %s", async (query) => {
+    const x = fixture((tool) => { if (tool.startsWith("user_todo_")) throw new Error("No todo lookup for exact references"); });
+    expect((await x.adapter.search(c, fetch, query, { repos: [], all: false })).length).toBeGreaterThan(0);
+    expect(x.call.mock.calls.every(([tool]) => !tool.startsWith("user_todo_"))).toBe(true);
   });
   test("body/comment edits change fingerprint even with the same parent modified time; status/owner do not", async () => {
     const x = fixture();

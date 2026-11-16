@@ -9,9 +9,11 @@ test.skipIf(process.env.FLOWLY_TAPD_LIVE !== "1")("internal TAPD MCP: membership
   const id = process.env.FLOWLY_TAPD_ID!;
   const c: StoredConnection = { id: "live-read-only", provider: "tapd-internal", name: "TAPD", baseUrl: `https://tapd.woa.com/tapd_fe/${project}`, email: "", secret: "", account: "", login: "", verifiedAt: "", authFailed: false };
   expect((await tapdAdapter.verify(c, fetch)).account).toBeTruthy();
-  const recent = await tapdAdapter.search(c, fetch, "", { repos: [], all: false });
+  const recent = await tapdAdapter.search(c, fetch, "", { repos: [], all: true });
   expect(recent.length).toBeGreaterThan(0);
   expect(recent.every((r) => r.summary.key.startsWith(`tapd:${project}:`))).toBe(true);
+  const mine = await tapdAdapter.search(c, fetch, "", { repos: [], all: false });
+  expect(mine.every((r) => r.summary.key.startsWith(`tapd:${project}:`))).toBe(true);
   const found = await tapdAdapter.get(c, fetch, { itemType: "story", key: tapdKey(project, "story", id) }, true);
   expect(found.summary.remoteId).toBe(id);
   expect(tapdAdapter.description!(found.full).length).toBeGreaterThan(0);

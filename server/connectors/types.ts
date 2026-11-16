@@ -14,7 +14,7 @@ export type ItemRef = { itemType: ItemType; key: string };
 export type SearchScope = {
   /** Repositories of the card's project on this connection's host (GitHub/GitLab). */
   repos: readonly string[];
-  /** Search everything I take part in instead of the project's repositories. */
+  /** Git: search beyond the project's repos. TAPD: all project items instead of my to-dos. */
   all: boolean;
 };
 
