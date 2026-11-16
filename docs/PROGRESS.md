@@ -1,5 +1,12 @@
 # Implementation progress
 
+## Session controls parity — 2026-11-16
+
+- User approved a server-only local-daemon exception for existing-session model and advertised provider feature changes. Added model selection, generic toggle/select controls (Codex Speed and Plan verified), shared action locking, fresh membership validation and failure read-back; also message copying and confirmed running-session reload. Host-only voice, rich plugin timelines, rewind and native commands keep the exact Open in Paseo entry. [Contract](SESSION-PARITY-SPEC.md).
+- PASS: implementer typecheck exit 0, focused 156/156, real installed Codex RPC/desktop/750px checks 16/16 with no model messages; owned fixture sessions deleted. Onboarding More features, one-time session-controls tip, READMEs and all nine catalogs updated; no new telemetry field, version or What's new. Existing flowly and infinite-canvas remain running; no daemon/canvas restart.
+- Independent Haiku verified production commit `60f3220`: typecheck 0; focused 163 passed/4 inherited failed; isolated full 1378 passed/28 failed/7 skipped, parent 1362 passed/the same 28 failed/7 skipped. No new failure or High finding. Earlier unisolated tests can leave native fixtures through existing Windows CLI mock mismatches; uncertain registrations are preserved, with a separate follow-up idea. [Implementer evidence](verification/session-parity.md), [independent evidence](verification/session-parity-independent.md).
+- [PR #5](https://github.com/FengLvv/flowly/pull/5) is pushed/open. CI/CodeRabbit checks absent, so not auto-merged. UNRUN: physical Android/iOS, running reload interruption, real clipboard, and every other provider. In review is disabled for this project; delivery uses a result receipt and stays in Test. No claim of 100% native chat equivalence.
+
 ## Image attachment limits removed — 2026-11-13
 
 - User requested no Flowly image count, byte-size or pixel-size caps. Removed limits from selection, description metadata/input, queue RPC/state and retry restoration. Original data and ordered lists are preserved; format, canonical description data, signatures, membership and integrity checks remain. Host/model and resource constraints still apply. [Contract](DESCRIPTION-IMAGES-SPEC.md).

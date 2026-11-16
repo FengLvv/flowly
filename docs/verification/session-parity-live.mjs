@@ -82,13 +82,8 @@ try {
   // Open this card directly through its real board button.
   const s = { page, context, project: 'Flowly', w: 1550, h: 1000, clip: { x: 320, y: 0, width: 1230, height: 1000 } };
   lastSurface = s;
-  const projectButton = page.getByRole('tab', { name: 'Flowly', exact: true });
-  if (await projectButton.count()) await projectButton.click();
-  else {
-    const chooser = page.locator('button[aria-label^="All projects"], button[aria-label^="Project:"]').first();
-    await chooser.click();
-    await page.getByRole('button', { name: 'Flowly', exact: true }).last().click();
-  }
+  const projectButton = page.getByRole('tab', { name: 'Project Flowly', exact: true });
+  await projectButton.click({ timeout: 30000 });
   await page.getByRole('button', { name: /^Open task 聊天功能对齐paseo\./ }).waitFor({ timeout: 30000 });
   await openCard(s, '聊天功能对齐paseo');
   await page.getByRole('button', { name: new RegExp(title) }).first().click();
