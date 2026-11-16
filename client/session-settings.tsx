@@ -12,7 +12,7 @@ import { t } from "../shared/i18n";
 
 type Feature = NonNullable<PaseoAgent["features"]>[number];
 /** Composer popups; "subagents" is the Subagents chip (SUBAGENTS-SPEC). */
-export type ChipMenuId = "model" | "thinking" | "mode" | "subagents";
+export type ChipMenuId = "model" | "thinking" | "mode" | "subagents" | `feature:${string}`;
 
 const featureValue = (f: Feature) =>
   f.type === "toggle"
@@ -95,21 +95,25 @@ export function useSessionConfig(taskId: string, agent: PaseoAgent | undefined, 
 }
 export type SessionConfig = ReturnType<typeof useSessionConfig>;
 
-function Chip({ icon, text, open, disabled, onPress, label }: {
+function Chip({ icon, text, open, disabled, onPress, label, iconOnly, checked, hint }: {
   icon: string;
   text: string;
   open: boolean;
   disabled?: boolean;
   onPress(): void;
   label: string;
+  iconOnly?: boolean;
+  checked?: boolean;
+  hint?: string;
 }) {
   const { colors } = useTheme();
   return (
     <Pressable
-      accessibilityRole="button"
+      accessibilityRole={checked === undefined ? "button" : "switch"}
       accessibilityLabel={label}
-      accessibilityState={{ expanded: open, disabled: !!disabled }}
- disabled={disabled}
+      accessibilityHint={hint}
+      accessibilityState={{ expanded: checked === undefined ? open : undefined, checked, disabled: !!disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={(state) => {
         const { pressed, hovered: hover, focused } = state as typeof state & { hovered?: boolean; focused?: boolean };
@@ -119,21 +123,23 @@ function Chip({ icon, text, open, disabled, onPress, label }: {
           alignItems: "center",
           gap: 4,
           height: touch ? 32 : 26,
+          width: iconOnly ? (touch ? 32 : 26) : undefined,
+          justifyContent: "center",
           maxWidth: 180,
-          paddingHorizontal: space[2],
+          paddingHorizontal: iconOnly ? 0 : space[2],
           borderRadius: radius.md,
-          backgroundColor: open || hover || pressed ? colors.surface2 : "transparent",
+          backgroundColor: checked ? tint(colors.accent, 0.12) : open || hover || pressed ? colors.surface2 : "transparent",
           opacity: disabled ? 0.5 : 1,
         };
       }}
     >
-      <Icon name={icon} size={13} color={colors.foregroundMuted} />
-      <View style={{ flexShrink: 1, minWidth: 0 }}>
+      <Icon name={icon} size={13} color={checked ? colors.accent : colors.foregroundMuted} />
+      {!iconOnly && <View style={{ flexShrink: 1, minWidth: 0 }}>
         <Label size={font.sm} medium lines={1} selectable={false}>
           {text}
         </Label>
-      </View>
-      <Icon name="ChevronDown" size={12} color={colors.foregroundMuted} />
+      </View>}
+      {!iconOnly && checked === undefined && <Icon name="ChevronDown" size={12} color={colors.foregroundMuted} />}
     </Pressable>
   );
 }
@@ -141,7 +147,7 @@ function Chip({ icon, text, open, disabled, onPress, label }: {
 type MenuItem = { id: string; label: string; detail?: string; badge?: string; selected?: boolean; disabled?: boolean; onPress?(): void };
 
 /** Floating (desktop) or inline (sheet) menu with a short fade/rise. */
-export function ChipMenu({ open, items, inline, footer }: { open: boolean; items: MenuItem[]; inline: boolean; footer?: ReactNode }) {
+export function ChipMenu({ open, items, inline, footer, alignEnd }: { open: boolean; items: MenuItem[]; inline: boolean; footer?: ReactNode; alignEnd?: boolean }) {
   const { colors } = useTheme();
   const presence = useMotionPresence(open ? true : undefined, open ? "menu" : "");
   if (!presence.item) return null;
@@ -151,7 +157,7 @@ export function ChipMenu({ open, items, inline, footer }: { open: boolean; items
       style={[
         inline
           ? { marginTop: space[1] }
-          : { position: "absolute", left: 0, bottom: "100%", marginBottom: 6, minWidth: 240, maxWidth: 320, zIndex: 30 },
+          : { position: "absolute", ...(alignEnd ? { right: 0 } : { left: 0 }), bottom: "100%", marginBottom: 6, minWidth: 240, maxWidth: 320, zIndex: 30 },
         {
           padding: 4,
           borderRadius: radius.lg,
@@ -225,29 +231,28 @@ export function ComposerChips({
   onOpenInPaseo?: () => void;
 }) {
   const { colors } = useTheme();
-  const [featureMenu, setFeatureMenu] = useState<string | null>(null);
-  useEffect(() => { if (menu !== "model") setFeatureMenu(null); }, [menu]);
   const blocked = disabled || config.pending;
-  const feature = config.features.find((f) => f.id === featureMenu);
   const chooseFeature = (id: string, value: boolean | string) => {
     setMenu(null);
-    setFeatureMenu(null);
     void config.apply({ feature: { id, value } }, t("Session settings updated"));
   };
-  const toggle = (id: ChipMenuId) => { setFeatureMenu(null); setMenu(menu === id ? null : id); };
-  const fast = config.features.filter((f) => f.type === "toggle" && f.value);
-  const menuFor = (id: ChipMenuId) =>
-    id === "model" ? (
+  const toggle = (id: ChipMenuId) => setMenu(menu === id ? null : id);
+  const menuFor = (id: ChipMenuId) => {
+    const feature = id.startsWith("feature:") ? config.features.find((f) => `feature:${f.id}` === id) : undefined;
+    if (feature?.type === "select") return (
+      <ChipMenu open={menu === id} inline={inline} alignEnd items={feature.options.map((option) => ({
+        id: option.id, label: option.label, detail: option.description, selected: option.id === feature.value, disabled: blocked,
+        onPress: () => {
+          setMenu(null);
+          if (option.id !== feature.value) chooseFeature(feature.id, option.id);
+        },
+      }))} />
+    );
+    return id === "model" ? (
       <ChipMenu
         open={menu === "model"}
         inline={inline}
-        items={feature?.type === "select" ? [
-          { id: "back", label: t("Back"), onPress: () => setFeatureMenu(null) },
-          ...feature.options.map((option) => ({
-            id: option.id, label: option.label, detail: option.description, selected: option.id === feature.value, disabled: blocked,
-            onPress: () => { if (option.id !== feature.value) chooseFeature(feature.id, option.id); },
-          })),
-        ] : [
+        items={[
           ...(!config.models.some((m) => m.id === config.modelId) ? [{ id: "current", label: config.modelLabel, detail: t("Current model"), selected: true }] : []),
           ...config.models.map((m) => ({
             id: `model:${m.id}`, label: m.label, detail: m.description, selected: m.id === config.modelId, disabled: blocked || config.modelsLoading || !!config.modelsError,
@@ -255,9 +260,6 @@ export function ComposerChips({
               setMenu(null);
               if (m.id !== config.modelId) void config.apply({ modelId: m.id }, t("Model: {modelLabel}", { modelLabel: m.label }));
             },
-          })),
-          ...config.features.map((f) => ({ id: `feature:${f.id}`, label: f.label, detail: featureValue(f), disabled: blocked,
-            onPress: () => f.type === "toggle" ? chooseFeature(f.id, !f.value) : setFeatureMenu(f.id),
           })),
         ]}
         footer={
@@ -294,7 +296,7 @@ export function ComposerChips({
           },
         }))}
       />
-    ) : (
+    ) : id === "mode" ? (
       <ChipMenu
         open={menu === "mode"}
         inline={inline}
@@ -310,7 +312,8 @@ export function ComposerChips({
           },
         }))}
       />
-    );
+    ) : null;
+  };
   const chip = (id: ChipMenuId, node: ReactNode) => (
     <View key={id} style={{ position: "relative" }}>
       {!inline && menuFor(id)}
@@ -321,12 +324,28 @@ export function ComposerChips({
     <View>
       <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 2 }}>
         {chip("model", (
-          <Chip icon="Cpu" text={`${config.modelLabel}${fast.length ? ` · ${fast.map((f) => f.label).join(", ")}` : ""}`} label={t("Model: {modelLabel}", { modelLabel: config.modelLabel })} open={menu === "model"} disabled={blocked} onPress={() => toggle("model")} />
+          <Chip icon="Cpu" text={config.modelLabel} label={t("Model: {modelLabel}", { modelLabel: config.modelLabel })} open={menu === "model"} disabled={blocked} onPress={() => toggle("model")} />
         ))}
         {config.thinking.length > 0 &&
           chip("thinking", (
             <Chip icon="Brain" text={config.thinkingLabel || t("Reasoning")} label={t("Reasoning: {label}", { label: config.thinkingLabel || t("default") })} open={menu === "thinking"} disabled={blocked} onPress={() => toggle("thinking")} />
           ))}
+        {config.features.map((feature) => {
+          const id: ChipMenuId = `feature:${feature.id}`;
+          return chip(id, (
+            <Chip
+              icon={feature.icon?.replace(/(^|-)([a-z])/g, (_match, _separator, letter: string) => letter.toUpperCase()) || "SlidersHorizontal"}
+              iconOnly
+              text={featureValue(feature)}
+              label={`${feature.label}: ${featureValue(feature)}`}
+              hint={feature.description || feature.tooltip}
+              checked={feature.type === "toggle" ? feature.value : undefined}
+              open={menu === id}
+              disabled={blocked}
+              onPress={() => feature.type === "toggle" ? chooseFeature(feature.id, !feature.value) : toggle(id)}
+            />
+          ));
+        })}
         {config.modes.length > 0 &&
           chip("mode", (
             <Chip icon="ShieldCheck" text={config.modeLabel || t("Permissions")} label={t("Permissions: {label}", { label: config.modeLabel || t("default") })} open={menu === "mode"} disabled={blocked} onPress={() => toggle("mode")} />
