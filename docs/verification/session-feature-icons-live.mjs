@@ -73,9 +73,11 @@ try {
   const context = await browser.newContext({ viewport: { width: 1550, height: 1000 }, locale: 'en-US' }); contexts.push(context);
   await context.grantPermissions(['local-network-access'], { origin: webUrl });
   const page = await context.newPage(); page.setDefaultTimeout(15000); page.on('pageerror', e => report.pageErrors.push(e.name));
+  lastSurface = { page, context, project: 'Flowly', w: 1550, h: 1000, clip: { x: 320, y: 0, width: 1230, height: 1000 } };
   const offer = await client.getDaemonPairingOffer();
   await page.goto(webUrl + '/' + new URL(offer.url).hash, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await page.getByRole('button', { name: /^(Connect|连接)$/ }).click({ timeout: 45000 });
+  await page.getByTestId('plugin-sidebar-flowly-board').waitFor({ state: 'visible', timeout: 45000 });
   const serverId = (await client.getDaemonStatus()).serverId;
   await page.goto(`${webUrl}/h/${serverId}/plugin/flowly/surface/board`, { waitUntil: 'commit', timeout: 45000 });
   await page.getByRole('button', { name: /^New task(?:\s|$)/ }).first().waitFor({ timeout: 45000 });
