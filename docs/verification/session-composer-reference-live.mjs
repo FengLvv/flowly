@@ -96,6 +96,19 @@ try {
   await page.getByRole('button', { name: new RegExp(title) }).first().click();
   const modelChip = () => page.locator('button[aria-label^="Model: "]:not([disabled])').last();
   if (orderOnly) {
+    const capture = async file => {
+      const b = await page.locator('[data-testid="task-drawer-motion"]:visible').last().boundingBox();
+      if (!b || b.x < 280) throw Error('Session pane privacy boundary unavailable');
+      s.clip = { x: Math.ceil(b.x), y: Math.ceil(b.y), width: Math.floor(Math.min(b.width, s.w - Math.ceil(b.x))), height: Math.floor(Math.min(b.height, 1000 - Math.ceil(b.y))) };
+      await shot(s, join(out, file));
+    };
+    const reopen = async () => {
+      await sleep(600);
+      if (await modelChip().isVisible()) return;
+      const row = page.getByRole('button', { name: new RegExp(title) }).first();
+      if (!(await row.isVisible())) await openCard(s, '聊天功能对齐paseo');
+      await row.click();
+    };
     const order = async label => {
       await modelChip().waitFor({ state: 'visible' });
       if (first.thinkingOptions?.length) await page.getByRole('button', { name: /^Reasoning:/ }).last().waitFor();
@@ -111,7 +124,7 @@ try {
       const send = await page.getByRole('button', { name: 'Send instruction', exact: true }).last().boundingBox();
       check(send && send.x >= frame.x && send.x + send.width <= frame.x + frame.width && send.y + send.height <= frame.y + frame.height, label + ': Send is inside the same border');
     };
-    await order('Dark desktop'); await shot(s, join(out, 'dark-desktop.png'));
+    await order('Dark desktop'); await capture('dark-desktop.png');
     const input = page.getByRole('textbox', { name: 'Follow-up instruction', exact: true }).last();
     await input.fill('Composer reference draft'); await sleep(450);
     const feature = before.features?.find(f => f.type === 'select');
@@ -121,22 +134,22 @@ try {
         await page.getByRole('button', { name: /^Speed:/ }).last().click();
         await page.getByRole('button', { name: option.label, exact: true }).click();
         await waitFor(a => a.features?.some(f => f.id === feature.id && f.value === option.id));
-        check(await input.inputValue() === 'Composer reference draft', 'Configuration preserves the message draft');
-        await configure({ feature: { id: feature.id, value: feature.value } });
+        await page.locator('button[aria-label^="Speed: "]:not([disabled])').last().waitFor({ state: 'visible', timeout: 45000 });
+        check(await input.inputValue() === 'Composer reference draft', 'Configuration preserves the message draft and unlocks controls');
+        // This session is deleted in finally; no second configuration write races the UI operation.
       }
     }
-    await input.fill(''); await sleep(450);
+    await input.press('ControlOrMeta+A'); await input.press('Backspace'); await sleep(600);
+    check(await input.inputValue() === '', 'Typed fixture draft can be cleared before navigation');
     for (const width of [750, 680]) {
       await page.setViewportSize({ width, height: 1000 }); s.w = width; s.clip = { x: 320, y: 0, width: width - 320, height: 1000 };
-      await sleep(400);
-      const row = page.getByRole('button', { name: new RegExp(title) }).first();
-      if (await row.isVisible()) await row.click();
-      await order('Dark compact ' + width); await shot(s, join(out, 'dark-compact-' + width + '.png'));
+      await reopen();
+      await order('Dark compact ' + width); await capture('dark-compact-' + width + '.png');
     }
     await page.emulateMedia({ colorScheme: 'light' });
     await page.setViewportSize({ width: 1550, height: 1000 }); s.w = 1550; s.clip = { x: 320, y: 0, width: 1230, height: 1000 };
-    await sleep(400); const row = page.getByRole('button', { name: new RegExp(title) }).first(); if (await row.isVisible()) await row.click();
-    await order('Light desktop'); await shot(s, join(out, 'light-desktop.png'));
+    await reopen();
+    await order('Light desktop'); await capture('light-desktop.png');
     check(!(await snapshot()).lastUserMessageAt, 'Layout and draft checks send no model prompt');
     check(report.pageErrors.length === 0, 'No UI page errors');
   } else {

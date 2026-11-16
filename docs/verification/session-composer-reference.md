@@ -1,0 +1,28 @@
+# Composer reference alignment — 2026-11-16
+
+Production commit: `251801b1caedb302e39ae4386e7374840390f7c9`. Follow-up evidence/harness-only commit does not change product source. Input: the user's native Paseo composer screenshot and correction that Speed/Plan follow permissions in the same flow, rather than being pinned to an edge. This supersedes the earlier layout in [session-feature-order.md](session-feature-order.md).
+
+The input and all supported toolbar actions share one rounded border. Order: image attachment (+), provider/model, reasoning, permissions, advertised provider features (Codex Speed then Plan). No flexible spacer between permissions and features, no separate configuration row, no dropdown chevrons. Added the OpenAI mark through the supported SVG Icon API, Brain, ShieldOff for Full access, readable translated reasoning/mode labels in triggers and menus, and consistent control sizes. Draft, keyboard, operation locks and message submission paths remain intact. Voice, host commands and other unsupported native operations still use Open in Paseo; this is not a claim of full native capability parity.
+
+## Passed
+
+- Exact production checkout, own dependencies via `npm ci --include=dev`: exit 0. `NODE_ENV=test`, `FLOWLY_TELEMETRY=0`, empty dedicated `PASEO_HOME`.
+- `npm run typecheck`: exit 0.
+- `npm test -- --config .verification-vitest.config.mjs server/session-settings.test.ts client/onboarding-logic.test.ts shared/i18n.test.ts client/session.test.ts client/session-input.test.ts client/session-chips.test.ts client/focus-ring.test.ts client/session-follow.test.ts --reporter=json`: exit 0, **153 passed / 0 failed / 0 skipped**. The temporary config contains only `export default {};` to avoid inheriting the unrelated parent checkout's new Vitest global setup. [JSON](session-feature-icons/composer-exact-focused.json).
+- `FLOWLY_COMPOSER_REFERENCE=1 node docs/verification/session-composer-reference-live.mjs`: exit 0, **26/26**; installed native Codex fixture, dark desktop, dark 750px/680px and light desktop. Each measures frame containment, reading order, natural feature spacing and Send containment. Actual Speed change reads back in native state, preserves the typed draft and unlocks controls. Empty draft is checked before navigation. No model prompt; zero page errors. [Results](session-composer-reference/results.json).
+- Inspected [dark desktop](session-composer-reference/dark-desktop.png), [light desktop](session-composer-reference/light-desktop.png), and compact screenshots via the required shot helper. Compact captures are conservatively clipped at the helper's 320px privacy boundary; its current installed sidebar is narrower, so the leftmost pixels are omitted in the image. The geometry checks use full actual control bounds, not screenshot pixels.
+- Impeccable manual detector: exit 0, no findings. No new dependency; SVG mark is from [Simple Icons 13.0.0, CC0](https://github.com/simple-icons/simple-icons/blob/13.0.0/icons/openai.svg).
+
+## Failed attempts and limits
+
+- Shared-tree focused run: **158 passed / 1 failed**, the existing focus-ring scanner flags another session's untracked `client/runtime-board.tsx:69`. That file was not changed or included. Exact-checkout complete rerun above passes.
+- Initial private commit generation inserted translation entries outside the catalog object; exact typecheck caught it. Corrected before push, rebuilt the commit and reran checks. Shared product files were already correct.
+- Initial exact Vitest initialization inherited the parent checkout's unrelated config and could not find its global setup. Explicit empty config fixed discovery; no test assertion was changed.
+- Early UI attempts hit a duplicate hidden preview selector, a raw restore RPC timeout while a fixture operation was completing, and a lost preview after the compact-to-wide/theme transition. Corrected the script to select the active preview, wait for controls to unlock, omit the unnecessary second write to a session deleted in finally, and reopen the fixture after navigation. The timeout itself is not claimed fixed. All attempts deleted only their owned session; later reads confirm the card/workspace survived.
+- Full suite, a new independent session, physical Android/iOS, other providers and native-window interaction were not repeated for this UI follow-up. The earlier independent service-phase evidence remains [unchanged](session-parity-independent.md), including its 28 inherited full-suite failures. Draft persistence across a breakpoint is not asserted by this follow-up; only retention during configuration and clearing before navigation are checked.
+
+## Cleanup and delivery
+
+Final fixture: `3be55fe5-f67a-400e-a3aa-9ec7175e6fa5`; native fetch confirms absent, card/workspace preserved, isolated browser closed. Earlier owned sessions `1c21062d-041e-4d96-bbd9-ab929723bc32`, `9c189428-0201-465b-beca-9bd2af935874`, `7887b725-7d8e-4065-ad32-987c09dfee47` were also deleted in finally. Exact-checkout directory, its real node_modules and empty home removed after verifying its path and SHA. Shared main/index and other sessions' changes preserved; uncertain historical fixtures untouched.
+
+Local flowly reloaded after typecheck; no daemon/canvas restart and no interaction with either native user window. Existing session-controls tip and onboarding spec now point inside the message box, with all nine catalogs updated; no new tip id or tour page is needed for this location correction. Native configuration exposure adds no new telemetry field; no version or What's new changes. Delivered through the existing [PR #5](https://github.com/FengLvv/flowly/pull/5); required CI/CodeRabbit remain absent, so it is not merged.
