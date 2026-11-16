@@ -1,0 +1,113 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Fixture telemetry forced off"
+    },
+    {
+      "pass": true,
+      "label": "1350px isolated host bound"
+    },
+    {
+      "pass": true,
+      "label": "Horizontal scrollbar is hidden by default"
+    },
+    {
+      "pass": true,
+      "label": "Hover at bottom edge reveals native scrollbar"
+    },
+    {
+      "pass": true,
+      "label": "Leaving bottom edge hides native scrollbar"
+    },
+    {
+      "pass": true,
+      "label": "Revealed native scrollbar thumb remains draggable"
+    },
+    {
+      "pass": true,
+      "label": "Expanded board overflows horizontally"
+    },
+    {
+      "pass": true,
+      "label": "Right drag on lane blank space scrolls right"
+    },
+    {
+      "pass": true,
+      "label": "Right drag scrolls left"
+    },
+    {
+      "pass": true,
+      "label": "Release stops scrolling"
+    },
+    {
+      "pass": true,
+      "label": "Active blank gesture shows grabbing cursor"
+    },
+    {
+      "pass": true,
+      "label": "Right panning hides scrollbar even over bottom edge"
+    },
+    {
+      "pass": true,
+      "label": "Leaving and reentering cannot resume stale gesture"
+    },
+    {
+      "pass": true,
+      "label": "left blank drag does not pan"
+    },
+    {
+      "pass": true,
+      "label": "Right drag starting on a card does not pan"
+    },
+    {
+      "pass": true,
+      "label": "Fresh lane-header right click preserves its context menu"
+    },
+    {
+      "pass": true,
+      "label": "Trackpad/horizontal wheel still scrolls"
+    },
+    {
+      "pass": true,
+      "label": "Card click still opens its sidebar"
+    },
+    {
+      "pass": true,
+      "label": "750px isolated host bound"
+    },
+    {
+      "pass": true,
+      "label": "Compact board does not install desktop pan surface"
+    },
+    {
+      "pass": true,
+      "label": "Compact card remains reachable"
+    },
+    {
+      "pass": true,
+      "label": "Gesture sequence never writes card status or position"
+    },
+    {
+      "pass": true,
+      "label": "No UI page errors"
+    }
+  ],
+  "cleanup": {
+    "boardEmpty": true,
+    "nativeEmpty": true,
+    "daemonStopped": true,
+    "browserClosed": true,
+    "homeRemoved": true
+  },
+  "pageErrors": [],
+  "scrollbar": {
+    "x": 320,
+    "y": 181,
+    "width": 1030,
+    "height": 819,
+    "clientHeight": 809,
+    "offsetHeight": 819,
+    "scrollbarWidth": "thin"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "owner": "board-pan-e416fd89-6c54-4ff0-ba5c-6e3d1c899fb3",
+  "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\board-pan-e416fd89-6c54-4ff0-ba5c-6e3d1c899fb3",
+  "port": 3009,
+  "daemonPid": 79560,
+  "project": {
+    "id": "d32e1c66-d8e4-4430-bb2d-499c0a7100fb",
+    "title": "Board pan fixture",
+    "description": "",
+    "paseoProjectId": "prj_4b492d7248c81cb2",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\board-pan-e416fd89-6c54-4ff0-ba5c-6e3d1c899fb3\\project",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\board-pan-e416fd89-6c54-4ff0-ba5c-6e3d1c899fb3\\project"
+    ],
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    },
+    "revision": 1,
+    "createdAt": "2026-11-16T08:39:06.169Z",
+    "updatedAt": "2026-11-16T08:39:06.169Z",
+    "archivedAt": null
+  },
+  "task": {
+    "id": "5a73fb2e-511a-4981-a220-cd3fbd2e7b2b",
+    "projectId": "d32e1c66-d8e4-4430-bb2d-499c0a7100fb",
+    "workspaceId": "wks_fc4aed629987d2b4",
+    "sourcePath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\board-pan-e416fd89-6c54-4ff0-ba5c-6e3d1c899fb3\\project",
+    "repoPaths": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\board-pan-e416fd89-6c54-4ff0-ba5c-6e3d1c899fb3\\project"
+    ],
+    "title": "Pan fixture card",
+    "description": "Owned mouse gesture fixture",
+    "status": "todo",
+    "priority": "normal",
+    "position": 0,
+    "revision": 1,
+    "operationId": "board-pan-e416fd89-6c54-4ff0-ba5c-6e3d1c899fb3",
+    "createdAt": "2026-11-16T08:39:07.512Z",
+    "updatedAt": "2026-11-16T08:39:07.512Z",
+    "archivedAt": null,
+    "ownsWorkspace": true
+  }
+}

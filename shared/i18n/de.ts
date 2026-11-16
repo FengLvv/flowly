@@ -2,6 +2,20 @@ import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
   "Hold the right mouse button on empty board space and drag left or right to scroll.": "Halte die rechte Maustaste auf einer leeren Stelle im Board gedrückt und ziehe nach links oder rechts, um zu scrollen.",
+  "My to-dos": "Meine Aufgaben",
+  "All work items": "Alle Einträge",
+  "No matching to-dos for your TAPD account in this project.": "Keine passenden Aufgaben für dein TAPD-Konto in diesem Projekt.",
+  "An empty description imports the first TAPD item's description when creating the card.": "Bei leerer Beschreibung wird beim Erstellen der Karte die Beschreibung des ersten TAPD-Elements übernommen.",
+  "TAPD work item": "TAPD-Arbeitselement",
+  "Work item link, number, story-123, bug-123, task-123 or title words": "Link, Nummer, story-123, bug-123, task-123 oder Titelwörter",
+  "Recent work items in this TAPD project": "Neueste Arbeitselemente dieses TAPD-Projekts",
+  "No work items were found in this TAPD project.": "Keine Arbeitselemente in diesem TAPD-Projekt gefunden.",
+  "Add a TAPD connection": "TAPD-Verbindung hinzufügen",
+  "MCP access refused. Check login and test again.": "MCP-Zugriff verweigert. Anmeldung prüfen und erneut testen.",
+  "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "Verwendet den konfigurierten tapd-MCP-Server des Paseo-Hosts über mcporter. Melde dich dort zuerst an. TAPD wird nur gelesen.",
+  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "Verbinde TAPD unter Einstellungen → Verbindungen. Die Auswahl beginnt mit Meine Aufgaben; wechsle zu Alle Einträge, um das Projekt zu durchsuchen.",
+  "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Starte eine Karte aus Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut oder TAPD oder füge über das + bei Artefakte ein Element hinzu. Agents lesen es jede Runde; Flowly ändert es nie.",
+
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly begrenzt weder Anzahl noch Größe der Bilder. Die Grenzen von Modell und Host gelten weiterhin.",
   "Use card description": "Kartenbeschreibung verwenden",
   "Description changed. Use card description again.": "Die Beschreibung wurde geändert. Laden Sie die Kartenbeschreibung erneut.",
@@ -1257,7 +1271,6 @@ const catalog: Catalog = {
   "You have no open stories.": "Du hast keine offenen Storys.",
   "Add a Shortcut connection": "Shortcut-Verbindung hinzufügen",
   "Create one in Shortcut → Settings → API Tokens.": "Erstelle eines in Shortcut → Einstellungen → API Tokens.",
-  "Start a card from a Jira ticket, Confluence page, GitHub/GitLab issue or pull request, Azure DevOps work item, or Shortcut story or epic, or add one with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Starte eine Karte aus einem Jira-Ticket, einer Confluence-Seite, einem GitHub/GitLab-Issue oder -Pull-Request, einem Azure-DevOps-Arbeitselement oder einer Shortcut-Story bzw. einem Shortcut-Epic, oder füge eines mit dem + bei Artefakten hinzu. Agenten lesen es in jeder Runde; Flowly ändert es nie.",
   "What's new": "Neu",
   "Flowly {version}": "Flowly {version}",
   "Open settings": "Einstellungen öffnen",

@@ -1,0 +1,8 @@
+{
+  "commit": "d0c8bb7ab51ae8e5c282ba6578bb48294a87f045",
+  "check": "client entry import walk with Windows-normalized paths",
+  "files": 188,
+  "includesI18n": true,
+  "forbidden": [],
+  "pass": true
+}

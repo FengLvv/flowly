@@ -1,0 +1,8 @@
+{
+  "fixtureHome": ".test-data/tapd-ui-followup-be189859",
+  "daemonStopped": true,
+  "directoryRemoved": false,
+  "automaticApproval": "blocked by policy",
+  "retriedOrBypassed": false,
+  "otherFixtureDirectoriesTouched": false
+}

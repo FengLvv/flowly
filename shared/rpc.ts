@@ -310,6 +310,7 @@ export const deleteConnection = defineRpc({
 /**
  * Picker rows: my recent items for an empty query, else by key, link, number or text.
  * GitHub/GitLab search the project's repositories unless `all` (CONNECTORS-SPEC §4.3).
+ * TAPD recent/title queries show my to-dos unless `all` (TAPD-CONNECTOR-SPEC).
  */
 export const searchExternal = defineRpc({
   name: "connectors.search",

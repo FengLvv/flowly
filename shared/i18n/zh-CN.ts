@@ -2,6 +2,20 @@ import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
   "Hold the right mouse button on empty board space and drag left or right to scroll.": "在看板空白处按住鼠标右键，左右拖动即可滚动。",
+  "My to-dos": "我的待办",
+  "All work items": "全部工单",
+  "No matching to-dos for your TAPD account in this project.": "此项目中没有与你的 TAPD 账号匹配的待办。",
+  "An empty description imports the first TAPD item's description when creating the card.": "描述留空时，建卡将导入首个 TAPD 工单的描述。",
+  "TAPD work item": "TAPD 工单",
+  "Work item link, number, story-123, bug-123, task-123 or title words": "工单链接、单号、story-123、bug-123、task-123 或标题关键词",
+  "Recent work items in this TAPD project": "此 TAPD 项目的近期工单",
+  "No work items were found in this TAPD project.": "此 TAPD 项目中未找到工单。",
+  "Add a TAPD connection": "添加 TAPD 连接",
+  "MCP access refused. Check login and test again.": "MCP 访问被拒绝，请检查登录后重新测试。",
+  "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "通过 mcporter 使用 Paseo 宿主已配置的 tapd MCP 服务，请先在该服务登录。TAPD 仅作只读访问。",
+  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "在设置 → 连接中接入 TAPD。选择器默认显示“我的待办”，切换到“全部工单”可浏览整个项目。",
+  "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "从 Jira、Confluence、GitHub/GitLab、Azure DevOps、Shortcut 或 TAPD 建卡，也可通过产物的 ＋ 添加条目。AI 每轮读取，Flowly 不会修改外部条目。",
+
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly 不限制图片数量或大小，模型和宿主仍可能有限制。",
   "Use card description": "使用卡片描述",
   "Description changed. Use card description again.": "描述已更改，请重新使用卡片描述。",
@@ -1257,7 +1271,6 @@ const catalog: Catalog = {
   "You have no open stories.": "你没有未完成的故事。",
   "Add a Shortcut connection": "添加 Shortcut 连接",
   "Create one in Shortcut → Settings → API Tokens.": "在 Shortcut → 设置 → API Tokens 中创建。",
-  "Start a card from a Jira ticket, Confluence page, GitHub/GitLab issue or pull request, Azure DevOps work item, or Shortcut story or epic, or add one with the Artifacts +. Agents read it every turn; Flowly never changes it.": "从 Jira 工单、Confluence 页面、GitHub/GitLab 的 issue 或 PR、Azure DevOps 工作项、Shortcut 故事或史诗新建卡片，或用产物的 + 添加。Agent 每个回合都会读取，Flowly 不会修改它。",
   "What's new": "新功能",
   "Flowly {version}": "Flowly {version}",
   "Open settings": "打开设置",

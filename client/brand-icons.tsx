@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Image, PixelRatio } from "react-native";
+import { Icon } from "@getpaseo/plugin/client/react-native";
 import type { ConnectorFamily } from "../shared/connectors";
 import { flowlyMarkPng } from "./flowly-mark-data";
 import { useTheme } from "./ui";
@@ -33,6 +34,7 @@ export function isDarkColor(color: string) {
 
 export const BrandIcon = memo(function BrandIcon({ family, size = 16 }: { family: ConnectorFamily; size?: number }) {
   const { colors } = useTheme();
+  if (family === "tapd") return <Icon name="Ticket" size={size} color={colors.foreground} />;
   const source = family === "github" ? (isDarkColor(colors.surface0) ? logos.githubLight : logos.githubDark) : logos[family];
   return <Image source={source} accessibilityIgnoresInvertColors style={{ width: size, height: size }} resizeMode="contain" />;
 });

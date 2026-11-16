@@ -517,6 +517,8 @@ export class BoardService {
             return list;
           })()
         : [];
+      const importRef = externals.find((item) => item.external.provider === "tapd-internal")?.external;
+      const description = input.description.trim() || !importRef ? input.description : await this.connectors!.descriptionForImport(importRef);
       const repoPaths = [project.primaryPath];
       const sourcePath = project.primaryPath;
       let workspaceId = input.workspaceId;
@@ -600,7 +602,7 @@ export class BoardService {
             sourcePath,
             repoPaths,
             title: input.title,
-            description: input.description,
+            description,
             status: input.status,
             priority: input.priority,
             ...(input.type ? { type: input.type } : {}),

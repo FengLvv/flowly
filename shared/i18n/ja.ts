@@ -2,6 +2,20 @@ import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
   "Hold the right mouse button on empty board space and drag left or right to scroll.": "ボードの空白部分でマウスの右ボタンを押したまま左右にドラッグすると、横にスクロールできます。",
+  "My to-dos": "自分の未処理項目",
+  "All work items": "すべての作業項目",
+  "No matching to-dos for your TAPD account in this project.": "このプロジェクトに、TAPDアカウントに一致する未処理項目はありません。",
+  "An empty description imports the first TAPD item's description when creating the card.": "説明が空の場合、カード作成時に最初のTAPD項目の説明を取り込みます。",
+  "TAPD work item": "TAPD作業項目",
+  "Work item link, number, story-123, bug-123, task-123 or title words": "リンク、番号、story-123、bug-123、task-123、またはタイトルの語句",
+  "Recent work items in this TAPD project": "このTAPDプロジェクトの最近の作業項目",
+  "No work items were found in this TAPD project.": "このTAPDプロジェクトに作業項目が見つかりません。",
+  "Add a TAPD connection": "TAPD接続を追加",
+  "MCP access refused. Check login and test again.": "MCPアクセスが拒否されました。ログインを確認して再テストしてください。",
+  "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "Paseoホストに設定済みのtapd MCPサーバーをmcporter経由で使用します。先にそちらでログインしてください。TAPDは読み取り専用です。",
+  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "設定 → 接続でTAPDを接続します。選択画面は「自分の未処理項目」から始まります。「すべての作業項目」に切り替えるとプロジェクト全体を参照できます。",
+  "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Jira、Confluence、GitHub/GitLab、Azure DevOps、Shortcut、TAPDからカードを作成するか、成果物の＋で項目を追加できます。エージェントは毎ターン読み取り、Flowlyは変更しません。",
+
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly は画像の枚数やサイズを制限しません。モデルとホストの制限は引き続き適用されます。",
   "Use card description": "カードの説明を使用",
   "Description changed. Use card description again.": "説明が変更されました。カードの説明を再度読み込んでください。",
@@ -1257,7 +1271,6 @@ const catalog: Catalog = {
   "You have no open stories.": "自分の未完了ストーリーはありません。",
   "Add a Shortcut connection": "Shortcut 接続を追加",
   "Create one in Shortcut → Settings → API Tokens.": "Shortcut → 設定 → API Tokens で作成します。",
-  "Start a card from a Jira ticket, Confluence page, GitHub/GitLab issue or pull request, Azure DevOps work item, or Shortcut story or epic, or add one with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Jira チケット、Confluence ページ、GitHub/GitLab の issue やプルリクエスト、Azure DevOps の作業項目、Shortcut のストーリーやエピックからカードを作成するか、成果物の + で追加します。エージェントは毎ターン読み取り、Flowly は変更しません。",
   "What's new": "新機能",
   "Flowly {version}": "Flowly {version}",
   "Open settings": "設定を開く",

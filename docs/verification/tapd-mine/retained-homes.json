@@ -1,0 +1,98 @@
+[
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-01d1335b-0987-48d6-896e-ae5f94b8d3ec",
+    "port": 12215,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-1c0d5ba7-df54-4c06-8f4a-5b57fa4571e5",
+    "port": 8184,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-264ac5ce-df14-4055-b76e-9bada8d1021c",
+    "port": 14394,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-2ad1a2da-ea9e-4c98-a5a3-916c8d927c7e",
+    "port": 14875,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-4d4d2253-07ea-4404-99db-f2a1ab8b6845",
+    "port": 13156,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-4e6f7353-938b-47a9-a1e0-b73bb1cbed9e",
+    "port": 10640,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-518fe4a9-0a6f-4a8d-8e32-b25d727ce3e3",
+    "port": 13672,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-5b0d1593-ff31-45dc-aa7b-f5fb0ba88a14",
+    "port": 6171,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-6af18abe-ad62-4b0e-8682-38bb3e4c883b",
+    "port": 12098,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-7b0aeeca-5025-4ad5-94bf-0485c85cecbc",
+    "port": 5759,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-9cfe7726-3996-452d-be65-ec50a2fd9e1b",
+    "port": 3206,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-adc0c224-6e77-44f1-a0c0-fa675288dd86",
+    "port": 10694,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-e8420cce-2197-4879-ac36-098e4f3d58be",
+    "port": 12141,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-eee6046c-5725-42ae-8cd6-84e2d3f434fd",
+    "port": 12701,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-f14f01cd-67b9-4258-a500-bef6134fa9e6",
+    "port": 5634,
+    "portOpen": false,
+    "retained": true
+  },
+  {
+    "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-f933fe31-ea90-4a1b-870d-3b07029b6825",
+    "port": 3559,
+    "portOpen": false,
+    "retained": true
+  }
+]

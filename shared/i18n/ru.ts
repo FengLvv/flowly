@@ -2,6 +2,20 @@ import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
   "Hold the right mouse button on empty board space and drag left or right to scroll.": "Удерживайте правую кнопку мыши на пустом месте доски и перетаскивайте влево или вправо для прокрутки.",
+  "My to-dos": "Мои задачи",
+  "All work items": "Все элементы",
+  "No matching to-dos for your TAPD account in this project.": "В этом проекте нет подходящих задач для вашей учётной записи TAPD.",
+  "An empty description imports the first TAPD item's description when creating the card.": "Если описание пустое, при создании карточки импортируется описание первого элемента TAPD.",
+  "TAPD work item": "Рабочий элемент TAPD",
+  "Work item link, number, story-123, bug-123, task-123 or title words": "Ссылка, номер, story-123, bug-123, task-123 или слова из заголовка",
+  "Recent work items in this TAPD project": "Последние элементы этого проекта TAPD",
+  "No work items were found in this TAPD project.": "В этом проекте TAPD элементы не найдены.",
+  "Add a TAPD connection": "Добавить подключение TAPD",
+  "MCP access refused. Check login and test again.": "Доступ MCP отклонён. Проверьте вход и повторите проверку.",
+  "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "Использует настроенный на хосте Paseo сервер tapd MCP через mcporter. Сначала войдите в него. Доступ к TAPD только для чтения.",
+  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "Подключите TAPD в Настройки → Подключения. Сначала отображаются Мои задачи; переключитесь на Все элементы, чтобы просмотреть проект.",
+  "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Создайте карточку из Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut или TAPD либо добавьте элемент через + в артефактах. Агенты читают его каждый ход; Flowly его не меняет.",
+
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly не ограничивает количество и размер изображений. Ограничения модели и хоста по-прежнему действуют.",
   "Use card description": "Использовать описание карточки",
   "Description changed. Use card description again.": "Описание изменилось. Загрузите описание карточки заново.",
@@ -1257,7 +1271,6 @@ const catalog: Catalog = {
   "You have no open stories.": "У вас нет открытых историй.",
   "Add a Shortcut connection": "Добавить подключение Shortcut",
   "Create one in Shortcut → Settings → API Tokens.": "Создайте его в Shortcut → Настройки → API Tokens.",
-  "Start a card from a Jira ticket, Confluence page, GitHub/GitLab issue or pull request, Azure DevOps work item, or Shortcut story or epic, or add one with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Создайте карточку из тикета Jira, страницы Confluence, issue или pull request GitHub/GitLab, рабочего элемента Azure DevOps либо истории или эпика Shortcut или добавьте элемент кнопкой + в Артефактах. Агенты читают его на каждом ходу; Flowly его не меняет.",
   "What's new": "Что нового",
   "Flowly {version}": "Flowly {version}",
   "Open settings": "Открыть настройки",
