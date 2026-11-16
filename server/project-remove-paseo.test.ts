@@ -11,19 +11,15 @@ const calls: string[][] = [];
 let deleteFails = false;
 vi.mock("node:child_process", async (original) => {
   const actual = await original<typeof import("node:child_process")>();
+  const { mockPaseoExec } = await import("./testing/paseo-exec");
   return {
     ...actual,
-    execFile: (file: string, args: string[], options: unknown, callback: (e: unknown, r?: unknown) => void) => {
-      const cb = typeof options === "function" ? (options as typeof callback) : callback;
-      // The resolved CLI: bare `paseo` or the installed app's.
-      if (/(^|\/)paseo$/.test(file)) {
-        calls.push(args);
-        if (deleteFails) cb(Object.assign(new Error("failed"), { stderr: "Error: project busy\n" }));
-        else cb(null, { stdout: JSON.stringify({ projectId: args[2], removedWorkspaceIds: ["w1", "w2"] }), stderr: "" });
-        return;
-      }
-      return (actual.execFile as Function)(file, args, options, callback);
-    },
+    execFile: mockPaseoExec(actual.execFile, (args) => {
+      expect(args.slice(0, 2)).toEqual(["project", "delete"]);
+      calls.push(args);
+      if (deleteFails) throw Object.assign(new Error("failed"), { stderr: "Error: project busy\n" });
+      return JSON.stringify({ projectId: args[2], removedWorkspaceIds: ["w1", "w2"] });
+    }),
   };
 });
 

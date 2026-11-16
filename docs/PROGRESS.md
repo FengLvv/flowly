@@ -1,5 +1,12 @@
 # Implementation progress
 
+## Windows unit-test native resource isolation — 2026-11-16
+
+- POSIX/shim/desktop-runner/npm-node project invocations share a fail-closed fake; only Git can reach the actual subprocess. Existing linked-create/delete business assertions stay intact. Vitest run/watch use a fresh shared test home, deterministic fixture CLI, telemetry off and cleared inherited routing/data overrides; teardown removes that home. Default discovery excludes `.test-data/**`; npm packaging excludes the test helpers.
+- PASS: final typecheck exit 0; complete five-file focused suite 28/28; installed CLI against an empty home returns `DAEMON_NOT_RUNNING` (expected CLI exit 1, smoke exit 0); native projects, all 93 workspaces and Flowly bindings unchanged. Audit of all 14 `ultra-linked-*` registrations found no bindings but insufficient exact creation evidence, so all remain. Protected worktrees and disk directories were preserved.
+- FAIL: final shared-tree full run exit 1, 1488 passed / 31 failed / 8 skipped; no old-worktree tests discovered. 28 failed names occur in the earlier shared-tree report; three additional timeouts pass in a complete four-file `--maxWorkers=2` recheck (76 passed / 5 known failed). Not a clean exact-commit baseline or an all-green result. UNRUN: independent frozen-commit verification, non-Windows execution and UI (test-only change). No install/reload, onboarding, telemetry schema or version change.
+- [Contract](WINDOWS-TEST-ISOLATION-SPEC.md), [evidence and per-registration decisions](verification/windows-test-isolation.md). Changes remain uncommitted; unrelated shared work is preserved.
+
 ## Create and start follow-up verification — 2026-11-16
 
 - User reported immediate start did not run, then confirmed reproduction works. The actual New task checkbox/submission/first model reply flow passes in an isolated real host (7/7, exit 0); focused session/service regression 27/27 (0). Owned native/board resources and fixture home cleaned up. No product source or runtime installation changes.

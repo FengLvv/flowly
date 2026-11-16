@@ -39,12 +39,13 @@
     "!shared/i18n-keys.ts",
     "!shared/zz-*",
     "npm-shrinkwrap.json",
-    "!server/ci/"
+    "!server/ci/",
+    "!server/testing/"
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --testTimeout=15000 --exclude 'docs/verification/**' --exclude '.claude/**'",
-    "dev": "vitest --exclude 'docs/verification/**' --exclude '.claude/**'",
+    "test": "vitest run",
+    "dev": "vitest",
     "test:ci": "node --test server/ci/release.checks.mjs",
     "ci:package": "node server/ci/package.mjs"
   },
