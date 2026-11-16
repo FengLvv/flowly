@@ -1,6 +1,7 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Hold the right mouse button on empty board space and drag left or right to scroll.": "在看板空白处按住鼠标右键，左右拖动即可滚动。",
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly 不限制图片数量或大小，模型和宿主仍可能有限制。",
   "Use card description": "使用卡片描述",
   "Description changed. Use card description again.": "描述已更改，请重新使用卡片描述。",

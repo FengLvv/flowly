@@ -146,6 +146,7 @@ import { visibleReview } from "../shared/auto-review";
 
 /** One-time tip texts (ONBOARDING-SPEC §5). */
 const tipText: Record<TipId, (compact?: boolean) => string> = {
+  "board-pan": () => t("Hold the right mouse button on empty board space and drag left or right to scroll."),
   "image-limits": () => t("Flowly does not limit image count or size. Model and host limits still apply."),
   "description-images": () => t("Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together."),
   "first-card": () => t("Your card moves by itself as the agent works. Open it any time to see its sessions, output and summary."),
@@ -1255,6 +1256,7 @@ function BoardContent(
           reviewShown: !task && projectTasks.some((x) => !!visibleReview(x)),
           learnedGuideline: !task && !!projectGuardrails?.added,
           laneSwipe: touch && !task && !page && shownStatuses.length > 1 && projectTasks.some((x) => !x.archivedAt),
+          boardPan: !touch && !compact && !task && !page && shownStatuses.length > 1,
         },
         blocked: !onboarding.values || welcomeOpen || welcome === "show" || dialogOpen || settingsHint || whatsNewOpen || whatsNewDue === "show",
       });

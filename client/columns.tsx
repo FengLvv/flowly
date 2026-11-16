@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { sortTasks } from "../shared/sort";
-import { Animated, Pressable, View, type ScrollView as NativeScrollView } from "react-native";
+import { Animated, Pressable, View, type GestureResponderEvent, type ScrollView as NativeScrollView } from "react-native";
 import { Icon, ScrollView } from "@getpaseo/plugin/client/react-native";
 import type { Status, Task } from "../shared/model";
 import { statusLabels } from "../shared/model";
 import { IconButton, Label, font, noFocusRing, radius, space, touch, useTheme, verticalScroll, verticalContent } from "./ui";
 import { menuHandlers, useMenuOpener } from "./context-menu";
+import { createBoardPan, hoveringBoardScrollbar } from "./board-pan";
 import { StatusIcon } from "./status";
 import type { CardDrag } from "./card";
 import { Enter, motionDuration, useMotionPresence, useMotionValue, lerp } from "./motion";
@@ -179,6 +180,17 @@ export function DesktopColumns({
     scrollY = useRef<Partial<Record<Status, number>>>({}),
     listScrolls = useRef<Partial<Record<Status, NativeScrollView | null>>>({});
   const live = useRef<DragState | null>(null);
+  const [panning, setPanning] = useState(false);
+  const [scrollbarHovered, setScrollbarHovered] = useState(false);
+  const [pan] = useState(() => createBoardPan({
+    metrics: () => ({ enabled: !touch && !live.current, offset: offset.current, viewport: viewport.current.width, content: contentWidth.current }),
+    scrollTo: (x) => {
+      offset.current = x;
+      scrollRef.current?.scrollTo({ x, animated: false });
+    },
+    active: setPanning,
+  }));
+  const { cancel: cancelPan, exclude: excludePan, ...panHandlers } = pan;
   const sequence = useRef(0);
   const [dragging, setDragging] = useState<DragState | null>(null);
   const ghost = useMotionPresence(dragging, dragging ? `${dragging.task.id}|${dragging.sequence}` : "");
@@ -271,6 +283,7 @@ export function DesktopColumns({
   }));
   useEffect(() => {
     cancel();
+    cancelPan();
   }, [cancelKey, disabled]);
   useEffect(() => {
     if (!reveal?.n || Date.now() - reveal.at > 1000) return;
@@ -327,15 +340,27 @@ export function DesktopColumns({
   useEffect(
     () => () => {
       live.current = null;
+      cancelPan();
     },
     [],
   );
   return (
     <View
       ref={viewportRef}
-      style={{ flex: 1, minHeight: 0, overflow: "hidden" }}
+      testID="board-columns"
+      {...(!touch ? panHandlers : {})}
+      onPointerMove={!touch ? (event) => {
+        pan.onPointerMove(event);
+        setScrollbarHovered(hoveringBoardScrollbar(event.nativeEvent, viewport.current));
+      } : undefined}
+      onPointerLeave={!touch ? () => {
+        cancelPan();
+        setScrollbarHovered(false);
+      } : undefined}
+      style={{ flex: 1, minHeight: 0, overflow: "hidden", ...(!touch && panning ? { cursor: "grabbing" } as object : {}) }}
       onLayout={() => {
         cancel();
+        cancelPan();
         viewportRef.current?.measureInWindow((x, y, width, height) => {
           viewport.current = { x, y, width, height };
         });
@@ -344,6 +369,7 @@ export function DesktopColumns({
       <ScrollView
         ref={scrollRef}
         horizontal
+        showsHorizontalScrollIndicator={touch || (scrollbarHovered && !panning)}
         style={{ flex: 1, minHeight: 0 }}
         scrollEnabled={!dragging}
         scrollEventThrottle={16}
@@ -376,15 +402,22 @@ export function DesktopColumns({
             placementUpdate(dragging.task, status, dragging.slot, order.current[status])
               ? (dragging.slot?.lineY ?? null)
               : null;
-          const headerMenu = menuHandlers(openMenu, nameOf(status), () => [
+          const ownHeaderMenu = menuHandlers(openMenu, nameOf(status), () => [
             { id: "add", label: t("Add task"), icon: "Plus", disabled, onPress: () => onAdd(status) },
             ...(onToggleCollapse
               ? [{ id: "collapse", label: collapsed.includes(status) ? t("Expand column") : t("Collapse column"), icon: collapsed.includes(status) ? "ChevronsLeftRight" : "ChevronsRightLeft", onPress: () => onToggleCollapse(status) }]
               : []),
           ]);
+          const headerMenu = {
+            ...ownHeaderMenu,
+            onContextMenu: (event: GestureResponderEvent) => {
+              if (!pan.onContextMenu(event)) (ownHeaderMenu as { onContextMenu?(event: GestureResponderEvent): void }).onContextMenu?.(event);
+            },
+          };
           const cardSlot = (t: Task) => (
             <View
               key={t.id}
+              onPointerDown={excludePan}
               onLayout={(e) => {
                 const { y, height } = e.nativeEvent.layout;
                 cards.current[t.id] = { y, height };
@@ -404,6 +437,7 @@ export function DesktopColumns({
               <LaneFrame key={status} status={status} collapsed onLayout={measure} frameRef={frameRef}>
               <Pressable
                 accessibilityRole="button"
+                onPointerDown={excludePan}
                 accessibilityLabel={tn(column.length, "Expand {lane}, {n} task", "Expand {lane}, {n} tasks", { lane: nameOf(status) })}
                 onPress={() => onToggleCollapse?.(status)}
                 {...headerMenu}
@@ -448,6 +482,7 @@ export function DesktopColumns({
             >
               <Pressable
                 accessible={false}
+                onPointerDown={excludePan}
                 {...headerMenu}
                 onHoverIn={() => setHoverHeader(status)}
                 onHoverOut={() => setHoverHeader((h) => (h === status ? null : h))}
@@ -538,7 +573,9 @@ export function DesktopColumns({
                   </View>
                 )}
                 {past.length > 0 && (
-                  <OlderToggle count={past.length} shown={pastShown} onPress={() => onToggleOlder?.(status)} />
+                  <View onPointerDown={excludePan}>
+                    <OlderToggle count={past.length} shown={pastShown} onPress={() => onToggleOlder?.(status)} />
+                  </View>
                 )}
                 {pastShown && past.map(cardSlot)}
                 <InsertLine y={line} />

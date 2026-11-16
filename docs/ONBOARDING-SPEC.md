@@ -31,6 +31,7 @@ Uses the plugin `Modal` (host-owned open/close; content has the shared rise from
 
 | Kanban | Short line | Is a Paseo… |
 | --- | --- | --- |
+| `board-pan` | expanded desktop/web board with two or more shown lanes and no card or page open; after first-card and lane-swipe, before card-display | "Hold the right mouse button on empty board space and drag left or right to scroll." |
 | **Project** | One folder | project |
 | **Card** | One task | workspace |
 | **Session** | A chat with an agent | agent session |
@@ -63,7 +64,7 @@ The More features tour also includes Description images: save pictures with a ca
 
 ### 5. One-time contextual tips (small, non-modal)
 
-A tip is a single dismissible banner row (icon, one sentence, **Got it**) under the overview bar; only **Got it** records it as seen. Priority when several apply: agent-question, needs-you, attention-dismiss, first-done, older-finished, next-move, auto-review, first-guardrail, first-workpad, subagents, first-idea, first-skill-draft, first-workflow-insight, ai-language, summary-models, first-artifact, first-ticket, first-tag, first-card, lane-swipe, card-display, search, description-images, image-limits, connectors, session-history, session-context, sidebar-order, project-menu, jira-connect. The empty-project hint takes the same slot and wins at the top of the relevant surface, using theme colours. At most one tip is visible at a time; a tip appears at most once per host (`tipsSeen`); dismissing or acting on the feature records it. Tips never block input, never move a focused input, and are not shown while the welcome tour is open or the settings callout (`settings-entry`) shows.
+A tip is a single dismissible banner row (icon, one sentence, **Got it**) under the overview bar; only **Got it** records it as seen. Priority when several apply: agent-question, needs-you, attention-dismiss, first-done, older-finished, next-move, auto-review, first-guardrail, first-workpad, subagents, first-idea, first-skill-draft, first-workflow-insight, ai-language, summary-models, first-artifact, first-ticket, first-tag, first-card, lane-swipe, board-pan, card-display, search, description-images, image-limits, connectors, session-history, session-context, sidebar-order, project-menu, jira-connect. The empty-project hint takes the same slot and wins at the top of the relevant surface, using theme colours. At most one tip is visible at a time; a tip appears at most once per host (`tipsSeen`); dismissing or acting on the feature records it. Tips never block input, never move a focused input, and are not shown while the welcome tour is open or the settings callout (`settings-entry`) shows.
 
 | Tip id | Shown when | Text |
 | --- | --- | --- |

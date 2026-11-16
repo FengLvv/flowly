@@ -1,6 +1,7 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Hold the right mouse button on empty board space and drag left or right to scroll.": "보드의 빈 공간에서 마우스 오른쪽 버튼을 누른 채 좌우로 드래그하여 스크롤하세요.",
   "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly는 이미지 수나 크기를 제한하지 않습니다. 모델과 호스트의 제한은 계속 적용됩니다.",
   "Use card description": "카드 설명 사용",
   "Description changed. Use card description again.": "설명이 변경되었습니다. 카드 설명을 다시 불러오세요.",

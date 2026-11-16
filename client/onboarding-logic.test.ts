@@ -32,6 +32,14 @@ test("tour paging stays inside the pages", () => {
 });
 
 describe("tips", () => {
+  test("right-drag scrolling is announced once on the expanded desktop board", () => {
+    const facts = { hasCard: true, boardPan: true } as TipFacts;
+    expect(nextTip({ tipsSeen: [], facts, blocked: false })).toBe("first-card");
+    expect(nextTip({ tipsSeen: ["first-card"], facts, blocked: false })).toBe("board-pan");
+    expect(nextTip({ tipsSeen: ["first-card", "board-pan"], facts, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: ["first-card"], facts: { ...facts, boardPan: false }, blocked: false })).toBeNull();
+    expect(nextTip({ tipsSeen: ["first-card"], facts, blocked: true })).toBeNull();
+  });
   const none: TipFacts = { hasCard: false, needsYou: false, openIdea: false, movedToFinished: false, hasArtifact: false, hasAgentTag: false, agentQuestion: false, olderHidden: false, nextMove: false, hasTicket: false, noConnection: false, projectTabs: false, hasWorkpad: false, busyBoard: false, hasSubagent: false, workflowSuggestion: false, crowdedAttention: false, fullSidebar: false, cardOpen: false, cardWithSession: false, hasSummary: false, skillDraft: false, searchable: false, reviewShown: false, learnedGuideline: false, laneSwipe: false };
   test("nothing to show without a fact", () => {
     expect(nextTip({ tipsSeen: [], facts: none, blocked: false })).toBeNull();
@@ -238,7 +246,7 @@ describe("tour setup (ONBOARDING-SETUP-SPEC)", () => {
     expect(settingsHintDue({ tipsSeen: ["settings-entry"], tourClosed: true, blocked: false })).toBe(false);
   });
   test("the settings callout is never a banner tip", () => {
-    const facts: Array<keyof TipFacts> = ["hasCard", "needsYou", "openIdea", "movedToFinished", "hasArtifact", "hasAgentTag", "agentQuestion", "olderHidden", "nextMove", "hasTicket", "noConnection", "projectTabs", "hasWorkpad", "busyBoard", "hasSubagent", "workflowSuggestion", "crowdedAttention", "fullSidebar", "cardOpen", "cardWithSession", "hasSummary", "skillDraft", "searchable", "reviewShown", "learnedGuideline", "laneSwipe"];
+    const facts: Array<keyof TipFacts> = ["hasCard", "needsYou", "openIdea", "movedToFinished", "hasArtifact", "hasAgentTag", "agentQuestion", "olderHidden", "nextMove", "hasTicket", "noConnection", "projectTabs", "hasWorkpad", "busyBoard", "hasSubagent", "workflowSuggestion", "crowdedAttention", "fullSidebar", "cardOpen", "cardWithSession", "hasSummary", "skillDraft", "searchable", "reviewShown", "learnedGuideline", "laneSwipe", "boardPan"];
     const all = Object.fromEntries(facts.map((k) => [k, true])) as unknown as TipFacts;
     const seen: string[] = [];
     for (let tip = nextTip({ tipsSeen: seen, facts: all, blocked: false }); tip; tip = nextTip({ tipsSeen: seen, facts: all, blocked: false })) seen.push(tip);

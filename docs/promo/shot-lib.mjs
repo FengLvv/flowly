@@ -37,13 +37,14 @@ function findChromium() {
   return undefined;
 }
 
-export async function launch() {
+export async function launch({ showScrollbars = false } = {}) {
   const pw = await loadPlaywright();
   const chromium = (pw.chromium ?? pw.default?.chromium);
-  try { return await chromium.launch({ headless: true }); } catch (e) {
+  const options = { headless: true, ...(showScrollbars ? { ignoreDefaultArgs: ['--hide-scrollbars'] } : {}) };
+  try { return await chromium.launch(options); } catch (e) {
     const executablePath = findChromium();
     if (!executablePath) throw new Error(`Chromium not found (${String(e).split('\n')[0]}). Run \`npx playwright install chromium\` or set PLAYWRIGHT_CHROMIUM_PATH.`);
-    return chromium.launch({ headless: true, executablePath });
+    return chromium.launch({ ...options, executablePath });
   }
 }
 

@@ -36,6 +36,15 @@ Keep project CRUD, task search/priority/archive/finished filters, task creation/
 - Archived tasks/projects and an in-flight mutation cannot start a drag. During a pending drop disable further drag/reorder writes; refresh after success. Report the destination status on success. On failure, refresh and show the error without optimistic status changes or retrying against a newer revision. Concurrent changes return the existing stale-revision error.
 - Leaving the surface, a dragged card disappearing, changing project/filter/layout or losing the responder cancels drag and stops edge-scroll timers. Releasing after cancellation cannot submit an old drag.
 
+### Desktop blank-area right drag (2026-11-16)
+
+- On the expanded web/desktop board, holding the right mouse button over a lane's empty space, card gaps or board padding pans the existing horizontal scroll view. Content follows the pointer, clamped to the first/last column, with immediate reversal at either edge. No animation, storage, RPC or resource changes.
+- Cards (including Actions), lane headers/buttons, collapsed lane strips and Show/Hide older controls are excluded start regions. Their context menus and primary-button card drag keep working. Touch/pen, primary/middle buttons and compact/phone layouts do not install this gesture; wheel, trackpad and scrollbars remain available.
+- Use React Native pointer handlers and component event boundaries, without DOM queries, pointer capture or global listeners. Only mouse/right-button presses with horizontal overflow start a pan. Show a grabbing cursor while held. Moving outside the board, pointer cancellation, release, blur, layout/filter/project changes or unmount stops it; a later move without the right button also cancels. No delayed callback can resume it.
+- A context-menu event belonging to a blank-area gesture is suppressed even if the pointer ends over a lane header. A fresh right-click on a header/card still opens its existing menu. Gestures never open a card or write its status/position.
+- The horizontal scrollbar is hidden by default and throughout right-button panning. It appears only when the mouse is in the bottom 16-point scrollbar region and horizontal overflow exists, and hides on leaving that region/the board. Keep the native scrollbar draggable; do not place an overlay over it. This rule is desktop-only; phone scrolling is unchanged.
+- Acceptance: verify both directions and edges; excluded start regions and menus; release/leave/cancel and missing-button recovery; unchanged left drag, ordinary scrolling and compact view. Add a once-per-host desktop tip (`board-pan`, ONBOARDING-SPEC); no tour or telemetry field is warranted for this alternate navigation gesture.
+
 ## 4. Resizable task drawer
 
 - Expanded layout has a visible vertical resize grip between board and right drawer. Mouse drag changes width immediately; accessible Narrower/Wider/Reset controls provide the same operation without dragging.
