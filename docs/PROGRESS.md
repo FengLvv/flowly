@@ -1,5 +1,25 @@
 # Implementation progress
 
+## Windows unit-test native resource isolation — 2026-11-16
+
+- POSIX/shim/desktop-runner/npm-node project invocations share a fail-closed fake; only Git can reach the actual subprocess. Existing linked-create/delete business assertions stay intact. Vitest run/watch use a fresh shared test home, deterministic fixture CLI, telemetry off and cleared inherited routing/data overrides; teardown removes that home. Default discovery excludes `.test-data/**`; npm packaging excludes the test helpers.
+- PASS: final typecheck exit 0; complete five-file focused suite 28/28; installed CLI against an empty home returns `DAEMON_NOT_RUNNING` (expected CLI exit 1, smoke exit 0); native projects, all 93 workspaces and Flowly bindings unchanged. Audit of all 14 `ultra-linked-*` registrations found no bindings but insufficient exact creation evidence, so all remain. Protected worktrees and disk directories were preserved.
+- FAIL: final shared-tree full run exit 1, 1488 passed / 31 failed / 8 skipped; no old-worktree tests discovered. 28 failed names occur in the earlier shared-tree report; three additional timeouts pass in a complete four-file `--maxWorkers=2` recheck (76 passed / 5 known failed). Not a clean exact-commit baseline or an all-green result. UNRUN: independent frozen-commit verification, non-Windows execution and UI (test-only change). No install/reload, onboarding, telemetry schema or version change.
+- [Contract](WINDOWS-TEST-ISOLATION-SPEC.md), [evidence and per-registration decisions](verification/windows-test-isolation.md). Changes remain uncommitted; unrelated shared work is preserved.
+
+## Create and start follow-up verification — 2026-11-16
+
+- User reported immediate start did not run, then confirmed reproduction works. The actual New task checkbox/submission/first model reply flow passes in an isolated real host (7/7, exit 0); focused session/service regression 27/27 (0). Owned native/board resources and fixture home cleaned up. No product source or runtime installation changes.
+- Current shared-tree typecheck FAIL (exit 1: timer unref, URL/AbortSignal types and a test spread); no baseline comparison or unrelated fixes. Original failure cause undetermined. Full/independent/other-provider/compact checks unrun this follow-up. [Evidence](verification/lazy-auto-start.md).
+
+
+## Workspace creation on first session — 2026-11-16
+
+- Directory/worktree cards save a persisted plan without a native workspace. First managed/ordinary session submission provisions and binds once; stable native keys survive response/save failures and title changes. Existing/legacy bindings keep ownership and scope. Pending detail, artifacts, attention, archive/wrap-up/restore and project restore handle the empty binding. [Contract](LAZY-WORKSPACE-SPEC.md).
+- PASS: typecheck (0), focused 181/181 (0), first-session scoped-identity test 1/1 (0), real isolated daemon desktop/750px functional checks 20/20 (0), fixture board/native cleanup and owned-home removal; local `flowly` reloaded/running with infinite canvas still running. Tour, new one-time tip, READMEs and all catalogs updated; no new telemetry field, version bump or What's new.
+- FAILED: broader related suite had two Windows permission expectations; existing tool-server slash-specific path assertion also fails. No assertions weakened. UNRUN: full suite, independent exact-commit checks, commit/push/PR, physical/native-window UI, live worktree and model response delivery. Shared work preserved; In review is disabled, so use a result receipt. [Evidence](verification/lazy-workspace.md).
+
+
 ## Session controls parity — 2026-11-16
 
 - Latest reference correction supersedes the pinned-right interpretation: a continuous toolbar inside the rounded input frame, Add → model → reasoning → permissions → Speed → Plan; OpenAI/Brain/ShieldOff icons and human labels match the supplied native reference. Production `251801b`: own exact-checkout typecheck 0 and focused 153/153; real dark/light desktop and 750px/680px checks 26/26, no prompt, fixture/browser/checkout cleaned. Earlier script/commit-generation failures and the conservative compact screenshot clip are recorded separately. Onboarding tip location and all catalogs updated; no new telemetry, dependency or version. Full/new independent/physical-phone checks not repeated; prior full-suite failures remain. [Evidence](verification/session-composer-reference.md).

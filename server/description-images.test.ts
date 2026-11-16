@@ -34,6 +34,8 @@ test("card creation commits metadata only, replays once and survives a fresh sto
   const fresh = new DescriptionImages(new BoardStore(x.store.directory));
   expect((await fresh.read({ taskId: task.id, revision: task.revision })).images[0]).toMatchObject(png);
   expect((await x.service.createTask(x.input, x.paseo)).id).toBe(task.id);
+  expect(x.create).not.toHaveBeenCalled();
+  await x.service.ensureWorkspace(task.id, x.paseo);
   expect(x.create).toHaveBeenCalledTimes(1);
   expect(await readdir(x.files.directory)).toHaveLength(1);
 });

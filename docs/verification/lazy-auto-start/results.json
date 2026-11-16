@@ -1,0 +1,40 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Fixture telemetry forced off"
+    },
+    {
+      "pass": true,
+      "label": "Test model and full access discovered"
+    },
+    {
+      "pass": true,
+      "label": "1350px isolated host bound"
+    },
+    {
+      "pass": true,
+      "label": "Create and start binds its workspace"
+    },
+    {
+      "pass": true,
+      "label": "Create and start creates exactly one session"
+    },
+    {
+      "pass": true,
+      "label": "Fixture session starts in full access"
+    },
+    {
+      "pass": true,
+      "label": "Create and start delivers the first prompt and gets a model reply"
+    }
+  ],
+  "cleanup": {
+    "boardEmpty": true,
+    "nativeEmpty": true,
+    "daemonStopped": true,
+    "browserClosed": true,
+    "homeRemoved": true
+  },
+  "pageErrors": []
+}

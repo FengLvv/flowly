@@ -55,7 +55,7 @@ export class WrapupService {
       if (task.status !== "done" && task.status !== "cancelled")
         blockers.push("Only Done or Cancelled cards can be wrapped up.");
     }
-    const workspace = await paseo.workspaces.ref(task.workspaceId).refresh();
+    const workspace = task.workspaceId ? await paseo.workspaces.ref(task.workspaceId).refresh() : null;
     const kind = workspace?.workspaceKind ?? null;
     const directory = workspace?.workspaceDirectory ?? null;
     if (workspace?.archivingAt) blockers.push("Workspace is being archived.");

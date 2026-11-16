@@ -1,6 +1,10 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Created the workspace": "작업 공간 생성됨",
+  "Created with the first session": "첫 세션에서 생성",
+  "Workspace starts with the first session": "첫 세션에서 작업 공간 생성",
+  "Plan cards without creating workspaces. The first session creates the workspace; later sessions share it.": "작업 공간 없이 카드를 계획하세요. 첫 세션에서 작업 공간을 만들고 이후 세션에서 공유합니다.",
   "Use the controls inside the message box to change the model, reasoning, permissions and provider features.": "메시지 입력란 안의 컨트롤에서 모델, 추론, 권한 및 제공자 기능을 변경하세요.",
   "Full access": "전체 액세스",
   "Extra high": "매우 높음",
@@ -766,7 +770,6 @@ const catalog: Catalog = {
   "Paseo workspace": "Paseo 워크스페이스",
   "Paseo agent session": "Paseo 에이전트 세션",
   "One folder": "폴더 하나",
-  "One task": "작업 하나",
   "A chat with an agent": "에이전트와의 대화",
   "How Flowly works": "Flowly 작동 방식",
   "Everything on the board is a real Paseo object, so you can always open it in Paseo.": "보드의 모든 것은 실제 Paseo 객체라서 언제든 Paseo에서 열 수 있습니다.",

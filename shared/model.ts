@@ -267,6 +267,14 @@ export const taskSchema = z.object({
   id: z.string(),
   projectId: z.string(),
   workspaceId: z.string(),
+  /** Empty workspaceId + plan: provision on the first session (LAZY-WORKSPACE-SPEC). */
+  workspacePlan: z.object({
+    mode: z.enum(["directory", "worktree"]),
+    title: z.string(),
+    baseRef: z.string().optional(),
+    branchName: z.string().optional(),
+    idempotencyKey: z.string().min(1),
+  }).optional(),
   sourcePath: z.string(),
   repoPaths: z.array(z.string()),
   title: z.string().trim().min(1).max(200),

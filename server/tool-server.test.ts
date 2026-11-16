@@ -702,3 +702,21 @@ test("opting in never interrupts a running turn; a failed reopen leaves the CLI"
   expect(error).toHaveBeenCalledWith("Kanban session reload for MCP failed:", "second", "busy");
   error.mockRestore();
 });
+
+
+test("first-session preparation binds the workspace before issuing scoped identity", async () => {
+  const x = await setup();
+  await x.store.mutate((board) => {
+    board.tasks[0].workspaceId = "";
+    board.tasks[0].workspacePlan = { mode: "directory", title: "Task", idempotencyKey: "lazy-test" };
+  });
+  const create = vi.fn(async () => ({ id: "w" }));
+  x.paseo.workspaces.create = create as never;
+  const [a,b] = await Promise.all([x.server.prepareSession("t", "first", x.paseo), x.server.prepareSession("t", "second-op", x.paseo)]);
+  expect(create).toHaveBeenCalledTimes(1);
+  expect(a.workspaceId).toBe("w");
+  expect(b.workspaceId).toBe("w");
+  const context = JSON.parse(await readFile(a.contextFile, "utf8"));
+  expect(context.identity.workspaceId).toBe("w");
+  expect((await x.store.read()).tasks[0].workspaceId).toBe("w");
+});

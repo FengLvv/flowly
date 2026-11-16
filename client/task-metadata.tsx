@@ -33,11 +33,11 @@ export function TaskMetadata({ task, project, open, onToggle, summary, legacy,
     {!!task.tags?.length && <MetaRow label={t("Tags")} value={task.tags.map((x) => x.tag).join(", ")} />}
     <MetaRow label={t("Project")} value={project.title} />
     <MetaRow label={t("Project root")} value={project.primaryPath} mono />
-    <MetaRow label={t("Workspace")} value={workspaceName || task.workspaceId} />
-    <MetaRow label={t("Workspace ID")} value={task.workspaceId} mono />
+    <MetaRow label={t("Workspace")} value={task.workspacePlan ? t("Created with the first session") : workspaceName || task.workspaceId} />
+    {!!task.workspaceId && <MetaRow label={t("Workspace ID")} value={task.workspaceId} mono />}
     <MetaRow label={t("Directory")} value={workspaceDirectory || task.sourcePath} mono />
-    <MetaRow label={t("Execution")} value={workspaceStatus} />
-    <MetaRow label={t("Native owner")} value={owner || t("Checking…")} />
+    {!!task.workspaceId && <MetaRow label={t("Execution")} value={workspaceStatus} />}
+    {!!task.workspaceId && <MetaRow label={t("Native owner")} value={owner || t("Checking…")} />}
     <MetaRow label={t("Created")} value={new Date(task.createdAt).toLocaleString(formatLocale())} />
     <MetaRow label={t("Updated")} value={new Date(task.updatedAt).toLocaleString(formatLocale())} />
     {legacy && <>

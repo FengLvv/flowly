@@ -1,0 +1,47 @@
+{
+  "owner": "lazy-workspace-932af63d-0121-46c4-8f7f-5cfd7cd12ef7",
+  "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-workspace-932af63d-0121-46c4-8f7f-5cfd7cd12ef7",
+  "port": 7516,
+  "daemonPid": 12348,
+  "project": {
+    "id": "fd62d71f-e570-491c-abbc-3c782091c1b4",
+    "title": "Lazy workspace fixture",
+    "description": "",
+    "paseoProjectId": "prj_ac78b5de29e67e66",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-workspace-932af63d-0121-46c4-8f7f-5cfd7cd12ef7\\project",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-workspace-932af63d-0121-46c4-8f7f-5cfd7cd12ef7\\project"
+    ],
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    },
+    "revision": 1,
+    "createdAt": "2026-11-16T12:07:12.031Z",
+    "updatedAt": "2026-11-16T12:07:12.031Z",
+    "archivedAt": null
+  },
+  "task": {
+    "id": "17b9930c-7809-445d-83b9-38273526f43a",
+    "projectId": "fd62d71f-e570-491c-abbc-3c782091c1b4",
+    "workspaceId": "wks_e8869758367bd897",
+    "sourcePath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-workspace-932af63d-0121-46c4-8f7f-5cfd7cd12ef7\\project",
+    "repoPaths": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\lazy-workspace-932af63d-0121-46c4-8f7f-5cfd7cd12ef7\\project"
+    ],
+    "title": "Lazy workspace card",
+    "description": "Owned first-session fixture",
+    "status": "todo",
+    "priority": "normal",
+    "position": 0,
+    "revision": 2,
+    "operationId": "lazy-workspace-932af63d-0121-46c4-8f7f-5cfd7cd12ef7",
+    "createdAt": "2026-11-16T12:07:12.042Z",
+    "updatedAt": "2026-11-16T12:07:40.929Z",
+    "archivedAt": null,
+    "ownsWorkspace": true
+  },
+  "agents": [
+    "c077db23-95a4-4704-83b7-cbd1e9383ecb"
+  ]
+}

@@ -1,4 +1,5 @@
 # Phase 1: Kanban and Paseo resources
+2026-11-16 创建时机修订：[LAZY-WORKSPACE-SPEC](LAZY-WORKSPACE-SPEC.md) 规定目录/worktree 卡片先保存工作区计划，首个对话提交时才创建工作区；已有工作区关联不变。
 
 Later decision: new projects and cards use one native Paseo project root. The earlier multi-repo behavior below remains historical and is superseded by [SINGLE-ROOT-SPEC.md](SINGLE-ROOT-SPEC.md). Existing cards keep their saved scope.
 

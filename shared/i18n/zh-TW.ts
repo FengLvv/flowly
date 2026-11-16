@@ -1,6 +1,10 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Created the workspace": "已建立工作區",
+  "Created with the first session": "隨第一個對話建立",
+  "Workspace starts with the first session": "第一個對話開始時建立工作區",
+  "Plan cards without creating workspaces. The first session creates the workspace; later sessions share it.": "先規劃卡片，無需建立工作區。第一個對話會建立工作區，後續對話共用它。",
   "Use the controls inside the message box to change the model, reasoning, permissions and provider features.": "透過訊息框內的控制項切換模型、推理強度、權限與供應商功能。",
   "Full access": "完整存取",
   "Extra high": "極高",
@@ -766,7 +770,6 @@ const catalog: Catalog = {
   "Paseo workspace": "Paseo 工作區",
   "Paseo agent session": "Paseo agent 工作階段",
   "One folder": "一個資料夾",
-  "One task": "一個任務",
   "A chat with an agent": "與 agent 的一段對話",
   "How Flowly works": "Flowly 如何運作",
   "Everything on the board is a real Paseo object, so you can always open it in Paseo.": "看板上的一切都是真實的 Paseo 物件，隨時可以在 Paseo 中開啟。",

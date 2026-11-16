@@ -1,6 +1,10 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Created the workspace": "Espace de travail créé",
+  "Created with the first session": "Créé à la première session",
+  "Workspace starts with the first session": "L’espace de travail est créé à la première session",
+  "Plan cards without creating workspaces. The first session creates the workspace; later sessions share it.": "Planifiez des cartes sans créer d’espace de travail. La première session le crée ; les suivantes le partagent.",
   "Use the controls inside the message box to change the model, reasoning, permissions and provider features.": "Modifiez le modèle, le raisonnement, les autorisations et les fonctions du fournisseur avec les commandes dans la zone de message.",
   "Full access": "Accès complet",
   "Extra high": "Très élevé",
@@ -766,7 +770,6 @@ const catalog: Catalog = {
   "Paseo workspace": "Espace de travail Paseo",
   "Paseo agent session": "Session d'agent Paseo",
   "One folder": "Un dossier",
-  "One task": "Une tâche",
   "A chat with an agent": "Une conversation avec un agent",
   "How Flowly works": "Comment fonctionne Flowly",
   "Everything on the board is a real Paseo object, so you can always open it in Paseo.": "Tout ce qui est sur le tableau est un vrai objet Paseo : vous pouvez toujours l'ouvrir dans Paseo.",

@@ -39,18 +39,14 @@ async function setup() {
 // The service shells out to `paseo project create`; register the fixture instead.
 vi.mock("node:child_process", async (original) => {
   const actual = await original<typeof import("node:child_process")>();
+  const { mockPaseoExec } = await import("./testing/paseo-exec");
   return {
     ...actual,
-    execFile: (file: string, args: string[], options: unknown, callback: (e: unknown, r?: unknown) => void) => {
-      const cb = typeof options === "function" ? (options as typeof callback) : callback;
-      // The resolved CLI: bare `paseo` or the installed app's.
-      if (/(^|\/)paseo$/.test(file) && args[0] === "project" && args[1] === "create") {
-        registry.projects.push({ projectId: `native-${registry.projects.length}`, projectRootPath: args[2], projectDisplayName: args[2] });
-        cb(null, { stdout: "{}", stderr: "" });
-        return;
-      }
-      return (actual.execFile as Function)(file, args, options, callback);
-    },
+    execFile: mockPaseoExec(actual.execFile, (args) => {
+      expect(args.slice(0, 2)).toEqual(["project", "create"]);
+      registry.projects.push({ projectId: `native-${registry.projects.length}`, projectRootPath: args[2], projectDisplayName: args[2] });
+      return "{}";
+    }),
   };
 });
 let registry = fakePaseo();

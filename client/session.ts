@@ -6,6 +6,16 @@ import type {
 } from "@getpaseo/client";
 import { t } from "../shared/i18n";
 
+export async function createOrdinarySession(
+  paseo: PaseoApi,
+  ensureWorkspace: (input: { id: string }) => Promise<{ workspaceId: string }>,
+  taskId: string,
+  options: PaseoWorkspaceAgentCreateOptions,
+) {
+  const task = await ensureWorkspace({ id: taskId });
+  return paseo.workspaces.ref(task.workspaceId).agents.create(options);
+}
+
 // A failed transport response can hide a successfully created session.
 export async function createPreparedSession(
   paseo: PaseoApi,
@@ -96,6 +106,7 @@ export async function launchKanbanSession(
     paseo: PaseoApi;
     contextRead: (input: { id: string }) => Promise<{ available: boolean; reason: string; context: string; revision?: number }>;
     prepare: (input: { id: string; operationId: string }) => Promise<{
+      workspaceId?: string;
       agentId: string;
       instructions: string;
       contextFile: string;
@@ -123,7 +134,7 @@ export async function launchKanbanSession(
   if (choice.descriptionRevision !== undefined && scope.revision !== choice.descriptionRevision)
     throw new Error(t("Description changed. Use card description again."));
   const preparation = await deps.prepare({ id: task.id, operationId: choice.operationId });
-  return createPreparedSession(deps.paseo, task.workspaceId, {
+  return createPreparedSession(deps.paseo, preparation.workspaceId || task.workspaceId, {
     agentId: preparation.agentId,
     idempotencyKey: `ultra-kanban-session:${preparation.agentId}`,
     config: {

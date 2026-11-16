@@ -164,7 +164,7 @@ export class WorkspaceRestoreService {
     };
     const board = await this.store.read();
     const task = board.tasks.find((t) => t.id === id);
-    if (!task || task.archivedAt) return none;
+    if (!task || task.archivedAt || !task.workspaceId) return none;
     if (manual ? !currentWrapup(board.events, id) : finished(task.status)) return none;
     const wrapped = board.events.some(
       (e) => e.taskId === id && (e.action === "wrapped_up" || e.action === "workspace_auto_archived"),

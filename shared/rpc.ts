@@ -67,7 +67,7 @@ const etagInput = z.strictObject({ etag: z.string().max(200).optional() });
 export const readOverviewChanged = defineRpc({ name: "board.overview-changed", input: etagInput, output: overviewResponseSchema });
 
 /** Independent compact detail/project scopes, never interchangeable with Board. */
-export const readCardDetailChanged = defineRpc({ name: "cards.detail-changed", input: etagInput.extend({ taskId: z.string().min(1).max(200), workspaceId: z.string().min(1).max(200) }), output: z.strictObject({ etag: z.string(), value: cardDetailSchema.optional() }) });
+export const readCardDetailChanged = defineRpc({ name: "cards.detail-changed", input: etagInput.extend({ taskId: z.string().min(1).max(200), workspaceId: z.string().max(200) }), output: z.strictObject({ etag: z.string(), value: cardDetailSchema.optional() }) });
 export const readProjectCardIndexChanged = defineRpc({ name: "projects.card-index-changed", input: etagInput.extend({ projectId: z.string().min(1).max(200) }), output: z.strictObject({ etag: z.string(), value: projectCardIndexSchema.optional() }) });
 export const readProjectIdeasChanged = defineRpc({ name: "projects.ideas-changed", input: readProjectCardIndexChanged.input, output: z.strictObject({ etag: z.string(), value: projectIdeasSchema.optional() }) });
 
@@ -440,6 +440,12 @@ export const taskContext = defineRpc({
     workspaceRepoPaths: z.array(z.string()),
     directories: z.array(z.object({ repo: z.string(), directory: z.string() })),
   }),
+});
+/** Explicit first-session submit, never called by reads or drawer opening. */
+export const ensureTaskWorkspace = defineRpc({
+  name: "tasks.ensure-workspace",
+  input: z.strictObject({ id: z.string().min(1) }),
+  output: taskSchema,
 });
 export const toolsHealth = defineRpc({
   name: "tools.health",
