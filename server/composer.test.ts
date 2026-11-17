@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import type { PaseoApi } from "@getpaseo/client";
 import { mkdtemp, realpath, rm, writeFile, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -6,6 +6,60 @@ import { join } from "node:path";
 import { BoardStore } from "./store";
 import { ComposerService, ComposerStore } from "./composer";
 import { queueMessage } from "../shared/rpc";
+import type { DraftAttachment } from "../shared/attachment-drafts";
+
+const draftImage: DraftAttachment = { id: "original-image", kind: "image", name: "original.png", mimeType: "image/png", data: Buffer.from("original-png-bytes").toString("base64") };
+
+test("attachment drafts preserve image/file/reference bytes across reload without embedding bytes in composer reads", async () => {
+  const x = await setup();
+  const items: DraftAttachment[] = [draftImage, { id: "text", kind: "file", name: "draft.txt", mimeType: "text/plain", data: "dGV4dA==" }, { id: "issue", kind: "reference", reference: { type: "forge_issue", mimeType: "application/paseo-forge-issue", forge: "github", number: 1, title: "Issue", url: "https://example.com/issue/1" } }];
+  await x.service.addAttachments({ taskId: "t", agentId: "a", items }, x.paseo);
+  const reloaded = new ComposerService(new ComposerStore(x.board.directory), x.board);
+  expect(await reloaded.readAttachments({ taskId: "t", agentId: "a" }, x.paseo)).toEqual({ items, revision: 1 });
+  expect(JSON.stringify(await reloaded.read())).not.toContain(draftImage.data);
+  await reloaded.removeAttachments({ taskId: "t", agentId: "a", ids: [draftImage.id] }, x.paseo);
+  expect((await reloaded.readAttachments({ taskId: "t", agentId: "a" }, x.paseo)).items).toEqual(items.slice(1));
+});
+test("attachment add is idempotent and duplicate IDs create only one owned file", async () => {
+  const x = await setup();
+  await x.service.addAttachments({ taskId: "t", agentId: "a", items: [draftImage, draftImage] }, x.paseo);
+  await x.service.addAttachments({ taskId: "t", agentId: "a", items: [draftImage] }, x.paseo);
+  const { readdir } = await import("node:fs/promises");
+  expect(await readdir(x.service.store.imageDirectory)).toHaveLength(1);
+  expect((await x.service.readAttachments({ taskId: "t", agentId: "a" }, x.paseo)).items).toEqual([draftImage]);
+});
+test("concurrent add and clearing submitted IDs preserves a later attachment", async () => {
+  const x = await setup(), later = { ...draftImage, id: "later" };
+  await x.service.addAttachments({ taskId: "t", agentId: "a", items: [draftImage] }, x.paseo);
+  await Promise.all([x.service.addAttachments({ taskId: "t", agentId: "a", items: [later] }, x.paseo), x.service.removeAttachments({ taskId: "t", agentId: "a", ids: [draftImage.id] }, x.paseo)]);
+  expect((await x.service.readAttachments({ taskId: "t", agentId: "a" }, x.paseo)).items).toEqual([later]);
+});
+test("missing attachment bytes stay recorded and removable", async () => {
+  const x = await setup(); await x.service.addAttachments({ taskId: "t", agentId: "a", items: [draftImage] }, x.paseo);
+  const stored = (await x.service.read()).sessions.a.draftAttachments![0];
+  if (stored.kind === "reference") throw new Error("expected file");
+  await rm(join(x.service.store.imageDirectory, stored.file));
+  expect((await x.service.readAttachments({ taskId: "t", agentId: "a" }, x.paseo)).items).toEqual([{ ...draftImage, data: null }]);
+  await x.service.removeAttachments({ taskId: "t", agentId: "a", ids: [stored.id] }, x.paseo);
+  expect((await x.service.read()).sessions.a.draftAttachments).toEqual([]);
+});
+test("attachment writes reject wrong, archived and unavailable sessions before file writes", async () => {
+  const x = await setup(); const spy = vi.spyOn(x.service.store, "writeFiles");
+  x.agent.workspaceId = "other";
+  await expect(x.service.addAttachments({ taskId: "t", agentId: "a", items: [draftImage] }, x.paseo)).rejects.toThrow(/different workspace/);
+  x.agent.workspaceId = "w"; Object.assign(x.agent, { archivedAt: "now" });
+  await expect(x.service.addAttachments({ taskId: "t", agentId: "a", items: [draftImage] }, x.paseo)).rejects.toThrow(/archived/);
+  Object.assign(x.agent, { archivedAt: null, providerUnavailable: true });
+  await expect(x.service.removeAttachments({ taskId: "t", agentId: "a", ids: [draftImage.id] }, x.paseo)).rejects.toThrow(/unavailable/);
+  expect(spy).not.toHaveBeenCalled();
+});
+test("scope change during byte preparation rejects commit and removes just-prepared files", async () => {
+  const x = await setup(), write = x.service.store.writeFiles.bind(x.service.store);
+  vi.spyOn(x.service.store, "writeFiles").mockImplementation(async files => { const result = await write(files); x.agent.workspaceId = "other"; return result; });
+  await expect(x.service.addAttachments({ taskId: "t", agentId: "a", items: [draftImage] }, x.paseo)).rejects.toThrow(/different workspace/);
+  const { readdir } = await import("node:fs/promises");
+  expect(await readdir(x.service.store.imageDirectory)).toEqual([]); expect((await x.service.read()).sessions).toEqual({});
+});
 
 const roots: string[] = [];
 afterEach(async () => {
@@ -138,4 +192,30 @@ test("large image batches survive queue reload and provider failure before a com
   expect(x.images).toEqual(images);
   expect((await store.read()).sessions.a).toBeUndefined();
   await expect(readFile(join(store.imageDirectory, item.images![0].file))).rejects.toThrow();
+});
+
+
+test("generic queued files and issue references survive reload and send failure, then clean up only after success", async () => {
+  const x = await setup("running");
+  let fail = true;
+  const seen: unknown[] = [];
+  const files = { prepare: async (_target: unknown, items: { name: string; data: string; mimeType: string }[]) => {
+    seen.push(items);
+    return items.map(item => ({ type: "uploaded_file" as const, id: "upload", fileName: item.name, mimeType: item.mimeType, size: Buffer.from(item.data, "base64").length, path: "native-owned-upload" }));
+  } };
+  const send = async (_p: unknown, _id: string, _text: string, _steer: boolean, _images: unknown, _messageId: unknown, attachments: unknown) => { seen.push(attachments); if (fail) throw new Error("offline"); };
+  const store = new ComposerStore(x.board.directory), service = new ComposerService(store, x.board, send, undefined, files);
+  const reference = { type: "forge_issue" as const, mimeType: "application/paseo-forge-issue" as const, forge: "github", number: 1, title: "Issue", url: "https://github.com/example/repo/issues/1" };
+  const item = await service.push({ taskId: "t", agentId: "a", text: "", files: [{ name: "binary.bin", mimeType: "application/octet-stream", data: "AP8B" }], references: [reference] }, x.paseo);
+  await service.idle();
+  const stored = (await new ComposerStore(x.board.directory).read()).sessions.a.queue[0];
+  expect(stored.references).toEqual([reference]); expect(await store.readFiles(stored.files)).toEqual([{ name: "binary.bin", mimeType: "application/octet-stream", data: "AP8B" }]);
+  await expect(service.sendNow({ taskId: "t", agentId: "a", id: item.id }, x.paseo)).rejects.toThrow("offline");
+  expect((await store.read()).sessions.a.queue[0].id).toBe(item.id);
+  expect(await store.readFiles(stored.files)).toHaveLength(1);
+  fail = false;
+  await service.sendNow({ taskId: "t", agentId: "a", id: item.id }, x.paseo);
+  expect((seen.at(-1) as unknown[])).toEqual([expect.objectContaining({ type: "uploaded_file", fileName: "binary.bin" }), reference]);
+  await expect(store.readFiles(stored.files)).rejects.toThrow();
+  expect((await store.read()).sessions.a).toBeUndefined();
 });

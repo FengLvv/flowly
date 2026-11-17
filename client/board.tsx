@@ -161,6 +161,7 @@ const tipText: Record<TipId, (compact?: boolean) => string> = {
   "description-images": () => t("Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together."),
   "lazy-workspace": () => t("Plan cards without creating workspaces. The first session creates the workspace; later sessions share it."),
   "session-composer-fill": () => t("Tap a suggested next step in the session timeline to fill the message box, including on your phone. Nothing is sent."),
+  "composer-input": () => Platform.OS === "web" ? t("Use + to add images, files or issues and pull requests. Type / to choose a command or skill.") : t("Type / to choose a command or skill."),
   "first-card": () => t("Your card moves by itself as the agent works. Open it any time to see its sessions, output and summary."),
   "needs-you": () => t("A card is waiting for you. Reply goes straight to the session."),
   "first-idea": () => t("An agent suggested follow-up work. Good idea starts a card or continues here; Dismiss removes it."),

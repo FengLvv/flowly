@@ -163,3 +163,7 @@ The More features page includes Session controls: "Change models and provider fe
 ## Runtime view guidance
 
 The More features tour includes Runtime. Tip `runtime-view` appears on a populated project board with no card/page open, after first-card and before lane-swipe. Text: "Runtime shows all Paseo conversations on this host. Open a conversation to chat in Flowly." Opening Runtime or dismissing the tip marks it seen once. Card/project-specific tips are hidden while Runtime is selected. It uses daemon onboarding settings and reaches existing users through the new id. No What's new or telemetry field is added.
+
+2026-11-17: once-only `composer-input` tip uses the existing `cardWithSession` fact after prior session guidance. Web: "Use + to add images, files or issues and pull requests. Type / to choose a command or skill." Native: "Type / to choose a command or skill.". The More features tour includes Files and commands with the same copy; no native file-picker promise.
+
+- Composer attachments persist with their session draft on the daemon, including original image/file bytes and issue/PR references. Navigation and reload restore them; acknowledged send/queue clears only submitted IDs. This extends the existing Files and commands tip, with no extra tip for draft recovery.

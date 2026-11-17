@@ -175,3 +175,7 @@ Root code is limited to `index.client.tsx` and `index.server.ts`; everything els
 The separately installed `paseo-kanban` plugin is a different plugin and is never overwritten.
 
 On Paseo 0.16, Flowly mirrors card IDs into local workspace/session metadata and refreshes boards from change notifications, with polling fallback on older hosts or subscription errors.
+
+Flowly conversation input supports images, file uploads, pasted/dropped files, native issue/PR references and live provider command/skill completion. Host-only client commands open the native composer for review before execution.
+
+Unsent images, files and issue/PR references persist with each session draft on the daemon, survive navigation/reload and remain available after a failed send.

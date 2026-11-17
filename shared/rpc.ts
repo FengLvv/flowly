@@ -1,3 +1,5 @@
+import { draftAttachmentSchema, hydratedAttachmentSchema } from "./attachment-drafts";
+import { outgoingFileSchema, uploadedFileSchema, forgeReferenceSchema } from "./session-files";
 import { sessionTargetFields, validSessionScope } from "./session-target";
 import { descriptionImageSchema } from "./description-images";
 import { cardDetailSchema, projectCardIndexSchema, projectIdeasSchema } from "./card-detail";
@@ -627,9 +629,9 @@ export const saveDraft = defineRpc({
 export const queueMessage = defineRpc({
   name: "composer.queue",
   input: composerTarget
-    .extend({ text: z.string().trim().max(20000), images: z.array(outgoingImageSchema).optional() })
+    .extend({ text: z.string().trim().max(20000), images: z.array(outgoingImageSchema).optional(), files: z.array(outgoingFileSchema).optional(), references: z.array(forgeReferenceSchema).optional() })
     .refine(validSessionScope, "Give either a task or workspace target.")
-    .refine((v) => !!v.text || !!v.images?.length, "Write a message or attach an image."),
+    .refine((v) => !!v.text || !!v.images?.length || !!v.files?.length || !!v.references?.length, "Write a message or attach a file."),
   output: queuedMessageSchema,
 });
 export const unqueueMessage = defineRpc({
@@ -896,4 +898,29 @@ export const readDescriptionImages = defineRpc({
   name: "tasks.description-images",
   input: z.strictObject({ taskId: z.string(), revision: z.number().int(), imageId: z.string().uuid().optional() }),
   output: z.strictObject({ revision: z.number().int(), description: z.string(), images: z.array(descriptionImageSchema.extend({ data: z.string() })) }),
+});
+
+export const uploadSessionFiles = defineRpc({
+  name: "sessions.files-upload",
+  input: composerTarget.extend({ files: z.array(outgoingFileSchema).min(1) }).refine(validSessionScope, "Give either a task or workspace target."),
+  output: z.array(uploadedFileSchema),
+});
+
+export const searchSessionForge = defineRpc({
+ name: "sessions.forge-search",
+ input: composerTarget.extend({ query: z.string().max(1000) }).refine(validSessionScope, "Give either a task or workspace target."),
+ output: z.array(forgeReferenceSchema),
+});
+
+export const readAttachmentDraft = defineRpc({
+  name: "composer.attachments.read", input: composerTarget.refine(validSessionScope, "Give either a task or workspace target."),
+  output: z.strictObject({ items: z.array(hydratedAttachmentSchema), revision: z.number().int().nonnegative() }),
+});
+export const addAttachmentDraft = defineRpc({
+  name: "composer.attachments.add", input: composerTarget.extend({ items: z.array(draftAttachmentSchema) }).refine(validSessionScope, "Give either a task or workspace target."),
+  output: z.strictObject({ revision: z.number().int().nonnegative() }),
+});
+export const removeAttachmentDraft = defineRpc({
+  name: "composer.attachments.remove", input: composerTarget.extend({ ids: z.array(z.string().min(1).max(200)) }).refine(validSessionScope, "Give either a task or workspace target."),
+  output: z.strictObject({ revision: z.number().int().nonnegative() }),
 });
