@@ -1426,3 +1426,11 @@ Phase 2 spec: [PHASE-02-SPEC.md](PHASE-02-SPEC.md). Three current-card tools; au
 - CodeRabbit对62b2a74真实补审（03:35UTC）指出短于30秒的无推送重入不重算计数，违反既有re-entry契约。新增10秒隐藏、无隐藏推送、重新显示的真实QueryObserver回归原实现1失败/4通过（预期2读、实际1读）。最小修复仅在线时staleTime设0，重入即补读，旧宿主/断线保留30秒；回归也检查20次重复render与180秒静止不新增读取，无effect/计时器/新并发机制。
 
 - 重入修复产品bacc790：typecheck0、7文件93聚焦、全量166文件/1530通过6skip均exit0；独立Luna会话4befbffa同SHA代码/typecheck/93聚焦PASS，报告661a6ff。父报告记录旧红灯与继承/UNRUN边界；推送后继续真实CodeRabbit补审，若限额按用户决定定时跟进。
+
+
+## 2026-11-17 Memory / Guardrails 页面健康订阅零周期读取返工
+
+- 接受新auto review goal：useGuardrailsQuery由Memory/Guardrails页共用，原健康idle仍30秒读。真实QueryObserver静止180秒1→7确定红灯；fallback/running/错误/首读推送及MemoryService运行态通知回归共6失败/16通过。首版服务端等待信号写错导致测试/清理超时，修正为现有summarySettled入口信号后重跑，未将那次超时当产品证据。
+- 共用查询读取既有BoardPushLive，健康时全停（含running），旧宿主/connecting/断线或查询错误保留原5秒running/30秒idle，成功在线即停。board推送失效guardrails前缀，沿用已批准取消首读再失效机制，隐藏/重入仍正确。
+- GuardrailsStore成功提交既有board通知覆盖数据/错误；补MemoryService内存running开始/结束通知（含无store提交的自动review取消路径与手动review），全局features.memory准备完成/变化也通知，cleanup解除running回调。项目级开关策略不变，无新subscription协议/健康timer/依赖。README/OVERVIEW同步，未变UI文案/设置/遥测，无需tour/tip/What's new。
+- 首轮完整9文件115聚焦与typecheck exit0；最终源码/full/独立及隔离运行时结果另记MEMORY-PAGE-REWORK。新手机采样UNRUN：AndroMeld control socket missing，adb无设备；PR118计数补丁的旧冷启沿用授权不自动扩大到本轮Memory页。

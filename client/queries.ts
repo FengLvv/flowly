@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { usePaseo, useRpc } from "@getpaseo/plugin/client";
 import { useQuery, useQueryClient, type QueryClient, type QueryKey } from "@tanstack/react-query";
 import type { PaseoAgent, PaseoApi, PaseoAgentUpdate } from "@getpaseo/client";
 import * as rpc from "../shared/rpc";
 import { isSummarizer } from "../shared/summary";
 import { listAgents } from "./resources";
+import { BoardPushLive } from "./query-activity";
 import type { BoardOverview } from "../shared/overview";
 import { overviewKey, readOverviewDelta, type OverviewRead } from "./overview-query";
 
@@ -352,8 +353,10 @@ export function useWorkflowInsightsQuery(projectId: string, enabled: boolean, po
 }
 
 /** A project's guardrails (GUARDRAILS-SPEC §7.4): read while the Guardrails page is shown. */
-export const guardrailsKey = (projectId: string) => ["flowly", "guardrails", projectId] as const;
+export const guardrailsPrefix = ["flowly", "guardrails"] as const;
+export const guardrailsKey = (projectId: string) => [...guardrailsPrefix, projectId] as const;
 export function useGuardrailsQuery(projectId: string, enabled: boolean) {
+  const pushLive = useContext(BoardPushLive);
   const read = useRpc(rpc.readGuardrails);
   const client = useQueryClient();
   const key = guardrailsKey(projectId);
@@ -362,8 +365,8 @@ export function useGuardrailsQuery(projectId: string, enabled: boolean) {
     queryFn: () => readChanged(client, key, (etag) => read({ projectId, ...(etag ? { etag } : {}) })),
     enabled: enabled && !!projectId,
     staleTime: 0,
-    // Every 5 s while a finished-card review runs, else every 30 s.
-    refetchInterval: (q) => (enabled ? (q.state.data?.running.length ? 5_000 : 30_000) : false),
+    // Healthy pages are push-only; preserve the old intervals for unsupported/failed reads.
+    refetchInterval: (q) => (enabled && (!pushLive || q.state.status === "error") ? (q.state.data?.running.length ? 5_000 : 30_000) : false),
     placeholderData: (previous) => previous,
   });
 }
