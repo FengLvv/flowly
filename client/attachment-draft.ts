@@ -7,12 +7,12 @@ export type AttachmentDraftIO = {
   remove(ids: string[]): Promise<Reply>;
 };
 type Job = { add: DraftAttachment[] } | { remove: string[] };
-export type AttachmentDraftState = { items: HydratedAttachment[]; loading: boolean; saving: boolean; error: string; revision: number };
+export type AttachmentDraftState = { items: HydratedAttachment[]; loading: boolean; collecting: number; saving: boolean; error: string; revision: number };
 const merge = (items: HydratedAttachment[], added: HydratedAttachment[]) => [...items, ...added.filter(item => !items.some(old => old.id === item.id))];
 
 /** Per-session owner, independent of a mounted preview. Pending writes retain their bytes and ordering. */
 export class AttachmentDraft {
-  private state: AttachmentDraftState = { items: [], loading: true, saving: false, error: "", revision: 0 };
+  private state: AttachmentDraftState = { items: [], loading: true, collecting: 0, saving: false, error: "", revision: 0 };
   private listeners = new Set<() => void>();
   private jobs: Job[] = [];
   private submitted = new Set<string>();
@@ -23,8 +23,14 @@ export class AttachmentDraft {
   snapshot = () => this.state;
   subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   private update(patch: Partial<AttachmentDraftState>) { this.state = { ...this.state, ...patch }; this.listeners.forEach(listener => listener()); }
-  idle() { return !this.jobs.length && !this.writing && !this.reading && !this.submitted.size; }
-  ready() { return this.loaded && !this.state.loading && !this.state.saving && !this.state.items.some(item => item.kind !== "reference" && item.data === null); }
+  idle() { return !this.jobs.length && !this.writing && !this.reading && !this.submitted.size && !this.state.collecting; }
+  ready() { return this.loaded && !this.state.loading && !this.state.collecting && !this.state.saving && !this.state.items.some(item => item.kind !== "reference" && item.data === null); }
+  async collect(read: () => Promise<DraftAttachment[]>) {
+    this.update({ collecting: this.state.collecting + 1 });
+    try { this.add(await read()); }
+    catch (error) { this.update({ error: error instanceof Error ? error.message : String(error) }); throw error; }
+    finally { this.update({ collecting: this.state.collecting - 1 }); }
+  }
   async load(force = false) {
     if (this.reading) return this.reading;
     if (this.loaded && !force) return;

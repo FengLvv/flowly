@@ -14,6 +14,15 @@ function fixture() {
 }
 const finish = async (owner: AttachmentDraft) => { await vi.waitFor(() => expect(owner.snapshot().saving).toBe(false)); };
 
+test("file reads outlive unmount and cannot be sent before their bytes are collected", async () => {
+  const x = fixture(); await x.owner.load(); const unsubscribe = x.owner.subscribe(() => {});
+  let resolve!: (value: DraftAttachment[]) => void;
+  const read = x.owner.collect(() => new Promise(r => { resolve = r; }));
+  unsubscribe(); expect(x.owner.ready()).toBe(false); expect(x.owner.idle()).toBe(false);
+  resolve([image]); await read; await finish(x.owner);
+  expect(x.owner.snapshot().items).toEqual([image]); expect(x.items()).toEqual([image]); expect(x.owner.ready()).toBe(true);
+});
+
 test("session owner retains bytes without subscribers; a new owner hydrates daemon state", async () => {
   const x = fixture(); await x.owner.load();
   const unsubscribe = x.owner.subscribe(() => {});

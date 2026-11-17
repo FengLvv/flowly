@@ -349,12 +349,13 @@ function SessionPreviewView({
   const fileWritable = useRef(false); fileWritable.current = visible && canWrite;
   const intake = useRef(Promise.resolve());
   const addImageFiles = (files: readonly BrowserFile[]) => {
-    intake.current = intake.current.then(async () => {
-      if (!files.length || !mounted.current || !fileWritable.current) return;
+    if (!files.length || !mounted.current || !fileWritable.current) return Promise.resolve();
+    const previous = intake.current;
+    intake.current = attachmentDraft.owner.collect(async () => {
+      await previous;
       const result = await readFiles(files);
-      if (!mounted.current || !fileWritable.current) return;
-      if (result.attachments.length) attachmentDraft.owner.add(result.attachments.map(({ id, kind, name, mimeType, data }) => ({ id, kind, name, mimeType, data })) as DraftAttachment[]);
       if (result.problems.length) toast.error(result.problems.join(" "));
+      return result.attachments.map(({ id, kind, name, mimeType, data }) => ({ id, kind, name, mimeType, data })) as DraftAttachment[];
     }).catch(error => toast.error(message(error)));
     return intake.current;
   };
@@ -716,7 +717,7 @@ function SessionPreviewView({
               backgroundColor: colors.surface1,
             }}
           >
-            {attachmentDraft.state.loading && <ActivityIndicator size="small" color={colors.foregroundMuted} accessibilityLabel={t("Loading attachments…")} />}
+            {(attachmentDraft.state.loading || attachmentDraft.state.collecting > 0) && <ActivityIndicator size="small" color={colors.foregroundMuted} accessibilityLabel={t("Loading attachments…")} />}
             {attachmentDraft.state.saving && !attachmentDraft.state.error && <ActivityIndicator size="small" color={colors.foregroundMuted} accessibilityLabel={t("Saving attachments…")} />}
             {!!attachmentDraft.state.error && <View><Notice>{attachmentDraft.state.error}</Notice><Button quiet onPress={() => void attachmentDraft.owner.retry()}>{t("Retry")}</Button></View>}
             {attachments.some(item => item.unavailable) && <View><Notice>{t("An attachment is missing. Retry or remove it before sending.")}</Notice><Button quiet onPress={() => void attachmentDraft.owner.retry()}>{t("Retry")}</Button></View>}

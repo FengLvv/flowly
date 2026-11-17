@@ -281,7 +281,10 @@ export class ComposerService {
     try {
       const uploaded = await this.files.prepare(input, await this.store.readFiles(item.files), paseo);
       await this.verify(input, paseo);
-      await this.send(paseo, input.agentId, item.text, running, await this.store.readImages(item.images), item.id, [...uploaded, ...(item.references || [])]);
+      const attachments = [...uploaded, ...(item.references || [])];
+      const args = [paseo, input.agentId, item.text, running, await this.store.readImages(item.images), item.id] as const;
+      if (attachments.length) await this.send(...args, attachments);
+      else await this.send(...args);
       await this.store.removeImages([...(item.images || []), ...(item.files || [])]);
     } catch (error) {
       await this.store.mutate((state) => {
@@ -320,7 +323,10 @@ export class ComposerService {
       try {
         const uploaded = await this.files.prepare({ ...entry, agentId }, await this.store.readFiles(item.files), paseo);
         await this.verify({ ...entry, agentId }, paseo);
-        await this.send(paseo, agentId, item.text, false, await this.store.readImages(item.images), item.id, [...uploaded, ...(item.references || [])]);
+        const attachments = [...uploaded, ...(item.references || [])];
+        const args = [paseo, agentId, item.text, false, await this.store.readImages(item.images), item.id] as const;
+        if (attachments.length) await this.send(...args, attachments);
+        else await this.send(...args);
         await this.store.removeImages([...(item.images || []), ...(item.files || [])]);
         await this.store.mutate((s) => {
           const e = s.sessions[agentId];
