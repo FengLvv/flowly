@@ -5,6 +5,8 @@ import type { PaseoApi } from "@getpaseo/client";
 import { BoardStore, columnOrder } from "./server/store";
 import { BoardService, dataDirectory, migrateLegacyPluginData, paseoHome } from "./server/service";
 import { readPaseoVersion } from "./server/paseo-version";
+import { SessionMetadataSync, workspaceBindings } from "./server/session-metadata";
+import { ChangeFeed } from "./server/change-feed";
 import { NativeDirectoryPicker, detectNativePicker, listDirectories } from "./server/directories";
 import * as rpc from "./shared/rpc";
 import { agentHabitsOn, developerSettings, performanceLogOn, performanceSettings, boardViewSettings, ideasSettings, languageSettings, languageSettingsValues, aiLanguageSettings, aiLanguageSettingsValues, deviceLanguageSettings, deviceLanguageValue, modelSettings, onboardingSettings, ideasSettingsValues, statusSettings, statusSettingsValues, wrapupSettings, wrapupSettingsValues, nativeSessionSettings, nativeSessionSettingsValues, featureSettings, featureSettingsValues, telemetrySettings, telemetrySettingsValues } from "./shared/settings";
@@ -33,7 +35,7 @@ import { createLink, deleteLink } from "./server/links";
 import { ArtifactService } from "./server/artifacts";
 import { WorkpadService } from "./server/workpad";
 import { ConnectorService, migrateTicketDirectory, refKey } from "./server/connectors/service";
-import { projectRepos } from "./server/connectors/repos";
+import { projectRepos, repoVerdict } from "./server/connectors/repos";
 import { linkedCardCounts } from "./shared/connectors";
 import { join } from "node:path";
 import { SessionSettingsService } from "./server/session-settings";
@@ -129,7 +131,8 @@ export default function contribute(host: PluginServerContext) {
     const state = await nativePrefs.read().catch(() => null);
     return nativeSessionSettingsValues(state?.status === "ready" ? state.values : {});
   };
-  const sessionInsights = new SessionInsightService(new SessionInsightStore(store.directory), nextRows, async () => {
+  const insightStore = new SessionInsightStore(store.directory);
+  const sessionInsights = new SessionInsightService(insightStore, nextRows, async () => {
     const [native, summary] = await Promise.all([nativeValues(), summaries.settings()]);
     return {
       enabled: native.outside,
@@ -208,7 +211,20 @@ export default function contribute(host: PluginServerContext) {
   service.connectors = connectors;
   // Each project's board copy in `<root>/.flowly/` (PROJECT-FOLDER-SPEC).
   const folders = new ProjectFolders(() => store.read(), async () => (await summaries.store.read()).entries, 1000, new DescriptionImageFiles(store.directory));
-  store.onCommit = () => folders.schedule();
+  // Card sessions and workspaces get their card's id in Paseo metadata (PASEO-0.16-SPEC §3.4, §3.6), and
+  // subscribed clients hear that the board changed (§3.5): both follow every committed board write.
+  const sessionMetadata = new SessionMetadataSync(Date.now, 2 * 60_000, async () => ({
+    sessions: await tools.managedSessions(),
+    workspaces: workspaceBindings(await store.read()),
+  }));
+  const boardFeed = new ChangeFeed();
+  store.onCommit = () => {
+    folders.schedule();
+    sessionMetadata.changed();
+    boardFeed.notify();
+  };
+  // Outside-session Next moves and ideas reach the session chips by the same push.
+  insightStore.onCommit = () => boardFeed.notify("sessions");
   // Existing projects get their folder copy on the first start after the upgrade (and failed ones on every start).
   void folders.migrate(store.directory).catch((e) =>
     logFailure("Flowly project folder migration failed:", e),
@@ -347,12 +363,14 @@ export default function contribute(host: PluginServerContext) {
   });
   server.handle(rpc.readBoardChanged, async (input, { paseo }) => {
     tools.attach(paseo);
+    sessionMetadata.attach(paseo);
     return boardDeltas.read(await store.view(), input);
   });
   const chipDeltas = new BoardDeltas();
   const overviewDeltas = new OverviewDeltas();
   server.handle(rpc.readOverviewChanged, async (input, { paseo }) => {
     tools.attach(paseo);
+    sessionMetadata.attach(paseo);
     return overviewDeltas.read(boardOverview(await store.view()), input);
   });
   server.handle(rpc.readStorageStatus, () => store.storageStatus());
@@ -374,12 +392,21 @@ export default function contribute(host: PluginServerContext) {
     tools.attach(paseo);
     return chipDeltas.read(chipBoard(await store.view()), input);
   });
+  // A 0.15 host has no subscriptions: its clients never subscribe, and a registration it refuses changes nothing.
+  try {
+    server.handle(rpc.boardChanges, (_input, { push, signal }) => boardFeed.serve(push, signal));
+  } catch (error) {
+    console.log(`Flowly: board change pushes unavailable (${error instanceof Error ? error.message : String(error)}).`);
+  }
   server.handle(rpc.managedSessions, () => tools.managedSessions());
-  server.handle(rpc.nativeChips, async () => {
+  server.handle(rpc.nativeChips, async (_, { paseo }) => {
     const [wrap, native] = await Promise.all([wrapupPrefs.read().catch(() => null), nativePrefs.read().catch(() => null)]);
     const values = nativeSessionSettingsValues(native?.status === "ready" ? native.values : {});
+    const managed = await tools.managedSessions();
+    // Off the RPC's path (PASEO-0.16-SPEC §3.4, §3.6).
+    void store.read().then((board) => sessionMetadata.sync(paseo, managed, workspaceBindings(board))).catch(() => undefined);
     return {
-      managed: await tools.managedSessions(),
+      managed,
       ideas: await tools.agents.ideasOn(),
       autoWrapup: wrapupSettingsValues(wrap?.status === "ready" ? wrap.values : {}).autoWrapup,
       nextMoveTap: values.nextMoveTap,
@@ -402,11 +429,18 @@ export default function contribute(host: PluginServerContext) {
     return tools.health();
   });
   server.handle(rpc.ensureTaskWorkspace, (input, { paseo }) => service.ensureWorkspace(input.id, paseo));
+  // A prepared session is a new binding outside the board: mirror it soon (PASEO-0.16-SPEC §3.6).
+  const mirrored = <T>(paseo: PaseoApi, run: Promise<T>) =>
+    run.then((value) => {
+      sessionMetadata.attach(paseo);
+      sessionMetadata.changed();
+      return value;
+    });
   server.handle(rpc.prepareSession, (input, { paseo }) =>
-    tools.prepareSession(input.id, input.operationId, paseo),
+    mirrored(paseo, tools.prepareSession(input.id, input.operationId, paseo)),
   );
   server.handle(rpc.prepareExisting, (input, { paseo }) =>
-    tools.prepareExisting(input.id, input.agentId, paseo),
+    mirrored(paseo, tools.prepareExisting(input.id, input.agentId, paseo)),
   );
   server.handle(rpc.accessState, (input, { paseo }) =>
     tools.accessState(input.id, input.agentId, paseo),
@@ -527,7 +561,7 @@ export default function contribute(host: PluginServerContext) {
     guardrails,
     // A temporary session judges the built-in check, guidelines and card items, hard-deleted after like the summarizer.
     llm: llmReviewer({
-      reviewModel: async () => (await summaries.settings()).reviewModel ?? "",
+      reviewSettings: () => summaries.settings(),
       summaryModels: async () => summaryModelsOf(await summaries.settings()),
     }),
   });
@@ -542,6 +576,26 @@ export default function contribute(host: PluginServerContext) {
   server.handle(rpc.testConnection, (input) => connectors.test(input));
   server.handle(rpc.deleteConnection, (input) => connectors.remove(input.id));
   server.handle(rpc.searchExternal, (input) => connectors.search(input));
+  // A picked GitHub/GitLab item's repository vs the project's repositories (CONNECTORS-SPEC §4.3).
+  server.handle(rpc.repoCheck, async (input) => {
+    const unknown = { state: "unknown" as const, projectTitle: "", others: [] as { id: string; title: string }[] };
+    const [connection, board] = await Promise.all([connectors.connections.get(input.connectionId).catch(() => null), store.read()]);
+    const project = board.projects.find((p) => p.id === input.projectId && !p.archivedAt);
+    if (!connection || !project) return unknown;
+    const repos = await projectRepos(project.primaryPath, connection.baseUrl).catch(() => []);
+    const state = repoVerdict(input.repo, repos);
+    if (state !== "foreign") return { state, projectTitle: project.title, others: [] };
+    // Other projects are checked concurrently: a cold scan of each root would otherwise delay the warning (§4.3).
+    const members = await Promise.all(
+      board.projects
+        .filter((other) => other.id !== project.id && !other.archivedAt)
+        .map(async (other) => {
+          const list = await projectRepos(other.primaryPath, connection.baseUrl).catch(() => []);
+          return repoVerdict(input.repo, list) === "member" ? { id: other.id, title: other.title } : null;
+        }),
+    );
+    return { state, projectTitle: project.title, others: members.filter((m): m is { id: string; title: string } => !!m).slice(0, 3) };
+  });
   server.handle(rpc.cardExternals, async (input) => {
     const list = (await store.read()).artifacts.filter((a) => a.taskId === input.taskId && a.external);
     const located = await connectors.locate(list);
@@ -641,6 +695,9 @@ export default function contribute(host: PluginServerContext) {
     if (!identity || identity.workspaceId !== agent.workspaceId) return null;
     return identity;
   };
+  server.addHook("agent.create.after", async (event, { paseo }) => {
+    if (await managedTask(event.agent)) sessionMetadata.created(paseo, event.agent.id);
+  });
   server.addHook("agent.turn.before", async (event, { paseo }) => {
     tools.attach(paseo);
     const identity = await managedTask(event.agent);
@@ -664,45 +721,55 @@ export default function contribute(host: PluginServerContext) {
     tools.attach(paseo);
     const identity = await managedTask(event.agent);
     if (!identity) {
-      // A session Flowly does not manage (NATIVE-SESSION-SPEC §12): insights after a completed turn, when switched on.
+      // A session Flowly does not manage (NATIVE-SESSION-SPEC §12): insights after a completed turn, when switched on;
+      // its timeline is read only once the session qualifies.
       if (event.outcome.kind === "completed")
-        void turnTimeline(paseo, event.agent.id)
-          .then((timeline) => sessionInsights.enqueue(event.agent, timeline, paseo, endedAt))
+        void sessionInsights
+          .turnEnded(event.agent, paseo, endedAt)
           .catch((e) => logFailure("Flowly session insight failed:", e));
       return;
     }
-    // This turn's suggested next steps as a card under the reply in Paseo's timeline. First thing, before the
-    // settings read, the model lookup (up to 2 s) and the board write: the suggestion is already in the board's
-    // events and none of those steps changes it, so the card waits for nothing. Never blocks the hook.
-    if (event.outcome.kind === "completed") void nextRows.turnEnded(identity, paseo);
-    // The hook's timeline is always empty; read alongside the settings and model lookups below.
-    const turn = turnTimeline(paseo, event.agent.id);
-    const auto = await autoStatusOn();
-    // Agent habits (WORKFLOW-INSIGHTS-SPEC §12.4): the model this turn ran on, and whether the user's message took one of the suggestions that were open.
-    const model = await sessionModel(paseo, event.agent);
-    const timeline = await turn;
-    const texts = userTexts(timeline);
-    // A rework turn: opened by the user's own words while the card was In review (GUARDRAILS-SPEC §4.1).
-    let rework: string | null = null;
-    await store.mutate((board) => {
-      recordLifecycle(store, board, identity, "agent.turn_ended", event.outcome, { model, pick: turnPick(board.events, identity.agentId, texts), byUser: startedByUser(timeline) });
-      if (auto) applyTurnEnded(store, board, identity, event.outcome);
-      rework = memory.reworkQuote(identity, timeline, board);
-    });
-    // A delivery made in this turn is reviewed now that the turn is over (AUTO-REVIEW-SPEC §3.1); never blocks the hook.
-    void reviews.turnEnded(identity.agentId, paseo);
-    // The user's own words of this turn, kept for the finished-card review (PROJECT-MEMORY-SPEC §4.0); never blocks the hook.
-    void store
-      .read()
-      .then((board) => memory.recordTurn(identity, timeline, board))
-      .catch((e) => logFailure("Flowly memory clue not recorded:", e));
-    // The session's plan for the workpad (WORKPAD-SPEC §2.2); never blocks the hook.
-    void workpads.recordTurn(identity, timeline).catch((e) =>
-      logFailure("Kanban workpad plan not recorded:", e),
-    );
-    // Progress summary (TASK-SUMMARY-SPEC): runs after the hook returns, never blocks it.
-    if (event.outcome.kind === "completed" && (await summaries.settings()).summaryEnabled)
-      void summaries.enqueue(identity.taskId, identity.agentId, timeline, paseo, endedAt, rework);
+    // A delivery made in this turn is reviewed now that the turn is over (AUTO-REVIEW-SPEC §3.1). First, before the
+    // settings, model and timeline reads below (seconds), none of which the review needs; never blocks the hook.
+    let recorded!: (ready: boolean) => void;
+    const lifecycleRecorded = new Promise<boolean>((resolve) => { recorded = resolve; });
+    void reviews.turnEnded(identity.agentId, paseo, lifecycleRecorded);
+    try {
+      // This turn's suggested next steps as a card under the reply in Paseo's timeline. First thing, before the
+      // settings read, the model lookup (up to 2 s) and the board write: the suggestion is already in the board's
+      // events and none of those steps changes it, so the card waits for nothing. Never blocks the hook.
+      if (event.outcome.kind === "completed") void nextRows.turnEnded(identity, paseo);
+      // The hook's timeline is always empty; read alongside the settings and model lookups below.
+      const turn = turnTimeline(paseo, event.agent.id);
+      const auto = await autoStatusOn();
+      // Agent habits (WORKFLOW-INSIGHTS-SPEC §12.4): the model this turn ran on, and whether the user's message took one of the suggestions that were open.
+      const model = await sessionModel(paseo, event.agent);
+      const timeline = await turn;
+      const texts = userTexts(timeline);
+      // A rework turn: opened by the user's own words while the card was In review (GUARDRAILS-SPEC §4.1).
+      let rework: string | null = null;
+      await store.mutate((board) => {
+        recordLifecycle(store, board, identity, "agent.turn_ended", event.outcome, { model, pick: turnPick(board.events, identity.agentId, texts), byUser: startedByUser(timeline) });
+        if (auto) applyTurnEnded(store, board, identity, event.outcome);
+        rework = memory.reworkQuote(identity, timeline, board);
+      });
+      recorded(true);
+      // The user's own words of this turn, kept for the finished-card review (PROJECT-MEMORY-SPEC §4.0); never blocks the hook.
+      void store
+        .read()
+        .then((board) => memory.recordTurn(identity, timeline, board))
+        .catch((e) => logFailure("Flowly memory clue not recorded:", e));
+      // The session's plan for the workpad (WORKPAD-SPEC §2.2); never blocks the hook.
+      void workpads.recordTurn(identity, timeline).catch((e) =>
+        logFailure("Kanban workpad plan not recorded:", e),
+      );
+      // Progress summary (TASK-SUMMARY-SPEC): runs after the hook returns, never blocks it.
+      if (event.outcome.kind === "completed" && (await summaries.settings()).summaryEnabled)
+        void summaries.enqueue(identity.taskId, identity.agentId, timeline, paseo, endedAt, rework);
+    } catch (error) {
+      recorded(false);
+      throw error;
+    }
   });
   // Queued follow-ups go out when any session's turn ends (Paseo "queue").
   server.addHook("agent.turn.after", async (event, { paseo }) => {
@@ -710,8 +777,9 @@ export default function contribute(host: PluginServerContext) {
   });
   // Shell calls of any card-workspace session (WORKFLOW-INSIGHTS-SPEC §3.1); after the hook, never blocking it.
   server.addHook("agent.turn.after", async (event, { paseo }) => {
-    void turnTimeline(paseo, event.agent.id)
-      .then((timeline) => workflow.recordTurn(event.agent, timeline, paseo))
+    // The timeline is read only for a card session of a project with workflow insights on.
+    void workflow
+      .turnEnded(event.agent, paseo)
       .catch((e) => logFailure("Workflow insights commands not recorded:", e));
   });
   server.addHook("agent.permission.before", async (event, { paseo }) => {
@@ -794,6 +862,8 @@ export default function contribute(host: PluginServerContext) {
     openKanbanSession(request, tools, store.directory, paseo),
   );
   return () => {
+    sessionMetadata.stop();
+    boardFeed.stop();
     void store.close().catch((e) => logFailure("Flowly storage: close failed:", e));
     workflow.stop();
     telemetry.stop();

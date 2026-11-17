@@ -1,48 +1,7 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
-  "Medium": "Среднее",
-  "Extra high": "Очень высокое",
-  "Full access": "Полный доступ",
-  "Use the controls inside the message box to change the model, reasoning, permissions and provider features.": "Меняйте модель, рассуждение, разрешения и функции провайдера с помощью элементов внутри поля сообщения.",
-  "Created the workspace": "Создана рабочая область",
-  "Created with the first session": "Создаётся с первым сеансом",
-  "Workspace starts with the first session": "Рабочая область создаётся с первым сеансом",
-  "Plan cards without creating workspaces. The first session creates the workspace; later sessions share it.": "Планируйте карточки без создания рабочих областей. Первый сеанс создаёт рабочую область; последующие используют её.",
-  "On": "Вкл.",
-  "Off": "Выкл.",
-  "Loading models…": "Загрузка моделей…",
-  "Session settings updated": "Настройки сеанса обновлены",
-  "Reload session": "Перезагрузить сеанс",
-  "Session reloaded": "Сеанс перезагружен",
-  "Reloading interrupts the running turn. Reload this session?": "Перезагрузка прервёт текущий ход. Перезагрузить этот сеанс?",
-  "Copy message": "Копировать сообщение",
-  "Session controls": "Управление сеансом",
-  "Change models and provider features inside Flowly. Copy messages or reload a session from its menu.": "Меняйте модели и функции провайдера в Flowly. Копируйте сообщения или перезагружайте сеанс через его меню.",
-  "Hold the right mouse button on empty board space and drag left or right to scroll.": "Удерживайте правую кнопку мыши на пустом месте доски и перетаскивайте влево или вправо для прокрутки.",
-  "My to-dos": "Мои задачи",
-  "All work items": "Все элементы",
-  "No matching to-dos for your TAPD account in this project.": "В этом проекте нет подходящих задач для вашей учётной записи TAPD.",
-  "An empty description imports the first TAPD item's description when creating the card.": "Если описание пустое, при создании карточки импортируется описание первого элемента TAPD.",
-  "TAPD work item": "Рабочий элемент TAPD",
-  "Work item link, number, story-123, bug-123, task-123 or title words": "Ссылка, номер, story-123, bug-123, task-123 или слова из заголовка",
-  "Recent work items in this TAPD project": "Последние элементы этого проекта TAPD",
-  "No work items were found in this TAPD project.": "В этом проекте TAPD элементы не найдены.",
-  "Add a TAPD connection": "Добавить подключение TAPD",
-  "MCP access refused. Check login and test again.": "Доступ MCP отклонён. Проверьте вход и повторите проверку.",
-  "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "Использует настроенный на хосте Paseo сервер tapd MCP через mcporter. Сначала войдите в него. Доступ к TAPD только для чтения.",
-  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "Подключите TAPD в Настройки → Подключения. Сначала отображаются Мои задачи; переключитесь на Все элементы, чтобы просмотреть проект.",
-  "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Создайте карточку из Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut или TAPD либо добавьте элемент через + в артефактах. Агенты читают его каждый ход; Flowly его не меняет.",
-
-  "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly не ограничивает количество и размер изображений. Ограничения модели и хоста по-прежнему действуют.",
-  "Use card description": "Использовать описание карточки",
-  "Description changed. Use card description again.": "Описание изменилось. Загрузите описание карточки заново.",
-  "Description images": "Изображения в описании",
-  "Save pictures with a card description and use its text and pictures as a session instruction.": "Сохраняйте изображения в описании карточки и используйте текст и изображения как инструкцию для сессии.",
-  "Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.": "Добавьте изображения в описание карточки и выберите «Использовать описание карточки» при запуске сессии, чтобы отправить текст и изображения вместе.",
-
   "Command": "Команда",
-  "Project default model": "Модель проекта по умолчанию",
   "Review model": "Модель проверки",
   "{n} s": "{n} с",
   "Not applicable": "Не применимо",
@@ -51,6 +10,7 @@ const catalog: Catalog = {
   "Finished the auto review": "Завершил автоматическую проверку",
   "Auto review": "Автоматическая проверка",
   "Max rework rounds": "Макс. число доработок",
+  "Waiting for review": "Ожидает проверки",
   "Reviewing": "Проверяется",
   "Review failed": "Проверка не пройдена",
   "Review unavailable": "Проверка недоступна",
@@ -167,9 +127,24 @@ const catalog: Catalog = {
   "Needs attention": "Требует внимания",
   "Read state is unavailable, so finished-but-unread sessions are not listed. Approvals and errors still are.": "Состояние прочтения недоступно, поэтому завершённые, но непрочитанные сессии не показываются. Запросы на подтверждение и ошибки по-прежнему показываются.",
   "Nothing needs your attention.": "Ничего не требует вашего внимания.",
-  "{n} questions": {"one": "{n} вопрос", "few": "{n} вопроса", "many": "{n} вопросов", "other": "{n} вопроса"},
-  "{n} approvals": {"one": "{n} запрос на подтверждение", "few": "{n} запроса на подтверждение", "many": "{n} запросов на подтверждение", "other": "{n} запроса на подтверждение"},
-  "{n} errors": {"one": "{n} ошибка", "few": "{n} ошибки", "many": "{n} ошибок", "other": "{n} ошибки"},
+  "{n} questions": {
+    "one": "{n} вопрос",
+    "few": "{n} вопроса",
+    "many": "{n} вопросов",
+    "other": "{n} вопроса"
+  },
+  "{n} approvals": {
+    "one": "{n} запрос на подтверждение",
+    "few": "{n} запроса на подтверждение",
+    "many": "{n} запросов на подтверждение",
+    "other": "{n} запроса на подтверждение"
+  },
+  "{n} errors": {
+    "one": "{n} ошибка",
+    "few": "{n} ошибки",
+    "many": "{n} ошибок",
+    "other": "{n} ошибки"
+  },
   "{unread} unread (no report)": "непрочитанных: {unread} (без отчёта)",
   "{unread} unread ({silent} no report)": "непрочитанных: {unread} (без отчёта: {silent})",
   "{unread} unread": "непрочитанных: {unread}",
@@ -178,7 +153,12 @@ const catalog: Catalog = {
   "Status": "Статус",
   "Task actions": "Действия с задачей",
   "Move to: {name}": "Переместить в: {name}",
-  "{n} cards": {"one": "{n} карточка", "few": "{n} карточки", "many": "{n} карточек", "other": "{n} карточки"},
+  "{n} cards": {
+    "one": "{n} карточка",
+    "few": "{n} карточки",
+    "many": "{n} карточек",
+    "other": "{n} карточки"
+  },
   "{title} removed from the board with {cards}, but Paseo kept the project: {error}": "«{title}» удалён с доски (вместе с: {cards}), но Paseo сохранил проект: {error}",
   "{title} removed from the board, but Paseo kept the project: {error}": "«{title}» удалён с доски, но Paseo сохранил проект: {error}",
   "Project created, but Auto review was not saved: {error}": "Проект создан, но автоматическая проверка не сохранена: {error}",
@@ -187,11 +167,26 @@ const catalog: Catalog = {
   "{title} removed from the board with {cards}; it stays in Paseo": "«{title}» удалён с доски (вместе с: {cards}); в Paseo он остаётся",
   "{title} removed from the board; it stays in Paseo": "«{title}» удалён с доски; в Paseo он остаётся",
   "{title} deleted": "«{title}» удалена",
-  "{title} deleted; workspace and {n} sessions archived": {"one": "«{title}» удалена; рабочее пространство и {n} сессия архивированы", "few": "«{title}» удалена; рабочее пространство и {n} сессии архивированы", "many": "«{title}» удалена; рабочее пространство и {n} сессий архивированы", "other": "«{title}» удалена; рабочее пространство и {n} сессии архивированы"},
-  "{title} deleted; {n} sessions archived": {"one": "«{title}» удалена; {n} сессия архивирована", "few": "«{title}» удалена; {n} сессии архивированы", "many": "«{title}» удалена; {n} сессий архивировано", "other": "«{title}» удалена; {n} сессии архивированы"},
+  "{title} deleted; workspace and {n} sessions archived": {
+    "one": "«{title}» удалена; рабочее пространство и {n} сессия архивированы",
+    "few": "«{title}» удалена; рабочее пространство и {n} сессии архивированы",
+    "many": "«{title}» удалена; рабочее пространство и {n} сессий архивированы",
+    "other": "«{title}» удалена; рабочее пространство и {n} сессии архивированы"
+  },
+  "{title} deleted; {n} sessions archived": {
+    "one": "«{title}» удалена; {n} сессия архивирована",
+    "few": "«{title}» удалена; {n} сессии архивированы",
+    "many": "«{title}» удалена; {n} сессий архивировано",
+    "other": "«{title}» удалена; {n} сессии архивированы"
+  },
   "Task created and its agent started": "Задача создана, агент запущен",
   "Task created, but the agent did not start: {error}. Start it from the task.": "Задача создана, но агент не запустился: {error}. Запустите его из задачи.",
-  "Needs attention, {n} cards": {"one": "Требует внимания: {n} карточка", "few": "Требует внимания: {n} карточки", "many": "Требует внимания: {n} карточек", "other": "Требует внимания: {n} карточки"},
+  "Needs attention, {n} cards": {
+    "one": "Требует внимания: {n} карточка",
+    "few": "Требует внимания: {n} карточки",
+    "many": "Требует внимания: {n} карточек",
+    "other": "Требует внимания: {n} карточки"
+  },
   "Attention": "Внимание",
   "Sort cards: {label}": "Сортировка карточек: {label}",
   "Sort": "Сортировка",
@@ -199,9 +194,24 @@ const catalog: Catalog = {
   "Task filters": "Фильтры задач",
   "Filter": "Фильтр",
   "Open task {title}": "Открыть задачу {title}",
-  "Needs you: {n} open questions": {"one": "Нужны вы: {n} открытый вопрос", "few": "Нужны вы: {n} открытых вопроса", "many": "Нужны вы: {n} открытых вопросов", "other": "Нужны вы: {n} открытого вопроса"},
-  "{n} ideas": {"one": "{n} идея", "few": "{n} идеи", "many": "{n} идей", "other": "{n} идеи"},
-  "Waiting on {n} cards: {waitingTitles}": {"one": "Ожидает {n} карточку: {waitingTitles}", "few": "Ожидает {n} карточки: {waitingTitles}", "many": "Ожидает {n} карточек: {waitingTitles}", "other": "Ожидает {n} карточки: {waitingTitles}"},
+  "Needs you: {n} open questions": {
+    "one": "Нужны вы: {n} открытый вопрос",
+    "few": "Нужны вы: {n} открытых вопроса",
+    "many": "Нужны вы: {n} открытых вопросов",
+    "other": "Нужны вы: {n} открытого вопроса"
+  },
+  "{n} ideas": {
+    "one": "{n} идея",
+    "few": "{n} идеи",
+    "many": "{n} идей",
+    "other": "{n} идеи"
+  },
+  "Waiting on {n} cards: {waitingTitles}": {
+    "one": "Ожидает {n} карточку: {waitingTitles}",
+    "few": "Ожидает {n} карточки: {waitingTitles}",
+    "many": "Ожидает {n} карточек: {waitingTitles}",
+    "other": "Ожидает {n} карточки: {waitingTitles}"
+  },
   "Progress: {state}": "Ход работы: {state}",
   "{priority} priority": "Приоритет: {priority}",
   "archived": "в архиве",
@@ -224,7 +234,12 @@ const catalog: Catalog = {
   "Legacy": "Старая",
   "Expand column": "Развернуть колонку",
   "Collapse column": "Свернуть колонку",
-  "Expand {lane}, {n} tasks": {"one": "Развернуть «{lane}», {n} задача", "few": "Развернуть «{lane}», {n} задачи", "many": "Развернуть «{lane}», {n} задач", "other": "Развернуть «{lane}», {n} задачи"},
+  "Expand {lane}, {n} tasks": {
+    "one": "Развернуть «{lane}», {n} задача",
+    "few": "Развернуть «{lane}», {n} задачи",
+    "many": "Развернуть «{lane}», {n} задач",
+    "other": "Развернуть «{lane}», {n} задачи"
+  },
   "Collapse {name}": "Свернуть «{name}»",
   "Add task to {name}": "Добавить задачу в «{name}»",
   "Drop to move here": "Отпустите, чтобы переместить сюда",
@@ -405,7 +420,12 @@ const catalog: Catalog = {
   "Show more ({n})": "Показать ещё ({n})",
   "From card {title}, {state}. Open it": "Из карточки «{title}», {state}. Открыть",
   "From": "Из",
-  "{title}, {state}, {n} ideas. Open the card": {"one": "{title}, {state}, {n} идея. Открыть карточку", "few": "{title}, {state}, {n} идеи. Открыть карточку", "many": "{title}, {state}, {n} идей. Открыть карточку", "other": "{title}, {state}, {n} идеи. Открыть карточку"},
+  "{title}, {state}, {n} ideas. Open the card": {
+    "one": "{title}, {state}, {n} идея. Открыть карточку",
+    "few": "{title}, {state}, {n} идеи. Открыть карточку",
+    "many": "{title}, {state}, {n} идей. Открыть карточку",
+    "other": "{title}, {state}, {n} идеи. Открыть карточку"
+  },
   "Removed card": "Удалённая карточка",
   "Today": "Сегодня",
   "Loading insights…": "Загружаем аналитику…",
@@ -441,19 +461,49 @@ const catalog: Catalog = {
   "Related": "Связана",
   "Was waiting on": "Ждала",
   "Default": "По умолчанию",
-  "{n} tasks": {"one": "{n} задача", "few": "{n} задачи", "many": "{n} задач", "other": "{n} задачи"},
+  "{n} tasks": {
+    "one": "{n} задача",
+    "few": "{n} задачи",
+    "many": "{n} задач",
+    "other": "{n} задачи"
+  },
   "task": "задач",
   "tasks": "задач",
   "· {n} done": "· готово {n}",
   "{tasks} running ({sessions})": "{tasks} выполняется ({sessions})",
-  "{n} sessions": {"one": "{n} сессия", "few": "{n} сессии", "many": "{n} сессий", "other": "{n} сессии"},
+  "{n} sessions": {
+    "one": "{n} сессия",
+    "few": "{n} сессии",
+    "many": "{n} сессий",
+    "other": "{n} сессии"
+  },
   "{tasks} running": "{tasks} выполняется",
   "Nothing running": "Ничего не выполняется",
   "Idle": "Простой",
-  "{n} tasks waiting on you. Open Attention": {"one": "{n} задача ждёт вас. Открыть «Внимание»", "few": "{n} задачи ждут вас. Открыть «Внимание»", "many": "{n} задач ждут вас. Открыть «Внимание»", "other": "{n} задачи ждут вас. Открыть «Внимание»"},
-  "{n} need you": {"one": "вас ждёт {n}", "few": "вас ждут {n}", "many": "вас ждут {n}", "other": "вас ждут {n}"},
-  "{n} tasks with unread results. Open Attention": {"one": "{n} задача с непрочитанными результатами. Открыть «Внимание»", "few": "{n} задачи с непрочитанными результатами. Открыть «Внимание»", "many": "{n} задач с непрочитанными результатами. Открыть «Внимание»", "other": "{n} задачи с непрочитанными результатами. Открыть «Внимание»"},
-  "{n} tasks with session errors. Open Attention": {"one": "{n} задача с ошибками сессии. Открыть «Внимание»", "few": "{n} задачи с ошибками сессии. Открыть «Внимание»", "many": "{n} задач с ошибками сессии. Открыть «Внимание»", "other": "{n} задачи с ошибками сессии. Открыть «Внимание»"},
+  "{n} tasks waiting on you. Open Attention": {
+    "one": "{n} задача ждёт вас. Открыть «Внимание»",
+    "few": "{n} задачи ждут вас. Открыть «Внимание»",
+    "many": "{n} задач ждут вас. Открыть «Внимание»",
+    "other": "{n} задачи ждут вас. Открыть «Внимание»"
+  },
+  "{n} need you": {
+    "one": "вас ждёт {n}",
+    "few": "вас ждут {n}",
+    "many": "вас ждут {n}",
+    "other": "вас ждут {n}"
+  },
+  "{n} tasks with unread results. Open Attention": {
+    "one": "{n} задача с непрочитанными результатами. Открыть «Внимание»",
+    "few": "{n} задачи с непрочитанными результатами. Открыть «Внимание»",
+    "many": "{n} задач с непрочитанными результатами. Открыть «Внимание»",
+    "other": "{n} задачи с непрочитанными результатами. Открыть «Внимание»"
+  },
+  "{n} tasks with session errors. Open Attention": {
+    "one": "{n} задача с ошибками сессии. Открыть «Внимание»",
+    "few": "{n} задачи с ошибками сессии. Открыть «Внимание»",
+    "many": "{n} задач с ошибками сессии. Открыть «Внимание»",
+    "other": "{n} задачи с ошибками сессии. Открыть «Внимание»"
+  },
   "Project ideas: {openIdeas} open": "Идеи проекта: открыто {openIdeas}",
   "Ideas {openIdeas}": "Идеи {openIdeas}",
   "Project insights": "Аналитика проекта",
@@ -462,15 +512,30 @@ const catalog: Catalog = {
   "No matches.": "Совпадений нет.",
   "Nothing available.": "Ничего нет.",
   "Remove “{title}”?": "Удалить «{title}»?",
-  "The project and its {n} cards (including archived) leave Flowly. A copy of the removed board records is kept in the plugin's data folder.": {"one": "Проект и его {n} карточка (включая архивные) удаляются из Flowly. Копия удалённых записей доски сохраняется в папке данных плагина.", "few": "Проект и его {n} карточки (включая архивные) удаляются из Flowly. Копия удалённых записей доски сохраняется в папке данных плагина.", "many": "Проект и его {n} карточек (включая архивные) удаляются из Flowly. Копия удалённых записей доски сохраняется в папке данных плагина.", "other": "Проект и его {n} карточки (включая архивные) удаляются из Flowly. Копия удалённых записей доски сохраняется в папке данных плагина."},
+  "The project and its {n} cards (including archived) leave Flowly. A copy of the removed board records is kept in the plugin's data folder.": {
+    "one": "Проект и его {n} карточка (включая архивные) удаляются из Flowly. Копия удалённых записей доски сохраняется в папке данных плагина.",
+    "few": "Проект и его {n} карточки (включая архивные) удаляются из Flowly. Копия удалённых записей доски сохраняется в папке данных плагина.",
+    "many": "Проект и его {n} карточек (включая архивные) удаляются из Flowly. Копия удалённых записей доски сохраняется в папке данных плагина.",
+    "other": "Проект и его {n} карточки (включая архивные) удаляются из Flowly. Копия удалённых записей доски сохраняется в папке данных плагина."
+  },
   "The project leaves Flowly. A copy of the removed board record is kept in the plugin's data folder.": "Проект удаляется из Flowly. Копия удалённой записи доски сохраняется в папке данных плагина.",
   "Keep in Paseo": "Оставить в Paseo",
   "Also remove from Paseo": "Также удалить из Paseo",
   "The Paseo project is already gone; only the board record is removed.": "Проекта Paseo уже нет; удаляется только запись на доске.",
   "Paseo keeps the project at {primaryPath}, its workspaces and sessions. Running sessions keep running, but their Kanban tools stop working for these cards. You can add the project to the board again later.": "Paseo сохранит проект в {primaryPath}, его рабочие пространства и сессии. Запущенные сессии продолжат работать, но их инструменты Kanban перестанут работать для этих карточек. Позже проект можно снова добавить на доску.",
-  "Paseo forgets the project and its {n} workspaces, as when you remove it in Paseo. Nothing is deleted from disk: {path}, worktrees and branches stay. Add the folder in Paseo again to bring it back.": {"one": "Paseo забудет проект и его {n} рабочее пространство — так же, как если бы вы удалили его в Paseo. С диска ничего не удаляется: {path}, worktree и ветки остаются. Добавьте папку в Paseo снова, чтобы вернуть проект.", "few": "Paseo забудет проект и его {n} рабочих пространства — так же, как если бы вы удалили его в Paseo. С диска ничего не удаляется: {path}, worktree и ветки остаются. Добавьте папку в Paseo снова, чтобы вернуть проект.", "many": "Paseo забудет проект и его {n} рабочих пространств — так же, как если бы вы удалили его в Paseo. С диска ничего не удаляется: {path}, worktree и ветки остаются. Добавьте папку в Paseo снова, чтобы вернуть проект.", "other": "Paseo забудет проект и его {n} рабочего пространства — так же, как если бы вы удалили его в Paseo. С диска ничего не удаляется: {path}, worktree и ветки остаются. Добавьте папку в Paseo снова, чтобы вернуть проект."},
+  "Paseo forgets the project and its {n} workspaces, as when you remove it in Paseo. Nothing is deleted from disk: {path}, worktrees and branches stay. Add the folder in Paseo again to bring it back.": {
+    "one": "Paseo забудет проект и его {n} рабочее пространство — так же, как если бы вы удалили его в Paseo. С диска ничего не удаляется: {path}, worktree и ветки остаются. Добавьте папку в Paseo снова, чтобы вернуть проект.",
+    "few": "Paseo забудет проект и его {n} рабочих пространства — так же, как если бы вы удалили его в Paseo. С диска ничего не удаляется: {path}, worktree и ветки остаются. Добавьте папку в Paseo снова, чтобы вернуть проект.",
+    "many": "Paseo забудет проект и его {n} рабочих пространств — так же, как если бы вы удалили его в Paseo. С диска ничего не удаляется: {path}, worktree и ветки остаются. Добавьте папку в Paseo снова, чтобы вернуть проект.",
+    "other": "Paseo забудет проект и его {n} рабочего пространства — так же, как если бы вы удалили его в Paseo. С диска ничего не удаляется: {path}, worktree и ветки остаются. Добавьте папку в Paseo снова, чтобы вернуть проект."
+  },
   "Paseo forgets the project, as when you remove it in Paseo. Nothing is deleted from disk: {path}, worktrees and branches stay. Add the folder in Paseo again to bring it back.": "Paseo забудет проект — так же, как если бы вы удалили его в Paseo. С диска ничего не удаляется: {path}, worktree и ветки остаются. Добавьте папку в Paseo снова, чтобы вернуть проект.",
-  "{n} sessions are still running in this Paseo project, so it can only be kept in Paseo. Stop them to remove it from Paseo too.": {"one": "В этом проекте Paseo всё ещё выполняется {n} сессия, поэтому его можно только оставить в Paseo. Остановите её, чтобы удалить и из Paseo.", "few": "В этом проекте Paseo всё ещё выполняются {n} сессии, поэтому его можно только оставить в Paseo. Остановите их, чтобы удалить и из Paseo.", "many": "В этом проекте Paseo всё ещё выполняются {n} сессий, поэтому его можно только оставить в Paseo. Остановите их, чтобы удалить и из Paseo.", "other": "В этом проекте Paseo всё ещё выполняются {n} сессии, поэтому его можно только оставить в Paseo. Остановите их, чтобы удалить и из Paseo."},
+  "{n} sessions are still running in this Paseo project, so it can only be kept in Paseo. Stop them to remove it from Paseo too.": {
+    "one": "В этом проекте Paseo всё ещё выполняется {n} сессия, поэтому его можно только оставить в Paseo. Остановите её, чтобы удалить и из Paseo.",
+    "few": "В этом проекте Paseo всё ещё выполняются {n} сессии, поэтому его можно только оставить в Paseo. Остановите их, чтобы удалить и из Paseo.",
+    "many": "В этом проекте Paseo всё ещё выполняются {n} сессий, поэтому его можно только оставить в Paseo. Остановите их, чтобы удалить и из Paseo.",
+    "other": "В этом проекте Paseo всё ещё выполняются {n} сессии, поэтому его можно только оставить в Paseo. Остановите их, чтобы удалить и из Paseo."
+  },
   "Could not check Paseo: {message}": "Не удалось проверить Paseo: {message}",
   "Removing…": "Удаляем…",
   "Remove from board": "Удалить с доски",
@@ -534,7 +599,12 @@ const catalog: Catalog = {
   "Sent to the running turn": "Отправлено в текущий ход",
   "Edit": "Изменить",
   "Remove": "Удалить",
-  "{n} images": {"one": "{n} изображение", "few": "{n} изображения", "many": "{n} изображений", "other": "{n} изображения"},
+  "{n} images": {
+    "one": "{n} изображение",
+    "few": "{n} изображения",
+    "many": "{n} изображений",
+    "other": "{n} изображения"
+  },
   "Queued": "В очереди",
   "Send now and steer the running turn": "Отправить сейчас и направить текущий ход",
   "Remove queued message": "Удалить сообщение из очереди",
@@ -605,14 +675,25 @@ const catalog: Catalog = {
   "Closed": "Закрыта",
   "Finished turn": "Ход завершён",
   "Turn ended": "Ход завершён",
+  "Background tasks running": "Идут фоновые задачи",
   "Thought": "Размышлял",
-  "{n} tool calls": {"one": "{n} вызов инструмента", "few": "{n} вызова инструментов", "many": "{n} вызовов инструментов", "other": "{n} вызова инструментов"},
+  "{n} tool calls": {
+    "one": "{n} вызов инструмента",
+    "few": "{n} вызова инструментов",
+    "many": "{n} вызовов инструментов",
+    "other": "{n} вызова инструментов"
+  },
   "Prepared session belongs to another workspace or is archived.": "Подготовленная сессия относится к другому рабочему пространству или архивирована.",
   "Paseo returned a different session ID; inspect the workspace before retrying.": "Paseo вернул другой ID сессии; проверьте рабочее пространство, прежде чем повторять.",
   "Session is unavailable or belongs to a different workspace.": "Сессия недоступна или относится к другому рабочему пространству.",
   "This session is archived.": "Эта сессия архивирована.",
   "This session's provider is unavailable.": "Провайдер этой сессии недоступен.",
-  "Open Needs attention, {text} cards": {"one": "Открыть «Требует внимания», карточек: {text}", "few": "Открыть «Требует внимания», карточек: {text}", "many": "Открыть «Требует внимания», карточек: {text}", "other": "Открыть «Требует внимания», карточек: {text}"},
+  "Open Needs attention, {text} cards": {
+    "one": "Открыть «Требует внимания», карточек: {text}",
+    "few": "Открыть «Требует внимания», карточек: {text}",
+    "many": "Открыть «Требует внимания», карточек: {text}",
+    "other": "Открыть «Требует внимания», карточек: {text}"
+  },
   "Urgent": "Срочный",
   "High": "Высокий",
   "Normal": "Обычный",
@@ -634,9 +715,24 @@ const catalog: Catalog = {
   "Auto wrap up": "Автозавершение",
   "Archive without asking when nothing blocks it: no running session, no uncommitted or unpushed work. Otherwise the card is left for manual Wrap up.": "Архивирует без вопросов, если ничто не мешает: нет выполняющихся сессий, нет незакоммиченной или неотправленной работы. Иначе карточка остаётся для ручного завершения.",
   "Auto archive on delete": "Автоархивация при удалении",
-  "its worktree workspace and {n} sessions. Paseo may remove the worktree directory; the branch is kept.": {"one": "её рабочее пространство worktree и {n} сессию. Paseo может удалить каталог worktree; ветка сохраняется.", "few": "её рабочее пространство worktree и {n} сессии. Paseo может удалить каталог worktree; ветка сохраняется.", "many": "её рабочее пространство worktree и {n} сессий. Paseo может удалить каталог worktree; ветка сохраняется.", "other": "её рабочее пространство worktree и {n} сессии. Paseo может удалить каталог worktree; ветка сохраняется."},
-  "its workspace and {n} sessions. The directory stays on disk.": {"one": "её рабочее пространство и {n} сессию. Каталог остаётся на диске.", "few": "её рабочее пространство и {n} сессии. Каталог остаётся на диске.", "many": "её рабочее пространство и {n} сессий. Каталог остаётся на диске.", "other": "её рабочее пространство и {n} сессии. Каталог остаётся на диске."},
-  "its {n} sessions. The workspace is shared and stays.": {"one": "её {n} сессию. Рабочее пространство общее и остаётся.", "few": "её {n} сессии. Рабочее пространство общее и остаётся.", "many": "её {n} сессий. Рабочее пространство общее и остаётся.", "other": "её {n} сессии. Рабочее пространство общее и остаётся."},
+  "its worktree workspace and {n} sessions. Paseo may remove the worktree directory; the branch is kept.": {
+    "one": "её рабочее пространство worktree и {n} сессию. Paseo может удалить каталог worktree; ветка сохраняется.",
+    "few": "её рабочее пространство worktree и {n} сессии. Paseo может удалить каталог worktree; ветка сохраняется.",
+    "many": "её рабочее пространство worktree и {n} сессий. Paseo может удалить каталог worktree; ветка сохраняется.",
+    "other": "её рабочее пространство worktree и {n} сессии. Paseo может удалить каталог worktree; ветка сохраняется."
+  },
+  "its workspace and {n} sessions. The directory stays on disk.": {
+    "one": "её рабочее пространство и {n} сессию. Каталог остаётся на диске.",
+    "few": "её рабочее пространство и {n} сессии. Каталог остаётся на диске.",
+    "many": "её рабочее пространство и {n} сессий. Каталог остаётся на диске.",
+    "other": "её рабочее пространство и {n} сессии. Каталог остаётся на диске."
+  },
+  "its {n} sessions. The workspace is shared and stays.": {
+    "one": "её {n} сессию. Рабочее пространство общее и остаётся.",
+    "few": "её {n} сессии. Рабочее пространство общее и остаётся.",
+    "many": "её {n} сессий. Рабочее пространство общее и остаётся.",
+    "other": "её {n} сессии. Рабочее пространство общее и остаётся."
+  },
   "Delete “{title}” permanently?": "Удалить «{title}» навсегда?",
   "The card, its activity and progress summaries leave Flowly and cannot be restored from the board. A copy of the removed records is kept in the plugin's data folder.": "Карточка, её активность и сводки хода работы удаляются из Flowly и не могут быть восстановлены с доски. Копия удалённых записей сохраняется в папке данных плагина.",
   "Checking its Paseo sessions…": "Проверяем её сессии Paseo…",
@@ -711,12 +807,22 @@ const catalog: Catalog = {
   "Target": "Цель",
   "Recap": "Итоги",
   "{n} tokens": "токенов: {n}",
-  "{n} turns": {"one": "{n} ход", "few": "{n} хода", "many": "{n} ходов", "other": "{n} хода"},
+  "{n} turns": {
+    "one": "{n} ход",
+    "few": "{n} хода",
+    "many": "{n} ходов",
+    "other": "{n} хода"
+  },
   "No token data": "Нет данных о токенах",
   "Counting…": "Подсчёт…",
   "Usage": "Использование",
   "{time} running": "выполнялось {time}",
-  "Progress summaries · {n} runs": {"one": "Сводки хода работы · {n} запуск", "few": "Сводки хода работы · {n} запуска", "many": "Сводки хода работы · {n} запусков", "other": "Сводки хода работы · {n} запуска"},
+  "Progress summaries · {n} runs": {
+    "one": "Сводки хода работы · {n} запуск",
+    "few": "Сводки хода работы · {n} запуска",
+    "many": "Сводки хода работы · {n} запусков",
+    "other": "Сводки хода работы · {n} запуска"
+  },
   "From local Claude Code / Codex logs; tokens only. Output includes reasoning.": "По локальным логам Claude Code / Codex; только токены. Вывод включает рассуждения.",
   "{n} reasoning": "рассуждения: {n}",
   "Total": "Всего",
@@ -731,7 +837,12 @@ const catalog: Catalog = {
   "{name} is not a PNG, JPEG, GIF or WebP image.": "{name} — не изображение PNG, JPEG, GIF или WebP.",
   "File": "Файл",
   "Wrapped up: workspace and sessions archived": "Завершена: рабочее пространство и сессии архивированы",
-  "Wrapped up: {n} sessions archived": {"one": "Завершена: {n} сессия архивирована", "few": "Завершена: {n} сессии архивированы", "many": "Завершена: {n} сессий архивировано", "other": "Завершена: {n} сессии архивированы"},
+  "Wrapped up: {n} sessions archived": {
+    "one": "Завершена: {n} сессия архивирована",
+    "few": "Завершена: {n} сессии архивированы",
+    "many": "Завершена: {n} сессий архивировано",
+    "other": "Завершена: {n} сессии архивированы"
+  },
   "Wrap up this card?": "Завершить эту карточку?",
   "Archive this card's worktree workspace and its sessions. Paseo may remove the worktree directory; the branch is kept.": "Архивирует рабочее пространство worktree этой карточки и её сессии. Paseo может удалить каталог worktree; ветка сохраняется.",
   "Archive this card's workspace and its sessions. The directory stays on disk.": "Архивирует рабочее пространство этой карточки и её сессии. Каталог остаётся на диске.",
@@ -740,7 +851,12 @@ const catalog: Catalog = {
   "Then archive the card.": "Затем карточка архивируется.",
   "To skip this question, turn on Auto wrap up in Flowly settings.": "Чтобы пропустить этот вопрос, включите «Автозавершение» в настройках Flowly.",
   "Workspace is unavailable; only the card will be archived.": "Рабочее пространство недоступно; будет архивирована только карточка.",
-  "{n} sessions idle": {"one": "{n} сессия простаивает", "few": "{n} сессии простаивают", "many": "{n} сессий простаивают", "other": "{n} сессии простаивают"},
+  "{n} sessions idle": {
+    "one": "{n} сессия простаивает",
+    "few": "{n} сессии простаивают",
+    "many": "{n} сессий простаивают",
+    "other": "{n} сессии простаивают"
+  },
   "branch {branch}": "ветка {branch}",
   "No uncommitted changes or local-only commits": "Нет незакоммиченных изменений и коммитов только на этой машине",
   "Wrapping up…": "Завершаем…",
@@ -816,7 +932,12 @@ const catalog: Catalog = {
   "Automatic": "Автоматически",
   "Start from the latest session's settings": "Начинать с настроек последней сессии",
   "AI features": "Функции ИИ",
-  "Restored {title} with {n} cards.": {"one": "{title} восстановлен с {n} карточкой.", "few": "{title} восстановлен с {n} карточками.", "many": "{title} восстановлен с {n} карточками.", "other": "{title} восстановлен с {n} карточками."},
+  "Restored {title} with {n} cards.": {
+    "one": "{title} восстановлен с {n} карточкой.",
+    "few": "{title} восстановлен с {n} карточками.",
+    "many": "{title} восстановлен с {n} карточками.",
+    "other": "{title} восстановлен с {n} карточками."
+  },
   "It is already on the board.": "Он уже на доске.",
   "Restore it": "Восстановить",
   "Restore project": "Восстановить проект",
@@ -825,8 +946,18 @@ const catalog: Catalog = {
   "Start empty": "Начать с пустого",
   "The board could not be saved in {path}: {message}": "Не удалось сохранить доску в {path}: {message}",
   "The project file in this folder is invalid; it was left unchanged. A new, empty project can still be created here.": "Файл проекта в этой папке недействителен; он не изменён. Новый пустой проект здесь всё равно можно создать.",
-  "This folder has a saved Flowly project: {title}, {n} cards, saved {time}.": {"one": "В этой папке есть сохранённый проект Flowly: {title}, {n} карточка, сохранён {time}.", "few": "В этой папке есть сохранённый проект Flowly: {title}, {n} карточки, сохранён {time}.", "many": "В этой папке есть сохранённый проект Flowly: {title}, {n} карточек, сохранён {time}.", "other": "В этой папке есть сохранённый проект Flowly: {title}, {n} карточки, сохранён {time}."},
-  "{n} cards use workspaces already on the board; they are restored without one.": {"one": "{n} карточка использует рабочее пространство, уже занятое на доске; она восстанавливается без него.", "few": "{n} карточки используют рабочие пространства, уже занятые на доске; они восстанавливаются без них.", "many": "{n} карточек используют рабочие пространства, уже занятые на доске; они восстанавливаются без них.", "other": "{n} карточки используют рабочие пространства, уже занятые на доске; они восстанавливаются без них."},
+  "This folder has a saved Flowly project: {title}, {n} cards, saved {time}.": {
+    "one": "В этой папке есть сохранённый проект Flowly: {title}, {n} карточка, сохранён {time}.",
+    "few": "В этой папке есть сохранённый проект Flowly: {title}, {n} карточки, сохранён {time}.",
+    "many": "В этой папке есть сохранённый проект Flowly: {title}, {n} карточек, сохранён {time}.",
+    "other": "В этой папке есть сохранённый проект Flowly: {title}, {n} карточки, сохранён {time}."
+  },
+  "{n} cards use workspaces already on the board; they are restored without one.": {
+    "one": "{n} карточка использует рабочее пространство, уже занятое на доске; она восстанавливается без него.",
+    "few": "{n} карточки используют рабочие пространства, уже занятые на доске; они восстанавливаются без них.",
+    "many": "{n} карточек используют рабочие пространства, уже занятые на доске; они восстанавливаются без них.",
+    "other": "{n} карточки используют рабочие пространства, уже занятые на доске; они восстанавливаются без них."
+  },
   "{path}, saved {time}. Git ignores it unless you change .flowly/.gitignore.": "{path}, сохранён {time}. Git игнорирует его, если вы не измените .flowly/.gitignore.",
   "Its board stays saved in {path}; add the folder again to restore it.": "Его доска остаётся сохранённой в {path}; добавьте папку снова, чтобы восстановить её.",
   "Saved with your project": "Сохраняется вместе с проектом",
@@ -901,8 +1032,18 @@ const catalog: Catalog = {
   "No tasks": "Нет задач",
   "No recent tasks": "Нет недавних задач",
   "Hide older tasks": "Скрыть старые задачи",
-  "Show {n} older tasks": {"one": "Показать {n} старую задачу", "few": "Показать {n} старые задачи", "many": "Показать {n} старых задач", "other": "Показать {n} старой задачи"},
-  "After {n} days": {"one": "Через {n} день", "few": "Через {n} дня", "many": "Через {n} дней", "other": "Через {n} дня"},
+  "Show {n} older tasks": {
+    "one": "Показать {n} старую задачу",
+    "few": "Показать {n} старые задачи",
+    "many": "Показать {n} старых задач",
+    "other": "Показать {n} старой задачи"
+  },
+  "After {n} days": {
+    "one": "Через {n} день",
+    "few": "Через {n} дня",
+    "many": "Через {n} дней",
+    "other": "Через {n} дня"
+  },
   "Hide old finished cards": "Скрывать давно завершённые карточки",
   "Cards that finished a while ago fold under “Show older” at the bottom of Done and Cancelled. Settings → Workflow sets how long they stay.": "Давно завершённые карточки сворачиваются в «Показать старые» внизу колонок «Готово» и «Отменено». Срок задаётся в Настройки → Рабочий процесс.",
   "Never": "Никогда",
@@ -937,7 +1078,7 @@ const catalog: Catalog = {
   "Remove…": "Удалить…",
   "Back to connections": "Назад к подключениям",
   "Connection works. Connected as {name}.": "Подключение работает. Подключено как {name}.",
-  "Testing\u2026": "Проверка…",
+  "Testing…": "Проверка…",
   "Test connection": "Проверить подключение",
   "Connection removed": "Подключение удалено",
   "Drag a project tab to reorder it. Right-click it for its settings, a new task, Insights, Ideas or Remove.": "Перетащите вкладку проекта, чтобы изменить порядок. Правый щелчок: настройки, новая задача, аналитика, идеи или удаление.",
@@ -983,7 +1124,12 @@ const catalog: Catalog = {
   "All 42 cart tests pass. Next I'll cover refunds.": "Все 42 теста корзины проходят. Дальше займусь возвратами.",
   "Preview": "Предпросмотр",
   "Subagents": "Субагенты",
-  "{n} subagents": {"one": "{n} субагент", "few": "{n} субагента", "many": "{n} субагентов", "other": "{n} субагента"},
+  "{n} subagents": {
+    "one": "{n} субагент",
+    "few": "{n} субагента",
+    "many": "{n} субагентов",
+    "other": "{n} субагента"
+  },
   "{n} working": "работают: {n}",
   "{n} need input": "ждут ввода: {n}",
   "{n} ready to review": "готовы к проверке: {n}",
@@ -1027,7 +1173,6 @@ const catalog: Catalog = {
   "No next moves in {n} deliveries": "Нет следующих шагов в {n} сдачах",
   "No ideas in {n} deliveries": "Нет идей в {n} сдачах",
   "Unknown model": "Неизвестная модель",
-  // Native session pane (NATIVE-SESSION-SPEC)
   "This idea is no longer open.": "Эта идея больше не открыта.",
   "This card is unavailable. Open Flowly to check it.": "Эта карточка недоступна. Откройте Flowly, чтобы проверить её.",
   "This suggestion is no longer current.": "Это предложение уже неактуально.",
@@ -1082,6 +1227,11 @@ const catalog: Catalog = {
   "Everything I'm involved in": "Всё с моим участием",
   "No match in this project's repositories. Try owner/repo#12 or a link.": "В репозиториях этого проекта ничего не найдено. Попробуйте owner/repo#12 или ссылку.",
   "Nothing matches.": "Ничего не найдено.",
+  "{key} does not belong to {project}'s repositories.": "{key} не входит в репозитории проекта {project}.",
+  "The card's workspace will not contain this repository.": "Рабочая область карты не будет содержать этот репозиторий.",
+  "It belongs to {project}'s repositories.": "Он входит в репозитории проекта {project}.",
+  "Add anyway": "Всё равно добавить",
+  "Link anyway": "Всё равно связать",
   "{service} refused the connection's token. Update it in Flowly settings → Connections.": "{service} отклонил токен подключения. Обновите его в настройках Flowly → Подключения.",
   "The service refused the connection's token. Update it in Flowly settings → Connections.": "Сервис отклонил токен подключения. Обновите его в настройках Flowly → Подключения.",
   "{service} is unreachable right now. Try again shortly.": "{service} сейчас недоступен. Повторите попытку чуть позже.",
@@ -1107,7 +1257,12 @@ const catalog: Catalog = {
   "{service} type": "Тип {service}",
   "Where": "Где",
   "{service} address": "Адрес {service}",
-  "{n} cards have items from this {service}. They keep the link and key, but Flowly and agents can't read them until you add this {service} again; then they work as before.": {"one": "У {n} карточки есть элементы из этого {service}. Ссылка и ключ сохраняются, но Flowly и агенты не смогут их прочитать, пока вы снова не добавите этот {service}; после этого всё заработает как раньше.", "few": "У {n} карточек есть элементы из этого {service}. Ссылки и ключи сохраняются, но Flowly и агенты не смогут их прочитать, пока вы снова не добавите этот {service}; после этого всё заработает как раньше.", "many": "У {n} карточек есть элементы из этого {service}. Ссылки и ключи сохраняются, но Flowly и агенты не смогут их прочитать, пока вы снова не добавите этот {service}; после этого всё заработает как раньше.", "other": "У {n} карточки есть элементы из этого {service}. Ссылки и ключи сохраняются, но Flowly и агенты не смогут их прочитать, пока вы снова не добавите этот {service}; после этого всё заработает как раньше."},
+  "{n} cards have items from this {service}. They keep the link and key, but Flowly and agents can't read them until you add this {service} again; then they work as before.": {
+    "one": "У {n} карточки есть элементы из этого {service}. Ссылка и ключ сохраняются, но Flowly и агенты не смогут их прочитать, пока вы снова не добавите этот {service}; после этого всё заработает как раньше.",
+    "few": "У {n} карточек есть элементы из этого {service}. Ссылки и ключи сохраняются, но Flowly и агенты не смогут их прочитать, пока вы снова не добавите этот {service}; после этого всё заработает как раньше.",
+    "many": "У {n} карточек есть элементы из этого {service}. Ссылки и ключи сохраняются, но Flowly и агенты не смогут их прочитать, пока вы снова не добавите этот {service}; после этого всё заработает как раньше.",
+    "other": "У {n} карточки есть элементы из этого {service}. Ссылки и ключи сохраняются, но Flowly и агенты не смогут их прочитать, пока вы снова не добавите этот {service}; после этого всё заработает как раньше."
+  },
   "No card has items from this {service}.": "Ни у одной карточки нет элементов из этого {service}.",
   "Saving checks the token with {service} first. It is stored only on the computer running Paseo and never shown again.": "При сохранении токен сначала проверяется в {service}. Он хранится только на компьютере, где работает Paseo, и больше не показывается.",
   "From {service}": "Из {service}",
@@ -1166,10 +1321,20 @@ const catalog: Catalog = {
   "Press again to delete the command log of every project. Suggestions are kept.": "Нажмите ещё раз, чтобы удалить журнал команд всех проектов. Предложения сохранятся.",
   "Deleted.": "Удалено.",
   "Could not delete the command log.": "Не удалось удалить журнал команд.",
-  "Commands are kept for 30 days, redacted, for {n} projects.": {"one": "Команды хранятся 30 дней в обезличенном виде, для {n} проекта.", "few": "Команды хранятся 30 дней в обезличенном виде, для {n} проектов.", "many": "Команды хранятся 30 дней в обезличенном виде, для {n} проектов.", "other": "Команды хранятся 30 дней в обезличенном виде, для {n} проектов."},
+  "Commands are kept for 30 days, redacted, for {n} projects.": {
+    "one": "Команды хранятся 30 дней в обезличенном виде, для {n} проекта.",
+    "few": "Команды хранятся 30 дней в обезличенном виде, для {n} проектов.",
+    "many": "Команды хранятся 30 дней в обезличенном виде, для {n} проектов.",
+    "other": "Команды хранятся 30 дней в обезличенном виде, для {n} проектов."
+  },
   "Nothing collected.": "Ничего не собрано.",
   "Last run: {in} in · {out} out · ${cost}.": "Последний запуск: {in} на входе · {out} на выходе · ${cost}.",
-  "About ${month} per month for {n} projects at this pace.": {"one": "Примерно ${month} в месяц на {n} проект при такой частоте.", "few": "Примерно ${month} в месяц на {n} проекта при такой частоте.", "many": "Примерно ${month} в месяц на {n} проектов при такой частоте.", "other": "Примерно ${month} в месяц на {n} проектов при такой частоте."},
+  "About ${month} per month for {n} projects at this pace.": {
+    "one": "Примерно ${month} в месяц на {n} проект при такой частоте.",
+    "few": "Примерно ${month} в месяц на {n} проекта при такой частоте.",
+    "many": "Примерно ${month} в месяц на {n} проектов при такой частоте.",
+    "other": "Примерно ${month} в месяц на {n} проектов при такой частоте."
+  },
   "AI-written text follows Settings → AI features → AI output language. It starts as your interface language.": "Текст, написанный ИИ, следует настройке «Настройки → Функции ИИ → Язык вывода ИИ». По умолчанию это язык интерфейса.",
   "Same as interface language ({language})": "Как язык интерфейса ({language})",
   "Output language": "Язык вывода",
@@ -1186,7 +1351,12 @@ const catalog: Catalog = {
   "Pin": "Закрепить",
   "Moved to AGENTS.md": "Перенесено в AGENTS.md",
   "Replaced": "Заменено",
-  "Used by {n} cards": {"one": "Используется в {n} карточке", "few": "Используется в {n} карточках", "many": "Используется в {n} карточках", "other": "Используется в {n} карточки"},
+  "Used by {n} cards": {
+    "one": "Используется в {n} карточке",
+    "few": "Используется в {n} карточках",
+    "many": "Используется в {n} карточках",
+    "other": "Используется в {n} карточки"
+  },
   "Delete": "Удалить",
   "Move to AGENTS.md": "Перенести в AGENTS.md",
   "Every session of this repository reads AGENTS.md, inside Flowly or not. Flowly does not edit repository files: copy the rule, paste it where it belongs, then stop injecting it here so it is not said twice.": "Каждая сессия этого репозитория читает AGENTS.md, в Flowly или нет. Flowly не меняет файлы репозитория: скопируйте правило, вставьте его в нужное место и перестаньте передавать его здесь, чтобы оно не повторялось.",
@@ -1270,7 +1440,7 @@ const catalog: Catalog = {
   "Update README": "Обновить README",
   "When an agent asks, waits for approval or fails, its card says so.": "Когда агент задаёт вопрос, ждёт разрешения или падает, карточка это показывает.",
   "Your likely next message, one tap away.": "Ваше вероятное следующее сообщение — в одно касание.",
-  "Work from Jira, Confluence, GitHub, GitLab, Azure DevOps or Shortcut: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them.": "Начинайте работу из Jira, Confluence, GitHub, GitLab, Azure DevOps или Shortcut: подключите их в Настройки → Подключения, затем создайте карточку через «Из…» или добавьте элементы кнопкой + в Артефактах. Flowly только читает их.",
+  "Work from Jira, Confluence, GitHub, GitLab, Azure DevOps, Shortcut or Linear: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them.": "Начинайте работу из Jira, Confluence, GitHub, GitLab, Azure DevOps, Shortcut или Linear: подключите их в Настройки → Подключения, затем создайте карточку через «Из…» или добавьте элементы кнопкой + в Артефактах. Flowly только читает их.",
   "Azure DevOps work item": "Рабочий элемент Azure DevOps",
   "Work item number, AB#123, a link or words from the title": "Номер рабочего элемента, AB#123, ссылка или слова из названия",
   "Open work items assigned to me": "Открытые рабочие элементы, назначенные мне",
@@ -1284,6 +1454,12 @@ const catalog: Catalog = {
   "My open stories": "Мои открытые истории",
   "You have no open stories.": "У вас нет открытых историй.",
   "Add a Shortcut connection": "Добавить подключение Shortcut",
+  "Linear issue": "Issue Linear",
+  "ENG-123, a link or words from the title": "ENG-123, ссылка или слова из заголовка",
+  "Open issues assigned to me": "Открытые issue, назначенные мне",
+  "No open issues are assigned to you.": "Вам не назначено ни одного открытого issue.",
+  "Add a Linear connection": "Добавить подключение Linear",
+  "Create a personal API key in Linear → Settings → Security & access, with read access.": "Создайте личный API-ключ с доступом на чтение в Linear → Настройки → Security & access.",
   "Create one in Shortcut → Settings → API Tokens.": "Создайте его в Shortcut → Настройки → API Tokens.",
   "What's new": "Что нового",
   "Flowly {version}": "Flowly {version}",
@@ -1333,7 +1509,12 @@ const catalog: Catalog = {
   "{n} rounds": "кругов: {n}",
   "Insights drafted a skill from your cards. Open Insights to add it to the project.": "Insights составил навык по вашим карточкам. Откройте Insights, чтобы добавить его в проект.",
   "Skills": "Навыки",
-  "{date}, {n} turns": {"one": "{date}, {n} ход", "few": "{date}, {n} хода", "many": "{date}, {n} ходов", "other": "{date}, {n} хода"},
+  "{date}, {n} turns": {
+    "one": "{date}, {n} ход",
+    "few": "{date}, {n} хода",
+    "many": "{date}, {n} ходов",
+    "other": "{date}, {n} хода"
+  },
   "Less": "Меньше",
   "More": "Больше",
   "No activity": "Нет активности",
@@ -1353,7 +1534,12 @@ const catalog: Catalog = {
   "Keep as is": "Оставить как есть",
   "Writes .agents/skills/{name}/ and links it in .claude/skills/": "Записывает .agents/skills/{name}/ и ссылается на него из .claude/skills/",
   "Other suggestions": "Другие предложения",
-  "Scripts, repo tools, AGENTS.md · {n} open": {"one": "Скрипты, инструменты, AGENTS.md · {n} открытое", "few": "Скрипты, инструменты, AGENTS.md · {n} открытых", "many": "Скрипты, инструменты, AGENTS.md · {n} открытых", "other": "Скрипты, инструменты, AGENTS.md · {n} открытых"},
+  "Scripts, repo tools, AGENTS.md · {n} open": {
+    "one": "Скрипты, инструменты, AGENTS.md · {n} открытое",
+    "few": "Скрипты, инструменты, AGENTS.md · {n} открытых",
+    "many": "Скрипты, инструменты, AGENTS.md · {n} открытых",
+    "other": "Скрипты, инструменты, AGENTS.md · {n} открытых"
+  },
   "Other models": "Другие модели",
   "No finished cards to compare.": "Нет завершённых карточек для сравнения.",
   "No card was worked on in the last 30 days.": "За последние 30 дней ни над одной карточкой не работали.",
@@ -1368,7 +1554,7 @@ const catalog: Catalog = {
   "Previous day": "Предыдущий день",
   "Next day": "Следующий день",
   "agent {time}": "агент {time}",
-  "Auto review checked this card after the agent delivered; open it to see each check's result.": "Auto review проверил эту карточку после сдачи агентом; откройте её, чтобы увидеть результат каждой проверки.",
+  "Open the card for review results; choose the review model and reasoning in Settings → Models.": "Откройте карточку для результатов; выберите модель и уровень рассуждений в Настройки → Модели.",
   "Deliveries are checked before they reach you, and go back to the agent when they fall short.": "Сданная работа проверяется до того, как попадёт к вам, и возвращается агенту, если не дотягивает.",
   "Does what you asked": "Делает то, что вы просили",
   "Resume": "Возобновить",
@@ -1377,7 +1563,12 @@ const catalog: Catalog = {
   "Guardrails": "Ограждения",
   "{passed}/{total} passed": "{passed}/{total} пройдено",
   "running {name}": "выполняется {name}",
-  "judging {n} checks": {"one":"оценивается {n} проверка","few":"оцениваются {n} проверки","many":"оценивается {n} проверок","other":"оценивается {n} проверки"},
+  "judging {n} checks": {
+    "one": "оценивается {n} проверка",
+    "few": "оцениваются {n} проверки",
+    "many": "оценивается {n} проверок",
+    "other": "оценивается {n} проверки"
+  },
   "starting…": "запуск…",
   "Auto review running": "Идёт автоматическая проверка",
   "{passed} of {total} passed": "пройдено {passed} из {total}",
@@ -1409,14 +1600,44 @@ const catalog: Catalog = {
   "Nothing learned yet. Send a card back with what is wrong; Flowly checks the next cards for it.": "Пока ничего не выучено. Верните карточку с объяснением, что не так; Flowly проверит это на следующих.",
   "No commands yet.": "Команд пока нет.",
   "Paused · {n}": "На паузе · {n}",
-  "{n} deliveries": {"one":"{n} сдача","few":"{n} сдачи","many":"{n} сдач","other":"{n} сдачи"},
+  "{n} deliveries": {
+    "one": "{n} сдача",
+    "few": "{n} сдачи",
+    "many": "{n} сдач",
+    "other": "{n} сдачи"
+  },
   "{share} passed the first review": "{share} прошли с первого раза",
   "{share} misfires": "{share} ложных срабатываний",
-  "{n} guidelines learned": {"one":"выучено {n} правило","few":"выучено {n} правила","many":"выучено {n} правил","other":"выучено {n} правила"},
-  "{n} widened": {"one":"расширено {n}","few":"расширено {n}","many":"расширено {n}","other":"расширено {n}"},
-  "{n} revived": {"one":"возвращено {n}","few":"возвращено {n}","many":"возвращено {n}","other":"возвращено {n}"},
-  "{n} retired": {"one":"снято {n}","few":"снято {n}","many":"снято {n}","other":"снято {n}"},
-  "{n} commands observing": {"one":"{n} команда под наблюдением","few":"{n} команды под наблюдением","many":"{n} команд под наблюдением","other":"{n} команды под наблюдением"},
+  "{n} guidelines learned": {
+    "one": "выучено {n} правило",
+    "few": "выучено {n} правила",
+    "many": "выучено {n} правил",
+    "other": "выучено {n} правила"
+  },
+  "{n} widened": {
+    "one": "расширено {n}",
+    "few": "расширено {n}",
+    "many": "расширено {n}",
+    "other": "расширено {n}"
+  },
+  "{n} revived": {
+    "one": "возвращено {n}",
+    "few": "возвращено {n}",
+    "many": "возвращено {n}",
+    "other": "возвращено {n}"
+  },
+  "{n} retired": {
+    "one": "снято {n}",
+    "few": "снято {n}",
+    "many": "снято {n}",
+    "other": "снято {n}"
+  },
+  "{n} commands observing": {
+    "one": "{n} команда под наблюдением",
+    "few": "{n} команды под наблюдением",
+    "many": "{n} команд под наблюдением",
+    "other": "{n} команды под наблюдением"
+  },
   "Last 14 days": "Последние 14 дней",
   "This week:": "На этой неделе:",
   "Deliveries are checked before they reach you and go back to the agent when they fall short. Each review uses tokens; turn it off per project.": "Сдачи проверяются до того, как дойдут до вас, и возвращаются агенту, если не дотягивают. Каждая проверка тратит токены; отключается для каждого проекта.",
@@ -1443,7 +1664,12 @@ const catalog: Catalog = {
   "observing": "наблюдение",
   "Round {round}": "Раунд {round}",
   "Now a project guideline": "Теперь правило проекта",
-  "Sent back {n} times": {"one":"Возвращено {n} раз","few":"Возвращено {n} раза","many":"Возвращено {n} раз","other":"Возвращено {n} раза"},
+  "Sent back {n} times": {
+    "one": "Возвращено {n} раз",
+    "few": "Возвращено {n} раза",
+    "many": "Возвращено {n} раз",
+    "other": "Возвращено {n} раза"
+  },
   "Remembered for the project": "Запомнено для проекта",
   "Review": "Проверка",
   "Auto review checks every delivery before it reaches you and sends it back to the agent when it falls short. On for new projects.": "Автоматическая проверка проверяет каждую сдачу до того, как она дойдёт до вас, и возвращает агенту, если та не дотягивает. Включена в новых проектах.",
@@ -1470,6 +1696,44 @@ const catalog: Catalog = {
   "Memory could not be read": "Не удалось прочитать память",
   "Find memory in finished cards": "Искать что запомнить в завершённых карточках",
   "Back from session, then close sidebar, then leave a project page": "Назад из сессии, затем закрыть боковую панель, затем выйти со страницы проекта",
+  "Tap a suggested next step in the session timeline to fill the message box, including on your phone. Nothing is sent.": "Нажмите на предложенный следующий шаг в ленте сессии, чтобы заполнить поле сообщения, в том числе на телефоне. Ничего не отправляется.",
+  "Medium": "Среднее",
+  "Extra high": "Очень высокое",
+  "Full access": "Полный доступ",
+  "Use the controls inside the message box to change the model, reasoning, permissions and provider features.": "Меняйте модель, рассуждение, разрешения и функции провайдера с помощью элементов внутри поля сообщения.",
+  "Created the workspace": "Создана рабочая область",
+  "Created with the first session": "Создаётся с первым сеансом",
+  "Workspace starts with the first session": "Рабочая область создаётся с первым сеансом",
+  "Plan cards without creating workspaces. The first session creates the workspace; later sessions share it.": "Планируйте карточки без создания рабочих областей. Первый сеанс создаёт рабочую область; последующие используют её.",
+  "On": "Вкл.",
+  "Off": "Выкл.",
+  "Loading models…": "Загрузка моделей…",
+  "Session settings updated": "Настройки сеанса обновлены",
+  "Reload session": "Перезагрузить сеанс",
+  "Session reloaded": "Сеанс перезагружен",
+  "Reloading interrupts the running turn. Reload this session?": "Перезагрузка прервёт текущий ход. Перезагрузить этот сеанс?",
+  "Copy message": "Копировать сообщение",
+  "Session controls": "Управление сеансом",
+  "Change models and provider features inside Flowly. Copy messages or reload a session from its menu.": "Меняйте модели и функции провайдера в Flowly. Копируйте сообщения или перезагружайте сеанс через его меню.",
+  "Hold the right mouse button on empty board space and drag left or right to scroll.": "Удерживайте правую кнопку мыши на пустом месте доски и перетаскивайте влево или вправо для прокрутки.",
+  "My to-dos": "Мои задачи",
+  "All work items": "Все элементы",
+  "No matching to-dos for your TAPD account in this project.": "В этом проекте нет подходящих задач для вашей учётной записи TAPD.",
+  "An empty description imports the first TAPD item's description when creating the card.": "Если описание пустое, при создании карточки импортируется описание первого элемента TAPD.",
+  "TAPD work item": "Рабочий элемент TAPD",
+  "Work item link, number, story-123, bug-123, task-123 or title words": "Ссылка, номер, story-123, bug-123, task-123 или слова из заголовка",
+  "Recent work items in this TAPD project": "Последние элементы этого проекта TAPD",
+  "No work items were found in this TAPD project.": "В этом проекте TAPD элементы не найдены.",
+  "Add a TAPD connection": "Добавить подключение TAPD",
+  "MCP access refused. Check login and test again.": "Доступ MCP отклонён. Проверьте вход и повторите проверку.",
+  "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "Использует настроенный на хосте Paseo сервер tapd MCP через mcporter. Сначала войдите в него. Доступ к TAPD только для чтения.",
+  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "Подключите TAPD в Настройки → Подключения. Сначала отображаются Мои задачи; переключитесь на Все элементы, чтобы просмотреть проект.",
+  "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly не ограничивает количество и размер изображений. Ограничения модели и хоста по-прежнему действуют.",
+  "Use card description": "Использовать описание карточки",
+  "Description changed. Use card description again.": "Описание изменилось. Загрузите описание карточки заново.",
+  "Description images": "Изображения в описании",
+  "Save pictures with a card description and use its text and pictures as a session instruction.": "Сохраняйте изображения в описании карточки и используйте текст и изображения как инструкцию для сессии.",
+  "Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.": "Добавьте изображения в описание карточки и выберите «Использовать описание карточки» при запуске сессии, чтобы отправить текст и изображения вместе.",
   "Context from": "Контекст из",
   "Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.": "Только недавний текст диалога, до 60 000 символов. Изображения и результаты инструментов исключены.",
   "Session context": "Контекст сессии",
@@ -1482,5 +1746,7 @@ const catalog: Catalog = {
   "Open conversation": "Открыть беседу",
   "Copy session ID": "Копировать ID сессии",
   "No sessions": "Нет сессий",
+  "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut, TAPD or Linear, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Создайте карточку из Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut или TAPD / Linear либо добавьте элемент через + в артефактах. Агенты читают его каждый ход; Flowly его не меняет."
 };
+
 export default catalog;

@@ -1,4 +1,5 @@
 import type { BoardOverview } from "../shared/overview";
+import { imageInputSupported } from "./web-images";
 import { CardDetailProvider, detailQueryOptions, detailUnavailable, invalidateCardViews, useCardDetailQuery, useProjectIdeasQuery } from "./card-detail-query";
 import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Animated, Platform, Pressable, View, useWindowDimensions, type GestureResponderEvent } from "react-native";
@@ -98,7 +99,8 @@ import { MotionProvider, MotionReveal, useMotionPresence, lerp } from "./motion"
 import { SortableList } from "./sortable-list";
 import { useBoardView } from "./board-view";
 import { setSweepEnabled } from "./sweep-setting";
-import { BoardOutputActive, boardIsActive } from "./query-activity";
+import { BoardOutputActive, BoardPushLive, boardIsActive } from "./query-activity";
+import { BoardPush } from "./board-push";
 import { OverviewBar } from "./overview-bar";
 import { InsightsPage } from "./insights";
 import { IdeasPage } from "./ideas-page";
@@ -148,6 +150,9 @@ import { listAgents } from "./resources";
 import { reviewLabel } from "./task-review";
 import { visibleReview } from "../shared/auto-review";
 
+import { chipClient } from "./native-chips";
+import { composersOf } from "./host-support";
+
 /** One-time tip texts (ONBOARDING-SPEC §5). */
 const tipText: Record<TipId, (compact?: boolean) => string> = {
   "runtime-view": () => t("Runtime shows all Paseo conversations on this host. Open a conversation to chat in Flowly."),
@@ -155,6 +160,7 @@ const tipText: Record<TipId, (compact?: boolean) => string> = {
   "image-limits": () => t("Flowly does not limit image count or size. Model and host limits still apply."),
   "description-images": () => t("Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together."),
   "lazy-workspace": () => t("Plan cards without creating workspaces. The first session creates the workspace; later sessions share it."),
+  "session-composer-fill": () => t("Tap a suggested next step in the session timeline to fill the message box, including on your phone. Nothing is sent."),
   "first-card": () => t("Your card moves by itself as the agent works. Open it any time to see its sessions, output and summary."),
   "needs-you": () => t("A card is waiting for you. Reply goes straight to the session."),
   "first-idea": () => t("An agent suggested follow-up work. Good idea starts a card or continues here; Dismiss removes it."),
@@ -165,7 +171,7 @@ const tipText: Record<TipId, (compact?: boolean) => string> = {
   "next-move": () => t("When an agent finishes a turn, its suggested next steps sit above the message box. Tap one to fill it in; nothing is sent until you press Send. Some steps act on the card, like Move to Done."),
   "older-finished": () => t("Cards that finished a while ago fold under “Show older” at the bottom of Done and Cancelled. Settings → Workflow sets how long they stay."),
   "first-ticket": () => t("A card has an item from a connected service as an input. Agents read it every turn and see when it changes. Flowly never changes it there, and its status doesn't move the card."),
-  "jira-connect": () => t("Work from Jira, Confluence, GitHub, GitLab, Azure DevOps or Shortcut: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them."),
+  "jira-connect": () => t("Work from Jira, Confluence, GitHub, GitLab, Azure DevOps, Shortcut or Linear: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them."),
   connectors: () => t("The Artifacts + now adds Confluence pages and GitHub or GitLab issues and pull requests too, besides files, links and Jira tickets. Connect services in Settings → Connections."),
   "tapd-connect": () => t("Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project."),
   "project-menu": () => t("Drag a project tab to reorder it. Right-click it for its settings, a new task, Insights, Ideas or Remove."),
@@ -186,7 +192,7 @@ const tipText: Record<TipId, (compact?: boolean) => string> = {
   "session-context": () => t("New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged."),
   "session-controls": () => t("Use the controls inside the message box to change the model, reasoning, permissions and provider features."),
   "settings-entry": () => t("Turn features on or off and change settings here."),
-  "auto-review": () => t("Auto review checked this card after the agent delivered; open it to see each check's result."),
+  "auto-review": () => t("Open the card for review results; choose the review model and reasoning in Settings → Models."),
   "first-guardrail": () => t("Flowly learned a check from a card you sent back. Open Guardrails to see what it checks now."),
   "first-workpad": () => t("This card has a workpad: the agent's acceptance list. The card shows how many items are met; open it to tick items yourself and to see the latest review."),
 };
@@ -259,6 +265,9 @@ function BoardContent(
     placeTask = useRpc(rpc.placeTask),
     paseo = usePaseo();
   const queryClient = useQueryClient();
+  // Paseo 0.16 pushes "the board changed" (PASEO-0.16-SPEC §3.5): while they arrive, the etag reads below stop polling.
+  const [pushLive, setPushLive] = useState(false);
+  const onBoardPushed = useStableCallback(() => void invalidateCardViews(queryClient));
   const linkMount = useId();
   const [detailTarget, setDetailTarget] = useState<{ id: string; workspaceId: string; projectId: string } | null>(null);
   const input = useMemo(() => {
@@ -497,7 +506,7 @@ function BoardContent(
   const overviewLive = compact ? !taskId && !runtimeSession : boardActive;
   const overviewData = useOverviewQuery(props.host.id, {
     enabled: overviewLive && (!directCard || resolvedLink.isSuccess || ignoredLink.current === linkKey),
-    refetchInterval: overviewLive ? 3000 : undefined,
+    refetchInterval: overviewLive && !pushLive ? 3000 : undefined,
   });
   const data = overviewData;
   // Prioritize compact first-screen data over auxiliary decode/render work.
@@ -1138,7 +1147,7 @@ function BoardContent(
     const list = (t && cardIndex.agentsByWorkspace.get(t.workspaceId)) || noAgents;
     return [...list].sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id));
   });
-  const projectIdeasData = useProjectIdeasQuery(props.host.id, project?.id || "", page === "ideas" && (!compact || !taskId));
+  const projectIdeasData = useProjectIdeasQuery(props.host.id, project?.id || "", page === "ideas" && (!compact || !taskId), pushLive);
   const projectIdeaList = useMemo(() => projectIdeasData.data?.ideas || [], [projectIdeasData.data]);
   const projectOpenIdeas = useMemo(() => projectOpenIdeaCount(projected, project?.id), [projected?.cards, projected?.tasks, project?.id]);
   // Observing commands and guidelines learned this week (GUARDRAILS-SPEC §7.4); the chip hides when the project turned guardrails off.
@@ -1277,6 +1286,7 @@ function BoardContent(
           learnedGuideline: !task && !!projectGuardrails?.added,
           laneSwipe: touch && !task && !page && shownStatuses.length > 1 && projectTasks.some((x) => !x.archivedAt),
           boardPan: !touch && !compact && !task && !page && shownStatuses.length > 1,
+          sessionComposerFill: !task && !!composersOf(chipClient()) && projectTasks.some((x) => !x.archivedAt && !!cardIndex.agentsByWorkspace.get(x.workspaceId)?.length),
         },
         blocked: !onboarding.values || welcomeOpen || welcome === "show" || dialogOpen || settingsHint || whatsNewOpen || whatsNewDue === "show",
       });
@@ -1778,7 +1788,9 @@ function BoardContent(
     </Animated.View>
   );
   return (
+    <BoardPushLive.Provider value={pushLive}>
     <BoardOutputActive.Provider value={boardActive}>
+    <BoardPush onChange={onBoardPushed} onLive={setPushLive} />
     <SettingsOpenerContext.Provider value={openSettingsAt}>
     <Theme.Provider value={props.theme}>
       <View
@@ -2723,6 +2735,7 @@ function BoardContent(
     </Theme.Provider>
     </SettingsOpenerContext.Provider>
     </BoardOutputActive.Provider>
+    </BoardPushLive.Provider>
   );
 }
 

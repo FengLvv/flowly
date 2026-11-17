@@ -46,7 +46,8 @@ export class SessionImageService {
         throw new Error("Session is unavailable or belongs to a different workspace.");
     }
     // JSON-escaped form is what appears inside the serialized timeline.
-    if (!(await this.transcript(input.agentId, paseo)).includes(JSON.stringify(path).slice(1, -1)))
+    const transcript = await this.transcript(input.agentId, paseo);
+    if (![path, input.src].some(source => transcript.includes(JSON.stringify(source).slice(1, -1))))
       throw new Error("That image is not part of this session.");
     // Screenshots are often temporary files that are gone by the time the timeline is read.
     const real = await realpath(path).catch((e: NodeJS.ErrnoException) => {

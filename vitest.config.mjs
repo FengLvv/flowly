@@ -6,7 +6,7 @@ export default defineConfig({
     // Windows Git/process fixtures become I/O-bound when every logical CPU
     // launches workers. Cap parallel children; retain all assertions/timeouts.
     maxWorkers: process.platform === "win32" ? 4 : undefined,
-    exclude: [...configDefaults.exclude, "docs/verification/**", ".claude/**", ".test-data/**"],
+    exclude: [...configDefaults.exclude, "docs/verification/**", ".claude/**", ".test-data/**", ".worktrees/**"],
     globalSetup: ["./server/testing/global-setup.mjs"],
     setupFiles: ["./server/testing/setup.ts"],
   },

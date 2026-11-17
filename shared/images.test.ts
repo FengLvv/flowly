@@ -26,9 +26,20 @@ test("displayable and local path rules", () => {
   expect(localImagePath("https://x/y.png")).toBeNull();
 });
 
-test("Windows absolute image references work without allowing relative drive paths", () => {
-  expect(displayableImage("C:\\images\\shot.png")).toBe(true);
-  expect(displayableImage("file://C:/images/shot.png")).toBe(true);
-  expect(displayableImage("C:relative.png")).toBe(false);
-  expect(localImagePath("file:///C:/images/shot.png")).toBe("C:/images/shot.png");
+test.each([
+  ["C:\\images\\shot.PNG", "C:\\images\\shot.PNG"],
+  ["C:/images/shot.png", "C:/images/shot.png"],
+  ["\\\\host\\share\\shot.png", "\\\\host\\share\\shot.png"],
+  ["file:///C:/images/a%20b%23c.png", "C:/images/a b#c.png"],
+  ["file://host/share/a%20b.png", "//host/share/a b.png"],
+  ["file:///tmp/a%20b.png", "/tmp/a b.png"],
+])("absolute image references work across platforms: %s", (src, path) => {
+  expect(localImagePath(src)).toBe(path);
+  expect(displayableImage(src)).toBe(true);
+  expect(extractImages(`[Image: source: ${src}]`).images).toEqual([{ src, alt: "Image" }]);
+});
+
+test.each(["C:relative.png", "relative.png", "file:relative.png", "file:///tmp/bad%2fpath.png", "file:///tmp/bad%5cpath.png", "file:///tmp/bad%00.png", "file:///tmp/a.png?x=1", "\\\\.\\pipe\\a.png", "ftp://host/a.png"])("unsafe or relative local references are refused: %s", src => {
+  expect(localImagePath(src)).toBeNull();
+  expect(displayableImage(src)).toBe(false);
 });

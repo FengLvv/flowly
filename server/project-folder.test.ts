@@ -2,6 +2,7 @@ import { afterEach, expect, test, vi } from "vitest";
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { setErrorSink } from "./error-report";
 import { BoardStore } from "./store";
 import { ProjectFolders, readSnapshot, snapshotPath, SnapshotInvalidError } from "./project-folder";
 
@@ -17,6 +18,8 @@ function denyNextFolderWrite(root: string) {
   });
 }
 afterEach(async () => {
+  setErrorSink(null);
+  vi.restoreAllMocks();
   vi.mocked(writeFile).mockImplementation((await vi.importActual<typeof import("node:fs/promises")>("node:fs/promises")).writeFile);
   await Promise.all(roots.splice(0).map((p) => rm(p, { recursive: true, force: true })));
 });
@@ -174,4 +177,39 @@ test("a project whose folder can't be written is marked failed and retried at th
   const retry = await new ProjectFolders(() => store.read(), async () => [], 0).migrate(join(dir, "data"));
   expect(retry.projects.p1.result).toBe("written");
   expect(retry.projects.p2.result).toBe("current");
+});
+
+// TELEMETRY-SPEC §11.2: the user's disk or folder refusing the write is not a Flowly bug.
+test.each(["EROFS", "EPERM", "EACCES", "ENOSPC", "ENOENT"])("a %s snapshot failure is logged and shown, not reported", async (code) => {
+  const { folders } = await setup();
+  const log = vi.spyOn(console, "error").mockImplementation(() => undefined);
+  const reported: string[] = [];
+  setErrorSink((source) => reported.push(source));
+  vi.mocked(writeFile).mockRejectedValueOnce(Object.assign(new Error(`${code}: refused`), { code }));
+  await folders.flush();
+  expect(folders.state("p1")!.error).toBe(`${code}: refused`);
+  expect(log).toHaveBeenCalledWith("Kanban project folder not saved:", "p1", `${code}: refused`);
+  expect(reported).toEqual([]);
+});
+
+test("a deleted project root is shown, not reported", async () => {
+  const { folders, r1 } = await setup();
+  vi.spyOn(console, "error").mockImplementation(() => undefined);
+  const reported: string[] = [];
+  setErrorSink((source) => reported.push(source));
+  await rm(r1, { recursive: true, force: true });
+  await folders.flush();
+  expect(folders.state("p1")!.error).toMatch(/ENOENT/);
+  expect(reported).toEqual([]);
+});
+
+test("a programming error in the snapshot write is still reported", async () => {
+  const { folders } = await setup();
+  vi.spyOn(console, "error").mockImplementation(() => undefined);
+  const reported: string[] = [];
+  setErrorSink((source) => reported.push(source));
+  vi.mocked(writeFile).mockRejectedValue(new TypeError("Cannot read properties of undefined"));
+  await folders.flush();
+  expect(folders.state("p1")!.error).toBe("Cannot read properties of undefined");
+  expect(reported).toEqual(["Kanban project folder not saved:", "Kanban project folder not saved:"]);
 });

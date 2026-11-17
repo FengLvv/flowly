@@ -1,48 +1,7 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
-  "Medium": "Médio",
-  "Extra high": "Muito alto",
-  "Full access": "Acesso total",
-  "Use the controls inside the message box to change the model, reasoning, permissions and provider features.": "Altere modelo, raciocínio, permissões e recursos do provedor nos controles dentro da caixa de mensagens.",
-  "Created the workspace": "Espaço de trabalho criado",
-  "Created with the first session": "Criado na primeira sessão",
-  "Workspace starts with the first session": "O espaço de trabalho começa na primeira sessão",
-  "Plan cards without creating workspaces. The first session creates the workspace; later sessions share it.": "Planeje cartões sem criar espaços de trabalho. A primeira sessão cria o espaço; as seguintes o compartilham.",
-  "On": "Ativado",
-  "Off": "Desativado",
-  "Loading models…": "Carregando modelos…",
-  "Session settings updated": "Configurações da sessão atualizadas",
-  "Reload session": "Recarregar sessão",
-  "Session reloaded": "Sessão recarregada",
-  "Reloading interrupts the running turn. Reload this session?": "Recarregar interrompe o turno em andamento. Recarregar esta sessão?",
-  "Copy message": "Copiar mensagem",
-  "Session controls": "Controles da sessão",
-  "Change models and provider features inside Flowly. Copy messages or reload a session from its menu.": "Altere modelos e recursos do provedor no Flowly. Copie mensagens ou recarregue uma sessão pelo menu.",
-  "Hold the right mouse button on empty board space and drag left or right to scroll.": "Segure o botão direito do mouse em um espaço vazio do quadro e arraste para a esquerda ou direita para rolar.",
-  "My to-dos": "Minhas pendências",
-  "All work items": "Todos os itens",
-  "No matching to-dos for your TAPD account in this project.": "Nenhuma pendência correspondente à sua conta TAPD neste projeto.",
-  "An empty description imports the first TAPD item's description when creating the card.": "Se a descrição estiver vazia, a descrição do primeiro item TAPD será importada ao criar o cartão.",
-  "TAPD work item": "Item de trabalho do TAPD",
-  "Work item link, number, story-123, bug-123, task-123 or title words": "Link, número, story-123, bug-123, task-123 ou palavras do título",
-  "Recent work items in this TAPD project": "Itens recentes deste projeto TAPD",
-  "No work items were found in this TAPD project.": "Nenhum item encontrado neste projeto TAPD.",
-  "Add a TAPD connection": "Adicionar conexão do TAPD",
-  "MCP access refused. Check login and test again.": "Acesso MCP recusado. Verifique o login e teste novamente.",
-  "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "Usa o servidor MCP tapd configurado no host do Paseo via mcporter. Entre nele primeiro. O acesso ao TAPD é somente leitura.",
-  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "Conecte o TAPD em Configurações → Conexões. O seletor começa em Minhas pendências; mude para Todos os itens para explorar o projeto.",
-  "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut or TAPD, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Crie um cartão a partir do Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut ou TAPD, ou adicione um item pelo + de Artefatos. Os agentes o leem a cada turno; o Flowly nunca o altera.",
-
-  "Flowly does not limit image count or size. Model and host limits still apply.": "O Flowly não limita a quantidade nem o tamanho das imagens. Os limites do modelo e do host continuam valendo.",
-  "Use card description": "Usar descrição do cartão",
-  "Description changed. Use card description again.": "A descrição mudou. Use a descrição do cartão novamente.",
-  "Description images": "Imagens da descrição",
-  "Save pictures with a card description and use its text and pictures as a session instruction.": "Salve imagens na descrição de um cartão e use o texto e as imagens como instrução da sessão.",
-  "Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.": "Adicione imagens à descrição de um cartão e escolha Usar descrição do cartão ao iniciar uma sessão para enviar o texto e as imagens juntos.",
-
   "Command": "Comando",
-  "Project default model": "Modelo padrão do projeto",
   "Review model": "Modelo de revisão",
   "{n} s": "{n} s",
   "Not applicable": "Não se aplica",
@@ -51,6 +10,7 @@ const catalog: Catalog = {
   "Finished the auto review": "Concluiu a revisão automática",
   "Auto review": "Revisão automática",
   "Max rework rounds": "Máximo de rodadas de retrabalho",
+  "Waiting for review": "Aguardando revisão",
   "Reviewing": "Revisando",
   "Review failed": "Revisão reprovada",
   "Review unavailable": "Revisão indisponível",
@@ -167,9 +127,18 @@ const catalog: Catalog = {
   "Needs attention": "Precisa de atenção",
   "Read state is unavailable, so finished-but-unread sessions are not listed. Approvals and errors still are.": "O estado de leitura não está disponível, então sessões encerradas mas não lidas não são listadas. Aprovações e erros continuam sendo listados.",
   "Nothing needs your attention.": "Nada precisa da sua atenção.",
-  "{n} questions": {"one": "{n} pergunta", "other": "{n} perguntas"},
-  "{n} approvals": {"one": "{n} aprovação", "other": "{n} aprovações"},
-  "{n} errors": {"one": "{n} erro", "other": "{n} erros"},
+  "{n} questions": {
+    "one": "{n} pergunta",
+    "other": "{n} perguntas"
+  },
+  "{n} approvals": {
+    "one": "{n} aprovação",
+    "other": "{n} aprovações"
+  },
+  "{n} errors": {
+    "one": "{n} erro",
+    "other": "{n} erros"
+  },
   "{unread} unread (no report)": "{unread} não lida(s) (sem relatório)",
   "{unread} unread ({silent} no report)": "{unread} não lida(s) ({silent} sem relatório)",
   "{unread} unread": "{unread} não lida(s)",
@@ -178,7 +147,10 @@ const catalog: Catalog = {
   "Status": "Status",
   "Task actions": "Ações da tarefa",
   "Move to: {name}": "Mover para: {name}",
-  "{n} cards": {"one": "{n} card", "other": "{n} cards"},
+  "{n} cards": {
+    "one": "{n} card",
+    "other": "{n} cards"
+  },
   "{title} removed from the board with {cards}, but Paseo kept the project: {error}": "{title} foi removido do quadro (com {cards}), mas o Paseo manteve o projeto: {error}",
   "{title} removed from the board, but Paseo kept the project: {error}": "{title} foi removido do quadro, mas o Paseo manteve o projeto: {error}",
   "Project created, but Auto review was not saved: {error}": "Projeto criado, mas a revisão automática não foi salva: {error}",
@@ -187,11 +159,20 @@ const catalog: Catalog = {
   "{title} removed from the board with {cards}; it stays in Paseo": "{title} foi removido do quadro (com {cards}); permanece no Paseo",
   "{title} removed from the board; it stays in Paseo": "{title} foi removido do quadro; permanece no Paseo",
   "{title} deleted": "{title} excluído",
-  "{title} deleted; workspace and {n} sessions archived": {"one": "{title} excluído; espaço de trabalho e {n} sessão arquivados", "other": "{title} excluído; espaço de trabalho e {n} sessões arquivados"},
-  "{title} deleted; {n} sessions archived": {"one": "{title} excluído; {n} sessão arquivada", "other": "{title} excluído; {n} sessões arquivadas"},
+  "{title} deleted; workspace and {n} sessions archived": {
+    "one": "{title} excluído; espaço de trabalho e {n} sessão arquivados",
+    "other": "{title} excluído; espaço de trabalho e {n} sessões arquivados"
+  },
+  "{title} deleted; {n} sessions archived": {
+    "one": "{title} excluído; {n} sessão arquivada",
+    "other": "{title} excluído; {n} sessões arquivadas"
+  },
   "Task created and its agent started": "Tarefa criada e agente iniciado",
   "Task created, but the agent did not start: {error}. Start it from the task.": "A tarefa foi criada, mas o agente não iniciou: {error}. Inicie-o pela tarefa.",
-  "Needs attention, {n} cards": {"one": "Precisa de atenção, {n} card", "other": "Precisa de atenção, {n} cards"},
+  "Needs attention, {n} cards": {
+    "one": "Precisa de atenção, {n} card",
+    "other": "Precisa de atenção, {n} cards"
+  },
   "Attention": "Atenção",
   "Sort cards: {label}": "Ordenar cards: {label}",
   "Sort": "Ordenar",
@@ -199,9 +180,18 @@ const catalog: Catalog = {
   "Task filters": "Filtros de tarefa",
   "Filter": "Filtrar",
   "Open task {title}": "Abrir a tarefa {title}",
-  "Needs you: {n} open questions": {"one": "Precisa de você: {n} pergunta em aberto", "other": "Precisa de você: {n} perguntas em aberto"},
-  "{n} ideas": {"one": "{n} ideia", "other": "{n} ideias"},
-  "Waiting on {n} cards: {waitingTitles}": {"one": "Aguardando {n} card: {waitingTitles}", "other": "Aguardando {n} cards: {waitingTitles}"},
+  "Needs you: {n} open questions": {
+    "one": "Precisa de você: {n} pergunta em aberto",
+    "other": "Precisa de você: {n} perguntas em aberto"
+  },
+  "{n} ideas": {
+    "one": "{n} ideia",
+    "other": "{n} ideias"
+  },
+  "Waiting on {n} cards: {waitingTitles}": {
+    "one": "Aguardando {n} card: {waitingTitles}",
+    "other": "Aguardando {n} cards: {waitingTitles}"
+  },
   "Progress: {state}": "Andamento: {state}",
   "{priority} priority": "Prioridade {priority}",
   "archived": "arquivado",
@@ -224,7 +214,10 @@ const catalog: Catalog = {
   "Legacy": "Legado",
   "Expand column": "Expandir coluna",
   "Collapse column": "Recolher coluna",
-  "Expand {lane}, {n} tasks": {"one": "Expandir {lane}, {n} tarefa", "other": "Expandir {lane}, {n} tarefas"},
+  "Expand {lane}, {n} tasks": {
+    "one": "Expandir {lane}, {n} tarefa",
+    "other": "Expandir {lane}, {n} tarefas"
+  },
   "Collapse {name}": "Recolher {name}",
   "Add task to {name}": "Adicionar tarefa a {name}",
   "Drop to move here": "Solte para mover para cá",
@@ -405,7 +398,10 @@ const catalog: Catalog = {
   "Show more ({n})": "Mostrar mais ({n})",
   "From card {title}, {state}. Open it": "Do card {title}, {state}. Abrir",
   "From": "De",
-  "{title}, {state}, {n} ideas. Open the card": {"one": "{title}, {state}, {n} ideia. Abrir o card", "other": "{title}, {state}, {n} ideias. Abrir o card"},
+  "{title}, {state}, {n} ideas. Open the card": {
+    "one": "{title}, {state}, {n} ideia. Abrir o card",
+    "other": "{title}, {state}, {n} ideias. Abrir o card"
+  },
   "Removed card": "Card removido",
   "Today": "Hoje",
   "Loading insights…": "Carregando insights…",
@@ -441,19 +437,37 @@ const catalog: Catalog = {
   "Related": "Relacionado",
   "Was waiting on": "Aguardava",
   "Default": "Padrão",
-  "{n} tasks": {"one": "{n} tarefa", "other": "{n} tarefas"},
+  "{n} tasks": {
+    "one": "{n} tarefa",
+    "other": "{n} tarefas"
+  },
   "task": "tarefa",
   "tasks": "tarefas",
   "· {n} done": "· {n} concluídas",
   "{tasks} running ({sessions})": "{tasks} em execução ({sessions})",
-  "{n} sessions": {"one": "{n} sessão", "other": "{n} sessões"},
+  "{n} sessions": {
+    "one": "{n} sessão",
+    "other": "{n} sessões"
+  },
   "{tasks} running": "{tasks} em execução",
   "Nothing running": "Nada em execução",
   "Idle": "Ocioso",
-  "{n} tasks waiting on you. Open Attention": {"one": "{n} tarefa aguarda você. Abrir Atenção", "other": "{n} tarefas aguardam você. Abrir Atenção"},
-  "{n} need you": {"one": "{n} precisa de você", "other": "{n} precisam de você"},
-  "{n} tasks with unread results. Open Attention": {"one": "{n} tarefa com resultados não lidos. Abrir Atenção", "other": "{n} tarefas com resultados não lidos. Abrir Atenção"},
-  "{n} tasks with session errors. Open Attention": {"one": "{n} tarefa com erros de sessão. Abrir Atenção", "other": "{n} tarefas com erros de sessão. Abrir Atenção"},
+  "{n} tasks waiting on you. Open Attention": {
+    "one": "{n} tarefa aguarda você. Abrir Atenção",
+    "other": "{n} tarefas aguardam você. Abrir Atenção"
+  },
+  "{n} need you": {
+    "one": "{n} precisa de você",
+    "other": "{n} precisam de você"
+  },
+  "{n} tasks with unread results. Open Attention": {
+    "one": "{n} tarefa com resultados não lidos. Abrir Atenção",
+    "other": "{n} tarefas com resultados não lidos. Abrir Atenção"
+  },
+  "{n} tasks with session errors. Open Attention": {
+    "one": "{n} tarefa com erros de sessão. Abrir Atenção",
+    "other": "{n} tarefas com erros de sessão. Abrir Atenção"
+  },
   "Project ideas: {openIdeas} open": "Ideias do projeto: {openIdeas} abertas",
   "Ideas {openIdeas}": "Ideias {openIdeas}",
   "Project insights": "Insights do projeto",
@@ -462,15 +476,24 @@ const catalog: Catalog = {
   "No matches.": "Nenhuma correspondência.",
   "Nothing available.": "Nada disponível.",
   "Remove “{title}”?": "Remover “{title}”?",
-  "The project and its {n} cards (including archived) leave Flowly. A copy of the removed board records is kept in the plugin's data folder.": {"one": "O projeto e seu {n} card (incluindo arquivados) saem do Flowly. Uma cópia dos registros do quadro removido fica na pasta de dados do plugin.", "other": "O projeto e seus {n} cards (incluindo arquivados) saem do Flowly. Uma cópia dos registros do quadro removido fica na pasta de dados do plugin."},
+  "The project and its {n} cards (including archived) leave Flowly. A copy of the removed board records is kept in the plugin's data folder.": {
+    "one": "O projeto e seu {n} card (incluindo arquivados) saem do Flowly. Uma cópia dos registros do quadro removido fica na pasta de dados do plugin.",
+    "other": "O projeto e seus {n} cards (incluindo arquivados) saem do Flowly. Uma cópia dos registros do quadro removido fica na pasta de dados do plugin."
+  },
   "The project leaves Flowly. A copy of the removed board record is kept in the plugin's data folder.": "O projeto sai do Flowly. Uma cópia do registro do quadro removido fica na pasta de dados do plugin.",
   "Keep in Paseo": "Manter no Paseo",
   "Also remove from Paseo": "Remover também do Paseo",
   "The Paseo project is already gone; only the board record is removed.": "O projeto do Paseo já não existe; apenas o registro do quadro é removido.",
   "Paseo keeps the project at {primaryPath}, its workspaces and sessions. Running sessions keep running, but their Kanban tools stop working for these cards. You can add the project to the board again later.": "O Paseo mantém o projeto em {primaryPath}, seus espaços de trabalho e sessões. As sessões em execução continuam rodando, mas suas ferramentas do Kanban deixam de funcionar para estes cards. Você pode adicionar o projeto ao quadro de novo depois.",
-  "Paseo forgets the project and its {n} workspaces, as when you remove it in Paseo. Nothing is deleted from disk: {path}, worktrees and branches stay. Add the folder in Paseo again to bring it back.": {"one": "O Paseo esquece o projeto e seu {n} espaço de trabalho, como quando você o remove no Paseo. Nada é apagado do disco: {path}, worktrees e branches permanecem. Adicione a pasta no Paseo novamente para recuperá-lo.", "other": "O Paseo esquece o projeto e seus {n} espaços de trabalho, como quando você o remove no Paseo. Nada é apagado do disco: {path}, worktrees e branches permanecem. Adicione a pasta no Paseo novamente para recuperá-lo."},
+  "Paseo forgets the project and its {n} workspaces, as when you remove it in Paseo. Nothing is deleted from disk: {path}, worktrees and branches stay. Add the folder in Paseo again to bring it back.": {
+    "one": "O Paseo esquece o projeto e seu {n} espaço de trabalho, como quando você o remove no Paseo. Nada é apagado do disco: {path}, worktrees e branches permanecem. Adicione a pasta no Paseo novamente para recuperá-lo.",
+    "other": "O Paseo esquece o projeto e seus {n} espaços de trabalho, como quando você o remove no Paseo. Nada é apagado do disco: {path}, worktrees e branches permanecem. Adicione a pasta no Paseo novamente para recuperá-lo."
+  },
   "Paseo forgets the project, as when you remove it in Paseo. Nothing is deleted from disk: {path}, worktrees and branches stay. Add the folder in Paseo again to bring it back.": "O Paseo esquece o projeto, como quando você o remove no Paseo. Nada é apagado do disco: {path}, worktrees e branches permanecem. Adicione a pasta no Paseo novamente para recuperá-lo.",
-  "{n} sessions are still running in this Paseo project, so it can only be kept in Paseo. Stop them to remove it from Paseo too.": {"one": "{n} sessão ainda está em execução neste projeto do Paseo, então ele só pode ser mantido no Paseo. Pare-a para removê-lo também do Paseo.", "other": "{n} sessões ainda estão em execução neste projeto do Paseo, então ele só pode ser mantido no Paseo. Pare-as para removê-lo também do Paseo."},
+  "{n} sessions are still running in this Paseo project, so it can only be kept in Paseo. Stop them to remove it from Paseo too.": {
+    "one": "{n} sessão ainda está em execução neste projeto do Paseo, então ele só pode ser mantido no Paseo. Pare-a para removê-lo também do Paseo.",
+    "other": "{n} sessões ainda estão em execução neste projeto do Paseo, então ele só pode ser mantido no Paseo. Pare-as para removê-lo também do Paseo."
+  },
   "Could not check Paseo: {message}": "Não foi possível verificar o Paseo: {message}",
   "Removing…": "Removendo…",
   "Remove from board": "Remover do quadro",
@@ -534,7 +557,10 @@ const catalog: Catalog = {
   "Sent to the running turn": "Enviado ao turno em execução",
   "Edit": "Editar",
   "Remove": "Remover",
-  "{n} images": {"one": "{n} imagem", "other": "{n} imagens"},
+  "{n} images": {
+    "one": "{n} imagem",
+    "other": "{n} imagens"
+  },
   "Queued": "Na fila",
   "Send now and steer the running turn": "Enviar agora e direcionar o turno em execução",
   "Remove queued message": "Remover mensagem da fila",
@@ -605,14 +631,21 @@ const catalog: Catalog = {
   "Closed": "Fechada",
   "Finished turn": "Turno encerrado",
   "Turn ended": "Turno encerrado",
+  "Background tasks running": "Tarefas em segundo plano ativas",
   "Thought": "Pensou",
-  "{n} tool calls": {"one": "{n} chamada de ferramenta", "other": "{n} chamadas de ferramentas"},
+  "{n} tool calls": {
+    "one": "{n} chamada de ferramenta",
+    "other": "{n} chamadas de ferramentas"
+  },
   "Prepared session belongs to another workspace or is archived.": "A sessão preparada pertence a outro espaço de trabalho ou está arquivada.",
   "Paseo returned a different session ID; inspect the workspace before retrying.": "O Paseo retornou um ID de sessão diferente; inspecione o espaço de trabalho antes de tentar de novo.",
   "Session is unavailable or belongs to a different workspace.": "A sessão está indisponível ou pertence a outro espaço de trabalho.",
   "This session is archived.": "Esta sessão está arquivada.",
   "This session's provider is unavailable.": "O provedor desta sessão está indisponível.",
-  "Open Needs attention, {text} cards": {"one": "Abrir Precisa de atenção, {text} card", "other": "Abrir Precisa de atenção, {text} cards"},
+  "Open Needs attention, {text} cards": {
+    "one": "Abrir Precisa de atenção, {text} card",
+    "other": "Abrir Precisa de atenção, {text} cards"
+  },
   "Urgent": "Urgente",
   "High": "Alta",
   "Normal": "Normal",
@@ -634,9 +667,18 @@ const catalog: Catalog = {
   "Auto wrap up": "Encerrar automaticamente",
   "Archive without asking when nothing blocks it: no running session, no uncommitted or unpushed work. Otherwise the card is left for manual Wrap up.": "Arquiva sem perguntar quando nada impede: nenhuma sessão em execução, nenhum trabalho sem commit ou sem push. Caso contrário, o card fica para encerramento manual.",
   "Auto archive on delete": "Arquivar automaticamente ao excluir",
-  "its worktree workspace and {n} sessions. Paseo may remove the worktree directory; the branch is kept.": {"one": "seu espaço de trabalho worktree e {n} sessão. O Paseo pode remover o diretório do worktree; o branch é mantido.", "other": "seu espaço de trabalho worktree e {n} sessões. O Paseo pode remover o diretório do worktree; o branch é mantido."},
-  "its workspace and {n} sessions. The directory stays on disk.": {"one": "seu espaço de trabalho e {n} sessão. O diretório permanece no disco.", "other": "seu espaço de trabalho e {n} sessões. O diretório permanece no disco."},
-  "its {n} sessions. The workspace is shared and stays.": {"one": "sua {n} sessão. O espaço de trabalho é compartilhado e permanece.", "other": "suas {n} sessões. O espaço de trabalho é compartilhado e permanece."},
+  "its worktree workspace and {n} sessions. Paseo may remove the worktree directory; the branch is kept.": {
+    "one": "seu espaço de trabalho worktree e {n} sessão. O Paseo pode remover o diretório do worktree; o branch é mantido.",
+    "other": "seu espaço de trabalho worktree e {n} sessões. O Paseo pode remover o diretório do worktree; o branch é mantido."
+  },
+  "its workspace and {n} sessions. The directory stays on disk.": {
+    "one": "seu espaço de trabalho e {n} sessão. O diretório permanece no disco.",
+    "other": "seu espaço de trabalho e {n} sessões. O diretório permanece no disco."
+  },
+  "its {n} sessions. The workspace is shared and stays.": {
+    "one": "sua {n} sessão. O espaço de trabalho é compartilhado e permanece.",
+    "other": "suas {n} sessões. O espaço de trabalho é compartilhado e permanece."
+  },
   "Delete “{title}” permanently?": "Excluir “{title}” permanentemente?",
   "The card, its activity and progress summaries leave Flowly and cannot be restored from the board. A copy of the removed records is kept in the plugin's data folder.": "O card, sua atividade e seus resumos de andamento saem do Flowly e não podem ser restaurados pelo quadro. Uma cópia dos registros removidos fica na pasta de dados do plugin.",
   "Checking its Paseo sessions…": "Verificando suas sessões do Paseo…",
@@ -711,12 +753,18 @@ const catalog: Catalog = {
   "Target": "Objetivo",
   "Recap": "Resumo",
   "{n} tokens": "{n} tokens",
-  "{n} turns": {"one": "{n} turno", "other": "{n} turnos"},
+  "{n} turns": {
+    "one": "{n} turno",
+    "other": "{n} turnos"
+  },
   "No token data": "Sem dados de tokens",
   "Counting…": "Contando…",
   "Usage": "Uso",
   "{time} running": "{time} em execução",
-  "Progress summaries · {n} runs": {"one": "Resumos de andamento · {n} execução", "other": "Resumos de andamento · {n} execuções"},
+  "Progress summaries · {n} runs": {
+    "one": "Resumos de andamento · {n} execução",
+    "other": "Resumos de andamento · {n} execuções"
+  },
   "From local Claude Code / Codex logs; tokens only. Output includes reasoning.": "Dos logs locais do Claude Code / Codex; apenas tokens. A saída inclui o raciocínio.",
   "{n} reasoning": "{n} de raciocínio",
   "Total": "Total",
@@ -731,7 +779,10 @@ const catalog: Catalog = {
   "{name} is not a PNG, JPEG, GIF or WebP image.": "{name} não é uma imagem PNG, JPEG, GIF ou WebP.",
   "File": "Arquivo",
   "Wrapped up: workspace and sessions archived": "Encerrado: espaço de trabalho e sessões arquivados",
-  "Wrapped up: {n} sessions archived": {"one": "Encerrado: {n} sessão arquivada", "other": "Encerrado: {n} sessões arquivadas"},
+  "Wrapped up: {n} sessions archived": {
+    "one": "Encerrado: {n} sessão arquivada",
+    "other": "Encerrado: {n} sessões arquivadas"
+  },
   "Wrap up this card?": "Encerrar este card?",
   "Archive this card's worktree workspace and its sessions. Paseo may remove the worktree directory; the branch is kept.": "Arquiva o espaço de trabalho worktree deste card e suas sessões. O Paseo pode remover o diretório do worktree; o branch é mantido.",
   "Archive this card's workspace and its sessions. The directory stays on disk.": "Arquiva o espaço de trabalho deste card e suas sessões. O diretório permanece no disco.",
@@ -740,7 +791,10 @@ const catalog: Catalog = {
   "Then archive the card.": "Depois arquiva o card.",
   "To skip this question, turn on Auto wrap up in Flowly settings.": "Para pular esta pergunta, ative “Encerrar automaticamente” nas configurações do Flowly.",
   "Workspace is unavailable; only the card will be archived.": "O espaço de trabalho está indisponível; apenas o card será arquivado.",
-  "{n} sessions idle": {"one": "{n} sessão ociosa", "other": "{n} sessões ociosas"},
+  "{n} sessions idle": {
+    "one": "{n} sessão ociosa",
+    "other": "{n} sessões ociosas"
+  },
   "branch {branch}": "branch {branch}",
   "No uncommitted changes or local-only commits": "Sem alterações sem commit nem commits apenas locais",
   "Wrapping up…": "Encerrando…",
@@ -816,7 +870,10 @@ const catalog: Catalog = {
   "Automatic": "Automático",
   "Start from the latest session's settings": "Partir das configurações da última sessão",
   "AI features": "Recursos de IA",
-  "Restored {title} with {n} cards.": {"one": "{title} restaurado com {n} cartão.", "other": "{title} restaurado com {n} cartões."},
+  "Restored {title} with {n} cards.": {
+    "one": "{title} restaurado com {n} cartão.",
+    "other": "{title} restaurado com {n} cartões."
+  },
   "It is already on the board.": "Ele já está no quadro.",
   "Restore it": "Restaurar",
   "Restore project": "Restaurar projeto",
@@ -825,8 +882,14 @@ const catalog: Catalog = {
   "Start empty": "Começar vazio",
   "The board could not be saved in {path}: {message}": "Não foi possível salvar o quadro em {path}: {message}",
   "The project file in this folder is invalid; it was left unchanged. A new, empty project can still be created here.": "O arquivo de projeto desta pasta é inválido; ele não foi alterado. Ainda é possível criar aqui um projeto novo e vazio.",
-  "This folder has a saved Flowly project: {title}, {n} cards, saved {time}.": {"one": "Esta pasta tem um projeto do Flowly salvo: {title}, {n} cartão, salvo {time}.", "other": "Esta pasta tem um projeto do Flowly salvo: {title}, {n} cartões, salvo {time}."},
-  "{n} cards use workspaces already on the board; they are restored without one.": {"one": "{n} cartão usa um espaço de trabalho que já está no quadro; ele é restaurado sem ele.", "other": "{n} cartões usam espaços de trabalho que já estão no quadro; eles são restaurados sem eles."},
+  "This folder has a saved Flowly project: {title}, {n} cards, saved {time}.": {
+    "one": "Esta pasta tem um projeto do Flowly salvo: {title}, {n} cartão, salvo {time}.",
+    "other": "Esta pasta tem um projeto do Flowly salvo: {title}, {n} cartões, salvo {time}."
+  },
+  "{n} cards use workspaces already on the board; they are restored without one.": {
+    "one": "{n} cartão usa um espaço de trabalho que já está no quadro; ele é restaurado sem ele.",
+    "other": "{n} cartões usam espaços de trabalho que já estão no quadro; eles são restaurados sem eles."
+  },
   "{path}, saved {time}. Git ignores it unless you change .flowly/.gitignore.": "{path}, salvo {time}. O git o ignora, a menos que você altere .flowly/.gitignore.",
   "Its board stays saved in {path}; add the folder again to restore it.": "O quadro dele continua salvo em {path}; adicione a pasta de novo para restaurá-lo.",
   "Saved with your project": "Salvo com seu projeto",
@@ -901,8 +964,14 @@ const catalog: Catalog = {
   "No tasks": "Sem tarefas",
   "No recent tasks": "Nenhuma tarefa recente",
   "Hide older tasks": "Ocultar tarefas antigas",
-  "Show {n} older tasks": {"one": "Mostrar {n} tarefa antiga", "other": "Mostrar {n} tarefas antigas"},
-  "After {n} days": {"one": "Depois de {n} dia", "other": "Depois de {n} dias"},
+  "Show {n} older tasks": {
+    "one": "Mostrar {n} tarefa antiga",
+    "other": "Mostrar {n} tarefas antigas"
+  },
+  "After {n} days": {
+    "one": "Depois de {n} dia",
+    "other": "Depois de {n} dias"
+  },
   "Hide old finished cards": "Ocultar cards concluídos há tempo",
   "Cards that finished a while ago fold under “Show older” at the bottom of Done and Cancelled. Settings → Workflow sets how long they stay.": "Cards finalizados há algum tempo ficam recolhidos em “Mostrar antigos” no fim de Concluído e Cancelado. Em Configurações → Fluxo de trabalho você define por quanto tempo ficam.",
   "Never": "Nunca",
@@ -937,7 +1006,7 @@ const catalog: Catalog = {
   "Remove…": "Remover…",
   "Back to connections": "Voltar para conexões",
   "Connection works. Connected as {name}.": "A conexão funciona. Conectado como {name}.",
-  "Testing\u2026": "Testando…",
+  "Testing…": "Testando…",
   "Test connection": "Testar conexão",
   "Connection removed": "Conexão removida",
   "Drag a project tab to reorder it. Right-click it for its settings, a new task, Insights, Ideas or Remove.": "Arraste uma aba de projeto para reordená-la. Clique com o botão direito para abrir as configurações, uma nova tarefa, Insights, Ideias ou Remover.",
@@ -983,9 +1052,15 @@ const catalog: Catalog = {
   "All 42 cart tests pass. Next I'll cover refunds.": "Os 42 testes do carrinho passam. Agora vou cobrir reembolsos.",
   "Preview": "Prévia",
   "Subagents": "Subagentes",
-  "{n} subagents": {"one": "{n} subagente", "other": "{n} subagentes"},
+  "{n} subagents": {
+    "one": "{n} subagente",
+    "other": "{n} subagentes"
+  },
   "{n} working": "{n} em execução",
-  "{n} need input": {"one": "{n} precisa de resposta", "other": "{n} precisam de resposta"},
+  "{n} need input": {
+    "one": "{n} precisa de resposta",
+    "other": "{n} precisam de resposta"
+  },
   "{n} ready to review": "{n} prontos para revisar",
   "Subagents: {summary}": "Subagentes: {summary}",
   "Open subagents from the Paseo session pane.": "Abra os subagentes pelo painel de sessão do Paseo.",
@@ -1027,7 +1102,6 @@ const catalog: Catalog = {
   "No next moves in {n} deliveries": "Sem próximos passos em {n} entregas",
   "No ideas in {n} deliveries": "Sem ideias em {n} entregas",
   "Unknown model": "Modelo desconhecido",
-  // Native session pane (NATIVE-SESSION-SPEC)
   "This idea is no longer open.": "Esta ideia não está mais aberta.",
   "This card is unavailable. Open Flowly to check it.": "Este cartão não está disponível. Abra o Flowly para verificá-lo.",
   "This suggestion is no longer current.": "Esta sugestão não é mais atual.",
@@ -1082,6 +1156,11 @@ const catalog: Catalog = {
   "Everything I'm involved in": "Tudo em que estou envolvido",
   "No match in this project's repositories. Try owner/repo#12 or a link.": "Nenhum resultado nos repositórios deste projeto. Tente owner/repo#12 ou um link.",
   "Nothing matches.": "Nenhum resultado.",
+  "{key} does not belong to {project}'s repositories.": "{key} não pertence aos repositórios de {project}.",
+  "The card's workspace will not contain this repository.": "O espaço de trabalho do cartão não conterá este repositório.",
+  "It belongs to {project}'s repositories.": "Ele pertence aos repositórios de {project}.",
+  "Add anyway": "Adicionar mesmo assim",
+  "Link anyway": "Vincular mesmo assim",
   "{service} refused the connection's token. Update it in Flowly settings → Connections.": "O {service} recusou o token da conexão. Atualize-o em Configurações do Flowly → Conexões.",
   "The service refused the connection's token. Update it in Flowly settings → Connections.": "O serviço recusou o token da conexão. Atualize-o em Configurações do Flowly → Conexões.",
   "{service} is unreachable right now. Try again shortly.": "O {service} está inacessível agora. Tente de novo em instantes.",
@@ -1107,7 +1186,10 @@ const catalog: Catalog = {
   "{service} type": "Tipo de {service}",
   "Where": "Onde",
   "{service} address": "Endereço do {service}",
-  "{n} cards have items from this {service}. They keep the link and key, but Flowly and agents can't read them until you add this {service} again; then they work as before.": {"one": "{n} cartão tem itens deste {service}. Ele mantém o link e a chave, mas o Flowly e os agentes não conseguem lê-los até você adicionar este {service} de novo; depois tudo funciona como antes.", "other": "{n} cartões têm itens deste {service}. Eles mantêm o link e a chave, mas o Flowly e os agentes não conseguem lê-los até você adicionar este {service} de novo; depois tudo funciona como antes."},
+  "{n} cards have items from this {service}. They keep the link and key, but Flowly and agents can't read them until you add this {service} again; then they work as before.": {
+    "one": "{n} cartão tem itens deste {service}. Ele mantém o link e a chave, mas o Flowly e os agentes não conseguem lê-los até você adicionar este {service} de novo; depois tudo funciona como antes.",
+    "other": "{n} cartões têm itens deste {service}. Eles mantêm o link e a chave, mas o Flowly e os agentes não conseguem lê-los até você adicionar este {service} de novo; depois tudo funciona como antes."
+  },
   "No card has items from this {service}.": "Nenhum cartão tem itens deste {service}.",
   "Saving checks the token with {service} first. It is stored only on the computer running Paseo and never shown again.": "Ao salvar, o token é verificado primeiro com o {service}. Ele fica guardado só no computador que executa o Paseo e nunca mais é exibido.",
   "From {service}": "Do {service}",
@@ -1166,10 +1248,16 @@ const catalog: Catalog = {
   "Press again to delete the command log of every project. Suggestions are kept.": "Pressione de novo para excluir o registro de comandos de todos os projetos. As sugestões são mantidas.",
   "Deleted.": "Excluído.",
   "Could not delete the command log.": "Não foi possível excluir o registro de comandos.",
-  "Commands are kept for 30 days, redacted, for {n} projects.": {"one": "Os comandos ficam guardados por 30 dias, anonimizados, para {n} projeto.", "other": "Os comandos ficam guardados por 30 dias, anonimizados, para {n} projetos."},
+  "Commands are kept for 30 days, redacted, for {n} projects.": {
+    "one": "Os comandos ficam guardados por 30 dias, anonimizados, para {n} projeto.",
+    "other": "Os comandos ficam guardados por 30 dias, anonimizados, para {n} projetos."
+  },
   "Nothing collected.": "Nada coletado.",
   "Last run: {in} in · {out} out · ${cost}.": "Última execução: {in} de entrada · {out} de saída · ${cost}.",
-  "About ${month} per month for {n} projects at this pace.": {"one": "Cerca de ${month} por mês para {n} projeto neste ritmo.", "other": "Cerca de ${month} por mês para {n} projetos neste ritmo."},
+  "About ${month} per month for {n} projects at this pace.": {
+    "one": "Cerca de ${month} por mês para {n} projeto neste ritmo.",
+    "other": "Cerca de ${month} por mês para {n} projetos neste ritmo."
+  },
   "AI-written text follows Settings → AI features → AI output language. It starts as your interface language.": "O texto escrito pela IA segue Configurações → Recursos de IA → Idioma de saída da IA. Por padrão, é o idioma da interface.",
   "Same as interface language ({language})": "Igual ao idioma da interface ({language})",
   "Output language": "Idioma de saída",
@@ -1186,7 +1274,10 @@ const catalog: Catalog = {
   "Pin": "Fixar",
   "Moved to AGENTS.md": "Movido para o AGENTS.md",
   "Replaced": "Substituído",
-  "Used by {n} cards": {"one": "Usado por {n} card", "other": "Usado por {n} cards"},
+  "Used by {n} cards": {
+    "one": "Usado por {n} card",
+    "other": "Usado por {n} cards"
+  },
   "Delete": "Excluir",
   "Move to AGENTS.md": "Mover para o AGENTS.md",
   "Every session of this repository reads AGENTS.md, inside Flowly or not. Flowly does not edit repository files: copy the rule, paste it where it belongs, then stop injecting it here so it is not said twice.": "Toda sessão deste repositório lê o AGENTS.md, dentro do Flowly ou não. O Flowly não edita arquivos do repositório: copie a regra, cole onde ela deve ficar e pare de injetá-la aqui para não repetir.",
@@ -1270,7 +1361,7 @@ const catalog: Catalog = {
   "Update README": "Atualizar o README",
   "When an agent asks, waits for approval or fails, its card says so.": "Quando um agente pergunta, espera aprovação ou falha, o card mostra isso.",
   "Your likely next message, one tap away.": "Sua provável próxima mensagem, a um toque.",
-  "Work from Jira, Confluence, GitHub, GitLab, Azure DevOps or Shortcut: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them.": "Trabalhe a partir do Jira, Confluence, GitHub, GitLab, Azure DevOps ou Shortcut: conecte-os em Configurações → Conexões e crie um cartão com A partir de… ou adicione itens com o + de Artefatos. O Flowly apenas lê.",
+  "Work from Jira, Confluence, GitHub, GitLab, Azure DevOps, Shortcut or Linear: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them.": "Trabalhe a partir do Jira, Confluence, GitHub, GitLab, Azure DevOps, Shortcut ou Linear: conecte-os em Configurações → Conexões e crie um cartão com A partir de… ou adicione itens com o + de Artefatos. O Flowly apenas lê.",
   "Azure DevOps work item": "Item de trabalho do Azure DevOps",
   "Work item number, AB#123, a link or words from the title": "Número do item de trabalho, AB#123, um link ou palavras do título",
   "Open work items assigned to me": "Itens de trabalho abertos atribuídos a mim",
@@ -1284,6 +1375,12 @@ const catalog: Catalog = {
   "My open stories": "Minhas histórias abertas",
   "You have no open stories.": "Você não tem histórias abertas.",
   "Add a Shortcut connection": "Adicionar uma conexão do Shortcut",
+  "Linear issue": "Issue do Linear",
+  "ENG-123, a link or words from the title": "ENG-123, um link ou palavras do título",
+  "Open issues assigned to me": "Issues abertas atribuídas a mim",
+  "No open issues are assigned to you.": "Nenhuma issue aberta está atribuída a você.",
+  "Add a Linear connection": "Adicionar uma conexão do Linear",
+  "Create a personal API key in Linear → Settings → Security & access, with read access.": "Crie uma chave de API pessoal com acesso de leitura em Linear → Configurações → Security & access.",
   "Create one in Shortcut → Settings → API Tokens.": "Crie um em Shortcut → Configurações → API Tokens.",
   "What's new": "Novidades",
   "Flowly {version}": "Flowly {version}",
@@ -1330,10 +1427,16 @@ const catalog: Catalog = {
   "Export to JSON": "Exportar para JSON",
   "Settings → Storage shows where the board is kept and its daily backups, and can restore one or export the board to JSON.": "Configurações → Armazenamento mostra onde o quadro fica e seus backups diários, e pode restaurar um ou exportar o quadro para JSON.",
   "Where Paseo supports it, the board moves to a local SQLite database with daily backups; Settings → Storage restores one or exports the board to JSON.": "Onde o Paseo permite, o quadro passa para um banco de dados SQLite local com backups diários; Configurações → Armazenamento restaura um ou exporta o quadro para JSON.",
-  "{n} rounds": {"one": "{n} rodada", "other": "{n} rodadas"},
+  "{n} rounds": {
+    "one": "{n} rodada",
+    "other": "{n} rodadas"
+  },
   "Insights drafted a skill from your cards. Open Insights to add it to the project.": "O Insights rascunhou uma skill a partir dos seus cartões. Abra o Insights para adicioná-la ao projeto.",
   "Skills": "Skills",
-  "{date}, {n} turns": {"one": "{date}, {n} turno", "other": "{date}, {n} turnos"},
+  "{date}, {n} turns": {
+    "one": "{date}, {n} turno",
+    "other": "{date}, {n} turnos"
+  },
   "Less": "Menos",
   "More": "Mais",
   "No activity": "Sem atividade",
@@ -1353,7 +1456,10 @@ const catalog: Catalog = {
   "Keep as is": "Manter como está",
   "Writes .agents/skills/{name}/ and links it in .claude/skills/": "Grava .agents/skills/{name}/ e cria o link em .claude/skills/",
   "Other suggestions": "Outras sugestões",
-  "Scripts, repo tools, AGENTS.md · {n} open": {"one": "Scripts, ferramentas do repositório, AGENTS.md · {n} aberta", "other": "Scripts, ferramentas do repositório, AGENTS.md · {n} abertas"},
+  "Scripts, repo tools, AGENTS.md · {n} open": {
+    "one": "Scripts, ferramentas do repositório, AGENTS.md · {n} aberta",
+    "other": "Scripts, ferramentas do repositório, AGENTS.md · {n} abertas"
+  },
   "Other models": "Outros modelos",
   "No finished cards to compare.": "Não há cartões concluídos para comparar.",
   "No card was worked on in the last 30 days.": "Nenhum cartão foi trabalhado nos últimos 30 dias.",
@@ -1368,7 +1474,7 @@ const catalog: Catalog = {
   "Previous day": "Dia anterior",
   "Next day": "Próximo dia",
   "agent {time}": "agente {time}",
-  "Auto review checked this card after the agent delivered; open it to see each check's result.": "O Auto review verificou este cartão depois da entrega do agente; abra-o para ver o resultado de cada verificação.",
+  "Open the card for review results; choose the review model and reasoning in Settings → Models.": "Abra o cartão para ver a revisão; escolha o modelo e o raciocínio em Configurações → Modelos.",
   "Deliveries are checked before they reach you, and go back to the agent when they fall short.": "As entregas são verificadas antes de chegar até você e voltam para o agente quando não atendem.",
   "Does what you asked": "Faz o que você pediu",
   "Resume": "Retomar",
@@ -1377,7 +1483,10 @@ const catalog: Catalog = {
   "Guardrails": "Salvaguardas",
   "{passed}/{total} passed": "{passed}/{total} aprovadas",
   "running {name}": "executando {name}",
-  "judging {n} checks": {"one":"avaliando {n} verificação","other":"avaliando {n} verificações"},
+  "judging {n} checks": {
+    "one": "avaliando {n} verificação",
+    "other": "avaliando {n} verificações"
+  },
   "starting…": "iniciando…",
   "Auto review running": "Revisão automática em andamento",
   "{passed} of {total} passed": "{passed} de {total} aprovadas",
@@ -1409,14 +1518,32 @@ const catalog: Catalog = {
   "Nothing learned yet. Send a card back with what is wrong; Flowly checks the next cards for it.": "Nada aprendido ainda. Devolva um cartão dizendo o que está errado; o Flowly verifica isso nos próximos.",
   "No commands yet.": "Nenhum comando ainda.",
   "Paused · {n}": "Pausadas · {n}",
-  "{n} deliveries": {"one":"{n} entrega","other":"{n} entregas"},
+  "{n} deliveries": {
+    "one": "{n} entrega",
+    "other": "{n} entregas"
+  },
   "{share} passed the first review": "{share} passaram na primeira revisão",
   "{share} misfires": "{share} falsos alarmes",
-  "{n} guidelines learned": {"one":"{n} diretriz aprendida","other":"{n} diretrizes aprendidas"},
-  "{n} widened": {"one":"{n} ampliada","other":"{n} ampliadas"},
-  "{n} revived": {"one":"{n} reativada","other":"{n} reativadas"},
-  "{n} retired": {"one":"{n} aposentada","other":"{n} aposentadas"},
-  "{n} commands observing": {"one":"{n} comando em observação","other":"{n} comandos em observação"},
+  "{n} guidelines learned": {
+    "one": "{n} diretriz aprendida",
+    "other": "{n} diretrizes aprendidas"
+  },
+  "{n} widened": {
+    "one": "{n} ampliada",
+    "other": "{n} ampliadas"
+  },
+  "{n} revived": {
+    "one": "{n} reativada",
+    "other": "{n} reativadas"
+  },
+  "{n} retired": {
+    "one": "{n} aposentada",
+    "other": "{n} aposentadas"
+  },
+  "{n} commands observing": {
+    "one": "{n} comando em observação",
+    "other": "{n} comandos em observação"
+  },
   "Last 14 days": "Últimos 14 dias",
   "This week:": "Esta semana:",
   "Deliveries are checked before they reach you and go back to the agent when they fall short. Each review uses tokens; turn it off per project.": "As entregas são verificadas antes de chegar a você e voltam ao agente quando ficam aquém. Cada revisão usa tokens; desligue por projeto.",
@@ -1443,7 +1570,10 @@ const catalog: Catalog = {
   "observing": "em observação",
   "Round {round}": "Rodada {round}",
   "Now a project guideline": "Agora é uma diretriz do projeto",
-  "Sent back {n} times": {"one":"Devolvido {n} vez","other":"Devolvido {n} vezes"},
+  "Sent back {n} times": {
+    "one": "Devolvido {n} vez",
+    "other": "Devolvido {n} vezes"
+  },
   "Remembered for the project": "Lembrado para o projeto",
   "Review": "Revisão",
   "Auto review checks every delivery before it reaches you and sends it back to the agent when it falls short. On for new projects.": "A revisão automática verifica cada entrega antes de chegar a você e a devolve ao agente quando fica aquém. Ligada em projetos novos.",
@@ -1470,6 +1600,44 @@ const catalog: Catalog = {
   "Memory could not be read": "Não foi possível ler a memória",
   "Find memory in finished cards": "Encontrar memórias em cartões concluídos",
   "Back from session, then close sidebar, then leave a project page": "Voltar da sessão, depois fechar a barra lateral, depois sair da página do projeto",
+  "Tap a suggested next step in the session timeline to fill the message box, including on your phone. Nothing is sent.": "Toque em um próximo passo sugerido na linha do tempo da sessão para preencher a caixa de mensagem, inclusive no celular. Nada é enviado.",
+  "Medium": "Médio",
+  "Extra high": "Muito alto",
+  "Full access": "Acesso total",
+  "Use the controls inside the message box to change the model, reasoning, permissions and provider features.": "Altere modelo, raciocínio, permissões e recursos do provedor nos controles dentro da caixa de mensagens.",
+  "Created the workspace": "Espaço de trabalho criado",
+  "Created with the first session": "Criado na primeira sessão",
+  "Workspace starts with the first session": "O espaço de trabalho começa na primeira sessão",
+  "Plan cards without creating workspaces. The first session creates the workspace; later sessions share it.": "Planeje cartões sem criar espaços de trabalho. A primeira sessão cria o espaço; as seguintes o compartilham.",
+  "On": "Ativado",
+  "Off": "Desativado",
+  "Loading models…": "Carregando modelos…",
+  "Session settings updated": "Configurações da sessão atualizadas",
+  "Reload session": "Recarregar sessão",
+  "Session reloaded": "Sessão recarregada",
+  "Reloading interrupts the running turn. Reload this session?": "Recarregar interrompe o turno em andamento. Recarregar esta sessão?",
+  "Copy message": "Copiar mensagem",
+  "Session controls": "Controles da sessão",
+  "Change models and provider features inside Flowly. Copy messages or reload a session from its menu.": "Altere modelos e recursos do provedor no Flowly. Copie mensagens ou recarregue uma sessão pelo menu.",
+  "Hold the right mouse button on empty board space and drag left or right to scroll.": "Segure o botão direito do mouse em um espaço vazio do quadro e arraste para a esquerda ou direita para rolar.",
+  "My to-dos": "Minhas pendências",
+  "All work items": "Todos os itens",
+  "No matching to-dos for your TAPD account in this project.": "Nenhuma pendência correspondente à sua conta TAPD neste projeto.",
+  "An empty description imports the first TAPD item's description when creating the card.": "Se a descrição estiver vazia, a descrição do primeiro item TAPD será importada ao criar o cartão.",
+  "TAPD work item": "Item de trabalho do TAPD",
+  "Work item link, number, story-123, bug-123, task-123 or title words": "Link, número, story-123, bug-123, task-123 ou palavras do título",
+  "Recent work items in this TAPD project": "Itens recentes deste projeto TAPD",
+  "No work items were found in this TAPD project.": "Nenhum item encontrado neste projeto TAPD.",
+  "Add a TAPD connection": "Adicionar conexão do TAPD",
+  "MCP access refused. Check login and test again.": "Acesso MCP recusado. Verifique o login e teste novamente.",
+  "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "Usa o servidor MCP tapd configurado no host do Paseo via mcporter. Entre nele primeiro. O acesso ao TAPD é somente leitura.",
+  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "Conecte o TAPD em Configurações → Conexões. O seletor começa em Minhas pendências; mude para Todos os itens para explorar o projeto.",
+  "Flowly does not limit image count or size. Model and host limits still apply.": "O Flowly não limita a quantidade nem o tamanho das imagens. Os limites do modelo e do host continuam valendo.",
+  "Use card description": "Usar descrição do cartão",
+  "Description changed. Use card description again.": "A descrição mudou. Use a descrição do cartão novamente.",
+  "Description images": "Imagens da descrição",
+  "Save pictures with a card description and use its text and pictures as a session instruction.": "Salve imagens na descrição de um cartão e use o texto e as imagens como instrução da sessão.",
+  "Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.": "Adicione imagens à descrição de um cartão e escolha Usar descrição do cartão ao iniciar uma sessão para enviar o texto e as imagens juntos.",
   "Context from": "Contexto de",
   "Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.": "Apenas texto recente do diálogo, até 60.000 caracteres. Imagens e resultados de ferramentas são excluídos.",
   "Session context": "Contexto da sessão",
@@ -1482,5 +1650,7 @@ const catalog: Catalog = {
   "Open conversation": "Abrir conversa",
   "Copy session ID": "Copiar ID da sessão",
   "No sessions": "Nenhuma sessão",
+  "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut, TAPD or Linear, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Crie um cartão a partir do Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut ou TAPD / Linear, ou adicione um item pelo + de Artefatos. Os agentes o leem a cada turno; o Flowly nunca o altera."
 };
+
 export default catalog;

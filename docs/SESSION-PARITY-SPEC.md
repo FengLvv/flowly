@@ -4,7 +4,7 @@
 
 User-approved 2026-11-16: extend the existing server-only local daemon adapter for session model and provider-feature changes. This supersedes SESSION-UX-SPEC §1's prohibition on a new internal connection **only for these card-scoped operations**. Never create another client connection, import private host UI, change the host, or replace sessions to change a model. SDK/type versions and manifest remain pinned.
 
-The installed public SDK 0.15.0 exposes model discovery and live feature state but no model/feature setters or embeddable native agent pane. The daemon client's `setAgentModel` and `setAgentFeature` are the compatibility bridge; remove it when the supplied public SDK exposes equivalent operations. All other operations retain their existing SDK/CLI routes. No promise of pixel or host-plugin parity is made.
+The public SDK (0.15.0 at implementation, upgraded to 0.16.0 during the 2026-11-17 upstream integration) exposes model discovery and live feature state but no resource-handle model/feature setters or embeddable native agent pane. The daemon client's `setAgentModel` and `setAgentFeature` remain the compatibility bridge; remove it when the supplied public resource SDK exposes equivalent operations. All other operations retain their existing SDK/CLI routes. No promise of pixel or host-plugin parity is made.
 
 ## Capability comparison
 

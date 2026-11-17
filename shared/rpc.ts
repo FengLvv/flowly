@@ -2,7 +2,7 @@ import { sessionTargetFields, validSessionScope } from "./session-target";
 import { descriptionImageSchema } from "./description-images";
 import { cardDetailSchema, projectCardIndexSchema, projectIdeasSchema } from "./card-detail";
 import { attentionDismissInput, attentionDismissalSchema, attentionRestoreInput } from "./attention-dismiss";
-import { defineRpc } from "@getpaseo/plugin";
+import { defineRpc, type PluginSubscriptionContract } from "@getpaseo/plugin";
 import { overviewResponseSchema } from "./overview";
 import { storageStatusSchema } from "./storage";
 import { sessionInsightViewSchema } from "./session-insights";
@@ -133,6 +133,16 @@ export const readBoardChanged = defineRpc({
   output: z.object({ etag: z.string(), value: boardSchema.optional(), delta: z.boolean().optional(), patch: boardPatchSchema.optional() }),
 });
 /** Read-only native-chip projection: no descriptions/history/workpads; separate etag namespace from the full board. */
+/**
+ * "The board changed" pushes (PASEO-0.16-SPEC §3.5): a sequence number and what changed, no data; the client
+ * re-reads by etag. A plain
+ * object, not `defineSubscription(...)`: that export is missing on a 0.15 host, and this module loads everywhere.
+ */
+export const boardChanges = {
+  name: "board.changes",
+  input: z.strictObject({}),
+  event: z.strictObject({ seq: z.number().int().nonnegative(), scope: z.enum(["all", "board", "sessions"]) }),
+} satisfies PluginSubscriptionContract;
 export const readChipBoardChanged = defineRpc({
   name: "sessions.chip-board-changed",
   input: readBoardChanged.input,
@@ -317,6 +327,22 @@ export const searchExternal = defineRpc({
   name: "connectors.search",
   input: z.strictObject({ connectionId: z.string().min(1), query: z.string().max(500), projectId: z.string().min(1).optional(), all: z.boolean().optional() }),
   output: z.object({ results: z.array(externalSummarySchema) }),
+});
+/**
+ * Whether a picked GitHub/GitLab item's repository belongs to the project's
+ * repositories (CONNECTORS-SPEC §4.3): "unknown" when membership can't be judged
+ * (no repositories on that host); "foreign" also names the other projects that
+ * have it. Client-only warning material; the daemon decides.
+ */
+export const repoCheck = defineRpc({
+  name: "connectors.repo-check",
+  input: z.strictObject({ projectId: z.string().min(1), connectionId: z.string().min(1), repo: z.string().trim().min(1).max(300) }),
+  output: z.object({
+    state: z.enum(["member", "foreign", "unknown"]),
+    projectTitle: z.string(),
+    /** Other projects whose repositories contain the repo (foreign only, at most 3). */
+    others: z.array(z.object({ id: z.string(), title: z.string() })),
+  }),
 });
 /** Current summaries of a card's external inputs (cached up to 30 minutes unless `refresh`). */
 export const cardExternals = defineRpc({

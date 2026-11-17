@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import { Icon, ScrollView, useToast } from "@getpaseo/plugin/client/react-native";
 import { openExternalUrl, useRpc, useSettings } from "@getpaseo/plugin/client";
@@ -43,7 +43,7 @@ export function useConnections(enabled = true) {
 }
 
 /** Service names are brands: shown as written in every language. */
-export const familyNames: Record<ConnectorFamily, string> = { jira: "Jira", confluence: "Confluence", github: "GitHub", gitlab: "GitLab", azure: "Azure DevOps", shortcut: "Shortcut", tapd: "TAPD" };
+export const familyNames: Record<ConnectorFamily, string> = { jira: "Jira", confluence: "Confluence", github: "GitHub", gitlab: "GitLab", azure: "Azure DevOps", shortcut: "Shortcut", tapd: "TAPD", linear: "Linear" };
 
 /** The row icon of an item: its kind, not its service. */
 export function itemIcon(provider: ConnectorProvider, itemType: ItemType) {
@@ -62,6 +62,7 @@ export function itemKindLabel(provider: ConnectorProvider, itemType: ItemType) {
   if (family === "azure") return t("Azure DevOps work item");
   if (family === "tapd") return t("TAPD work item");
   if (family === "shortcut") return itemType === "epic" ? t("Shortcut epic") : t("Shortcut story");
+  if (family === "linear") return t("Linear issue");
   const service = familyNames[family];
   if (itemType === "pull") return t("{service} pull request", { service });
   if (itemType === "merge_request") return t("{service} merge request", { service });
@@ -77,6 +78,7 @@ export const linkTitles: Record<ConnectorFamily, string> = {
   azure: msg("Azure DevOps work item"),
   shortcut: msg("Shortcut story or epic"),
   tapd: msg("TAPD work item"),
+  linear: msg("Linear issue"),
 };
 
 const searchHints: Record<ConnectorFamily, string> = {
@@ -87,6 +89,7 @@ const searchHints: Record<ConnectorFamily, string> = {
   azure: msg("Work item number, AB#123, a link or words from the title"),
   shortcut: msg("Story number, sc-123, a link or words from the title"),
   tapd: msg("Work item link, number, story-123, bug-123, task-123 or title words"),
+  linear: msg("ENG-123, a link or words from the title"),
 };
 
 const recentTitles: Record<ConnectorFamily, string> = {
@@ -97,6 +100,7 @@ const recentTitles: Record<ConnectorFamily, string> = {
   azure: msg("Open work items assigned to me"),
   shortcut: msg("My open stories"),
   tapd: msg("Recent work items in this TAPD project"),
+  linear: msg("Open issues assigned to me"),
 };
 
 const emptyRecent: Record<ConnectorFamily, string> = {
@@ -107,6 +111,7 @@ const emptyRecent: Record<ConnectorFamily, string> = {
   azure: msg("No open work items are assigned to you."),
   shortcut: msg("You have no open stories."),
   tapd: msg("No work items were found in this TAPD project."),
+  linear: msg("No open issues are assigned to you."),
 };
 
 /** Identity of an item across connections of one service: keys repeat between services (team/app#12 on GitHub and GitLab). */
@@ -344,6 +349,45 @@ export function externalError(error: unknown, family?: ConnectorFamily) {
   return text;
 }
 
+/** CONNECTORS-SPEC §4.3: a picked GitHub/GitLab item's repository vs the project's repositories. */
+export type RepoCheck = { state: "member" | "foreign" | "unknown"; projectTitle: string; others: { id: string; title: string }[] };
+
+/**
+ * Whether a picked item's repository belongs to the project, asked of the daemon.
+ * Only git families have repositories; an empty container or a failed request
+ * can't be judged and never warn (null / "unknown").
+ */
+export function useRepoCheck(projectId?: string) {
+  const check = useRpc(rpc.repoCheck);
+  return useStableCallback(async (item: Pick<ExternalSummary, "connectionId" | "container">, family: ConnectorFamily): Promise<RepoCheck | null> => {
+    if (!projectId || (family !== "github" && family !== "gitlab") || !item.container.trim()) return null;
+    return check({ projectId, connectionId: item.connectionId, repo: item.container }).catch(() => null);
+  });
+}
+
+/**
+ * The §4.3 warning before a foreign item joins a new card or links to one:
+ * non-blocking, names the item and the project, and points at the project the
+ * repository belongs to when another one has it.
+ */
+export function ForeignRepoWarning({ itemKey, check, confirmLabel, onConfirm, onCancel }: { itemKey: string; check: RepoCheck; confirmLabel: string; onConfirm(): void; onCancel(): void }) {
+  const others = check.others.map((p) => p.title).join(", ");
+  return (
+    <View style={{ gap: space[2] }}>
+      <Notice tone="warning">
+        {t("{key} does not belong to {project}'s repositories.", { key: itemKey, project: check.projectTitle })}
+        {" "}
+        {t("The card's workspace will not contain this repository.")}
+        {!!others && ` ${t("It belongs to {project}'s repositories.", { project: others })}`}
+      </Notice>
+      <Actions>
+        <Button quiet onPress={onCancel}>{t("Cancel")}</Button>
+        <Button primary onPress={onConfirm}>{confirmLabel}</Button>
+      </Actions>
+    </View>
+  );
+}
+
 /** Drawer action: choose an item and add it to the card as an input (EXTERNAL-TRACKER-SPEC §5.1). */
 export function LinkExternal({
   taskId,
@@ -364,24 +408,42 @@ export function LinkExternal({
   const toast = useToast();
   const queryClient = useQueryClient();
   const create = useRpc(rpc.createArtifact);
+  const repoCheck = useRepoCheck(projectId);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
-  const pick = async (item: ExternalSummary) => {
+  // A picked item from another project's repositories warns first (CONNECTORS-SPEC §4.3).
+  const [confirming, setConfirming] = useState<{ item: ExternalSummary; check: RepoCheck } | null>(null);
+  // A pending repository check must not attach a superseded pick, or one whose modal was closed meanwhile.
+  const pickSeq = useRef(0);
+  const close = useStableCallback(() => {
+    pickSeq.current += 1;
+    onClose();
+  });
+  const attach = useStableCallback(async (item: ExternalSummary) => {
     setPending(true);
     setError("");
     try {
       await create({ taskId, role: "input", target: item.url, external: { connectionId: item.connectionId, key: item.key, itemType: item.itemType } });
       await queryClient.invalidateQueries({ queryKey: boardKey });
       toast.show(t("Linked {key}", { key: item.itemType === "page" || family === "tapd" ? item.summary : item.key }), { variant: "success" });
-      onClose();
+      close();
     } catch (e) {
       setError(externalError(e, family));
     } finally {
       setPending(false);
     }
-  };
+  });
+  const pick = useStableCallback(async (item: ExternalSummary) => {
+    if (pending) return; // no second attachment while one is in flight
+    const seq = ++pickSeq.current;
+    setConfirming(null);
+    const check = await repoCheck(item, family);
+    if (seq !== pickSeq.current) return;
+    if (check?.state === "foreign") return setConfirming({ item, check });
+    await attach(item);
+  });
   return (
-    <Modal open title={t("Add {item}", { item: t(linkTitles[family]) })} icon={<BrandIcon family={family} size={18} />} onOpenChange={(open) => !open && !pending && onClose()}>
+    <Modal open title={t("Add {item}", { item: t(linkTitles[family]) })} icon={<BrandIcon family={family} size={18} />} onOpenChange={(open) => !open && !pending && close()}>
       <Modal.Content>
         <Theme.Provider value={theme}>
           <View style={{ gap: space[3] }}>
@@ -389,14 +451,28 @@ export function LinkExternal({
               {t("It becomes an input of this card. Agents read it every turn; Flowly never changes it in {service}.", { service: familyNames[family] })}
             </Label>
             {!!error && <Notice>{error}</Notice>}
-            <ExternalPicker
-              family={family}
-              connections={connections}
-              projectId={projectId}
-              picked={linked}
-              onPick={(item) => void pick(item)}
-              onClose={onClose}
-            />
+            {confirming ? (
+              <ForeignRepoWarning
+                itemKey={confirming.item.key}
+                check={confirming.check}
+                confirmLabel={t("Link anyway")}
+                onConfirm={() => {
+                  const { item } = confirming;
+                  setConfirming(null);
+                  void attach(item);
+                }}
+                onCancel={() => setConfirming(null)}
+              />
+            ) : (
+              <ExternalPicker
+                family={family}
+                connections={connections}
+                projectId={projectId}
+                picked={linked}
+                onPick={(item) => void pick(item)}
+                onClose={close}
+              />
+            )}
           </View>
         </Theme.Provider>
       </Modal.Content>
@@ -465,6 +541,7 @@ const providerLabels: Record<ConnectorProvider, string> = {
   "azure-devops": "Azure DevOps",
   shortcut: "Shortcut",
   "tapd-internal": "TAPD",
+  linear: "Linear",
 };
 
 const addTitles: Record<ConnectorFamily, string> = {
@@ -475,6 +552,7 @@ const addTitles: Record<ConnectorFamily, string> = {
   azure: msg("Add an Azure DevOps connection"),
   shortcut: msg("Add a Shortcut connection"),
   tapd: msg("Add a TAPD connection"),
+  linear: msg("Add a Linear connection"),
 };
 
 /**
@@ -531,6 +609,8 @@ function tokenHint(provider: ConnectorProvider, hosted: boolean) {
       return t("Create one in Azure DevOps → User settings → Personal access tokens, with the Work Items (Read) scope.");
     case "shortcut":
       return t("Create one in Shortcut → Settings → API Tokens.");
+    case "linear":
+      return t("Create a personal API key in Linear → Settings → Security & access, with read access.");
     default:
       return t("Create one in GitLab → Preferences → Access tokens with the read_api scope.");
   }
@@ -546,6 +626,7 @@ const addressPlaceholders: Record<ConnectorProvider, string> = {
   "azure-devops": "https://dev.azure.com/your-organization",
   shortcut: "https://app.shortcut.com/your-workspace",
   "tapd-internal": "https://tapd.woa.com/tapd_fe/123",
+  linear: "https://linear.app/your-workspace",
 };
 
 function ConnectionEditor({ family, connection, onClose }: { family: ConnectorFamily; connection: Connection | null; onClose(): void }) {
