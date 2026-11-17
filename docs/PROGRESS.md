@@ -1403,3 +1403,26 @@ Phase 2 spec: [PHASE-02-SPEC.md](PHASE-02-SPEC.md). Three current-card tools; au
 - CodeRabbit对dd47856补审提出持续stream setup失败时普通列表仍需刷新的有效意见。新回归先红（1失败/45通过，新a2无Task chip）；仅将既有stream退避回调从openStream改为refreshNow，使订阅重试同时通过普通列表更新新session。连续5/30秒失败期间a2/a3可见，成功后180秒无继续读取；不新增timer。修改后完整5文件76项与typecheck通过，exit0；全量/独立最终证据随后按冻结SHA记录。
 
 - 持续失败回退最终6be6f31：typecheck与76聚焦、父全量1524/6skip通过，独立Luna PASS，报告LUNA-PERSISTENT-STREAM.md；测试会话已清理。新手机仍UNRUN，按用户明确授权沿用本补丁旧冷启结论。最终证据推送后继续等CI与真实CodeRabbit补审。
+
+
+## 2026-11-17 Paseo 0.16 Guardrails/Memory 计数零周期读取返工
+
+- 接受自动验收 goal：启用 Memory 的总览仍每60秒调用 `guardrails.counts`。新客户端回归在180秒静止读数1→4时红灯；独立存储提交的通知回归0次（预期1）红灯。首次服务端fixture缺少noteKind的无效失败已修正后重新确认。
+- GuardrailsStore 的成功原子写入复用 `board.changes` 的board通知（含daemon学习、MCP写入，不要求看板提交）；失败/无改动不通知，停用时解除回调。看板推送失效集合包含counts；健康订阅停止60秒轮询，旧宿主/connecting/断开或计数读取失败时保留60秒回退，成功后停止，隐藏/卸载不读。无新协议、健康timer或依赖。
+- 聚焦7文件91项通过、typecheck exit0（初次绿灯）；最终精确SHA及独立验收见本轮报告。既有§3.7暂缓不变，没有修改旧Luna报告。
+- AndroMeld连接报control socket missing，adb设备列表为空；用户明确暂时无法连接。新手机收益/冷启动为UNRUN，PR#117的旧冷启沿用授权不自动扩展到本轮。
+- 无新UI/设置/核心动作/遥测字段，不需要tour、tip、What's new；README与OVERVIEW同步说明计数推送。既有Wrap up文档worktree-only与自有directory实际归档的差异由已有idea跟踪，本轮不改策略。
+
+- 后续同日：最终产品 `31d9dee` typecheck exit0，全量166文件通过/1skip、1528项通过/6skip。Luna会话26784627对同SHA代码与7文件91聚焦PASS，报告a3af96d，当时因设备未测保留整体验收。用户随后明确授权PR#118本轮计数补丁沿用历史+3.7257%/5%冷启结论；这是决策沿用，不是新采样，不改Luna当时的原报告。新手机/daemon/UI仍未运行。测试agent已删除，native inspect确认AGENT_NOT_FOUND。PR#118待CI与真实CodeRabbit，auto-merge关闭。
+
+- 额度等待期间补父任务隔离0.16.0运行时：真实guardrails.create/update写入无board revision变化时，board推送分别104.2/104.3ms到达，counts 0→1→0；etag省略及重订阅all通过。fixture项目/原生registry均空后停止owned daemon，删除owned home/project/script；未碰常用daemon。新手机/UI仍UNRUN。详见GUARDRAIL-COUNTS-REWORK报告。
+
+- CodeRabbit真实补审（02:33UTC）给出首次计数pending吞推送与显式Refresh漏读两条有效意见。临时诊断1失败/3skip、永久回归1失败/3通过（预期第二次读、实际一次）。用户明确批准最小修复并保留回归，继续沿用本轮冷启动决定；`invalidateCardViews`在失效前取消旧counts读取，总览Refresh保留原data.refetch并同时失效counts。无新轮询/变化编号。新精确SHA检查见本轮报告，旧Luna证据不改。
+
+- 本轮修复产品93b7a2：typecheck0、完整7文件92聚焦、全量166文件/1529通过6skip均exit0；无新手机采样，继续明确授权沿用旧冷启。独立Luna对同SHA复核，完整记录追加于GUARDRAIL-COUNTS-REWORK，未改旧独立报告。
+
+- 独立Luna会话ec866156对精确93b7a2代码/typecheck/7文件92聚焦PASS，报告dc0da42。澄清disabled指全局features.memory，不改变既有project.memory开关策略；新手机/daemon/UI仍UNRUN，授权沿用不当作新采样。
+
+- CodeRabbit对62b2a74真实补审（03:35UTC）指出短于30秒的无推送重入不重算计数，违反既有re-entry契约。新增10秒隐藏、无隐藏推送、重新显示的真实QueryObserver回归原实现1失败/4通过（预期2读、实际1读）。最小修复仅在线时staleTime设0，重入即补读，旧宿主/断线保留30秒；回归也检查20次重复render与180秒静止不新增读取，无effect/计时器/新并发机制。
+
+- 重入修复产品bacc790：typecheck0、7文件93聚焦、全量166文件/1530通过6skip均exit0；独立Luna会话4befbffa同SHA代码/typecheck/93聚焦PASS，报告661a6ff。父报告记录旧红灯与继承/UNRUN边界；推送后继续真实CodeRabbit补审，若限额按用户决定定时跟进。

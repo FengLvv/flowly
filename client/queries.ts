@@ -367,17 +367,17 @@ export function useGuardrailsQuery(projectId: string, enabled: boolean) {
     placeholderData: (previous) => previous,
   });
 }
-/** Observing commands and guidelines learned this week per project, for the overview chip; read with the board, once a minute. */
+/** Overview Guardrails/Memory counts; pushes while live, minute polling on older hosts or after errors. */
 export const guardrailCountsKey = ["flowly", "guardrail-counts"] as const;
-export function useGuardrailCountsQuery(enabled: boolean) {
+export function useGuardrailCountsQuery(enabled: boolean, pushLive = false) {
   const read = useRpc(rpc.guardrailCounts);
   const client = useQueryClient();
   return useQuery({
     queryKey: guardrailCountsKey,
     queryFn: () => readChanged(client, guardrailCountsKey, (etag) => read(etag ? { etag } : {})),
     enabled,
-    staleTime: 30_000,
-    refetchInterval: enabled ? 60_000 : false,
+    staleTime: pushLive ? 0 : 30_000,
+    refetchInterval: (query) => enabled && (!pushLive || query.state.status === "error") ? 60_000 : false,
     placeholderData: (previous) => previous,
   });
 }
