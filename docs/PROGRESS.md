@@ -1434,3 +1434,9 @@ Phase 2 spec: [PHASE-02-SPEC.md](PHASE-02-SPEC.md). Three current-card tools; au
 - 共用查询读取既有BoardPushLive，健康时全停（含running），旧宿主/connecting/断线或查询错误保留原5秒running/30秒idle，成功在线即停。board推送失效guardrails前缀，沿用已批准取消首读再失效机制，隐藏/重入仍正确。
 - GuardrailsStore成功提交既有board通知覆盖数据/错误；补MemoryService内存running开始/结束通知（含无store提交的自动review取消路径与手动review），全局features.memory准备完成/变化也通知，cleanup解除running回调。项目级开关策略不变，无新subscription协议/健康timer/依赖。README/OVERVIEW同步，未变UI文案/设置/遥测，无需tour/tip/What's new。
 - 首轮完整9文件115聚焦与typecheck exit0；最终源码/full/独立及隔离运行时结果另记MEMORY-PAGE-REWORK。新手机采样UNRUN：AndroMeld control socket missing，adb无设备；PR118计数补丁的旧冷启沿用授权不自动扩大到本轮Memory页。
+
+### 2026-11-17 Memory 页面返工验收与直接合入决定
+
+- 产品9170380：typecheck exit0，9文件115聚焦、全量167文件通过/1跳过，1536项通过/6跳过。独立GPT6Luna同SHA审阅与115项检查通过；报告LUNA-MEMORY-PAGE.md，验收会话已精确删除并确认AGENT_NOT_FOUND。
+- 真实隔离0.16 daemon的Memory新增/删除与全局开关推送104–109ms，页面数据和etag通过；所有fixture与owned daemon已清理。新手机/UI/冷启动仍UNRUN。
+- 用户明确授权本轮页面补丁沿用3043bd8历史+3.7257%/5%冷启结论，随后明确小改动可直接合入、不走PR流程。按本次指示正常快进push main并关闭草稿119；CodeRabbit的NEUTRAL限额不当作通过。原独立报告保留授权之前的边界，不改旧证据。

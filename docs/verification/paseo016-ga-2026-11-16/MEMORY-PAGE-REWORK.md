@@ -35,3 +35,11 @@ Cleanup PASS: exact fixture project removed with `projects.remove(alsoPaseo:true
 - Actual new-PR CodeRabbit and CI: pending; rate-limit NEUTRAL/skipped will not count as review approval.
 
 Existing unrelated mismatch: manual Wrap up docs say worktree-only; code also archives card-owned directory workspaces. Existing idea `301ae423-333a-446b-b670-24f36113a22f` tracks it; this patch changes no policy.
+
+## Later user decisions (2026-11-17)
+
+The user explicitly authorized this Memory-page patch to inherit historical `3043bd8` +3.7257% / 5% cold-start acceptance. Current-source phone/UI remains UNRUN; the authorization is not a new measurement. The original independent report retains its earlier authorization boundary unchanged.
+
+The user then instructed that small changes can land directly without the PR process. This focused fix will use a normal fast-forward push to main, preserving exact product `9170380` and its passing parent/Luna checks; draft PR #119 will close. This supersedes the PR/CodeRabbit gate for this delivery. CodeRabbit check on #119 was NEUTRAL/rate-limited, not a passed review. CI results are reported separately. No protection or admin setting is changed.
+
+Independent Luna code/typecheck/9-file115 checks PASS: `LUNA-MEMORY-PAGE.md`, report commit `08d3939`, session `398a2bae-7a34-412e-b225-266a72fbd9ee`. Exact native deletion returned one deleted ID, inspect returned AGENT_NOT_FOUND, and fresh Flowly sessions no longer contained it. Parent did not alter its evidence.
