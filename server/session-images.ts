@@ -1,3 +1,5 @@
+import { nativeSession } from "./native-session";
+import type { SessionTarget } from "../shared/session-target";
 import type { PaseoApi } from "@getpaseo/client";
 import { readFile, stat, realpath } from "node:fs/promises";
 import { extname } from "node:path";
@@ -32,15 +34,17 @@ export class SessionImageService {
     return text;
   }
 
-  async read(input: { taskId: string; agentId: string; src: string }, paseo: PaseoApi) {
+  async read(input: SessionTarget & { src: string }, paseo: PaseoApi) {
     const path = localImagePath(input.src);
     if (!path || !displayableImage(input.src)) throw new Error("Not a local image reference.");
-    const board = await this.store.read();
-    const task = board.tasks.find((t) => t.id === input.taskId);
-    if (!task) throw new Error("Task not found.");
-    const agent = (await paseo.agents.ref(input.agentId).refresh())?.agent;
-    if (!agent || agent.workspaceId !== task.workspaceId)
-      throw new Error("Session is unavailable or belongs to a different workspace.");
+    if (input.workspaceId) await nativeSession(paseo, input);
+    else {
+      const task = (await this.store.read()).tasks.find(t => t.id === input.taskId);
+      if (!task) throw new Error("Task not found.");
+      const agent = (await paseo.agents.ref(input.agentId).refresh())?.agent;
+      if (!agent || agent.workspaceId !== task.workspaceId)
+        throw new Error("Session is unavailable or belongs to a different workspace.");
+    }
     // JSON-escaped form is what appears inside the serialized timeline.
     const transcript = await this.transcript(input.agentId, paseo);
     if (![path, input.src].some(source => transcript.includes(JSON.stringify(source).slice(1, -1))))

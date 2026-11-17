@@ -1,0 +1,54 @@
+{
+  "owner": "runtime-view-89003f86-b7f4-4f45-9b63-eac748387fa0",
+  "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\runtime-view-89003f86-b7f4-4f45-9b63-eac748387fa0",
+  "port": 2075,
+  "daemonPid": 76560,
+  "sessions": [
+    {
+      "workspaceId": "wks_eb8da45849895e2e",
+      "directory": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\runtime-view-89003f86-b7f4-4f45-9b63-eac748387fa0\\project",
+      "title": "Runtime bound one",
+      "id": "f8994962-718b-480d-84d6-7bc7611353a5"
+    },
+    {
+      "workspaceId": "wks_eb8da45849895e2e",
+      "directory": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\runtime-view-89003f86-b7f4-4f45-9b63-eac748387fa0\\project",
+      "title": "Runtime bound two",
+      "id": "9ef277fb-1073-4382-9282-a3b958812768"
+    },
+    {
+      "workspaceId": "wks_4d3a4efcacb0608d",
+      "directory": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\runtime-view-89003f86-b7f4-4f45-9b63-eac748387fa0\\native-2",
+      "title": "Runtime unbound 2",
+      "id": "b92d822b-ca5d-4aa2-b1c5-7e7caf4830e4"
+    },
+    {
+      "workspaceId": "wks_9a658bb7239315e4",
+      "directory": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\runtime-view-89003f86-b7f4-4f45-9b63-eac748387fa0\\native-3",
+      "title": "Runtime unbound 3",
+      "id": "e77e2395-22f0-4371-a76e-3345cd6118f2"
+    }
+  ],
+  "nativeProjects": [
+    "prj_4deefb8787491fe8",
+    "prj_55356f4a00c25e0f"
+  ],
+  "project": {
+    "id": "4e5d9a55-63e5-4477-b305-93219fbcd7bb",
+    "title": "Runtime fixture",
+    "description": "",
+    "paseoProjectId": "prj_40cb294cf95ac6d3",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\runtime-view-89003f86-b7f4-4f45-9b63-eac748387fa0\\project",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\runtime-view-89003f86-b7f4-4f45-9b63-eac748387fa0\\project"
+    ],
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    },
+    "revision": 1,
+    "createdAt": "2026-11-16T14:25:00.787Z",
+    "updatedAt": "2026-11-16T14:25:00.787Z",
+    "archivedAt": null
+  }
+}

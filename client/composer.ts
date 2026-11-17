@@ -1,3 +1,4 @@
+import { sessionScope, type SessionScope } from "../shared/session-target";
 import { useEffect, useRef } from "react";
 import { useRpc } from "@getpaseo/plugin/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -61,17 +62,17 @@ export function useComposer(enabled = true) {
     state: query.data,
     entry: (agentId: string) => query.data?.sessions[agentId],
     /** Debounced draft persistence (keyed per session). */
-    saveDraft(taskId: string, agentId: string, text: string, immediate = false) {
+    saveDraft(target: string | SessionScope, agentId: string, text: string, immediate = false) {
       const pending = timers.current.get(agentId);
       if (pending) clearTimeout(pending.timer);
       const flush = () => {
         timers.current.delete(agentId);
-        void save({ taskId, agentId, text }).catch(() => undefined);
+        void save({ ...sessionScope(target), agentId, text }).catch(() => undefined);
       };
       if (immediate) return flush();
       timers.current.set(agentId, { timer: setTimeout(flush, 500), flush });
     },
-    async queue(taskId: string, agentId: string, text: string, images: OutgoingImage[] = []) {
+    async queue(target: string | SessionScope, agentId: string, text: string, images: OutgoingImage[] = []) {
       const temp: ComposerEntry["queue"][number] = {
         id: `pending-${Date.now()}`,
         text,
@@ -88,12 +89,12 @@ export function useComposer(enabled = true) {
           sessions: {
             ...s.sessions,
             [agentId]: {
-              ...(s.sessions[agentId] ?? { taskId, draft: "", draftAt: null, lastError: null }),
+              ...(s.sessions[agentId] ?? { ...sessionScope(target), draft: "", draftAt: null, lastError: null }),
               queue: [...(s.sessions[agentId]?.queue || []), temp],
             },
           },
         }));
-        const item = await push({ taskId, agentId, text, ...(images.length ? { images } : {}) });
+        const item = await push({ ...sessionScope(target), agentId, text, ...(images.length ? { images } : {}) });
         // The confirmed message takes the temporary one's place and its row key, so the row is not rebuilt.
         rowKeys.set(item.id, temp.id);
         patch((s) => {
@@ -117,9 +118,9 @@ export function useComposer(enabled = true) {
         refresh();
       }
     },
-    async sendNow(taskId: string, agentId: string, id: string) {
+    async sendNow(target: string | SessionScope, agentId: string, id: string) {
       try {
-        await sendNow({ taskId, agentId, id });
+        await sendNow({ ...sessionScope(target), agentId, id });
       } finally {
         refresh();
       }

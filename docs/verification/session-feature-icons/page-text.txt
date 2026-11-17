@@ -1,0 +1,22 @@
+Flowly
+Flowly
+1
+12
+tasks
+· 7 done
+3 running
+Ideas 1
+Guardrails
+Memory
+Insights
+Todo
+0
+No tasks in Todo.
+Add task
+Feature icons fixture 5a2b7ff2
+Ready
+· codex/gpt-6-astra
+No output yet.
+GPT-6-Astra
+medium
+Full Access

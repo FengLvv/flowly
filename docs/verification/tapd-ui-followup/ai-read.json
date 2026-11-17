@@ -1,0 +1,38 @@
+{
+  "agentId": "15990850-9bb0-480e-b86d-c4bd4192d350",
+  "provider": "claude",
+  "model": "claude-haiku-5-5",
+  "mode": "bypassPermissions",
+  "result": "TAPD_READ_OK",
+  "tools": [
+    {
+      "type": "tool_call",
+      "name": "ToolSearch",
+      "status": "completed",
+      "hasError": false
+    },
+    {
+      "type": "tool_call",
+      "name": "mcp__flowly__flowly_get_task",
+      "status": "completed",
+      "hasError": false
+    },
+    {
+      "type": "tool_call",
+      "name": "mcp__flowly__flowly_read_external",
+      "status": "completed",
+      "hasError": false
+    },
+    {
+      "type": "tool_call",
+      "name": "mcp__flowly__flowly_read_external",
+      "status": "failed",
+      "hasError": true
+    }
+  ],
+  "credentialExported": false,
+  "ticketContentExported": false,
+  "crossCardDenied": true,
+  "modelOwnReadSucceeded": true,
+  "modelCrossCardDenied": true
+}

@@ -1,10 +1,10 @@
+import { nativeSession } from "./native-session";
+import type { SessionTarget } from "../shared/session-target";
 import type { PaseoApi } from "@getpaseo/client";
 import type { BoardStore } from "./store";
 import { HISTORY_PAGE, TURN_MAX_ENTRIES, slimTimeline, type TailPage, type TimelineCursor } from "../shared/session-tail";
 
-type TailInput = {
-  taskId: string;
-  agentId: string;
+type TailInput = SessionTarget & {
   limit: number;
   mode?: "tail" | "turn" | "before" | "after";
   cursor?: TimelineCursor;
@@ -25,9 +25,10 @@ export class SessionTailService {
   constructor(readonly store: BoardStore) {}
 
   async tail(input: TailInput, paseo: PaseoApi): Promise<TailPage> {
-    const board = await this.store.read();
-    const task = board.tasks.find((t) => t.id === input.taskId);
-    if (!task) throw new Error("Task not found.");
+    const expectedWorkspace = input.workspaceId
+      ? (await nativeSession(paseo, input)).workspaceId
+      : (await this.store.read()).tasks.find(t => t.id === input.taskId)?.workspaceId;
+    if (!expectedWorkspace) throw new Error("Task not found.");
     const handle = paseo.agents.ref(input.agentId);
     const mode = input.mode ?? "tail";
     if ((mode === "before" || mode === "after") && !input.cursor) throw new Error("A cursor is required to page the timeline.");
@@ -41,7 +42,7 @@ export class SessionTailService {
         ? await read({ direction: "tail", limit: Math.min(HISTORY_PAGE, input.maxEntries ?? TURN_MAX_ENTRIES) })
         : await read({ direction: mode, limit: input.limit, ...(input.cursor ? { cursor: input.cursor } : {}) });
     const agent = first.agent ?? (await handle.refresh())?.agent;
-    if (!agent || agent.workspaceId !== task.workspaceId)
+    if (!agent || agent.workspaceId !== expectedWorkspace)
       throw new Error("Session is unavailable or belongs to a different workspace.");
     if (first.reset || first.staleCursor) return { entries: [], epoch: first.epoch, reset: true };
     if (mode !== "turn") return page(first.entries, first);

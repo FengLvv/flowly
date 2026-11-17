@@ -1,0 +1,121 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Fixture telemetry forced off"
+    },
+    {
+      "pass": true,
+      "label": "RPC omitted all defaults to project-scoped my to-dos"
+    },
+    {
+      "pass": true,
+      "label": "RPC All returns both owners"
+    },
+    {
+      "pass": true,
+      "label": "RPC title search respects scope"
+    },
+    {
+      "pass": true,
+      "label": "RPC exact reference can resolve another owner"
+    },
+    {
+      "pass": true,
+      "label": "1700px isolated host bound"
+    },
+    {
+      "pass": true,
+      "label": "Desktop picker rows contain only titles"
+    },
+    {
+      "pass": true,
+      "label": "New task defaults to My to-dos"
+    },
+    {
+      "pass": true,
+      "label": "New task switches to All"
+    },
+    {
+      "pass": true,
+      "label": "Switching back removes other owners"
+    },
+    {
+      "pass": true,
+      "label": "Title filter can broaden explicitly"
+    },
+    {
+      "pass": true,
+      "label": "Exact lookup hides the scope control"
+    },
+    {
+      "pass": true,
+      "label": "Explicit other-owner import still prefills title"
+    },
+    {
+      "pass": true,
+      "label": "Selected chip shows title without ID"
+    },
+    {
+      "pass": true,
+      "label": "Reopening resets the picker to My to-dos"
+    },
+    {
+      "pass": true,
+      "label": "Empty todos remain empty"
+    },
+    {
+      "pass": true,
+      "label": "Todo endpoint failure shows Retry without all/partial results"
+    },
+    {
+      "pass": true,
+      "label": "Retry recovers after the connector backoff"
+    },
+    {
+      "pass": true,
+      "label": "750px isolated host bound"
+    },
+    {
+      "pass": true,
+      "label": "750px My/All controls selected and inside viewport"
+    },
+    {
+      "pass": true,
+      "label": "Compact picker rows contain only titles"
+    },
+    {
+      "pass": true,
+      "label": "Artifacts picker defaults to My to-dos"
+    },
+    {
+      "pass": true,
+      "label": "Artifacts picker switches both ways"
+    },
+    {
+      "pass": true,
+      "label": "Chosen own item persists as an input"
+    },
+    {
+      "pass": true,
+      "label": "Existing-format artifact displays title only without rewriting its reference"
+    },
+    {
+      "pass": true,
+      "label": "Filter and input survive fixture reload"
+    },
+    {
+      "pass": true,
+      "label": "No UI page errors"
+    }
+  ],
+  "cleanup": {
+    "boardEmpty": true,
+    "nativeEmpty": true,
+    "daemonStopped": true,
+    "browserClosed": true,
+    "homeRemoved": false,
+    "homeRetained": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\tapd-mine-1e91fd75-0201-4ee6-bd5d-7f638d0f6f33"
+  },
+  "pageErrors": []
+}

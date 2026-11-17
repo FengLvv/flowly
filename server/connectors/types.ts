@@ -14,7 +14,7 @@ export type ItemRef = { itemType: ItemType; key: string };
 export type SearchScope = {
   /** Repositories of the card's project on this connection's host (GitHub/GitLab). */
   repos: readonly string[];
-  /** Search everything I take part in instead of the project's repositories. */
+  /** Git: search beyond the project's repos. TAPD: all project items instead of my to-dos. */
   all: boolean;
 };
 
@@ -37,6 +37,8 @@ export interface ConnectorAdapter {
   lookup?(connection: StoredConnection, fetchImpl: Fetch, space: string, title: string): Promise<string>;
   /** What makes the content change for an agent; not status, assignee or labels (CONNECTORS-SPEC §3.2). */
   fingerprint(full: unknown): string;
+  /** Opt-in body import when a new card's description is empty. */
+  description?(full: unknown): string;
   /** The item as Markdown for agents and the preview. */
   markdown(summary: ExternalSummary, full: unknown, limit: number): { markdown: string; truncated: boolean };
   /** Read limit in bytes. */

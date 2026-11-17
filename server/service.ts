@@ -518,6 +518,8 @@ export class BoardService {
             return list;
           })()
         : [];
+      const importRef = externals.find((item) => item.external.provider === "tapd-internal")?.external;
+      const description = input.description.trim() || !importRef ? input.description : await this.connectors!.descriptionForImport(importRef);
       const repoPaths = [project.primaryPath];
       const sourcePath = project.primaryPath;
       let workspaceId = input.mode === "existing" ? input.workspaceId : "";
@@ -590,7 +592,7 @@ export class BoardService {
             sourcePath,
             repoPaths,
             title: input.title,
-            description: input.description,
+            description,
             status: input.status,
             priority: input.priority,
             ...(input.type ? { type: input.type } : {}),
@@ -696,7 +698,7 @@ export class BoardService {
     const located = await this.connectors.locate(list).catch(() => new Map<string, null>());
     return new Set(list.filter((a) => located.has(a.id) && !located.get(a.id)).map((a) => a.id));
   }
-  async context(id: string, paseo: PaseoApi, snapshot?: Board) {
+  async context(id: string, paseo: PaseoApi, snapshot?: Board, instructions = true) {
     const board = snapshot || (await this.store.read());
     const task = board.tasks.find((t) => t.id === id);
     const project = board.projects.find((p) => p.id === task?.projectId);
@@ -710,7 +712,9 @@ export class BoardService {
       !task.archivedAt &&
       !project.archivedAt;
     // Project memory for the first instructions (PROJECT-MEMORY-SPEC §6.1); unreadable memory never blocks a session.
-    const memory = await memoryContext(this.store.directory, task, project, board).catch(() => ({ lines: [] as string[], ids: [] as string[] }));
+    const memory = instructions
+      ? await memoryContext(this.store.directory, task, project, board).catch(() => ({ lines: [] as string[], ids: [] as string[] }))
+      : { lines: [] as string[], ids: [] as string[] };
     const directories = effectiveRepos(task, project).map((repo) => ({
       repo,
       directory:
@@ -729,7 +733,7 @@ export class BoardService {
             : workspace && !matches.length
               ? "Workspace is outside this project's repositories."
               : "",
-      context: sessionContext(
+      context: instructions ? sessionContext(
         task,
         project,
         directories,
@@ -738,7 +742,7 @@ export class BoardService {
         artifactContextLines(artifactsOf(board.artifacts, task.id), 10, await this.unreadableExternals(board, task.id)),
         setupContextLine(setupMissing(task, workpadOf(board.workpads, task.id), workpadEnabled(project))),
         memory.lines,
-      ),
+      ) : "",
       memoryIds: memory.ids,
       directories,
       workspaceRepoPaths: matches,

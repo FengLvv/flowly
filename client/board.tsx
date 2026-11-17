@@ -1,4 +1,5 @@
 import type { BoardOverview } from "../shared/overview";
+import { imageInputSupported } from "./web-images";
 import { CardDetailProvider, detailQueryOptions, detailUnavailable, invalidateCardViews, useCardDetailQuery, useProjectIdeasQuery } from "./card-detail-query";
 import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Animated, Platform, Pressable, View, useWindowDimensions, type GestureResponderEvent } from "react-native";
@@ -98,7 +99,8 @@ import { MotionProvider, MotionReveal, useMotionPresence, lerp } from "./motion"
 import { SortableList } from "./sortable-list";
 import { useBoardView } from "./board-view";
 import { setSweepEnabled } from "./sweep-setting";
-import { BoardOutputActive, boardIsActive } from "./query-activity";
+import { BoardOutputActive, BoardPushLive, boardIsActive } from "./query-activity";
+import { BoardPush } from "./board-push";
 import { OverviewBar } from "./overview-bar";
 import { InsightsPage } from "./insights";
 import { IdeasPage } from "./ideas-page";
@@ -141,14 +143,24 @@ import { PROJECT_UNAVAILABLE, gone } from "../shared/card-detail";
 import { workpadEnabled } from "../shared/workpad";
 import { cardDisplay } from "../shared/card-display";
 import { parentOf } from "../shared/subagents";
+import { runtimeGroups } from "../shared/runtime-view";
+import { RuntimeBoard, RuntimeTab } from "./runtime-board";
+import { RuntimeSessionPane, RuntimeSessionCard, type RuntimeTarget } from "./runtime-session";
+import { listAgents } from "./resources";
 import { reviewLabel } from "./task-review";
 import { visibleReview } from "../shared/auto-review";
 
+import { chipClient } from "./native-chips";
+import { composersOf } from "./host-support";
+
 /** One-time tip texts (ONBOARDING-SPEC §5). */
 const tipText: Record<TipId, (compact?: boolean) => string> = {
+  "runtime-view": () => t("Runtime shows all Paseo conversations on this host. Open a conversation to chat in Flowly."),
+  "board-pan": () => t("Hold the right mouse button on empty board space and drag left or right to scroll."),
   "image-limits": () => t("Flowly does not limit image count or size. Model and host limits still apply."),
   "description-images": () => t("Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together."),
   "lazy-workspace": () => t("Plan cards without creating workspaces. The first session creates the workspace; later sessions share it."),
+  "session-composer-fill": () => t("Tap a suggested next step in the session timeline to fill the message box, including on your phone. Nothing is sent."),
   "first-card": () => t("Your card moves by itself as the agent works. Open it any time to see its sessions, output and summary."),
   "needs-you": () => t("A card is waiting for you. Reply goes straight to the session."),
   "first-idea": () => t("An agent suggested follow-up work. Good idea starts a card or continues here; Dismiss removes it."),
@@ -159,8 +171,9 @@ const tipText: Record<TipId, (compact?: boolean) => string> = {
   "next-move": () => t("When an agent finishes a turn, its suggested next steps sit above the message box. Tap one to fill it in; nothing is sent until you press Send. Some steps act on the card, like Move to Done."),
   "older-finished": () => t("Cards that finished a while ago fold under “Show older” at the bottom of Done and Cancelled. Settings → Workflow sets how long they stay."),
   "first-ticket": () => t("A card has an item from a connected service as an input. Agents read it every turn and see when it changes. Flowly never changes it there, and its status doesn't move the card."),
-  "jira-connect": () => t("Work from Jira, Confluence, GitHub, GitLab, Azure DevOps or Shortcut: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them."),
+  "jira-connect": () => t("Work from Jira, Confluence, GitHub, GitLab, Azure DevOps, Shortcut or Linear: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them."),
   connectors: () => t("The Artifacts + now adds Confluence pages and GitHub or GitLab issues and pull requests too, besides files, links and Jira tickets. Connect services in Settings → Connections."),
+  "tapd-connect": () => t("Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project."),
   "project-menu": () => t("Drag a project tab to reorder it. Right-click it for its settings, a new task, Insights, Ideas or Remove."),
   subagents: () => t("When a session starts subagents, a Subagents chip appears above its message box. Click it to see their status and open one in Paseo."),
   "summary-models": () => t("Choose summary models and their fallback order in Settings → Models. The default is Haiku, then Luna."),
@@ -177,8 +190,9 @@ const tipText: Record<TipId, (compact?: boolean) => string> = {
   "sidebar-order": () => t("Arrange an open card your way: reorder its sections and choose which start open in Settings → Cards → Card sidebar."),
   "session-history": () => t("A session's output now starts at the beginning of its current turn. Press Load earlier at the top to read further back."),
   "session-context": () => t("New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged."),
+  "session-controls": () => t("Use the controls inside the message box to change the model, reasoning, permissions and provider features."),
   "settings-entry": () => t("Turn features on or off and change settings here."),
-  "auto-review": () => t("Auto review checked this card after the agent delivered; open it to see each check's result."),
+  "auto-review": () => t("Open the card for review results; choose the review model and reasoning in Settings → Models."),
   "first-guardrail": () => t("Flowly learned a check from a card you sent back. Open Guardrails to see what it checks now."),
   "first-workpad": () => t("This card has a workpad: the agent's acceptance list. The card shows how many items are met; open it to tick items yourself and to see the latest review."),
 };
@@ -251,6 +265,9 @@ function BoardContent(
     placeTask = useRpc(rpc.placeTask),
     paseo = usePaseo();
   const queryClient = useQueryClient();
+  // Paseo 0.16 pushes "the board changed" (PASEO-0.16-SPEC §3.5): while they arrive, the etag reads below stop polling.
+  const [pushLive, setPushLive] = useState(false);
+  const onBoardPushed = useStableCallback(() => void invalidateCardViews(queryClient));
   const linkMount = useId();
   const [detailTarget, setDetailTarget] = useState<{ id: string; workspaceId: string; projectId: string } | null>(null);
   const input = useMemo(() => {
@@ -322,6 +339,10 @@ function BoardContent(
     if (wrapupPrefs.status !== "ready" || wrapupSettingsValues(wrapupPrefs.values).autoWrapup) return;
     setWrapPrompt(id);
   };
+  const runtimeDrafts = useRef(new Map<string, string>());
+  const [runtimeView, setRuntimeView] = useState(false);
+  const [runtimeSession, setRuntimeSession] = useState<RuntimeTarget | null>(null);
+  const runtimeDrawer = useMotionPresence(runtimeSession, runtimeSession ? `${runtimeSession.id}|${runtimeSession.workspaceId}` : "");
   const [projectId, setProject] = useState(""),
     [taskId, setTaskState] = useState(""),
     [search, setSearchState] = useState(""),
@@ -454,6 +475,8 @@ function BoardContent(
     // Every layout opens from the card's own scoped detail; the overview cache and its etag stay as they are.
     appliedLink.current = linkKey;
     // Native detail is complete for this card; no background full-board catch-up.
+    setRuntimeView(false);
+    setRuntimeSession(null);
     setProject(target.project.id);
     setTaskState(target.task.id);
     setSearch("");
@@ -477,13 +500,13 @@ function BoardContent(
   const { colors } = props.theme;
   const compact = isCompactLayout(surfaceWidth || routeWidth);
   // Keep the compact tree/scroll position, but leave hidden work to the visible detail/page.
-  const boardActive = boardIsActive(compact, taskId, page, !!taskForm);
+  const boardActive = boardIsActive(compact, runtimeView ? runtimeSession?.id || "" : taskId, page, !!taskForm);
   // Every layout reads the overview, never the whole board (LOADING-R2-SPEC §2A). A compact board under an
   // open card pauses; a wide one stays visible beside the drawer and keeps polling.
-  const overviewLive = compact ? !taskId : boardActive;
+  const overviewLive = compact ? !taskId && !runtimeSession : boardActive;
   const overviewData = useOverviewQuery(props.host.id, {
     enabled: overviewLive && (!directCard || resolvedLink.isSuccess || ignoredLink.current === linkKey),
-    refetchInterval: overviewLive ? 3000 : undefined,
+    refetchInterval: overviewLive && !pushLive ? 3000 : undefined,
   });
   const data = overviewData;
   // Prioritize compact first-screen data over auxiliary decode/render work.
@@ -519,6 +542,8 @@ function BoardContent(
     : undefined;
   useEffect(() => {
     if (linked) {
+      setRuntimeView(false);
+      setRuntimeSession(null);
       setProject(linked.projectId);
       setTaskState(linked.id);
     }
@@ -557,8 +582,9 @@ function BoardContent(
   };
   const project = pickProject(projects, projectId, lastViewedProject());
   // Returning to the board in this app run reopens the project viewed last; a cold start opens the first.
-  useEffect(() => rememberViewedProject(project?.id), [project?.id]);
-  const chooseProject = (id: string) => { ignoredLink.current = linkKey; setProject(id); };
+  useEffect(() => { if (!runtimeView) rememberViewedProject(project?.id); }, [project?.id, runtimeView]);
+  const chooseProject = (id: string) => { ignoredLink.current = linkKey; setRuntimeView(false); setRuntimeSession(null); setProject(id); setTask(""); setPage(null); };
+  const chooseRuntime = () => { ignoredLink.current = linkKey; setRuntimeView(true); setRuntimeSession(null); setTask(""); setPage(null); setActionTask(null); setSessionEntry(null); setMenu(null); void onboarding.markTipSeen("runtime-view"); };
   useEffect(() => {
     setActionTask(null);
   }, [project?.id]);
@@ -568,7 +594,7 @@ function BoardContent(
   // Phone with a card open: the board stays mounted and laid out under the
   // card's opaque overlay, so Back shows it at once with its scroll position
   // and neither direction re-lays it out (PERFORMANCE-SPEC §2).
-  const boardHidden = compact && !!task;
+  const boardHidden = compact && (!!task || !!runtimeSession);
   const covered = {
     pointerEvents: boardHidden ? ("none" as const) : ("auto" as const),
     accessibilityElementsHidden: boardHidden,
@@ -587,9 +613,9 @@ function BoardContent(
     const key = task ? `${task.id}|${task.status}` : "";
     const sameCard = key === revealedCard.current;
     revealedCard.current = key;
-    if (compact || page || !task) return;
+    if (runtimeView || compact || page || !task) return;
     setReveal((r) => (sameCard && !r.center && Date.now() - r.at < 300 ? r : { status: task.status, n: r.n + 1, at: Date.now(), center: true, taskId: task.id }));
-  }, [compact, page, task?.id, task?.status]);
+  }, [runtimeView, compact, page, task?.id, task?.status]);
   const tasks = (board?.tasks || []).filter(
     (t) => t.projectId === project?.id && (archived || !t.archivedAt),
   );
@@ -964,6 +990,8 @@ function BoardContent(
     setDrawerFocus(null);
     setTask(t.id);
   });
+  const openRuntimeSession = useStableCallback((agent: PaseoAgent) => setRuntimeSession({ id: agent.id, workspaceId: agent.workspaceId || "" }));
+  const closeRuntimeSession = useStableCallback(() => setRuntimeSession(null));
   const openCardActions = useStableCallback((t: Task) => setActionTask(t));
   const cardMenuFor = useStableCallback((t: Task) => cardMenu(t));
   // Stable drawer callbacks (memoized drawer).
@@ -1119,7 +1147,7 @@ function BoardContent(
     const list = (t && cardIndex.agentsByWorkspace.get(t.workspaceId)) || noAgents;
     return [...list].sort((a, b) => b.createdAt.localeCompare(a.createdAt) || a.id.localeCompare(b.id));
   });
-  const projectIdeasData = useProjectIdeasQuery(props.host.id, project?.id || "", page === "ideas" && (!compact || !taskId));
+  const projectIdeasData = useProjectIdeasQuery(props.host.id, project?.id || "", page === "ideas" && (!compact || !taskId), pushLive);
   const projectIdeaList = useMemo(() => projectIdeasData.data?.ideas || [], [projectIdeasData.data]);
   const projectOpenIdeas = useMemo(() => projectOpenIdeaCount(projected, project?.id), [projected?.cards, projected?.tasks, project?.id]);
   // Observing commands and guidelines learned this week (GUARDRAILS-SPEC §7.4); the chip hides when the project turned guardrails off.
@@ -1225,11 +1253,12 @@ function BoardContent(
   const seeSettingsHint = () => {
     if (settingsHint) void onboarding.markTipSeen("settings-entry");
   };
-  const tip = inPanel || !board || !project || !!project.archivedAt || page
+  const tip = runtimeView || inPanel || !board || !project || !!project.archivedAt || page
     ? null
     : nextTip({
         tipsSeen: onboarding.values?.tipsSeen ?? [],
         facts: {
+          runtimeView: !runtimeView && !task && projectTasks.some(x => !x.archivedAt),
           hasCard: !task && projectTasks.some((x) => !x.archivedAt),
           needsYou: projectAttention.length > 0,
           agentQuestion: projectAttention.some((i) => i.asks > 0),
@@ -1256,6 +1285,8 @@ function BoardContent(
           reviewShown: !task && projectTasks.some((x) => !!visibleReview(x)),
           learnedGuideline: !task && !!projectGuardrails?.added,
           laneSwipe: touch && !task && !page && shownStatuses.length > 1 && projectTasks.some((x) => !x.archivedAt),
+          boardPan: !touch && !compact && !task && !page && shownStatuses.length > 1,
+          sessionComposerFill: !task && !!composersOf(chipClient()) && projectTasks.some((x) => !x.archivedAt && !!cardIndex.agentsByWorkspace.get(x.workspaceId)?.length),
         },
         blocked: !onboarding.values || welcomeOpen || welcome === "show" || dialogOpen || settingsHint || whatsNewOpen || whatsNewDue === "show",
       });
@@ -1303,16 +1334,17 @@ function BoardContent(
   // card of the lane in the same frame as its animation.
   const cardDerived = useMemo(
     () => new WeakMap<Task, Omit<LiveTaskCardProps, "selected" | "flash" | "drag" | "dragging" | "disabled" | "display" | "onOpen" | "onActions" | "menuFor">>(),
-    [cardIndex, receipts, summaryState, attentionByTask, managedIds, summaries.data, !!board, openIdeaCount, externalKeys, project, waitingIndex, factsByTask, sessionFacts],
+    [cardIndex, receipts, summaryState, attentionByTask, managedIds, summaries.data, !!board, openIdeaCount, externalKeys, board?.projects, waitingIndex, factsByTask, sessionFacts],
   );
   const derivedFor = (t: Task) => {
     let derived = cardDerived.get(t);
     if (derived) return derived;
     const sessions = cardIndex.agentsByWorkspace.get(t.workspaceId) || noAgents;
     const facts = factsByTask.get(t.id);
+    const owner = board?.projects.find(p => p.id === t.projectId);
     derived = {
       task: t,
-      legacy: !!project && isLegacyScope(t, project),
+      legacy: !!owner && isLegacyScope(t, owner),
       available: (!t.workspaceId && !!t.workspacePlan) || cardIndex.workspaceIds.has(t.workspaceId),
       wrapped: (t.status === "done" || t.status === "cancelled") && !!facts?.wrapped,
       running: sessions.filter((a) => a.status === "running").length,
@@ -1326,7 +1358,7 @@ function BoardContent(
       ideas: openIdeaCount.get(t.id) || 0,
       externalKey: externalKeys.get(t.id)?.text,
       externalFamily: externalKeys.get(t.id)?.family,
-      workpad: project && workpadEnabled(project) ? facts?.workpad ?? null : null,
+      workpad: owner && workpadEnabled(owner) ? facts?.workpad ?? null : null,
       waiting: waitingIndex.get(t.id)?.count || 0,
       waitingTitles: waitingIndex.get(t.id)?.titles || "",
     };
@@ -1349,6 +1381,20 @@ function BoardContent(
       menuFor={cardMenuFor}
     />
   );
+  const runtimeHistory = useQuery({
+    queryKey: ["flowly", "runtime-history", props.host.id], queryFn: () => listAgents(paseo, undefined, true),
+    enabled: runtimeView && boardActive, staleTime: 60_000, refetchInterval: runtimeView && boardActive ? 60_000 : false,
+  });
+  const retryRuntime = useStableCallback(() => { refresh(); void runtimeHistory.refetch(); });
+  const runtime = useMemo(() => runtimeGroups([
+    ...(runtimeHistory.data || []), ...(agents.data || []),
+  ], receipts, readUnavailable), [runtimeHistory.data, agents.data, receipts, readUnavailable]);
+  const renderRuntimeSession = useStableCallback((agent: PaseoAgent) => {
+    const ws = resources.data?.workspaces.find(w => w.id === agent.workspaceId);
+    const source = ws ? `${ws.owner} · ${ws.name}` : agent.cwd || "";
+    return <RuntimeSessionCard agent={agent} source={source} selected={runtimeSession?.id === agent.id}
+      receipts={receipts} readUnavailable={readUnavailable} onOpen={openRuntimeSession} />;
+  });
   const renderLane = (status: Status) => (
     <LaneList
       key={status}
@@ -1437,6 +1483,8 @@ function BoardContent(
   const withKey = (text: string, key: string) =>
     shortcutsOn ? `${text} (${key})` : text;
   function runIntent(intent: BoardIntent | Exclude<ShortcutAction, BoardIntent>) {
+    if (runtimeView && runtimeSession && intent === "escape") { setRuntimeSession(null); return true; }
+    if (runtimeView && !task && ["new-task", "filters", "insights", "ideas", "guardrails", "memory", "search"].includes(intent)) return false;
     // The dropdown is not a dialog, so shortcuts still reach the board: any other one closes it.
     if (attentionDropdown && intent !== "attention") {
       setMenu(null);
@@ -1504,7 +1552,7 @@ function BoardContent(
         return true;
       }
       default: {
-        if (compact || page) return false;
+        if (runtimeView || compact || page) return false;
         const expanded = shownStatuses.filter((s) => !collapsedColumns.includes(s));
         const next = navigateGrid(taskGrid(expanded, onScreen, sortColumn), task?.id || "", intent);
         if (!next) return false;
@@ -1648,6 +1696,19 @@ function BoardContent(
       )}
     </>
   );
+  const runtimeDrawerView = runtimeView && runtimeDrawer.item && (
+    <Animated.View testID="runtime-drawer-motion" pointerEvents={runtimeDrawer.active ? "auto" : "none"}
+      accessibilityElementsHidden={!runtimeDrawer.active}
+      style={{ ...(compact ? { position: "absolute", top: 0, bottom: 0, left: 0, right: 0, zIndex: 10 } as const : { width, flexDirection: "row" } as const),
+        flex: 1, minHeight: 0, backgroundColor: colors.surface0,
+        ...(runtimeDrawer.settled ? null : { opacity: runtimeDrawer.progress, transform: [{ translateX: lerp(runtimeDrawer.progress, [32, 0]) }] }) }}>
+      {!compact && <ResizeGrip width={width} maxWidth={drawerWidth(720, surfaceWidth || 1000)}
+        onStart={() => setResizing(true)} onEnd={() => { setResizing(false); void view.update({ drawerWidth: Math.round(preferredWidth) }); }}
+        onChange={next => setPreferredWidth(drawerWidth(next, surfaceWidth))} />}
+      <RuntimeSessionPane target={runtimeDrawer.item} compact={compact} hostId={props.host.id} navigation={props.navigation}
+        active={runtimeDrawer.active} onClose={closeRuntimeSession} refresh={stableRefresh} draftMemory={runtimeDrafts.current} />
+    </Animated.View>
+  );
   const drawerView = drawer.item && (
     <Animated.View
       testID="task-drawer-motion"
@@ -1727,7 +1788,9 @@ function BoardContent(
     </Animated.View>
   );
   return (
+    <BoardPushLive.Provider value={pushLive}>
     <BoardOutputActive.Provider value={boardActive}>
+    <BoardPush onChange={onBoardPushed} onLive={setPushLive} />
     <SettingsOpenerContext.Provider value={openSettingsAt}>
     <Theme.Provider value={props.theme}>
       <View
@@ -1751,9 +1814,10 @@ function BoardContent(
               borderColor: colors.border,
             }}
           >
+            {!compact && <RuntimeTab active={runtimeView} onPress={chooseRuntime} />}
             {compact || projects.length === 0 ? (
               <ProjectSwitcher
-                title={project?.title || t("Projects")}
+                title={runtimeView ? t("Runtime") : project?.title || t("Projects")}
                 archived={!!project?.archivedAt}
                 shortcut={shortcutsOn ? "P" : ""}
                 onPress={() => setMenu("projects")}
@@ -1761,7 +1825,7 @@ function BoardContent(
             ) : (
               <ProjectTabs
                 projects={projects}
-                activeId={project?.id || ""}
+                activeId={runtimeView ? "" : project?.id || ""}
                 shortcut={shortcutsOn ? "P" : ""}
                 onSelect={chooseProject}
                 onManage={() => setMenu("projects")}
@@ -1771,13 +1835,13 @@ function BoardContent(
                 reorderDisabled={pending}
               />
             )}
-            {!compact && !!project && filterCount > 0 && (
+            {!runtimeView && !compact && !!project && filterCount > 0 && (
               // The overview counts the whole project; with filters on, say how many are shown.
               <Label muted size={font.sm} selectable={false}>
                 {t("{n} shown", { n: visible.length })}
               </Label>
             )}
-            {!!project && !compact && (
+            {!runtimeView && !!project && !compact && (
               // Opens the project's own settings (name, lanes, auto status) at once; phones use the chooser's Edit row.
               <IconButton
                 icon="SlidersHorizontal"
@@ -1805,7 +1869,7 @@ function BoardContent(
                 onPress={toggleAttentionMenu}
               />
             </View>
-            {!compact && <SortButton
+            {!runtimeView && !compact && <SortButton
               mode={boardSort}
               onPress={(event) =>
                 openMenu?.(eventPoint(event), t("Sort cards"), [
@@ -1830,18 +1894,18 @@ function BoardContent(
                 ])
               }
             />}
-            {project && (
+            {!runtimeView && project && (
               <IconButton icon="Search" label={withKey(t("Search"), "S")} active={page === "search"} onPress={() => (page === "search" ? setPage(null) : openSearch(""))} />
             )}
-            <FilterButton
+            {!runtimeView && <FilterButton
               count={filterCount}
               // Phones sort from the Filters dialog, so a non-manual sort lights its icon too.
               lit={compact && boardSort !== "manual"}
               compact={compact}
               shortcut={shortcutsOn ? "/" : ""}
               onPress={() => setMenu("filters")}
-            />
-            {project && !compact && (
+            />}
+            {!runtimeView && project && !compact && (
               <Button
                 primary
                 icon="Plus"
@@ -1856,7 +1920,7 @@ function BoardContent(
             )}
           </View>
         )}
-        {project && board && (
+        {!runtimeView && project && board && (
           <View {...covered}>
           <OverviewBar
             overview={boardOverview(project, board.tasks, agents.data || [], attention)}
@@ -1887,7 +1951,7 @@ function BoardContent(
           />
           </View>
         )}
-        {emptyProjectHint && (
+        {!runtimeView && emptyProjectHint && (
           <GuideBanner
             text={t("Add your first task. It gets its own workspace and sessions.")}
             actionLabel={t("New task")}
@@ -1933,11 +1997,11 @@ function BoardContent(
             )}
           </View>
         )}
-        {boardPending ? (
+        {boardPending && !runtimeView ? (
           <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
             <Label muted>{t("Loading board…")}</Label>
           </View>
-        ) : !project ? (
+        ) : !project && !runtimeView ? (
           <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: space[6] }}
           >
@@ -1960,7 +2024,7 @@ function BoardContent(
           <View style={{ flex: 1, minHeight: 0, flexDirection: "row", ...(resizing ? { userSelect: "none" } : null) } as never}>
             {(
               <MotionReveal
-                transitionKey={`${project.id}|${page || (compact ? (touch ? `pick${lanePick}` : mobileStatus) : "columns")}`}
+                transitionKey={runtimeView && !page ? "runtime" : `${project?.id}|${page || (compact ? (touch ? `pick${lanePick}` : mobileStatus) : "columns")}`}
                 direction={-1}
                 distance={compact ? 0 : 18}
                 {...covered}
@@ -1970,9 +2034,13 @@ function BoardContent(
                     : { width: resizingFrom, flexGrow: 0, flexShrink: 0, minHeight: 0, overflow: "hidden" }
                 }
               >
-                {page === "ideas" && (!projectIdeasData.data || projectIdeasData.error) ? (
+                {runtimeView && !page ? (
+                  <RuntimeBoard groups={runtime} compact={compact} active={boardActive}
+                    stale={agents.isError || readState.isError || resources.isError || runtimeHistory.isError}
+                    renderCard={renderRuntimeSession} onRetry={retryRuntime} loading={agents.isPending && runtimeHistory.isPending} />
+                ) : page === "ideas" && (!projectIdeasData.data || projectIdeasData.error) ? (
                   <View style={{ padding: space[4] }}>{projectIdeasData.error ? <><Notice>{message(projectIdeasData.error)}</Notice><Button quiet onPress={() => void projectIdeasData.refetch()}>{t("Retry")}</Button></> : <Label muted>{t("Loading cards…")}</Label>}</View>
-                ) : page === "insights" && board ? (
+                ) : page === "insights" && board && project ? (
                   <InsightsPage
                     project={project}
                     tasks={projectTasks}
@@ -1986,7 +2054,7 @@ function BoardContent(
                     onOpenSettings={openAiSettings}
                     onOpenGuardrails={guardrailsOn ? () => setPage("guardrails") : undefined}
                   />
-                ) : page === "ideas" && ideasOn && board ? (
+                ) : page === "ideas" && ideasOn && board && project ? (
                   <IdeasPage
                     project={project}
                     tasks={projectTasks}
@@ -2001,7 +2069,7 @@ function BoardContent(
                     onNewSession={ideaInNewSession}
                     onBack={closePage}
                   />
-                ) : page === "search" && board ? (
+                ) : page === "search" && board && project ? (
                   <SearchPage
                     key={searchSeed.key}
                     projectId={project.id}
@@ -2013,9 +2081,9 @@ function BoardContent(
                     onOpenMemory={openSearchMemory}
                     onBack={closePage}
                   />
-                ) : page === "guardrails" && board ? (
+                ) : page === "guardrails" && board && project ? (
                   <GuardrailsPage project={project} tasks={projectTasks} compact={compact} nameOf={nameOf} onOpenTask={openTaskById} onBack={closePage} />
-                ) : page === "memory" && board ? (
+                ) : page === "memory" && board && project ? (
                   <MemoryPage project={project} tasks={projectTasks} compact={compact} prefs={memoryPrefs} nameOf={nameOf} onPrefs={saveMemoryPrefs} onOpenTask={openTaskById} onBack={closePage} />
                 ) : compact ? (
                   <>
@@ -2050,8 +2118,8 @@ function BoardContent(
                   <DesktopColumns
                     statuses={shownStatuses}
                     tasks={visible}
-                    disabled={pending || !!project.archivedAt}
-                    cancelKey={`${project.id}|${search}|${priority}|${taskType}|${tagFilter.join(",")}|${archived}|${shownStatuses.join(",")}|${taskId}|${menu}|${actionTask?.id}|${projectForm}|${!!taskForm}`}
+                    disabled={pending || !!project?.archivedAt}
+                    cancelKey={`${project?.id}|${search}|${priority}|${taskType}|${tagFilter.join(",")}|${archived}|${shownStatuses.join(",")}|${taskId}|${menu}|${actionTask?.id}|${projectForm}|${!!taskForm}`}
                     sortColumn={sortColumn}
                     manualOrder={boardSort === "manual"}
                     collapsed={collapsedColumns}
@@ -2072,6 +2140,7 @@ function BoardContent(
               </MotionReveal>
             )}
             {!compact && drawerView}
+            {!compact && runtimeDrawerView}
           </View>
         )}
 
@@ -2084,6 +2153,8 @@ function BoardContent(
         >
           <Modal.Content contentContainerStyle={{ padding: space[3], gap: space[1] }}>
             <Theme.Provider value={props.theme}>
+              <Row title={t("Runtime")} icon="Activity" selected={runtimeView} testID="runtime-chooser"
+                onPress={chooseRuntime} />
               <SortableList
                 items={projects}
                 gap={space[1]}
@@ -2094,7 +2165,7 @@ function BoardContent(
                     title={p.title}
                     detail={p.primaryPath}
                     icon={p.archivedAt ? "Archive" : "Folder"}
-                    selected={project?.id === p.id}
+                    selected={!runtimeView && project?.id === p.id}
                     leading={
                       !touch && projects.length > 1 ? (
                         // Grip on the left, tucked against the folder icon.
@@ -2580,10 +2651,11 @@ function BoardContent(
           </CardDetailProvider>
         )}
         {compact && drawerView}
-        {compact && !task && !page && !!project && !project.archivedAt && !!board && (
+        {compact && runtimeDrawerView}
+        {!runtimeView && compact && !task && !page && !!project && !project.archivedAt && !!board && (
           <NewTaskFab onPress={() => setTaskForm({ status: "todo" })} />
         )}
-        {!(compact && task) && (
+        {!(compact && (task || runtimeSession)) && (
           <SettingsFab
             open={menu === "settings"}
             hint={settingsHint ? tipText["settings-entry"]() : undefined}
@@ -2663,6 +2735,7 @@ function BoardContent(
     </Theme.Provider>
     </SettingsOpenerContext.Provider>
     </BoardOutputActive.Provider>
+    </BoardPushLive.Provider>
   );
 }
 

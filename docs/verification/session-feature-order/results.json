@@ -1,0 +1,49 @@
+{
+  "sessionId": "cb5d697c-d9b2-4aeb-810b-cfac50d89e98",
+  "workspaceId": "wks_d1504bb406d8b105",
+  "taskId": "37e6fa0a-d586-4447-90dd-855711a5cbb3",
+  "checks": [
+    {
+      "pass": true,
+      "label": "Two selectable Codex models discovered"
+    },
+    {
+      "pass": true,
+      "label": "Fixture initialized in card workspace without sending a prompt"
+    },
+    {
+      "pass": true,
+      "label": "Desktop: permissions precede Speed then Plan"
+    },
+    {
+      "pass": true,
+      "label": "Desktop: feature group is pinned to toolbar right edge"
+    },
+    {
+      "pass": true,
+      "label": "Compact 750: permissions precede Speed then Plan"
+    },
+    {
+      "pass": true,
+      "label": "Compact 750: feature group is pinned to toolbar right edge"
+    },
+    {
+      "pass": true,
+      "label": "Compact 680: permissions precede Speed then Plan"
+    },
+    {
+      "pass": true,
+      "label": "Compact 680: feature group is pinned to toolbar right edge"
+    },
+    {
+      "pass": true,
+      "label": "No UI page errors"
+    }
+  ],
+  "cleanup": {
+    "sessionAbsent": true,
+    "cardPreserved": true,
+    "browserClosed": true
+  },
+  "pageErrors": []
+}

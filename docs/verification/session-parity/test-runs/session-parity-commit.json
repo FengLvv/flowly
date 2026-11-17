@@ -1,0 +1,32 @@
+{
+  "base": "a45f4f50f4c3983c30657619c90158fbd3703c56",
+  "commit": "60f32208f285f1fa0a3e00d504838f6b7f9dc81e",
+  "files": [
+    "server/session-settings.ts",
+    "server/session-settings.test.ts",
+    "client/session-settings.tsx",
+    "client/session-preview.tsx",
+    "client/session-transcript.tsx",
+    "docs/SESSION-UX-SPEC.md",
+    "docs/SESSION-PARITY-SPEC.md",
+    "docs/verification/session-parity-live.mjs",
+    "shared/rpc.ts",
+    "client/onboarding-logic.ts",
+    "client/onboarding-logic.test.ts",
+    "client/board.tsx",
+    "client/onboarding.tsx",
+    "README.md",
+    "README.zh-CN.md",
+    "docs/ONBOARDING-SPEC.md",
+    "docs/SPEC-OUTLINE.md",
+    "shared/i18n/de.ts",
+    "shared/i18n/es.ts",
+    "shared/i18n/fr.ts",
+    "shared/i18n/ja.ts",
+    "shared/i18n/ko.ts",
+    "shared/i18n/pt-BR.ts",
+    "shared/i18n/ru.ts",
+    "shared/i18n/zh-CN.ts",
+    "shared/i18n/zh-TW.ts"
+  ]
+}

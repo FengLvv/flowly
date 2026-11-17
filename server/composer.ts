@@ -1,3 +1,5 @@
+import { nativeSession } from "./native-session";
+import { validSessionScope, sessionScope, type SessionScope, type SessionTarget } from "../shared/session-target";
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
@@ -111,12 +113,20 @@ export class ComposerService {
     readonly clock = () => Date.now(),
   ) {}
 
-  private entry(state: ComposerState, agentId: string, taskId: string) {
-    return (state.sessions[agentId] ??= { taskId, draft: "", draftAt: null, queue: [], lastError: null });
+  private entry(state: ComposerState, agentId: string, target: string | SessionScope) {
+    const entry = state.sessions[agentId] ??= { ...sessionScope(target), draft: "", draftAt: null, queue: [], lastError: null };
+    if (!entry.queue.length) {
+      entry.taskId = sessionScope(target).taskId;
+      entry.workspaceId = sessionScope(target).workspaceId;
+    }
+    return entry;
   }
 
   /** The session must exist, belong to the card's workspace, and the card must be live. */
-  private async verify(taskId: string, agentId: string, paseo: PaseoApi) {
+  private async verify(target: SessionTarget, paseo: PaseoApi) {
+    if (!validSessionScope(target)) throw new Error("Give either a task or workspace target.");
+    if (target.workspaceId) return nativeSession(paseo, target);
+    const { taskId, agentId } = target;
     const board = await this.board.read();
     const task = board.tasks.find((t) => t.id === taskId);
     const project = task && board.projects.find((p) => p.id === task.projectId);
@@ -132,23 +142,28 @@ export class ComposerService {
     return this.store.read();
   }
 
-  saveDraft(input: { taskId: string; agentId: string; text: string }) {
+  async saveDraft(input: SessionTarget & { text: string }, paseo?: PaseoApi) {
+    if (!validSessionScope(input)) throw new Error("Give either a task or workspace target.");
+    if (input.workspaceId) {
+      if (!paseo) throw new Error("Workspace authorization is unavailable.");
+      await nativeSession(paseo, input);
+    }
     return this.store.mutate((state) => {
-      const entry = this.entry(state, input.agentId, input.taskId);
+      const entry = this.entry(state, input.agentId, input);
       entry.draft = input.text;
       entry.draftAt = new Date(this.clock()).toISOString();
       return { ok: true };
     });
   }
 
-  async push(input: { taskId: string; agentId: string; text: string; images?: OutgoingImage[] }, paseo: PaseoApi) {
-    await this.verify(input.taskId, input.agentId, paseo);
+  async push(input: SessionTarget & { text: string; images?: OutgoingImage[] }, paseo: PaseoApi) {
+    await this.verify(input, paseo);
     const id = randomUUID();
     const images = await this.store.writeImages(id, input.images || []);
     const item = { id, text: input.text, at: new Date(this.clock()).toISOString(), ...(images.length ? { images } : {}) };
     try {
       await this.store.mutate((state) => {
-        const entry = this.entry(state, input.agentId, input.taskId);
+        const entry = this.entry(state, input.agentId, input);
         if (entry.queue.length >= 50) throw new Error("Queue is full (50 messages).");
         entry.queue.push(item);
         entry.lastError = null;
@@ -174,8 +189,10 @@ export class ComposerService {
   }
 
   /** "Send now": steer the running turn with a queued message (Paseo parity). */
-  async sendNow(input: { taskId: string; agentId: string; id: string }, paseo: PaseoApi) {
-    const agent = await this.verify(input.taskId, input.agentId, paseo);
+  async sendNow(input: SessionTarget & { id: string }, paseo: PaseoApi) {
+    const agent = await this.verify(input, paseo);
+    const saved = (await this.store.read()).sessions[input.agentId];
+    if (saved) await this.verify({ taskId: saved.taskId, workspaceId: saved.workspaceId, agentId: input.agentId }, paseo);
     const item = await this.store.mutate((state) => {
       const entry = state.sessions[input.agentId];
       const found = entry?.queue.find((m) => m.id === input.id);
@@ -189,7 +206,7 @@ export class ComposerService {
       await this.store.removeImages(item.images);
     } catch (error) {
       await this.store.mutate((state) => {
-        const entry = this.entry(state, input.agentId, input.taskId);
+        const entry = this.entry(state, input.agentId, input);
         entry.queue.unshift(item);
       });
       throw error;
@@ -213,9 +230,8 @@ export class ComposerService {
       const agent = (await paseo.agents.ref(agentId).refresh())?.agent;
       if (!agent || agent.status === "running" || agent.status === "initializing") return false;
       if (agent.pendingPermissions?.length) return false;
-      const board = await this.board.read();
-      const task = board.tasks.find((t) => t.id === entry.taskId);
-      if (!task || task.archivedAt || agent.workspaceId !== task.workspaceId) return false;
+      try { await this.verify({ taskId: entry.taskId, workspaceId: entry.workspaceId, agentId }, paseo); }
+      catch { return false; }
       const item = await this.store.mutate((s) => {
         const e = s.sessions[agentId];
         return e?.queue.shift() ?? null;
@@ -232,7 +248,7 @@ export class ComposerService {
         return true;
       } catch (error) {
         await this.store.mutate((s) => {
-          const e = this.entry(s, agentId, entry.taskId);
+          const e = this.entry(s, agentId, entry);
           e.queue.unshift(item);
           e.lastError = error instanceof Error ? error.message : String(error);
         });
@@ -248,11 +264,11 @@ export class ComposerService {
     const board = await this.board.read();
     const live = new Set(board.tasks.filter((t) => !t.archivedAt).map((t) => t.id));
     const before = await this.store.read();
-    if (Object.values(before.sessions).some((e) => !live.has(e.taskId))) {
+    if (Object.values(before.sessions).some((e) => !!e.taskId && !live.has(e.taskId))) {
       const dropped = await this.store.mutate((s) => {
         const images: QueuedImage[] = [];
         for (const [id, e] of Object.entries(s.sessions))
-          if (!live.has(e.taskId)) {
+          if (!!e.taskId && !live.has(e.taskId)) {
             for (const m of e.queue) images.push(...(m.images || []));
             delete s.sessions[id];
           }

@@ -17,11 +17,13 @@ import { t } from "../shared/i18n";
  */
 export function SessionImage({
   taskId,
+  workspaceId,
   agentId,
   image,
   maxWidth = 360,
 }: {
-  taskId: string;
+  taskId?: string;
+  workspaceId?: string;
   agentId: string;
   image: ImageRef;
   /** Upper bound; small images keep their natural width (never upscaled). */
@@ -33,7 +35,7 @@ export function SessionImage({
   const local = localImagePath(image.src);
   const served = useQuery({
     queryKey: ["flowly", "image", agentId, image.src],
-    queryFn: () => read({ taskId, agentId, src: image.src }),
+    queryFn: () => read({ ...(taskId ? { taskId } : { workspaceId }), agentId, src: image.src }),
     enabled: !!local,
     staleTime: Infinity,
     gcTime: 10 * 60_000,

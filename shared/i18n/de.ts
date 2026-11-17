@@ -1,19 +1,7 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
-  "Created the workspace": "Arbeitsbereich erstellt",
-  "Created with the first session": "Mit der ersten Sitzung erstellt",
-  "Workspace starts with the first session": "Arbeitsbereich entsteht mit der ersten Sitzung",
-  "Plan cards without creating workspaces. The first session creates the workspace; later sessions share it.": "Plane Karten ohne Arbeitsbereiche anzulegen. Die erste Sitzung erstellt den Arbeitsbereich; spätere Sitzungen teilen ihn.",
-  "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly begrenzt weder Anzahl noch Größe der Bilder. Die Grenzen von Modell und Host gelten weiterhin.",
-  "Use card description": "Kartenbeschreibung verwenden",
-  "Description changed. Use card description again.": "Die Beschreibung wurde geändert. Laden Sie die Kartenbeschreibung erneut.",
-  "Description images": "Beschreibungsbilder",
-  "Save pictures with a card description and use its text and pictures as a session instruction.": "Speichern Sie Bilder mit der Kartenbeschreibung und verwenden Sie Text und Bilder als Sitzungsanweisung.",
-  "Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.": "Fügen Sie Bilder zur Kartenbeschreibung hinzu und wählen Sie beim Sitzungsstart Kartenbeschreibung verwenden, um Text und Bilder zusammen zu senden.",
-
   "Command": "Befehl",
-  "Project default model": "Standardmodell des Projekts",
   "Review model": "Prüfmodell",
   "{n} s": "{n} s",
   "Not applicable": "Nicht zutreffend",
@@ -22,6 +10,7 @@ const catalog: Catalog = {
   "Finished the auto review": "Hat die automatische Prüfung beendet",
   "Auto review": "Automatische Prüfung",
   "Max rework rounds": "Max. Nacharbeitsrunden",
+  "Waiting for review": "Wartet auf Prüfung",
   "Reviewing": "Wird geprüft",
   "Review failed": "Prüfung fehlgeschlagen",
   "Review unavailable": "Prüfung nicht möglich",
@@ -138,9 +127,18 @@ const catalog: Catalog = {
   "Needs attention": "Aufmerksamkeit nötig",
   "Read state is unavailable, so finished-but-unread sessions are not listed. Approvals and errors still are.": "Der Lesestatus ist nicht verfügbar, daher werden beendete, aber ungelesene Sitzungen nicht aufgeführt. Freigaben und Fehler werden weiterhin aufgeführt.",
   "Nothing needs your attention.": "Nichts erfordert deine Aufmerksamkeit.",
-  "{n} questions": {"one": "{n} Frage", "other": "{n} Fragen"},
-  "{n} approvals": {"one": "{n} Freigabe", "other": "{n} Freigaben"},
-  "{n} errors": {"one": "{n} Fehler", "other": "{n} Fehler"},
+  "{n} questions": {
+    "one": "{n} Frage",
+    "other": "{n} Fragen"
+  },
+  "{n} approvals": {
+    "one": "{n} Freigabe",
+    "other": "{n} Freigaben"
+  },
+  "{n} errors": {
+    "one": "{n} Fehler",
+    "other": "{n} Fehler"
+  },
   "{unread} unread (no report)": "{unread} ungelesen (ohne Bericht)",
   "{unread} unread ({silent} no report)": "{unread} ungelesen ({silent} ohne Bericht)",
   "{unread} unread": "{unread} ungelesen",
@@ -149,7 +147,10 @@ const catalog: Catalog = {
   "Status": "Status",
   "Task actions": "Aufgabenaktionen",
   "Move to: {name}": "Verschieben nach: {name}",
-  "{n} cards": {"one": "{n} Karte", "other": "{n} Karten"},
+  "{n} cards": {
+    "one": "{n} Karte",
+    "other": "{n} Karten"
+  },
   "{title} removed from the board with {cards}, but Paseo kept the project: {error}": "{title} wurde vom Board entfernt (mit {cards}), aber Paseo hat das Projekt behalten: {error}",
   "{title} removed from the board, but Paseo kept the project: {error}": "{title} wurde vom Board entfernt, aber Paseo hat das Projekt behalten: {error}",
   "Project created, but Auto review was not saved: {error}": "Projekt erstellt, aber die automatische Prüfung wurde nicht gespeichert: {error}",
@@ -158,11 +159,20 @@ const catalog: Catalog = {
   "{title} removed from the board with {cards}; it stays in Paseo": "{title} wurde vom Board entfernt (mit {cards}); es bleibt in Paseo",
   "{title} removed from the board; it stays in Paseo": "{title} wurde vom Board entfernt; es bleibt in Paseo",
   "{title} deleted": "{title} gelöscht",
-  "{title} deleted; workspace and {n} sessions archived": {"one": "{title} gelöscht; Workspace und {n} Sitzung archiviert", "other": "{title} gelöscht; Workspace und {n} Sitzungen archiviert"},
-  "{title} deleted; {n} sessions archived": {"one": "{title} gelöscht; {n} Sitzung archiviert", "other": "{title} gelöscht; {n} Sitzungen archiviert"},
+  "{title} deleted; workspace and {n} sessions archived": {
+    "one": "{title} gelöscht; Workspace und {n} Sitzung archiviert",
+    "other": "{title} gelöscht; Workspace und {n} Sitzungen archiviert"
+  },
+  "{title} deleted; {n} sessions archived": {
+    "one": "{title} gelöscht; {n} Sitzung archiviert",
+    "other": "{title} gelöscht; {n} Sitzungen archiviert"
+  },
   "Task created and its agent started": "Aufgabe erstellt und Agent gestartet",
   "Task created, but the agent did not start: {error}. Start it from the task.": "Die Aufgabe wurde erstellt, aber der Agent wurde nicht gestartet: {error}. Starte ihn über die Aufgabe.",
-  "Needs attention, {n} cards": {"one": "Aufmerksamkeit nötig, {n} Karte", "other": "Aufmerksamkeit nötig, {n} Karten"},
+  "Needs attention, {n} cards": {
+    "one": "Aufmerksamkeit nötig, {n} Karte",
+    "other": "Aufmerksamkeit nötig, {n} Karten"
+  },
   "Attention": "Aufmerksamkeit",
   "Sort cards: {label}": "Karten sortieren: {label}",
   "Sort": "Sortieren",
@@ -170,9 +180,18 @@ const catalog: Catalog = {
   "Task filters": "Aufgabenfilter",
   "Filter": "Filtern",
   "Open task {title}": "Aufgabe {title} öffnen",
-  "Needs you: {n} open questions": {"one": "Du wirst gebraucht: {n} offene Frage", "other": "Du wirst gebraucht: {n} offene Fragen"},
-  "{n} ideas": {"one": "{n} Idee", "other": "{n} Ideen"},
-  "Waiting on {n} cards: {waitingTitles}": {"one": "Wartet auf {n} Karte: {waitingTitles}", "other": "Wartet auf {n} Karten: {waitingTitles}"},
+  "Needs you: {n} open questions": {
+    "one": "Du wirst gebraucht: {n} offene Frage",
+    "other": "Du wirst gebraucht: {n} offene Fragen"
+  },
+  "{n} ideas": {
+    "one": "{n} Idee",
+    "other": "{n} Ideen"
+  },
+  "Waiting on {n} cards: {waitingTitles}": {
+    "one": "Wartet auf {n} Karte: {waitingTitles}",
+    "other": "Wartet auf {n} Karten: {waitingTitles}"
+  },
   "Progress: {state}": "Fortschritt: {state}",
   "{priority} priority": "Priorität {priority}",
   "archived": "archiviert",
@@ -195,7 +214,10 @@ const catalog: Catalog = {
   "Legacy": "Altbestand",
   "Expand column": "Spalte aufklappen",
   "Collapse column": "Spalte zuklappen",
-  "Expand {lane}, {n} tasks": {"one": "{lane} aufklappen, {n} Aufgabe", "other": "{lane} aufklappen, {n} Aufgaben"},
+  "Expand {lane}, {n} tasks": {
+    "one": "{lane} aufklappen, {n} Aufgabe",
+    "other": "{lane} aufklappen, {n} Aufgaben"
+  },
   "Collapse {name}": "{name} zuklappen",
   "Add task to {name}": "Aufgabe zu {name} hinzufügen",
   "Drop to move here": "Zum Verschieben hierher ziehen",
@@ -376,7 +398,10 @@ const catalog: Catalog = {
   "Show more ({n})": "Mehr anzeigen ({n})",
   "From card {title}, {state}. Open it": "Von Karte {title}, {state}. Öffnen",
   "From": "Von",
-  "{title}, {state}, {n} ideas. Open the card": {"one": "{title}, {state}, {n} Idee. Karte öffnen", "other": "{title}, {state}, {n} Ideen. Karte öffnen"},
+  "{title}, {state}, {n} ideas. Open the card": {
+    "one": "{title}, {state}, {n} Idee. Karte öffnen",
+    "other": "{title}, {state}, {n} Ideen. Karte öffnen"
+  },
   "Removed card": "Gelöschte Karte",
   "Today": "Heute",
   "Loading insights…": "Insights werden geladen …",
@@ -412,19 +437,37 @@ const catalog: Catalog = {
   "Related": "Verwandt",
   "Was waiting on": "Wartete auf",
   "Default": "Standard",
-  "{n} tasks": {"one": "{n} Aufgabe", "other": "{n} Aufgaben"},
+  "{n} tasks": {
+    "one": "{n} Aufgabe",
+    "other": "{n} Aufgaben"
+  },
   "task": "Aufgabe",
   "tasks": "Aufgaben",
   "· {n} done": "· {n} erledigt",
   "{tasks} running ({sessions})": "{tasks} laufen ({sessions})",
-  "{n} sessions": {"one": "{n} Sitzung", "other": "{n} Sitzungen"},
+  "{n} sessions": {
+    "one": "{n} Sitzung",
+    "other": "{n} Sitzungen"
+  },
   "{tasks} running": "{tasks} laufen",
   "Nothing running": "Nichts läuft",
   "Idle": "Leerlauf",
-  "{n} tasks waiting on you. Open Attention": {"one": "{n} Aufgabe wartet auf dich. „Aufmerksamkeit“ öffnen", "other": "{n} Aufgaben warten auf dich. „Aufmerksamkeit“ öffnen"},
-  "{n} need you": {"one": "{n} braucht dich", "other": "{n} brauchen dich"},
-  "{n} tasks with unread results. Open Attention": {"one": "{n} Aufgabe mit ungelesenen Ergebnissen. „Aufmerksamkeit“ öffnen", "other": "{n} Aufgaben mit ungelesenen Ergebnissen. „Aufmerksamkeit“ öffnen"},
-  "{n} tasks with session errors. Open Attention": {"one": "{n} Aufgabe mit Sitzungsfehlern. „Aufmerksamkeit“ öffnen", "other": "{n} Aufgaben mit Sitzungsfehlern. „Aufmerksamkeit“ öffnen"},
+  "{n} tasks waiting on you. Open Attention": {
+    "one": "{n} Aufgabe wartet auf dich. „Aufmerksamkeit“ öffnen",
+    "other": "{n} Aufgaben warten auf dich. „Aufmerksamkeit“ öffnen"
+  },
+  "{n} need you": {
+    "one": "{n} braucht dich",
+    "other": "{n} brauchen dich"
+  },
+  "{n} tasks with unread results. Open Attention": {
+    "one": "{n} Aufgabe mit ungelesenen Ergebnissen. „Aufmerksamkeit“ öffnen",
+    "other": "{n} Aufgaben mit ungelesenen Ergebnissen. „Aufmerksamkeit“ öffnen"
+  },
+  "{n} tasks with session errors. Open Attention": {
+    "one": "{n} Aufgabe mit Sitzungsfehlern. „Aufmerksamkeit“ öffnen",
+    "other": "{n} Aufgaben mit Sitzungsfehlern. „Aufmerksamkeit“ öffnen"
+  },
   "Project ideas: {openIdeas} open": "Projekt-Ideen: {openIdeas} offen",
   "Ideas {openIdeas}": "Ideen {openIdeas}",
   "Project insights": "Projekt-Insights",
@@ -433,15 +476,24 @@ const catalog: Catalog = {
   "No matches.": "Keine Treffer.",
   "Nothing available.": "Nichts verfügbar.",
   "Remove “{title}”?": "„{title}“ entfernen?",
-  "The project and its {n} cards (including archived) leave Flowly. A copy of the removed board records is kept in the plugin's data folder.": {"one": "Das Projekt und seine {n} Karte (einschließlich archivierter) verlassen Flowly. Eine Kopie der entfernten Board-Daten wird im Datenordner des Plugins aufbewahrt.", "other": "Das Projekt und seine {n} Karten (einschließlich archivierter) verlassen Flowly. Eine Kopie der entfernten Board-Daten wird im Datenordner des Plugins aufbewahrt."},
+  "The project and its {n} cards (including archived) leave Flowly. A copy of the removed board records is kept in the plugin's data folder.": {
+    "one": "Das Projekt und seine {n} Karte (einschließlich archivierter) verlassen Flowly. Eine Kopie der entfernten Board-Daten wird im Datenordner des Plugins aufbewahrt.",
+    "other": "Das Projekt und seine {n} Karten (einschließlich archivierter) verlassen Flowly. Eine Kopie der entfernten Board-Daten wird im Datenordner des Plugins aufbewahrt."
+  },
   "The project leaves Flowly. A copy of the removed board record is kept in the plugin's data folder.": "Das Projekt verlässt Flowly. Eine Kopie der entfernten Board-Daten wird im Datenordner des Plugins aufbewahrt.",
   "Keep in Paseo": "In Paseo behalten",
   "Also remove from Paseo": "Auch aus Paseo entfernen",
   "The Paseo project is already gone; only the board record is removed.": "Das Paseo-Projekt existiert bereits nicht mehr; nur der Board-Eintrag wird entfernt.",
   "Paseo keeps the project at {primaryPath}, its workspaces and sessions. Running sessions keep running, but their Kanban tools stop working for these cards. You can add the project to the board again later.": "Paseo behält das Projekt unter {primaryPath}, seine Workspaces und Sitzungen. Laufende Sitzungen laufen weiter, aber ihre Kanban-Werkzeuge funktionieren für diese Karten nicht mehr. Du kannst das Projekt später wieder zum Board hinzufügen.",
-  "Paseo forgets the project and its {n} workspaces, as when you remove it in Paseo. Nothing is deleted from disk: {path}, worktrees and branches stay. Add the folder in Paseo again to bring it back.": {"one": "Paseo vergisst das Projekt und seinen {n} Workspace, wie wenn du es in Paseo entfernst. Es wird nichts von der Festplatte gelöscht: {path}, Worktrees und Branches bleiben. Füge den Ordner in Paseo erneut hinzu, um es zurückzubekommen.", "other": "Paseo vergisst das Projekt und seine {n} Workspaces, wie wenn du es in Paseo entfernst. Es wird nichts von der Festplatte gelöscht: {path}, Worktrees und Branches bleiben. Füge den Ordner in Paseo erneut hinzu, um es zurückzubekommen."},
+  "Paseo forgets the project and its {n} workspaces, as when you remove it in Paseo. Nothing is deleted from disk: {path}, worktrees and branches stay. Add the folder in Paseo again to bring it back.": {
+    "one": "Paseo vergisst das Projekt und seinen {n} Workspace, wie wenn du es in Paseo entfernst. Es wird nichts von der Festplatte gelöscht: {path}, Worktrees und Branches bleiben. Füge den Ordner in Paseo erneut hinzu, um es zurückzubekommen.",
+    "other": "Paseo vergisst das Projekt und seine {n} Workspaces, wie wenn du es in Paseo entfernst. Es wird nichts von der Festplatte gelöscht: {path}, Worktrees und Branches bleiben. Füge den Ordner in Paseo erneut hinzu, um es zurückzubekommen."
+  },
   "Paseo forgets the project, as when you remove it in Paseo. Nothing is deleted from disk: {path}, worktrees and branches stay. Add the folder in Paseo again to bring it back.": "Paseo vergisst das Projekt, wie wenn du es in Paseo entfernst. Es wird nichts von der Festplatte gelöscht: {path}, Worktrees und Branches bleiben. Füge den Ordner in Paseo erneut hinzu, um es zurückzubekommen.",
-  "{n} sessions are still running in this Paseo project, so it can only be kept in Paseo. Stop them to remove it from Paseo too.": {"one": "In diesem Paseo-Projekt läuft noch {n} Sitzung, daher kann es nur in Paseo behalten werden. Stoppe sie, um es auch aus Paseo zu entfernen.", "other": "In diesem Paseo-Projekt laufen noch {n} Sitzungen, daher kann es nur in Paseo behalten werden. Stoppe sie, um es auch aus Paseo zu entfernen."},
+  "{n} sessions are still running in this Paseo project, so it can only be kept in Paseo. Stop them to remove it from Paseo too.": {
+    "one": "In diesem Paseo-Projekt läuft noch {n} Sitzung, daher kann es nur in Paseo behalten werden. Stoppe sie, um es auch aus Paseo zu entfernen.",
+    "other": "In diesem Paseo-Projekt laufen noch {n} Sitzungen, daher kann es nur in Paseo behalten werden. Stoppe sie, um es auch aus Paseo zu entfernen."
+  },
   "Could not check Paseo: {message}": "Paseo konnte nicht geprüft werden: {message}",
   "Removing…": "Wird entfernt …",
   "Remove from board": "Vom Board entfernen",
@@ -505,7 +557,10 @@ const catalog: Catalog = {
   "Sent to the running turn": "An den laufenden Durchlauf gesendet",
   "Edit": "Bearbeiten",
   "Remove": "Entfernen",
-  "{n} images": {"one": "{n} Bild", "other": "{n} Bilder"},
+  "{n} images": {
+    "one": "{n} Bild",
+    "other": "{n} Bilder"
+  },
   "Queued": "Eingereiht",
   "Send now and steer the running turn": "Jetzt senden und den laufenden Durchlauf lenken",
   "Remove queued message": "Eingereihte Nachricht entfernen",
@@ -517,7 +572,6 @@ const catalog: Catalog = {
   "Use the keyboard Send action or the send button.": "Verwende die Senden-Aktion der Tastatur oder die Senden-Schaltfläche.",
   "Send a message to restore this session…": "Sende eine Nachricht, um diese Sitzung wiederherzustellen …",
   "Message this session…": "Dieser Sitzung schreiben …",
-  "Tell this session what to do next…": "Sag dieser Sitzung, was als Nächstes zu tun ist …",
   "Attach images": "Bilder anhängen",
   "Stop session": "Sitzung stoppen",
   "Sending instruction": "Anweisung wird gesendet",
@@ -567,8 +621,6 @@ const catalog: Catalog = {
   "Save": "Speichern",
   "Default model": "Standardmodell",
   "Current model": "Aktuelles Modell",
-  "Plugins cannot switch the model or features like Fast mode yet.": "Plugins können das Modell oder Funktionen wie den Fast-Modus noch nicht umschalten.",
-  "Change in Paseo": "In Paseo ändern",
   "Reasoning: {label}": "Reasoning: {label}",
   "Permissions: {label}": "Berechtigungen: {label}",
   "Model: {modelLabel}": "Modell: {modelLabel}",
@@ -579,14 +631,21 @@ const catalog: Catalog = {
   "Closed": "Geschlossen",
   "Finished turn": "Durchlauf beendet",
   "Turn ended": "Durchlauf beendet",
+  "Background tasks running": "Hintergrundaufgaben laufen",
   "Thought": "Gedacht",
-  "{n} tool calls": {"one": "{n} Werkzeugaufruf", "other": "{n} Werkzeugaufrufe"},
+  "{n} tool calls": {
+    "one": "{n} Werkzeugaufruf",
+    "other": "{n} Werkzeugaufrufe"
+  },
   "Prepared session belongs to another workspace or is archived.": "Die vorbereitete Sitzung gehört zu einem anderen Workspace oder ist archiviert.",
   "Paseo returned a different session ID; inspect the workspace before retrying.": "Paseo hat eine andere Sitzungs-ID zurückgegeben; prüfe den Workspace, bevor du es erneut versuchst.",
   "Session is unavailable or belongs to a different workspace.": "Die Sitzung ist nicht verfügbar oder gehört zu einem anderen Workspace.",
   "This session is archived.": "Diese Sitzung ist archiviert.",
   "This session's provider is unavailable.": "Der Anbieter dieser Sitzung ist nicht verfügbar.",
-  "Open Needs attention, {text} cards": {"one": "„Aufmerksamkeit nötig“ öffnen, {text} Karte", "other": "„Aufmerksamkeit nötig“ öffnen, {text} Karten"},
+  "Open Needs attention, {text} cards": {
+    "one": "„Aufmerksamkeit nötig“ öffnen, {text} Karte",
+    "other": "„Aufmerksamkeit nötig“ öffnen, {text} Karten"
+  },
   "Urgent": "Dringend",
   "High": "Hoch",
   "Normal": "Normal",
@@ -608,9 +667,18 @@ const catalog: Catalog = {
   "Auto wrap up": "Automatisch abschließen",
   "Archive without asking when nothing blocks it: no running session, no uncommitted or unpushed work. Otherwise the card is left for manual Wrap up.": "Archiviert ohne Rückfrage, wenn nichts dagegen spricht: keine laufende Sitzung, keine nicht committeten oder nicht gepushten Arbeiten. Sonst bleibt die Karte für manuelles Abschließen.",
   "Auto archive on delete": "Beim Löschen automatisch archivieren",
-  "its worktree workspace and {n} sessions. Paseo may remove the worktree directory; the branch is kept.": {"one": "ihren Worktree-Workspace und {n} Sitzung. Paseo kann das Worktree-Verzeichnis entfernen; der Branch bleibt erhalten.", "other": "ihren Worktree-Workspace und {n} Sitzungen. Paseo kann das Worktree-Verzeichnis entfernen; der Branch bleibt erhalten."},
-  "its workspace and {n} sessions. The directory stays on disk.": {"one": "ihren Workspace und {n} Sitzung. Das Verzeichnis bleibt auf der Festplatte.", "other": "ihren Workspace und {n} Sitzungen. Das Verzeichnis bleibt auf der Festplatte."},
-  "its {n} sessions. The workspace is shared and stays.": {"one": "ihre {n} Sitzung. Der Workspace wird geteilt und bleibt bestehen.", "other": "ihre {n} Sitzungen. Der Workspace wird geteilt und bleibt bestehen."},
+  "its worktree workspace and {n} sessions. Paseo may remove the worktree directory; the branch is kept.": {
+    "one": "ihren Worktree-Workspace und {n} Sitzung. Paseo kann das Worktree-Verzeichnis entfernen; der Branch bleibt erhalten.",
+    "other": "ihren Worktree-Workspace und {n} Sitzungen. Paseo kann das Worktree-Verzeichnis entfernen; der Branch bleibt erhalten."
+  },
+  "its workspace and {n} sessions. The directory stays on disk.": {
+    "one": "ihren Workspace und {n} Sitzung. Das Verzeichnis bleibt auf der Festplatte.",
+    "other": "ihren Workspace und {n} Sitzungen. Das Verzeichnis bleibt auf der Festplatte."
+  },
+  "its {n} sessions. The workspace is shared and stays.": {
+    "one": "ihre {n} Sitzung. Der Workspace wird geteilt und bleibt bestehen.",
+    "other": "ihre {n} Sitzungen. Der Workspace wird geteilt und bleibt bestehen."
+  },
   "Delete “{title}” permanently?": "„{title}“ endgültig löschen?",
   "The card, its activity and progress summaries leave Flowly and cannot be restored from the board. A copy of the removed records is kept in the plugin's data folder.": "Die Karte, ihre Aktivität und Fortschrittszusammenfassungen verlassen Flowly und lassen sich vom Board aus nicht wiederherstellen. Eine Kopie der entfernten Daten wird im Datenordner des Plugins aufbewahrt.",
   "Checking its Paseo sessions…": "Ihre Paseo-Sitzungen werden geprüft …",
@@ -685,12 +753,18 @@ const catalog: Catalog = {
   "Target": "Ziel",
   "Recap": "Rückblick",
   "{n} tokens": "{n} Tokens",
-  "{n} turns": {"one": "{n} Durchlauf", "other": "{n} Durchläufe"},
+  "{n} turns": {
+    "one": "{n} Durchlauf",
+    "other": "{n} Durchläufe"
+  },
   "No token data": "Keine Token-Daten",
   "Counting…": "Wird gezählt …",
   "Usage": "Nutzung",
   "{time} running": "{time} Laufzeit",
-  "Progress summaries · {n} runs": {"one": "Fortschrittszusammenfassungen · {n} Lauf", "other": "Fortschrittszusammenfassungen · {n} Läufe"},
+  "Progress summaries · {n} runs": {
+    "one": "Fortschrittszusammenfassungen · {n} Lauf",
+    "other": "Fortschrittszusammenfassungen · {n} Läufe"
+  },
   "From local Claude Code / Codex logs; tokens only. Output includes reasoning.": "Aus lokalen Claude-Code-/Codex-Protokollen; nur Tokens. Die Ausgabe enthält Reasoning.",
   "{n} reasoning": "{n} Reasoning",
   "Total": "Gesamt",
@@ -705,7 +779,10 @@ const catalog: Catalog = {
   "{name} is not a PNG, JPEG, GIF or WebP image.": "{name} ist kein PNG-, JPEG-, GIF- oder WebP-Bild.",
   "File": "Datei",
   "Wrapped up: workspace and sessions archived": "Abgeschlossen: Workspace und Sitzungen archiviert",
-  "Wrapped up: {n} sessions archived": {"one": "Abgeschlossen: {n} Sitzung archiviert", "other": "Abgeschlossen: {n} Sitzungen archiviert"},
+  "Wrapped up: {n} sessions archived": {
+    "one": "Abgeschlossen: {n} Sitzung archiviert",
+    "other": "Abgeschlossen: {n} Sitzungen archiviert"
+  },
   "Wrap up this card?": "Diese Karte abschließen?",
   "Archive this card's worktree workspace and its sessions. Paseo may remove the worktree directory; the branch is kept.": "Archiviert den Worktree-Workspace dieser Karte und ihre Sitzungen. Paseo kann das Worktree-Verzeichnis entfernen; der Branch bleibt erhalten.",
   "Archive this card's workspace and its sessions. The directory stays on disk.": "Archiviert den Workspace dieser Karte und ihre Sitzungen. Das Verzeichnis bleibt auf der Festplatte.",
@@ -714,7 +791,10 @@ const catalog: Catalog = {
   "Then archive the card.": "Danach wird die Karte archiviert.",
   "To skip this question, turn on Auto wrap up in Flowly settings.": "Um diese Frage zu überspringen, aktiviere „Automatisch abschließen“ in den Flowly-Einstellungen.",
   "Workspace is unavailable; only the card will be archived.": "Der Workspace ist nicht verfügbar; nur die Karte wird archiviert.",
-  "{n} sessions idle": {"one": "{n} Sitzung im Leerlauf", "other": "{n} Sitzungen im Leerlauf"},
+  "{n} sessions idle": {
+    "one": "{n} Sitzung im Leerlauf",
+    "other": "{n} Sitzungen im Leerlauf"
+  },
   "branch {branch}": "Branch {branch}",
   "No uncommitted changes or local-only commits": "Keine nicht committeten Änderungen oder nur lokalen Commits",
   "Wrapping up…": "Wird abgeschlossen …",
@@ -790,7 +870,10 @@ const catalog: Catalog = {
   "Automatic": "Automatisch",
   "Start from the latest session's settings": "Mit den Einstellungen der letzten Sitzung starten",
   "AI features": "KI-Funktionen",
-  "Restored {title} with {n} cards.": {"one": "{title} mit {n} Karte wiederhergestellt.", "other": "{title} mit {n} Karten wiederhergestellt."},
+  "Restored {title} with {n} cards.": {
+    "one": "{title} mit {n} Karte wiederhergestellt.",
+    "other": "{title} mit {n} Karten wiederhergestellt."
+  },
   "It is already on the board.": "Es ist bereits auf dem Board.",
   "Restore it": "Wiederherstellen",
   "Restore project": "Projekt wiederherstellen",
@@ -799,8 +882,14 @@ const catalog: Catalog = {
   "Start empty": "Leer beginnen",
   "The board could not be saved in {path}: {message}": "Das Board konnte nicht in {path} gespeichert werden: {message}",
   "The project file in this folder is invalid; it was left unchanged. A new, empty project can still be created here.": "Die Projektdatei in diesem Ordner ist ungültig und wurde nicht verändert. Ein neues, leeres Projekt kann trotzdem angelegt werden.",
-  "This folder has a saved Flowly project: {title}, {n} cards, saved {time}.": {"one": "Dieser Ordner enthält ein gespeichertes Flowly-Projekt: {title}, {n} Karte, gespeichert {time}.", "other": "Dieser Ordner enthält ein gespeichertes Flowly-Projekt: {title}, {n} Karten, gespeichert {time}."},
-  "{n} cards use workspaces already on the board; they are restored without one.": {"one": "{n} Karte nutzt einen Workspace, der schon auf dem Board ist; sie wird ohne ihn wiederhergestellt.", "other": "{n} Karten nutzen Workspaces, die schon auf dem Board sind; sie werden ohne sie wiederhergestellt."},
+  "This folder has a saved Flowly project: {title}, {n} cards, saved {time}.": {
+    "one": "Dieser Ordner enthält ein gespeichertes Flowly-Projekt: {title}, {n} Karte, gespeichert {time}.",
+    "other": "Dieser Ordner enthält ein gespeichertes Flowly-Projekt: {title}, {n} Karten, gespeichert {time}."
+  },
+  "{n} cards use workspaces already on the board; they are restored without one.": {
+    "one": "{n} Karte nutzt einen Workspace, der schon auf dem Board ist; sie wird ohne ihn wiederhergestellt.",
+    "other": "{n} Karten nutzen Workspaces, die schon auf dem Board sind; sie werden ohne sie wiederhergestellt."
+  },
   "{path}, saved {time}. Git ignores it unless you change .flowly/.gitignore.": "{path}, gespeichert {time}. Git ignoriert ihn, solange du .flowly/.gitignore nicht änderst.",
   "Its board stays saved in {path}; add the folder again to restore it.": "Sein Board bleibt in {path} gespeichert; füge den Ordner erneut hinzu, um es wiederherzustellen.",
   "Saved with your project": "Mit deinem Projekt gespeichert",
@@ -875,8 +964,14 @@ const catalog: Catalog = {
   "No tasks": "Keine Aufgaben",
   "No recent tasks": "Keine aktuellen Aufgaben",
   "Hide older tasks": "Ältere Aufgaben ausblenden",
-  "Show {n} older tasks": {"one": "{n} ältere Aufgabe anzeigen", "other": "{n} ältere Aufgaben anzeigen"},
-  "After {n} days": {"one": "Nach {n} Tag", "other": "Nach {n} Tagen"},
+  "Show {n} older tasks": {
+    "one": "{n} ältere Aufgabe anzeigen",
+    "other": "{n} ältere Aufgaben anzeigen"
+  },
+  "After {n} days": {
+    "one": "Nach {n} Tag",
+    "other": "Nach {n} Tagen"
+  },
   "Hide old finished cards": "Länger abgeschlossene Karten ausblenden",
   "Cards that finished a while ago fold under “Show older” at the bottom of Done and Cancelled. Settings → Workflow sets how long they stay.": "Länger abgeschlossene Karten werden unten in Erledigt und Abgebrochen unter „Ältere anzeigen“ eingeklappt. Unter Einstellungen → Workflow legst du fest, wie lange sie sichtbar bleiben.",
   "Never": "Nie",
@@ -911,7 +1006,7 @@ const catalog: Catalog = {
   "Remove…": "Entfernen…",
   "Back to connections": "Zurück zu den Verbindungen",
   "Connection works. Connected as {name}.": "Verbindung funktioniert. Verbunden als {name}.",
-  "Testing\u2026": "Wird getestet…",
+  "Testing…": "Wird getestet…",
   "Test connection": "Verbindung testen",
   "Connection removed": "Verbindung entfernt",
   "Drag a project tab to reorder it. Right-click it for its settings, a new task, Insights, Ideas or Remove.": "Ziehe einen Projekt-Tab, um ihn umzusortieren. Ein Rechtsklick öffnet seine Einstellungen, eine neue Aufgabe, Insights, Ideen oder Entfernen.",
@@ -957,9 +1052,15 @@ const catalog: Catalog = {
   "All 42 cart tests pass. Next I'll cover refunds.": "Alle 42 Warenkorbtests bestehen. Als Nächstes Erstattungen.",
   "Preview": "Vorschau",
   "Subagents": "Subagenten",
-  "{n} subagents": {"one": "{n} Subagent", "other": "{n} Subagenten"},
+  "{n} subagents": {
+    "one": "{n} Subagent",
+    "other": "{n} Subagenten"
+  },
   "{n} working": "{n} aktiv",
-  "{n} need input": {"one": "{n} braucht Eingabe", "other": "{n} brauchen Eingabe"},
+  "{n} need input": {
+    "one": "{n} braucht Eingabe",
+    "other": "{n} brauchen Eingabe"
+  },
   "{n} ready to review": "{n} bereit zur Durchsicht",
   "Subagents: {summary}": "Subagenten: {summary}",
   "Open subagents from the Paseo session pane.": "Öffne Subagenten im Sitzungsbereich von Paseo.",
@@ -1001,7 +1102,6 @@ const catalog: Catalog = {
   "No next moves in {n} deliveries": "Keine nächsten Schritte bei {n} Übergaben",
   "No ideas in {n} deliveries": "Keine Ideen bei {n} Übergaben",
   "Unknown model": "Unbekanntes Modell",
-  // Native session pane (NATIVE-SESSION-SPEC)
   "This idea is no longer open.": "Diese Idee ist nicht mehr offen.",
   "This card is unavailable. Open Flowly to check it.": "Diese Karte ist nicht verfügbar. Öffne Flowly, um sie zu prüfen.",
   "This suggestion is no longer current.": "Dieser Vorschlag ist nicht mehr aktuell.",
@@ -1056,6 +1156,11 @@ const catalog: Catalog = {
   "Everything I'm involved in": "Alles, woran ich beteiligt bin",
   "No match in this project's repositories. Try owner/repo#12 or a link.": "Kein Treffer in den Repositories dieses Projekts. Versuche owner/repo#12 oder einen Link.",
   "Nothing matches.": "Keine Treffer.",
+  "{key} does not belong to {project}'s repositories.": "{key} gehört nicht zu den Repositories von {project}.",
+  "The card's workspace will not contain this repository.": "Der Arbeitsbereich der Karte enthält dieses Repository nicht.",
+  "It belongs to {project}'s repositories.": "Es gehört zu den Repositories von {project}.",
+  "Add anyway": "Trotzdem hinzufügen",
+  "Link anyway": "Trotzdem verknüpfen",
   "{service} refused the connection's token. Update it in Flowly settings → Connections.": "{service} hat das Token der Verbindung abgelehnt. Aktualisiere es in den Flowly-Einstellungen → Verbindungen.",
   "The service refused the connection's token. Update it in Flowly settings → Connections.": "Der Dienst hat das Token der Verbindung abgelehnt. Aktualisiere es in den Flowly-Einstellungen → Verbindungen.",
   "{service} is unreachable right now. Try again shortly.": "{service} ist gerade nicht erreichbar. Versuche es gleich noch einmal.",
@@ -1081,7 +1186,10 @@ const catalog: Catalog = {
   "{service} type": "{service}-Typ",
   "Where": "Wo",
   "{service} address": "{service}-Adresse",
-  "{n} cards have items from this {service}. They keep the link and key, but Flowly and agents can't read them until you add this {service} again; then they work as before.": {"one": "{n} Karte hat Elemente aus diesem {service}. Link und Schlüssel bleiben, aber Flowly und Agenten können sie erst wieder lesen, wenn du dieses {service} erneut hinzufügst; dann funktioniert alles wie vorher.", "other": "{n} Karten haben Elemente aus diesem {service}. Link und Schlüssel bleiben, aber Flowly und Agenten können sie erst wieder lesen, wenn du dieses {service} erneut hinzufügst; dann funktioniert alles wie vorher."},
+  "{n} cards have items from this {service}. They keep the link and key, but Flowly and agents can't read them until you add this {service} again; then they work as before.": {
+    "one": "{n} Karte hat Elemente aus diesem {service}. Link und Schlüssel bleiben, aber Flowly und Agenten können sie erst wieder lesen, wenn du dieses {service} erneut hinzufügst; dann funktioniert alles wie vorher.",
+    "other": "{n} Karten haben Elemente aus diesem {service}. Link und Schlüssel bleiben, aber Flowly und Agenten können sie erst wieder lesen, wenn du dieses {service} erneut hinzufügst; dann funktioniert alles wie vorher."
+  },
   "No card has items from this {service}.": "Keine Karte hat Elemente aus diesem {service}.",
   "Saving checks the token with {service} first. It is stored only on the computer running Paseo and never shown again.": "Beim Speichern wird das Token zuerst bei {service} geprüft. Es wird nur auf dem Computer gespeichert, auf dem Paseo läuft, und nie wieder angezeigt.",
   "From {service}": "Aus {service}",
@@ -1140,10 +1248,16 @@ const catalog: Catalog = {
   "Press again to delete the command log of every project. Suggestions are kept.": "Erneut drücken, um das Befehlsprotokoll aller Projekte zu löschen. Vorschläge bleiben erhalten.",
   "Deleted.": "Gelöscht.",
   "Could not delete the command log.": "Das Befehlsprotokoll konnte nicht gelöscht werden.",
-  "Commands are kept for 30 days, redacted, for {n} projects.": {"one": "Befehle werden 30 Tage lang geschwärzt aufbewahrt, für {n} Projekt.", "other": "Befehle werden 30 Tage lang geschwärzt aufbewahrt, für {n} Projekte."},
+  "Commands are kept for 30 days, redacted, for {n} projects.": {
+    "one": "Befehle werden 30 Tage lang geschwärzt aufbewahrt, für {n} Projekt.",
+    "other": "Befehle werden 30 Tage lang geschwärzt aufbewahrt, für {n} Projekte."
+  },
   "Nothing collected.": "Nichts gesammelt.",
   "Last run: {in} in · {out} out · ${cost}.": "Letzter Lauf: {in} rein · {out} raus · ${cost}.",
-  "About ${month} per month for {n} projects at this pace.": {"one": "Etwa ${month} pro Monat für {n} Projekt in diesem Rhythmus.", "other": "Etwa ${month} pro Monat für {n} Projekte in diesem Rhythmus."},
+  "About ${month} per month for {n} projects at this pace.": {
+    "one": "Etwa ${month} pro Monat für {n} Projekt in diesem Rhythmus.",
+    "other": "Etwa ${month} pro Monat für {n} Projekte in diesem Rhythmus."
+  },
   "AI-written text follows Settings → AI features → AI output language. It starts as your interface language.": "Von der KI geschriebener Text folgt Einstellungen → KI-Funktionen → KI-Ausgabesprache. Standard ist die Sprache der Oberfläche.",
   "Same as interface language ({language})": "Wie die Oberflächensprache ({language})",
   "Output language": "Ausgabesprache",
@@ -1160,7 +1274,10 @@ const catalog: Catalog = {
   "Pin": "Anheften",
   "Moved to AGENTS.md": "In AGENTS.md übernommen",
   "Replaced": "Ersetzt",
-  "Used by {n} cards": {"one": "Von {n} Karte genutzt", "other": "Von {n} Karten genutzt"},
+  "Used by {n} cards": {
+    "one": "Von {n} Karte genutzt",
+    "other": "Von {n} Karten genutzt"
+  },
   "Delete": "Löschen",
   "Move to AGENTS.md": "In AGENTS.md übernehmen",
   "Every session of this repository reads AGENTS.md, inside Flowly or not. Flowly does not edit repository files: copy the rule, paste it where it belongs, then stop injecting it here so it is not said twice.": "Jede Sitzung dieses Repositorys liest AGENTS.md, in Flowly oder nicht. Flowly ändert keine Repository-Dateien: Kopiere die Regel, füge sie an der richtigen Stelle ein und gib sie hier nicht mehr weiter, damit sie nicht doppelt steht.",
@@ -1244,7 +1361,7 @@ const catalog: Catalog = {
   "Update README": "README aktualisieren",
   "When an agent asks, waits for approval or fails, its card says so.": "Wenn ein Agent fragt, auf eine Freigabe wartet oder scheitert, zeigt die Karte das an.",
   "Your likely next message, one tap away.": "Deine wahrscheinlich nächste Nachricht, einen Tipp entfernt.",
-  "Work from Jira, Confluence, GitHub, GitLab, Azure DevOps or Shortcut: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them.": "Arbeite mit Jira, Confluence, GitHub, GitLab, Azure DevOps oder Shortcut: Verbinde sie unter Einstellungen → Verbindungen und starte dann eine Karte mit Aus… oder füge Elemente mit dem + bei Artefakten hinzu. Flowly liest sie nur.",
+  "Work from Jira, Confluence, GitHub, GitLab, Azure DevOps, Shortcut or Linear: connect them in Settings → Connections, then start a card with From… or add items with the Artifacts +. Flowly only reads them.": "Arbeite mit Jira, Confluence, GitHub, GitLab, Azure DevOps, Shortcut oder Linear: Verbinde sie unter Einstellungen → Verbindungen und starte dann eine Karte mit Aus… oder füge Elemente mit dem + bei Artefakten hinzu. Flowly liest sie nur.",
   "Azure DevOps work item": "Azure-DevOps-Arbeitselement",
   "Work item number, AB#123, a link or words from the title": "Arbeitselement-Nummer, AB#123, ein Link oder Wörter aus dem Titel",
   "Open work items assigned to me": "Offene Arbeitselemente, die mir zugewiesen sind",
@@ -1258,8 +1375,13 @@ const catalog: Catalog = {
   "My open stories": "Meine offenen Storys",
   "You have no open stories.": "Du hast keine offenen Storys.",
   "Add a Shortcut connection": "Shortcut-Verbindung hinzufügen",
+  "Linear issue": "Linear-Issue",
+  "ENG-123, a link or words from the title": "ENG-123, ein Link oder Wörter aus dem Titel",
+  "Open issues assigned to me": "Mir zugewiesene offene Issues",
+  "No open issues are assigned to you.": "Dir sind keine offenen Issues zugewiesen.",
+  "Add a Linear connection": "Linear-Verbindung hinzufügen",
+  "Create a personal API key in Linear → Settings → Security & access, with read access.": "Erstelle einen persönlichen API-Schlüssel mit Lesezugriff in Linear → Einstellungen → Security & access.",
   "Create one in Shortcut → Settings → API Tokens.": "Erstelle eines in Shortcut → Einstellungen → API Tokens.",
-  "Start a card from a Jira ticket, Confluence page, GitHub/GitLab issue or pull request, Azure DevOps work item, or Shortcut story or epic, or add one with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Starte eine Karte aus einem Jira-Ticket, einer Confluence-Seite, einem GitHub/GitLab-Issue oder -Pull-Request, einem Azure-DevOps-Arbeitselement oder einer Shortcut-Story bzw. einem Shortcut-Epic, oder füge eines mit dem + bei Artefakten hinzu. Agenten lesen es in jeder Runde; Flowly ändert es nie.",
   "What's new": "Neu",
   "Flowly {version}": "Flowly {version}",
   "Open settings": "Einstellungen öffnen",
@@ -1305,10 +1427,16 @@ const catalog: Catalog = {
   "Export to JSON": "Als JSON exportieren",
   "Settings → Storage shows where the board is kept and its daily backups, and can restore one or export the board to JSON.": "Einstellungen → Speicher zeigt, wo das Board liegt, und seine täglichen Sicherungen; dort lässt sich eine wiederherstellen oder das Board als JSON exportieren.",
   "Where Paseo supports it, the board moves to a local SQLite database with daily backups; Settings → Storage restores one or exports the board to JSON.": "Wo Paseo es unterstützt, zieht das Board in eine lokale SQLite-Datenbank mit täglicher Sicherung; Einstellungen → Speicher stellt eine wieder her oder exportiert das Board als JSON.",
-  "{n} rounds": {"one": "{n} Runde", "other": "{n} Runden"},
+  "{n} rounds": {
+    "one": "{n} Runde",
+    "other": "{n} Runden"
+  },
   "Insights drafted a skill from your cards. Open Insights to add it to the project.": "Insights hat aus deinen Karten einen Skill entworfen. Öffne Insights, um ihn dem Projekt hinzuzufügen.",
   "Skills": "Skills",
-  "{date}, {n} turns": {"one": "{date}, {n} Durchgang", "other": "{date}, {n} Durchgänge"},
+  "{date}, {n} turns": {
+    "one": "{date}, {n} Durchgang",
+    "other": "{date}, {n} Durchgänge"
+  },
   "Less": "Weniger",
   "More": "Mehr",
   "No activity": "Keine Aktivität",
@@ -1328,7 +1456,10 @@ const catalog: Catalog = {
   "Keep as is": "So lassen",
   "Writes .agents/skills/{name}/ and links it in .claude/skills/": "Schreibt .agents/skills/{name}/ und verlinkt es in .claude/skills/",
   "Other suggestions": "Weitere Vorschläge",
-  "Scripts, repo tools, AGENTS.md · {n} open": {"one": "Skripte, Repo-Tools, AGENTS.md · {n} offen", "other": "Skripte, Repo-Tools, AGENTS.md · {n} offen"},
+  "Scripts, repo tools, AGENTS.md · {n} open": {
+    "one": "Skripte, Repo-Tools, AGENTS.md · {n} offen",
+    "other": "Skripte, Repo-Tools, AGENTS.md · {n} offen"
+  },
   "Other models": "Andere Modelle",
   "No finished cards to compare.": "Keine abgeschlossenen Karten zum Vergleichen.",
   "No card was worked on in the last 30 days.": "In den letzten 30 Tagen wurde an keiner Karte gearbeitet.",
@@ -1343,7 +1474,7 @@ const catalog: Catalog = {
   "Previous day": "Vorheriger Tag",
   "Next day": "Nächster Tag",
   "agent {time}": "Agent {time}",
-  "Auto review checked this card after the agent delivered; open it to see each check's result.": "Auto review hat diese Karte nach der Lieferung des Agenten geprüft; öffne sie, um das Ergebnis jeder Prüfung zu sehen.",
+  "Open the card for review results; choose the review model and reasoning in Settings → Models.": "Öffne die Karte für Prüfergebnisse; wähle Modell und Denkstufe unter Einstellungen → Modelle.",
   "Deliveries are checked before they reach you, and go back to the agent when they fall short.": "Lieferungen werden geprüft, bevor sie bei dir ankommen, und gehen an den Agenten zurück, wenn sie nicht reichen.",
   "Does what you asked": "Tut, worum du gebeten hast",
   "Resume": "Fortsetzen",
@@ -1352,7 +1483,10 @@ const catalog: Catalog = {
   "Guardrails": "Leitplanken",
   "{passed}/{total} passed": "{passed}/{total} bestanden",
   "running {name}": "führt {name} aus",
-  "judging {n} checks": {"one":"bewertet {n} Prüfung","other":"bewertet {n} Prüfungen"},
+  "judging {n} checks": {
+    "one": "bewertet {n} Prüfung",
+    "other": "bewertet {n} Prüfungen"
+  },
   "starting…": "startet…",
   "Auto review running": "Automatische Prüfung läuft",
   "{passed} of {total} passed": "{passed} von {total} bestanden",
@@ -1384,14 +1518,32 @@ const catalog: Catalog = {
   "Nothing learned yet. Send a card back with what is wrong; Flowly checks the next cards for it.": "Noch nichts gelernt. Schick eine Karte mit dem zurück, was falsch ist; Flowly prüft die nächsten Karten darauf.",
   "No commands yet.": "Noch keine Befehle.",
   "Paused · {n}": "Pausiert · {n}",
-  "{n} deliveries": {"one":"{n} Lieferung","other":"{n} Lieferungen"},
+  "{n} deliveries": {
+    "one": "{n} Lieferung",
+    "other": "{n} Lieferungen"
+  },
   "{share} passed the first review": "{share} beim ersten Mal bestanden",
   "{share} misfires": "{share} Fehlalarme",
-  "{n} guidelines learned": {"one":"{n} Richtlinie gelernt","other":"{n} Richtlinien gelernt"},
-  "{n} widened": {"one":"{n} erweitert","other":"{n} erweitert"},
-  "{n} revived": {"one":"{n} reaktiviert","other":"{n} reaktiviert"},
-  "{n} retired": {"one":"{n} stillgelegt","other":"{n} stillgelegt"},
-  "{n} commands observing": {"one":"{n} Befehl in Beobachtung","other":"{n} Befehle in Beobachtung"},
+  "{n} guidelines learned": {
+    "one": "{n} Richtlinie gelernt",
+    "other": "{n} Richtlinien gelernt"
+  },
+  "{n} widened": {
+    "one": "{n} erweitert",
+    "other": "{n} erweitert"
+  },
+  "{n} revived": {
+    "one": "{n} reaktiviert",
+    "other": "{n} reaktiviert"
+  },
+  "{n} retired": {
+    "one": "{n} stillgelegt",
+    "other": "{n} stillgelegt"
+  },
+  "{n} commands observing": {
+    "one": "{n} Befehl in Beobachtung",
+    "other": "{n} Befehle in Beobachtung"
+  },
   "Last 14 days": "Letzte 14 Tage",
   "This week:": "Diese Woche:",
   "Deliveries are checked before they reach you and go back to the agent when they fall short. Each review uses tokens; turn it off per project.": "Lieferungen werden geprüft, bevor sie dich erreichen, und gehen an den Agenten zurück, wenn sie nicht genügen. Jede Prüfung verbraucht Tokens; pro Projekt abschaltbar.",
@@ -1418,7 +1570,10 @@ const catalog: Catalog = {
   "observing": "in Beobachtung",
   "Round {round}": "Runde {round}",
   "Now a project guideline": "Jetzt eine Projektrichtlinie",
-  "Sent back {n} times": {"one":"{n}-mal zurückgeschickt","other":"{n}-mal zurückgeschickt"},
+  "Sent back {n} times": {
+    "one": "{n}-mal zurückgeschickt",
+    "other": "{n}-mal zurückgeschickt"
+  },
   "Remembered for the project": "Für das Projekt gemerkt",
   "Review": "Prüfung",
   "Auto review checks every delivery before it reaches you and sends it back to the agent when it falls short. On for new projects.": "Die automatische Prüfung prüft jede Lieferung, bevor sie dich erreicht, und schickt sie an den Agenten zurück, wenn sie nicht genügt. Bei neuen Projekten an.",
@@ -1445,10 +1600,57 @@ const catalog: Catalog = {
   "Memory could not be read": "Gedächtnis konnte nicht gelesen werden",
   "Find memory in finished cards": "Merkenswertes in fertigen Karten finden",
   "Back from session, then close sidebar, then leave a project page": "Zurück aus der Sitzung, dann Seitenleiste schließen, dann Projektseite verlassen",
+  "Tap a suggested next step in the session timeline to fill the message box, including on your phone. Nothing is sent.": "Tippe auf einen vorgeschlagenen nächsten Schritt im Sitzungsverlauf, um das Nachrichtenfeld auszufüllen – auch auf dem Handy. Es wird nichts gesendet.",
+  "Medium": "Mittel",
+  "Extra high": "Sehr hoch",
+  "Full access": "Vollzugriff",
+  "Use the controls inside the message box to change the model, reasoning, permissions and provider features.": "Modell, Denkaufwand, Berechtigungen und Anbieterfunktionen mit den Steuerelementen im Nachrichtenfeld ändern.",
+  "Created the workspace": "Arbeitsbereich erstellt",
+  "Created with the first session": "Mit der ersten Sitzung erstellt",
+  "Workspace starts with the first session": "Arbeitsbereich entsteht mit der ersten Sitzung",
+  "Plan cards without creating workspaces. The first session creates the workspace; later sessions share it.": "Plane Karten ohne Arbeitsbereiche anzulegen. Die erste Sitzung erstellt den Arbeitsbereich; spätere Sitzungen teilen ihn.",
+  "On": "Ein",
+  "Off": "Aus",
+  "Loading models…": "Modelle werden geladen…",
+  "Session settings updated": "Sitzungseinstellungen aktualisiert",
+  "Reload session": "Sitzung neu laden",
+  "Session reloaded": "Sitzung neu geladen",
+  "Reloading interrupts the running turn. Reload this session?": "Neuladen unterbricht den laufenden Durchgang. Diese Sitzung neu laden?",
+  "Copy message": "Nachricht kopieren",
+  "Session controls": "Sitzungssteuerung",
+  "Change models and provider features inside Flowly. Copy messages or reload a session from its menu.": "Modelle und Anbieterfunktionen in Flowly ändern. Nachrichten kopieren oder eine Sitzung über ihr Menü neu laden.",
+  "Hold the right mouse button on empty board space and drag left or right to scroll.": "Halte die rechte Maustaste auf einer leeren Stelle im Board gedrückt und ziehe nach links oder rechts, um zu scrollen.",
+  "My to-dos": "Meine Aufgaben",
+  "All work items": "Alle Einträge",
+  "No matching to-dos for your TAPD account in this project.": "Keine passenden Aufgaben für dein TAPD-Konto in diesem Projekt.",
+  "An empty description imports the first TAPD item's description when creating the card.": "Bei leerer Beschreibung wird beim Erstellen der Karte die Beschreibung des ersten TAPD-Elements übernommen.",
+  "TAPD work item": "TAPD-Arbeitselement",
+  "Work item link, number, story-123, bug-123, task-123 or title words": "Link, Nummer, story-123, bug-123, task-123 oder Titelwörter",
+  "Recent work items in this TAPD project": "Neueste Arbeitselemente dieses TAPD-Projekts",
+  "No work items were found in this TAPD project.": "Keine Arbeitselemente in diesem TAPD-Projekt gefunden.",
+  "Add a TAPD connection": "TAPD-Verbindung hinzufügen",
+  "MCP access refused. Check login and test again.": "MCP-Zugriff verweigert. Anmeldung prüfen und erneut testen.",
+  "Uses the Paseo host's configured tapd MCP server through mcporter. Sign in there first. TAPD access is read-only.": "Verwendet den konfigurierten tapd-MCP-Server des Paseo-Hosts über mcporter. Melde dich dort zuerst an. TAPD wird nur gelesen.",
+  "Connect TAPD in Settings → Connections. Its picker starts with My to-dos; switch to All work items to browse the project.": "Verbinde TAPD unter Einstellungen → Verbindungen. Die Auswahl beginnt mit Meine Aufgaben; wechsle zu Alle Einträge, um das Projekt zu durchsuchen.",
+  "Flowly does not limit image count or size. Model and host limits still apply.": "Flowly begrenzt weder Anzahl noch Größe der Bilder. Die Grenzen von Modell und Host gelten weiterhin.",
+  "Use card description": "Kartenbeschreibung verwenden",
+  "Description changed. Use card description again.": "Die Beschreibung wurde geändert. Laden Sie die Kartenbeschreibung erneut.",
+  "Description images": "Beschreibungsbilder",
+  "Save pictures with a card description and use its text and pictures as a session instruction.": "Speichern Sie Bilder mit der Kartenbeschreibung und verwenden Sie Text und Bilder als Sitzungsanweisung.",
+  "Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.": "Fügen Sie Bilder zur Kartenbeschreibung hinzu und wählen Sie beim Sitzungsstart Kartenbeschreibung verwenden, um Text und Bilder zusammen zu senden.",
   "Context from": "Kontext aus",
   "Recent dialogue text only, up to 60,000 characters. Images and tool results are excluded.": "Nur aktueller Dialogtext, bis zu 60.000 Zeichen. Bilder und Werkzeugergebnisse sind ausgeschlossen.",
   "Session context": "Sitzungskontext",
   "Start a new session with dialogue text from another session in the same project, even with a different model.": "Starten Sie eine neue Sitzung mit Dialogtext aus einer anderen Sitzung desselben Projekts, auch mit einem anderen Modell.",
   "New session → Context from reuses another session's dialogue text in this project. The source session stays unchanged.": "Neue Sitzung → Kontext aus übernimmt Dialogtext einer anderen Sitzung dieses Projekts. Die Quellsitzung bleibt unverändert.",
+  "Runtime": "Laufzeit",
+  "To review": "Zu prüfen",
+  "Runtime shows all Paseo conversations on this host. Open a conversation to chat in Flowly.": "Runtime zeigt alle Paseo-Unterhaltungen auf diesem Host. Öffne eine Unterhaltung, um in Flowly zu chatten.",
+  "Back to Runtime": "Zurück zu Runtime",
+  "Open conversation": "Unterhaltung öffnen",
+  "Copy session ID": "Sitzungs-ID kopieren",
+  "No sessions": "Keine Sitzungen",
+  "Start a card from Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut, TAPD or Linear, or add an item with the Artifacts +. Agents read it every turn; Flowly never changes it.": "Starte eine Karte aus Jira, Confluence, GitHub/GitLab, Azure DevOps, Shortcut oder TAPD / Linear oder füge über das + bei Artefakte ein Element hinzu. Agents lesen es jede Runde; Flowly ändert es nie."
 };
+
 export default catalog;

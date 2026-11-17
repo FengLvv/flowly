@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { splitTapdKey, tapdFromUrl, tapdId, tapdItemType, tapdItemUrl, tapdKey, tapdProject, type TapdKind } from "./tapd";
 
 /**
  * External items as read-only card inputs (CONNECTORS-SPEC; Jira rules in
@@ -7,21 +8,21 @@ import { z } from "zod";
  * picker searches. Nothing here talks to a service.
  */
 
-export const connectorFamilies = ["jira", "confluence", "github", "gitlab", "azure", "shortcut"] as const;
+export const connectorFamilies = ["jira", "confluence", "github", "gitlab", "azure", "shortcut", "tapd", "linear"] as const;
 export type ConnectorFamily = (typeof connectorFamilies)[number];
 
-export const connectorProviders = ["jira-dc", "jira-cloud", "confluence-dc", "confluence-cloud", "github", "gitlab", "azure-devops", "shortcut"] as const;
+export const connectorProviders = ["jira-dc", "jira-cloud", "confluence-dc", "confluence-cloud", "github", "gitlab", "azure-devops", "shortcut", "tapd-internal", "linear"] as const;
 export type ConnectorProvider = (typeof connectorProviders)[number];
 export const connectorProviderSchema = z.enum(connectorProviders);
 
-export const itemTypes = ["issue", "pull", "merge_request", "page", "story", "epic"] as const;
+export const itemTypes = ["issue", "pull", "merge_request", "page", "story", "epic", "task"] as const;
 export type ItemType = (typeof itemTypes)[number];
 export const itemTypeSchema = z.enum(itemTypes);
 
 /** What a provider needs to connect (CONNECTORS-SPEC §4.1). */
 export const providerInfo: Record<
   ConnectorProvider,
-  { family: ConnectorFamily; email: boolean; defaultBaseUrl?: string }
+  { family: ConnectorFamily; email: boolean; defaultBaseUrl?: string; mcp?: boolean }
 > = {
   "jira-dc": { family: "jira", email: false },
   "jira-cloud": { family: "jira", email: true },
@@ -32,6 +33,9 @@ export const providerInfo: Record<
   "azure-devops": { family: "azure", email: false },
   // One connection is one workspace, so baseUrl carries the slug and there is no default.
   shortcut: { family: "shortcut", email: false },
+  "tapd-internal": { family: "tapd", email: false, mcp: true },
+  // Same as Shortcut: one connection is one workspace (linear.app/<url key>).
+  linear: { family: "linear", email: false },
 };
 export const familyOf = (provider: ConnectorProvider) => providerInfo[provider].family;
 export const familyProviders = (family: ConnectorFamily) => connectorProviders.filter((p) => providerInfo[p].family === family);
@@ -366,6 +370,31 @@ export const shortcutItemUrl = (baseUrl: string, key: string, itemType: ItemType
   return id ? `${baseUrl}/${kind}/${id}` : "";
 };
 
+/* ---------- Linear ---------- */
+
+/** Linear's own identifier, TEAM-123: team keys are letters and digits starting with a letter. */
+const linearKeyPattern = /^([A-Za-z][A-Za-z0-9]{0,9})-(\d{1,9})$/;
+
+/** ENG-123 (any case) → ENG-123. */
+export function linearKey(value: string): string | null {
+  const match = linearKeyPattern.exec(value.trim());
+  return match ? `${match[1]!.toUpperCase()}-${match[2]}` : null;
+}
+
+/** issue/<TEAM-123> below the workspace address, with any trailing title slug. The workspace url key is part of `baseUrl`. */
+export function linearFromUrl(value: string, baseUrl: string): { itemType: "issue"; key: string } | null {
+  const at = below(value, baseUrl);
+  if (!at) return null;
+  const match = /^\/issue\/([^/?#]+)(?:\/[^?#]*)?$/.exec(at.rest);
+  const key = match ? linearKey(match[1]!) : null;
+  return key ? { itemType: "issue", key } : null;
+}
+
+export const linearItemUrl = (baseUrl: string, key: string) => {
+  const valid = linearKey(key);
+  return valid ? `${baseUrl}/issue/${valid}` : "";
+};
+
 /* ---------- Dispatch ---------- */
 
 /** The item a link of `connection` points at; null when it is not one. Display-name page links need a lookup. */
@@ -386,6 +415,8 @@ export function recognizeUrl(
   if (family === "github") return githubFromUrl(value, connection.baseUrl);
   if (family === "azure") return azureFromUrl(value, connection.baseUrl);
   if (family === "shortcut") return shortcutFromUrl(value, connection.baseUrl);
+  if (family === "tapd") return tapdFromUrl(value, connection.baseUrl);
+  if (family === "linear") return linearFromUrl(value, connection.baseUrl);
   return gitlabFromUrl(value, connection.baseUrl);
 }
 
@@ -413,6 +444,10 @@ export function parseKey(value: string, provider: ConnectorProvider): { itemType
     return key ? { itemType: "issue", key } : null;
   }
   if (family === "confluence") return pageId(text) ? { itemType: "page", key: text } : null;
+  if (family === "tapd") {
+    const ref = splitTapdKey(text);
+    return ref ? { itemType: tapdItemType(ref.kind), key: text } : null;
+  }
   if (family === "azure") {
     const id = azureIdOfKey(text);
     return id ? { itemType: "issue", key: azureKey(id) } : null;
@@ -422,6 +457,10 @@ export function parseKey(value: string, provider: ConnectorProvider): { itemType
     if (story) return { itemType: "story", key: shortcutKey("story", story) };
     const epic = shortcutIdOfKey(text, "epic");
     return epic ? { itemType: "epic", key: shortcutKey("epic", epic) } : null;
+  }
+  if (family === "linear") {
+    const key = linearKey(text);
+    return key ? { itemType: "issue", key } : null;
   }
   const parts = splitRepoKey(text);
   if (!parts) return null;
@@ -437,6 +476,8 @@ export function itemUrl(connection: Pick<Connection, "provider" | "baseUrl">, it
   if (family === "github") return githubItemUrl(connection.baseUrl, key, itemType);
   if (family === "azure") return azureItemUrl(connection.baseUrl, key);
   if (family === "shortcut") return shortcutItemUrl(connection.baseUrl, key, itemType);
+  if (family === "tapd") return tapdItemUrl(connection.baseUrl, key);
+  if (family === "linear") return linearItemUrl(connection.baseUrl, key);
   return gitlabItemUrl(connection.baseUrl, key, itemType);
 }
 
@@ -453,6 +494,7 @@ export function externalTarget(value: string, connections: readonly Pick<Connect
   if (/^[a-z]+:\/\//i.test(trimmed)) return null;
   const matches = connections.flatMap((c) => {
     const found = parseKey(trimmed, c.provider);
+    if (familyOf(c.provider) === "tapd" && splitTapdKey(trimmed)?.project !== tapdProject(c.baseUrl)) return [];
     return found ? [{ connectionId: c.id, ...found }] : [];
   });
   return matches.length === 1 ? matches[0]! : null;
@@ -474,6 +516,16 @@ export function classifyQuery(raw: string, connection: Pick<Connection, "provide
   if (fromUrl) return "key" in fromUrl ? { kind: "key", itemType: fromUrl.itemType, key: fromUrl.key } : { kind: "lookup", space: fromUrl.space, title: fromUrl.title };
   const key = parseKey(value, connection.provider);
   if (key) return { kind: "key", ...key };
+  if (family === "tapd") {
+    const typed = /^(story|bug|task)-([1-9]\d*)$/i.exec(value);
+    const project = tapdProject(connection.baseUrl);
+    if (typed && project && tapdId(typed[2]!)) {
+      const kind = typed[1]!.toLowerCase() as TapdKind;
+      return { kind: "key", itemType: tapdItemType(kind), key: tapdKey(project, kind, typed[2]!) };
+    }
+    if (tapdId(value)) return { kind: "number", number: value };
+    return { kind: "text", text: value.slice(0, connectorLimits.query) };
+  }
   if (family === "azure") {
     // Ids are unique per organization: "123" and "#123" name the work item.
     const id = azureId(/^#?(\d+)$/.exec(value)?.[1]);
@@ -484,6 +536,8 @@ export function classifyQuery(raw: string, connection: Pick<Connection, "provide
     const id = shortcutId(/^(?:sc-)?(\d+)$/i.exec(value)?.[1]);
     return id ? { kind: "key", itemType: "story", key: shortcutKey("story", id) } : { kind: "text", text: value.slice(0, connectorLimits.query) };
   }
+  // A bare number names no Linear issue without its team key, so it is searched as text.
+  if (family === "linear") return { kind: "text", text: value.slice(0, connectorLimits.query) };
   if (family !== "confluence") {
     const number = /^([#!]?)(\d{1,9})$/.exec(value);
     if (number && (family === "gitlab" || number[1] !== "!"))
@@ -496,9 +550,17 @@ export function classifyQuery(raw: string, connection: Pick<Connection, "provide
 export const externalTitle = (itemType: ItemType, key: string, summary: string) =>
   (itemType === "page" ? summary || key : `${key} ${summary}`).trim().slice(0, 120);
 
-/** The short key shown on a card face (CONNECTORS-SPEC §2); null for pages. */
+/** Display an existing TAPD artifact title without its generated key prefix. */
+export function externalDisplayTitle(title: string, ref?: Pick<ExternalRef, "provider" | "key">): string {
+  if (ref?.provider !== "tapd-internal") return title;
+  if (title === ref.key) return "TAPD";
+  return title.startsWith(ref.key + " ") ? title.slice(ref.key.length).trim() || "TAPD" : title;
+}
+
+/** The short key shown on a card face (CONNECTORS-SPEC §2); null for pages and TAPD. */
 export function faceKey(ref: Pick<ExternalRef, "key" | "itemType">): string | null {
   if (itemTypeOf(ref) === "page") return null;
+  if (splitTapdKey(ref.key)) return null;
   const parts = splitRepoKey(ref.key);
   if (!parts) return ref.key;
   return `${parts.repo.split("/").pop()}${parts.sep}${parts.number}`;
@@ -510,7 +572,9 @@ export function itemLabel(provider: ConnectorProvider, itemType: ItemType) {
   if (family === "jira") return "Jira ticket";
   if (family === "confluence") return "Confluence page";
   if (family === "azure") return "Azure DevOps work item";
+  if (family === "tapd") return "TAPD work item";
   if (family === "shortcut") return itemType === "epic" ? "Shortcut epic" : "Shortcut story";
+  if (family === "linear") return "Linear issue";
   const name = family === "github" ? "GitHub" : "GitLab";
   return `${name} ${itemType === "pull" ? "pull request" : itemType === "merge_request" ? "merge request" : "issue"}`;
 }

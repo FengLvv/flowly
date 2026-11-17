@@ -1,0 +1,89 @@
+{
+  "sessionId": "c9e69c62-b564-4cfe-aef1-8fa27f2287f0",
+  "workspaceId": "wks_d1504bb406d8b105",
+  "taskId": "37e6fa0a-d586-4447-90dd-855711a5cbb3",
+  "checks": [
+    {
+      "pass": true,
+      "label": "Two selectable Codex models discovered"
+    },
+    {
+      "pass": true,
+      "label": "Fixture initialized in card workspace without sending a prompt"
+    },
+    {
+      "pass": true,
+      "label": "Installed Flowly model RPC changes the real existing session"
+    },
+    {
+      "pass": true,
+      "label": "Real provider feature service_tier changes and reads back"
+    },
+    {
+      "pass": true,
+      "label": "Real provider feature plan_mode changes and reads back"
+    },
+    {
+      "pass": true,
+      "label": "Unknown feature rejected by installed RPC"
+    },
+    {
+      "pass": true,
+      "label": "Missing task rejected without changing the fixture"
+    },
+    {
+      "pass": true,
+      "label": "Identity, ownership and no-message state preserved"
+    },
+    {
+      "pass": true,
+      "label": "Desktop UI model picker changes real native state"
+    },
+    {
+      "pass": true,
+      "label": "Desktop model choices stay in viewport"
+    },
+    {
+      "pass": true,
+      "label": "Desktop UI Speed control changes native state"
+    },
+    {
+      "pass": true,
+      "label": "Desktop UI Plan control changes native state"
+    },
+    {
+      "pass": true,
+      "label": "Idle reload preserves the same session"
+    },
+    {
+      "pass": true,
+      "label": "Compact UI model picker changes real native state"
+    },
+    {
+      "pass": true,
+      "label": "Model state survives Flowly reload"
+    },
+    {
+      "pass": true,
+      "label": "No UI page errors"
+    }
+  ],
+  "cleanup": {
+    "sessionAbsent": true,
+    "cardPreserved": true,
+    "browserClosed": true
+  },
+  "pageErrors": [],
+  "features": [
+    {
+      "id": "service_tier",
+      "type": "select",
+      "label": "Speed"
+    },
+    {
+      "id": "plan_mode",
+      "type": "toggle",
+      "label": "Plan"
+    }
+  ]
+}

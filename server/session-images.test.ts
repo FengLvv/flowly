@@ -25,6 +25,7 @@ async function setup(transcript: string, workspaceId = "w", fileUrl = false) {
   await writeFile(png, Buffer.from([0x89, 0x50, 0x4e, 0x47]));
   await writeFile(join(root, "secret.txt"), "nope");
   const paseo = {
+    workspaces: { ref: () => ({ refresh: async () => ({ id: "w", archivingAt: null }) }) },
     agents: {
       ref: () => ({
         refresh: async () => ({ agent: { id: "a", workspaceId } }),
@@ -63,4 +64,11 @@ test("an image file that is gone is a plain answer, not a system error", async (
   const error = await x.service.read({ taskId: "t", agentId: "a", src: x.png }, x.paseo).catch((e: unknown) => e);
   expect((error as Error).message).toBe("The image file no longer exists.");
   expect((error as NodeJS.ErrnoException).code).toBeUndefined();
+});
+
+test("native workspace scope serves only that conversation's referenced images", async () => {
+  const x = await setup("see [Image: source: $PNG]");
+  expect(await x.service.read({ workspaceId: "w", agentId: "a", src: x.png }, x.paseo)).toEqual({ dataUri: "data:image/png;base64,iVBORw==" });
+  const other = await setup("see [Image: source: $PNG]", "other");
+  await expect(other.service.read({ workspaceId: "w", agentId: "a", src: other.png }, other.paseo)).rejects.toThrow(/different workspace/);
 });

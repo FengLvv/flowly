@@ -220,6 +220,8 @@ export const reviewSchema = z.preprocess(legacyReview, z.object({
   }),
   /** The workspace is not a worktree: other cards' uncommitted changes are in it too. */
   shared: z.boolean(),
+  /** The git worktree the delivery named, where the commands ran and the diff was read (AUTO-REVIEW-SPEC §3.4). */
+  worktree: z.string().max(1000).optional(),
   /** Reviews written before guardrails: the rules with their results; never written now (read as `items`). */
   rules: z.array(ruleResultSchema).max(20).optional(),
   /** What the delivery changed (GUARDRAILS-SPEC §6.2); absent on reviews written before guardrails. */
@@ -299,6 +301,12 @@ export const taskSchema = z.object({
   origin: z.object({ taskId: z.string(), ideaId: z.string() }).optional(),
   /** The latest automatic review (AUTO-REVIEW-SPEC §6); written without a task revision. */
   review: reviewSchema.optional(),
+  /**
+   * An agent delivery whose review has not started yet (AUTO-REVIEW-SPEC §3.1): set in the delivery's write, cleared when
+   * that review starts or is skipped. While set and the card is in In review, `review` is the previous one and is not shown.
+   * Written without a task revision.
+   */
+  reviewWaiting: z.object({ eventId: z.string(), agentId: z.string(), from: historyStatusSchema, since: timestamp, worktree: z.string().max(1000).optional() }).optional(),
   /** Review findings the agent disputed (GUARDRAILS-SPEC §6.1); written without a task revision, cleared at Done/Cancelled. */
   disputes: z.array(disputeSchema).max(disputeLimits.perTask).optional(),
 });
@@ -526,6 +534,8 @@ export const eventSchema = z.object({
   byUser: z.boolean().optional(),
   /** agent.permission_requested: the tool's name as the provider reports it, without its input (INSIGHTS-REDESIGN-SPEC §7.2). */
   tool: z.string().max(80).optional(),
+  /** status_changed into In review by an agent: the git worktree it named, real path (AUTO-REVIEW-SPEC §3.4). */
+  worktree: z.string().max(1000).optional(),
   /** status_changed into In review by an agent: the workpad's open items then (WORKPAD-SPEC §5.3). */
   workpad: deliverySchema.optional(),
   /** status_changed into In review by an agent that acknowledged missing card setup (CARD-SETUP-SPEC §3.4). */

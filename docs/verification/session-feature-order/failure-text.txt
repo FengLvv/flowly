@@ -1,0 +1,89 @@
+Flowly
+Flowly
+14
+tasks
+· 8 done
+3 running
+Ideas
+Guardrails
+Memory
+Insights
+Todo
+0
+No tasks in Todo.
+Add task
+Flowly
+聊天功能对齐paseo
+Test
+High
+Feature
+#sessions
+#session-composer
+Add
+现在flowly还不能切换模型，等等功能。能让这个和paseo原生的功能完全对齐吗？
+Progress
+Refresh
+Speed 与 Plan 独立图标已验收，PR #5 待合并
+Recap
+- 模型、Speed／Plan、推理与权限控制、复制消息和重载已实现
+- 桌面与紧凑布局的 Speed／Plan 图标检查 24/24 通过
+- 156 项聚焦测试及独立验证通过；语音、宿主插件渲染和 rewind 仍用 Paseo 原生入口
+- PR #5 已更新，待 CI、CodeRabbit 与合并
+Next
+等待 PR #5 的 CI 与 CodeRabbit 结果，处理审查意见并跟进合并
+Show more
+Updated 5m ago
+·
+GPT-6-Luna
+Sessions
+3
+Start session
+Feature icons fixture de91b459
+Ready
+· codex · gpt-6.1-sol
+1m ago
+Untitled session
+Ready
+· codex · gpt-6.1-sol
+11m ago
+聊天功能对齐paseo
+Running
+· codex · gpt-6.1-sol
+just now
+Workpad
+Acceptance
+Updated 3m ago by 聊天功能对齐paseo
+逐项对照 Paseo 原生聊天功能，记录支持范围、接口限制与验收方式。
+在 Flowly 会话中支持宿主允许的模型与配置切换，真实状态回读，失败可恢复。
+补齐对照发现的聊天能力差距，保持卡片授权、消息原文和资源归属约束。
+同步规范、引导和全部翻译，桌面与紧凑布局的 Speed/Plan 均为最右侧的独立图标，顺序与原生一致。
+通过 typecheck、相关回归与全量测试，记录实际运行验证及未验证项。
+Artifacts
+6
+Outputs
+Speed / Plan 独立图标验证
+精确提交151/151，实际桌面/750px 24/24；含截图与清理记录。
+聊天控件对齐规范
+已更新独立图标、真实状态和菜单边界约定。
+聊天配置实现与实测报告
+156项聚焦、16项真实检查、未运行项与清理限制。
+Haiku 精确提交独立验证
+与父基线同一组28项失败，无新增失败，无High。
+PR #5：独立 Speed / Plan 图标
+已推送706849c，尚未合并。
+Inputs
+Paseo 公开插件接口
+核对原生组件、SDK 与插件 API 边界；同时读取安装的 0.15.0 类型定义。
+Ideas
+0
+All ideas
+No open ideas. Agents add them when they see a worthwhile next step.
+Closed · 1
+Links
+1
+Details & workspace
+聊天功能对齐paseo
+Usage
+33.1M tokens · 98.2% cached · 3 turns
+Activity
+28

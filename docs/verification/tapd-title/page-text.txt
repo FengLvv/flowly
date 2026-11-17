@@ -1,0 +1,74 @@
+Flowly
+TAPD mine fixture
+Attention
+Sort
+Filter
+New task
+1
+task
+· 0 done
+Idle
+Ideas
+Insights
+Add pictures to a card description, then choose Use card description when starting a session to send its text and pictures together.
+Got it
+Backlog
+0
+No tasks
+Todo
+1
+TAPD mine card
+Design
+0
+No tasks
+Development
+0
+No tasks
+Test
+0
+No tasks
+In review
+0
+No tasks
+Blocked
+0
+No tasks
+Done
+0
+No tasks
+Cancelled
+0
+No tasks
+TAPD mine fixture
+TAPD mine card
+Todo
+Normal
+No type
+Add tag
+Synthetic fixture
+Progress
+Refresh
+Auto summary is off. Turn it on with the settings button at the bottom left of the board, or press Refresh.
+Sessions
+0
+Start session
+No sessions yet
+Start session
+Artifacts
+0
+Links
+0
+Details & workspace
+TAPD mine card
+Usage
+No token data
+Activity
+1
+Add TAPD work item
+It becomes an input of this card. Agents read it every turn; Flowly never changes it in TAPD.
+My to-dos
+All work items
+Search TAPD
+My story item
+My bug item
+My task item
