@@ -1,0 +1,107 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Fixture telemetry forced off"
+    },
+    {
+      "pass": true,
+      "label": "1450px isolated host bound"
+    },
+    {
+      "pass": true,
+      "label": "desktop-dark: Normal is selected initially"
+    },
+    {
+      "pass": true,
+      "label": "desktop-dark: daemon confirms Fast"
+    },
+    {
+      "pass": true,
+      "label": "desktop-dark: closed Speed button is yellow in Fast"
+    },
+    {
+      "pass": true,
+      "label": "desktop-dark: daemon confirms Plan On"
+    },
+    {
+      "pass": true,
+      "label": "desktop-dark: Plan On is blue and checked"
+    },
+    {
+      "pass": true,
+      "label": "desktop-dark: reopened menu marks Fast"
+    },
+    {
+      "pass": true,
+      "label": "desktop-dark: Normal restores the neutral icon"
+    },
+    {
+      "pass": true,
+      "label": "desktop-dark: Plan Off restores the neutral icon"
+    },
+    {
+      "pass": true,
+      "label": "compact-light: Normal is selected initially"
+    },
+    {
+      "pass": true,
+      "label": "compact-light: daemon confirms Fast"
+    },
+    {
+      "pass": true,
+      "label": "compact-light: closed Speed button is yellow in Fast"
+    },
+    {
+      "pass": true,
+      "label": "compact-light: daemon confirms Plan On"
+    },
+    {
+      "pass": true,
+      "label": "compact-light: Plan On is blue and checked"
+    },
+    {
+      "pass": true,
+      "label": "compact-light: reopened menu marks Fast"
+    },
+    {
+      "pass": true,
+      "label": "compact-light: Normal restores the neutral icon"
+    },
+    {
+      "pass": true,
+      "label": "compact-light: Plan Off restores the neutral icon"
+    },
+    {
+      "pass": true,
+      "label": "Setting changes sent no prompt"
+    },
+    {
+      "pass": true,
+      "label": "No page errors"
+    }
+  ],
+  "cleanup": {
+    "boardEmpty": true,
+    "nativeEmpty": true,
+    "daemonStopped": true,
+    "browserClosed": true,
+    "homeRemoved": true
+  },
+  "pageErrors": [],
+  "sessionId": "70e10936-dad5-4372-ba77-4a56669129c5",
+  "colors": {
+    "desktop-dark": {
+      "normal": "rgb(161, 165, 164)",
+      "fast": "rgb(251, 191, 36)",
+      "planOff": "rgb(161, 165, 164)",
+      "planOn": "rgb(96, 165, 250)"
+    },
+    "compact-light": {
+      "normal": "rgb(113, 113, 122)",
+      "fast": "rgb(161, 98, 7)",
+      "planOff": "rgb(113, 113, 122)",
+      "planOn": "rgb(37, 99, 235)"
+    }
+  }
+}
