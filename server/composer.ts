@@ -1,3 +1,7 @@
+import type { DraftAttachment, StoredDraftAttachment, HydratedAttachment } from "../shared/attachment-drafts";
+import { logFailure } from "./error-report";
+import { SessionFiles } from "./session-files";
+import type { OutgoingFile, UploadedFile, ForgeReference } from "../shared/session-files";
 import { nativeSession } from "./native-session";
 import { validSessionScope, sessionScope, type SessionScope, type SessionTarget } from "../shared/session-target";
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
@@ -55,8 +59,24 @@ export class ComposerStore {
       }),
     );
   }
-  async removeImages(images: readonly QueuedImage[] = []) {
+  async removeImages(images: readonly { file: string }[] = []) {
     await Promise.all(images.map((image) => rm(join(this.imageDirectory, image.file), { force: true })));
+  }
+  async writeFiles(files: readonly OutgoingFile[]) {
+    if (!files.length) return [];
+    await mkdir(this.imageDirectory, { recursive: true, mode: 0o700 });
+    const saved: { file: string; name: string; mimeType: string }[] = [];
+    try {
+      for (const item of files) {
+        const file = `${randomUUID()}.bin`;
+        saved.push({ file, name: item.name, mimeType: item.mimeType });
+        await writeFile(join(this.imageDirectory, file), Buffer.from(item.data, "base64"), { mode: 0o600 });
+      }
+      return saved;
+    } catch (error) { await this.removeImages(saved); throw error; }
+  }
+  async readFiles(files: readonly { file: string; name: string; mimeType: string }[] = []): Promise<OutgoingFile[]> {
+    return Promise.all(files.map(async item => ({ name: item.name, mimeType: item.mimeType, data: (await readFile(join(this.imageDirectory, item.file))).toString("base64") })));
   }
   private async load(): Promise<ComposerState> {
     try {
@@ -70,12 +90,13 @@ export class ComposerStore {
     await this.tail;
     return this.load();
   }
-  mutate<T>(operation: (state: ComposerState) => T): Promise<T> {
+  mutate<T>(operation: (state: ComposerState) => T, validate?: () => Promise<unknown>): Promise<T> {
     const job = this.tail.then(async () => {
+      await validate?.();
       const state = await this.load();
       const value = operation(state);
       for (const [id, entry] of Object.entries(state.sessions))
-        if (!entry.draft && !entry.queue.length && !entry.lastError) delete state.sessions[id];
+        if (!entry.draft && !entry.queue.length && !entry.lastError && !entry.draftAttachments?.length && !entry.attachmentRevision) delete state.sessions[id];
       const next = composerStateSchema.parse(state);
       await mkdir(this.directory, { recursive: true, mode: 0o700 });
       const temporary = `${this.path}.${randomUUID()}.tmp`;
@@ -88,12 +109,13 @@ export class ComposerStore {
   }
 }
 
-type Send = (paseo: PaseoApi, agentId: string, text: string, steer: boolean, images?: OutgoingImage[], messageId?: string) => Promise<void>;
-const defaultSend: Send = async (paseo, agentId, text, steer, images, messageId) => {
+type Send = (paseo: PaseoApi, agentId: string, text: string, steer: boolean, images?: OutgoingImage[], messageId?: string, attachments?: (UploadedFile | ForgeReference)[]) => Promise<void>;
+const defaultSend: Send = async (paseo, agentId, text, steer, images, messageId, attachments) => {
   // The queued item's ID becomes the message ID, so the sending client can match its images.
   await paseo.agents.ref(agentId).send(text, {
     ...(steer ? { activeTurnBehavior: "steer" as const } : {}),
     ...(images?.length ? { images } : {}),
+    ...(attachments?.length ? { attachments } : {}),
     ...(messageId ? { messageId } : {}),
   });
 };
@@ -111,6 +133,7 @@ export class ComposerService {
     readonly board: BoardStore,
     readonly send: Send = defaultSend,
     readonly clock = () => Date.now(),
+    readonly files: Pick<SessionFiles, "prepare"> = new SessionFiles(board),
   ) {}
 
   private entry(state: ComposerState, agentId: string, target: string | SessionScope) {
@@ -123,9 +146,9 @@ export class ComposerService {
   }
 
   /** The session must exist, belong to the card's workspace, and the card must be live. */
-  private async verify(target: SessionTarget, paseo: PaseoApi) {
+  private async verify(target: SessionTarget, paseo: PaseoApi, writable = false) {
     if (!validSessionScope(target)) throw new Error("Give either a task or workspace target.");
-    if (target.workspaceId) return nativeSession(paseo, target);
+    if (target.workspaceId) return nativeSession(paseo, target, writable);
     const { taskId, agentId } = target;
     const board = await this.board.read();
     const task = board.tasks.find((t) => t.id === taskId);
@@ -135,11 +158,63 @@ export class ComposerService {
     const agent = (await paseo.agents.ref(agentId).refresh())?.agent;
     if (!agent || agent.workspaceId !== task.workspaceId)
       throw new Error("Session is unavailable or belongs to a different workspace.");
+    if (writable && (agent.archivedAt || agent.providerUnavailable)) throw new Error("Session is archived or its provider is unavailable.");
     return agent;
   }
 
   read() {
     return this.store.read();
+  }
+
+  async readAttachments(input: SessionTarget, paseo: PaseoApi) {
+    await this.verify(input, paseo);
+    const entry = (await this.store.read()).sessions[input.agentId];
+    const items: HydratedAttachment[] = [];
+    for (const item of entry?.draftAttachments || []) {
+      if (item.kind === "reference") { items.push(item); continue; }
+      let data: string | null = null;
+      try { data = (await this.store.readFiles([item]))[0].data; } catch { /* Missing bytes stay visible/removable, never silently discarded. */ }
+      items.push({ id: item.id, kind: item.kind, name: item.name, mimeType: item.mimeType, data });
+    }
+    await this.verify(input, paseo);
+    return { items, revision: entry?.attachmentRevision || 0 };
+  }
+  async addAttachments(input: SessionTarget & { items: DraftAttachment[] }, paseo: PaseoApi) {
+    await this.verify(input, paseo, true);
+    const prepared: StoredDraftAttachment[] = [];
+    let committed = false;
+    try {
+      for (const item of input.items.filter((item, index) => input.items.findIndex(other => other.id === item.id) === index)) {
+        if (item.kind === "reference") prepared.push(item);
+        else { const [file] = await this.store.writeFiles([item]); prepared.push({ ...file, id: item.id, kind: item.kind }); }
+      }
+      const result = await this.store.mutate(state => {
+        const entry = this.entry(state, input.agentId, input), before = entry.draftAttachments || [];
+        const added = prepared.filter((item, index) => !before.some(old => old.id === item.id) && prepared.findIndex(other => other.id === item.id) === index);
+        entry.draftAttachments = [...before, ...added];
+        if (added.length) entry.attachmentRevision = (entry.attachmentRevision || 0) + 1;
+        return { revision: entry.attachmentRevision || 0, used: added.filter(item => item.kind !== "reference").map(item => item.file) };
+      }, () => this.verify(input, paseo, true));
+      committed = true;
+      const unused = prepared.filter(item => item.kind !== "reference" && !result.used.includes(item.file)) as Exclude<StoredDraftAttachment, { kind: "reference" }>[];
+      await this.store.removeImages(unused).catch(error => logFailure("Flowly attachment draft cleanup failed:", error));
+      return { revision: result.revision };
+    } catch (error) {
+      if (!committed) await this.store.removeImages(prepared.filter(item => item.kind !== "reference") as Exclude<StoredDraftAttachment, { kind: "reference" }>[]).catch(cleanup => logFailure("Flowly attachment draft cleanup failed:", cleanup));
+      throw error;
+    }
+  }
+  async removeAttachments(input: SessionTarget & { ids: string[] }, paseo: PaseoApi) {
+    const result = await this.store.mutate(state => {
+      const entry = state.sessions[input.agentId];
+      if (!entry) return { revision: 0, files: [] as { file: string }[] };
+      const old = entry.draftAttachments || [], removed = old.filter(item => input.ids.includes(item.id));
+      entry.draftAttachments = old.filter(item => !input.ids.includes(item.id));
+      if (removed.length) entry.attachmentRevision = (entry.attachmentRevision || 0) + 1;
+      return { revision: entry.attachmentRevision || 0, files: removed.filter(item => item.kind !== "reference") as { file: string }[] };
+    }, () => this.verify(input, paseo, true));
+    await this.store.removeImages(result.files).catch(error => logFailure("Flowly attachment draft cleanup failed:", error));
+    return { revision: result.revision };
   }
 
   async saveDraft(input: SessionTarget & { text: string }, paseo?: PaseoApi) {
@@ -156,11 +231,13 @@ export class ComposerService {
     });
   }
 
-  async push(input: SessionTarget & { text: string; images?: OutgoingImage[] }, paseo: PaseoApi) {
+  async push(input: SessionTarget & { text: string; images?: OutgoingImage[]; files?: OutgoingFile[]; references?: ForgeReference[] }, paseo: PaseoApi) {
     await this.verify(input, paseo);
     const id = randomUUID();
     const images = await this.store.writeImages(id, input.images || []);
-    const item = { id, text: input.text, at: new Date(this.clock()).toISOString(), ...(images.length ? { images } : {}) };
+    let files;
+    try { files = await this.store.writeFiles(input.files || []); } catch (error) { await this.store.removeImages(images); throw error; }
+    const item = { id, text: input.text, ...(input.references?.length ? { references: input.references } : {}), ...(files.length ? { files } : {}), at: new Date(this.clock()).toISOString(), ...(images.length ? { images } : {}) };
     try {
       await this.store.mutate((state) => {
         const entry = this.entry(state, input.agentId, input);
@@ -169,7 +246,7 @@ export class ComposerService {
         entry.lastError = null;
       });
     } catch (error) {
-      await this.store.removeImages(images);
+      await this.store.removeImages([...images, ...files]);
       throw error;
     }
     // The turn may already have ended between the client's check and now.
@@ -184,7 +261,7 @@ export class ComposerService {
       if (entry) entry.queue = entry.queue.filter((m) => m.id !== input.id);
       return found;
     });
-    await this.store.removeImages(removed?.images);
+    await this.store.removeImages([...(removed?.images || []), ...(removed?.files || [])]);
     return { ok: true };
   }
 
@@ -202,8 +279,13 @@ export class ComposerService {
     });
     const running = agent.status === "running" || agent.status === "initializing";
     try {
-      await this.send(paseo, input.agentId, item.text, running, await this.store.readImages(item.images), item.id);
-      await this.store.removeImages(item.images);
+      const uploaded = await this.files.prepare(input, await this.store.readFiles(item.files), paseo);
+      await this.verify(input, paseo);
+      const attachments = [...uploaded, ...(item.references || [])];
+      const args = [paseo, input.agentId, item.text, running, await this.store.readImages(item.images), item.id] as const;
+      if (attachments.length) await this.send(...args, attachments);
+      else await this.send(...args);
+      await this.store.removeImages([...(item.images || []), ...(item.files || [])]);
     } catch (error) {
       await this.store.mutate((state) => {
         const entry = this.entry(state, input.agentId, input);
@@ -239,8 +321,13 @@ export class ComposerService {
       if (!item) return false;
       this.lastDrain.set(agentId, this.clock());
       try {
-        await this.send(paseo, agentId, item.text, false, await this.store.readImages(item.images), item.id);
-        await this.store.removeImages(item.images);
+        const uploaded = await this.files.prepare({ ...entry, agentId }, await this.store.readFiles(item.files), paseo);
+        await this.verify({ ...entry, agentId }, paseo);
+        const attachments = [...uploaded, ...(item.references || [])];
+        const args = [paseo, agentId, item.text, false, await this.store.readImages(item.images), item.id] as const;
+        if (attachments.length) await this.send(...args, attachments);
+        else await this.send(...args);
+        await this.store.removeImages([...(item.images || []), ...(item.files || [])]);
         await this.store.mutate((s) => {
           const e = s.sessions[agentId];
           if (e) e.lastError = null;
@@ -266,10 +353,11 @@ export class ComposerService {
     const before = await this.store.read();
     if (Object.values(before.sessions).some((e) => !!e.taskId && !live.has(e.taskId))) {
       const dropped = await this.store.mutate((s) => {
-        const images: QueuedImage[] = [];
+        const images: { file: string }[] = [];
         for (const [id, e] of Object.entries(s.sessions))
           if (!!e.taskId && !live.has(e.taskId)) {
-            for (const m of e.queue) images.push(...(m.images || []));
+            for (const m of e.queue) images.push(...(m.images || []), ...(m.files || []));
+            for (const item of e.draftAttachments || []) if (item.kind !== "reference") images.push(item);
             delete s.sessions[id];
           }
         return images;

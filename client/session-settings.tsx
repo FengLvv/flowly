@@ -11,17 +11,18 @@ import { Label, font, message, noFocusRing, radius, space, tint, touch, useTheme
 import { useMotionPresence, lerp } from "./motion";
 import { t } from "../shared/i18n";
 import { SessionProviderIcon } from "./session-provider-icon";
+import { isDarkColor } from "./brand-icons";
+import { featureIconColor, selectedFeatureOption, type SessionFeature } from "./session-feature-state";
 
-type Feature = NonNullable<PaseoAgent["features"]>[number];
 /** Composer popups; "subagents" is the Subagents chip (SUBAGENTS-SPEC). */
 export type ChipMenuId = "model" | "thinking" | "mode" | "subagents" | `feature:${string}`;
 
-const featureValue = (f: Feature) =>
+const featureValue = (f: SessionFeature) =>
   f.type === "toggle"
     ? f.value
       ? t("On")
       : t("Off")
-    : f.options.find((o) => o.id === f.value)?.label || f.value || t("Default");
+    : selectedFeatureOption(f)?.label || t("Default");
 
 /**
  * Session configuration for the composer chips. Reasoning / permissions / stop
@@ -100,7 +101,7 @@ export function useSessionConfig(targetScope: string | SessionScope, agent: Pase
 }
 export type SessionConfig = ReturnType<typeof useSessionConfig>;
 
-function Chip({ icon, text, open, disabled, onPress, label, iconOnly, checked, hint, leading }: {
+function Chip({ icon, text, open, disabled, onPress, label, iconOnly, checked, iconColor, hint, leading }: {
   icon: string;
   text: string;
   open: boolean;
@@ -109,6 +110,7 @@ function Chip({ icon, text, open, disabled, onPress, label, iconOnly, checked, h
   label: string;
   iconOnly?: boolean;
   checked?: boolean;
+  iconColor?: string;
   hint?: string;
   leading?: ReactNode;
 }) {
@@ -135,12 +137,12 @@ function Chip({ icon, text, open, disabled, onPress, label, iconOnly, checked, h
           maxWidth: 180,
           paddingHorizontal: iconOnly ? 0 : space[1],
           borderRadius: radius.md,
-          backgroundColor: checked ? tint(colors.accent, 0.12) : open || hover || pressed ? colors.surface2 : "transparent",
+          backgroundColor: open || hover || pressed ? colors.surface2 : "transparent",
           opacity: disabled ? 0.5 : 1,
         };
       }}
     >
-      {leading || <Icon name={icon} size={18} color={checked ? colors.accent : colors.foregroundMuted} />}
+      {leading || <Icon name={icon} size={18} color={iconColor ?? colors.foregroundMuted} />}
       {!iconOnly && <View style={{ flexShrink: 1, minWidth: 0 }}>
         <Label size={font.base} medium lines={1} selectable={false}>
           {text}
@@ -240,6 +242,7 @@ export function ComposerChips({
 }) {
   const { colors } = useTheme();
   const blocked = disabled || config.pending;
+  const dark = isDarkColor(colors.surface1);
   const chooseFeature = (id: string, value: boolean | string) => {
     setMenu(null);
     void config.apply({ feature: { id, value } }, t("Session settings updated"));
@@ -247,15 +250,18 @@ export function ComposerChips({
   const toggle = (id: ChipMenuId) => setMenu(menu === id ? null : id);
   const menuFor = (id: ChipMenuId) => {
     const feature = id.startsWith("feature:") ? config.features.find((f) => `feature:${f.id}` === id) : undefined;
-    if (feature?.type === "select") return (
-      <ChipMenu open={menu === id} inline={inline} alignEnd items={feature.options.map((option) => ({
-        id: option.id, label: option.label, detail: option.description, selected: option.id === feature.value, disabled: blocked,
-        onPress: () => {
-          setMenu(null);
-          if (option.id !== feature.value) chooseFeature(feature.id, option.id);
-        },
-      }))} />
-    );
+    if (feature?.type === "select") {
+      const current = selectedFeatureOption(feature)?.id;
+      return (
+        <ChipMenu open={menu === id} inline={inline} alignEnd items={feature.options.map((option) => ({
+          id: option.id, label: option.label, detail: option.description, selected: option.id === current, disabled: blocked,
+          onPress: () => {
+            if (option.id === current) setMenu(null);
+            else chooseFeature(feature.id, option.id);
+          },
+        }))} />
+      );
+    }
     return id === "model" ? (
       <ChipMenu
         open={menu === "model"}
@@ -353,6 +359,7 @@ export function ComposerChips({
               label={`${feature.label}: ${featureValue(feature)}`}
               hint={feature.description || feature.tooltip}
               checked={feature.type === "toggle" ? feature.value : undefined}
+              iconColor={featureIconColor(feature, dark)}
               open={menu === id}
               disabled={blocked}
               onPress={() => feature.type === "toggle" ? chooseFeature(feature.id, !feature.value) : toggle(id)}

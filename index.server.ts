@@ -1,3 +1,4 @@
+import { SessionFiles } from "./server/session-files";
 import { DescriptionImageFiles, DescriptionImages } from "./server/description-images";
 import { readCardDetail, readProjectCardIndex, readProjectIdeas } from "./server/card-detail";
 import type { PluginServerContext } from "@getpaseo/plugin/server";
@@ -264,13 +265,19 @@ export default function contribute(host: PluginServerContext) {
     readService.mark(input, paseo),
   );
   server.handle(rpc.markSessionUnread, (input, { paseo }) => readService.markUnread(input, paseo));
-  const composer = new ComposerService(new ComposerStore(store.directory), store);
+  const sessionFiles = new SessionFiles(store);
+  server.handle(rpc.searchSessionForge, (input, { paseo }) => sessionFiles.search(input, input.query, paseo));
+  server.handle(rpc.uploadSessionFiles, (input, { paseo }) => sessionFiles.prepare(input, input.files, paseo));
+  const composer = new ComposerService(new ComposerStore(store.directory), store, undefined, undefined, sessionFiles);
   server.handle(rpc.readComposer, (_, { paseo }) => {
     void composer.drainAll(paseo).catch(() => undefined);
     return composer.read();
   });
   server.handle(rpc.saveDraft, (input, { paseo }) => composer.saveDraft(input, paseo));
   server.handle(rpc.queueMessage, (input, { paseo }) => composer.push(input, paseo));
+  server.handle(rpc.readAttachmentDraft, (input, { paseo }) => composer.readAttachments(input, paseo));
+  server.handle(rpc.addAttachmentDraft, (input, { paseo }) => composer.addAttachments(input, paseo));
+  server.handle(rpc.removeAttachmentDraft, (input, { paseo }) => composer.removeAttachments(input, paseo));
   server.handle(rpc.unqueueMessage, (input) => composer.remove(input));
   server.handle(rpc.sendQueuedNow, (input, { paseo }) => composer.sendNow(input, paseo));
   const images = new SessionImageService(store);

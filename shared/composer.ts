@@ -1,3 +1,5 @@
+import { storedDraftAttachmentSchema } from "./attachment-drafts";
+import { queuedFileSchema, forgeReferenceSchema } from "./session-files";
 import { sessionTargetFields, validSessionScope } from "./session-target";
 import { z } from "zod";
 
@@ -24,13 +26,17 @@ export const queuedMessageSchema = z
     text: z.string().max(20000),
     at: z.string(),
     images: z.array(queuedImageSchema).optional(),
+    files: z.array(queuedFileSchema).optional(),
+    references: z.array(forgeReferenceSchema).optional(),
   })
-  .refine((m) => !!m.text.trim() || !!m.images?.length, "A queued message needs text or an image.");
+  .refine((m) => !!m.text.trim() || !!m.images?.length || !!m.files?.length || !!m.references?.length, "A queued message needs text or an attachment.");
 export const composerEntrySchema = z.object({
   taskId: id.optional(),
   workspaceId: id.optional(),
   draft: z.string().max(20000),
   draftAt: z.string().nullable(),
+  draftAttachments: z.array(storedDraftAttachmentSchema).optional(),
+  attachmentRevision: z.number().int().nonnegative().optional(),
   queue: z.array(queuedMessageSchema).max(50),
   /** Last failure sending a queued message; cleared on the next success. */
   lastError: z.string().max(2000).nullable(),

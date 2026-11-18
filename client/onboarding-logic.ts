@@ -29,7 +29,7 @@ export function welcomeDecision(input: {
   return input.blocked ? "wait" : "show";
 }
 
-export const tipIds = ["runtime-view", "lazy-workspace","first-card", "needs-you", "first-idea", "first-done", "first-artifact", "first-tag", "agent-question", "older-finished", "next-move", "first-ticket", "jira-connect", "project-menu", "first-workpad", "subagents", "card-display", "first-workflow-insight", "attention-dismiss", "sidebar-order", "connectors", "session-history", "session-context", "session-controls", "ai-language", "summary-models", "first-skill-draft", "search", "lane-swipe", "board-pan", "auto-review", "first-guardrail", "description-images", "image-limits", "tapd-connect", "session-composer-fill", "settings-entry"] as const;
+export const tipIds = ["runtime-view", "lazy-workspace","first-card", "needs-you", "first-idea", "first-done", "first-artifact", "first-tag", "agent-question", "older-finished", "next-move", "first-ticket", "jira-connect", "project-menu", "first-workpad", "subagents", "card-display", "first-workflow-insight", "attention-dismiss", "sidebar-order", "connectors", "session-history", "session-context", "session-controls", "ai-language", "summary-models", "first-skill-draft", "search", "lane-swipe", "board-pan", "auto-review", "first-guardrail", "description-images", "image-limits", "tapd-connect", "composer-input", "session-composer-fill", "settings-entry"] as const;
 export type TipId = (typeof tipIds)[number];
 
 export interface TipFacts {
@@ -132,13 +132,14 @@ const tipFact: Record<Exclude<TipId, "settings-entry">, keyof TipFacts> = {
   "first-guardrail": "learnedGuideline",
   "lane-swipe": "laneSwipe",
   "session-composer-fill": "sessionComposerFill",
+  "composer-input": "cardWithSession",
 };
 
 /** The one tip to show now: first in priority order whose fact holds and that was not shown before. */
 export function nextTip(input: { tipsSeen: readonly string[]; facts: TipFacts; blocked: boolean }): TipId | null {
   if (input.blocked) return null;
   // Waiting for the user outranks introductions; the answer-in-session tip is the more specific one.
-  const order: Exclude<TipId, "settings-entry">[] = ["agent-question", "needs-you", "attention-dismiss", "first-done", "older-finished", "next-move", "auto-review", "first-guardrail", "first-workpad", "subagents", "first-idea", "first-skill-draft", "first-workflow-insight", "ai-language", "summary-models", "first-artifact", "first-ticket", "first-tag", "first-card", "runtime-view", "lane-swipe", "board-pan", "card-display", "search", "description-images", "image-limits", "connectors", "session-history", "session-context", "session-controls", "session-composer-fill", "sidebar-order", "project-menu", "jira-connect", "tapd-connect", "lazy-workspace"];
+  const order: Exclude<TipId, "settings-entry">[] = ["agent-question", "needs-you", "attention-dismiss", "first-done", "older-finished", "next-move", "auto-review", "first-guardrail", "first-workpad", "subagents", "first-idea", "first-skill-draft", "first-workflow-insight", "ai-language", "summary-models", "first-artifact", "first-ticket", "first-tag", "first-card", "runtime-view", "lane-swipe", "board-pan", "card-display", "search", "description-images", "image-limits", "connectors", "session-history", "session-context", "session-controls", "session-composer-fill", "composer-input", "sidebar-order", "project-menu", "jira-connect", "tapd-connect", "lazy-workspace"];
   return order.find((id) => input.facts[tipFact[id]] && !input.tipsSeen.includes(id)) ?? null;
 }
 

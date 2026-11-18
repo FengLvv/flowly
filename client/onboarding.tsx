@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Animated, Modal as RNModal, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
+import { Animated, Platform, Modal as RNModal, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import { Icon, ScrollView } from "@getpaseo/plugin/client/react-native";
 import { useSettings } from "@getpaseo/plugin/client";
 import type { PluginTheme } from "@getpaseo/plugin";
@@ -426,6 +426,7 @@ function MoreFeatures() {
     { icon: "Activity", title: t("Runtime"), text: t("Runtime shows all Paseo conversations on this host. Open a conversation to chat in Flowly.") },
     { icon: "MessagesSquare", title: t("Session context"), text: t("Start a new session with dialogue text from another session in the same project, even with a different model.") },
     { icon: "SlidersHorizontal", title: t("Session controls"), text: t("Change models and provider features inside Flowly. Copy messages or reload a session from its menu.") },
+    { icon: "Paperclip", title: t("Files and commands"), text: Platform.OS === "web" ? t("Use + to add images, files or issues and pull requests. Type / to choose a command or skill.") : t("Type / to choose a command or skill.") },
     { icon: "Images", title: t("Description images"), text: t("Save pictures with a card description and use its text and pictures as a session instruction.") + " " + t("Flowly does not limit image count or size. Model and host limits still apply.") },
     { icon: "ListChecks", title: t("Workpad"), text: t("Agents set the card's type and tags and write an acceptance list before they start; the card shows how many items are met, next to the latest review.") },
     { icon: "ShieldCheck", title: t("Auto review"), text: t("Deliveries are checked before they reach you, and go back to the agent when they fall short.") },

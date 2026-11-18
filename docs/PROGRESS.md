@@ -1512,3 +1512,15 @@ Phase 2 spec: [PHASE-02-SPEC.md](PHASE-02-SPEC.md). Three current-card tools; au
 - 最终363073c覆盖绑定读取窗口，确定性回归先红后绿；typecheck与全量1501通过/6skip，独立Luna 53聚焦通过并放行。客户端产品源码未改，既有手机与旧宿主证据不冒充新取样。
 
 - 删除清理补轮d38c8ab：在drain前重新dirty，冷/热删除回归先红后绿；55聚焦、typecheck、全量1503/6skip与独立Luna通过。旧报告时序已独立注释；按用户决定继续等CodeRabbit额度。
+
+## Composer experience parity — 2026-11-17
+
+- Native 0.16 comparison: Add image / Add issue or PR / Upload file; provider commands and skills from the current session. Flowly now offers these actions, generic file picker/paste/drop, actual Forge search and keyboard completion. `/clear` and `/exit` open the exact native composer for user review; selecting them does not send/archive. Add anchors above Plus in desktop/compact layouts, per the user's correction.
+- Unsent image/file/reference drafts persist per session on the daemon with original bytes, metadata and stable IDs. Scoped idempotent add/remove/read RPCs, serial atomic storage, retryable client cache across unmount, missing-file recovery, and submitted-ID-only cleanup preserve new attachments and uncertain sends. No binary polling. Server upload batches clean only positively owned fresh IDs before a send is attempted.
+- Guidance: new Files and commands tour row and once-only composer-input tip; README and parity/onboarding specs aligned, nine catalogs updated. No additional recovery tip is needed for expected draft persistence. No telemetry field (existing message flow), dependency, version or What's new change.
+- Verification before freeze: typecheck exit 0; 9 focused files / 139 tests passed. Isolated installed-host UI 30/30, including desktop/compact anchors, command/skill selection, generic picker/paste/drop, image draft Back/reopen/session switch/plugin reload, exact provider file-byte response, and no automatic host-command execution. Dedicated board/native resources, daemon, browser and temporary home all cleaned. Earlier attempts failed on stale translation/type and native-command routing; these were fixed and the full focused/UI sequences rerun. Final exact-commit and independent results are recorded in docs/verification/composer-experience.md and composer-experience-independent.md; phone and live authenticated Forge results are separate/unrun.
+
+## Composer feature indicators (2026-11-18)
+
+- Speed now highlights a non-default tier in yellow. Plan uses blue and Auto-accept uses green when enabled. The trigger label and menu selection use the same effective provider option. Light surfaces use higher contrast shades. Model, reasoning, and permission icons keep their ordinary foreground.
+- Verified live Fast and Plan in dark desktop and light compact Flowly using the installed Paseo renderer and an isolated daemon. The existing Session controls tour and tip cover the behavior. No telemetry field is needed. [Verification](verification/session-feature-colors.md).
