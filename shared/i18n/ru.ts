@@ -5,6 +5,7 @@ const catalog: Catalog = {
   "Add note": "Добавить заметку",
   "Remove note": "Удалить заметку",
   "Note added": "Заметка добавлена",
+  "Note removed": "Заметка удалена",
   "You can add up to {count} supplemental notes.": "Можно добавить не более {count} дополнительных заметок.",
   "Keep extra details below a card’s description. Add notes directly from the sidebar.": "Храните дополнительные сведения под описанием карточки. Добавляйте заметки прямо на боковой панели.",
   "Loading attachments…": "Загрузка вложений…",

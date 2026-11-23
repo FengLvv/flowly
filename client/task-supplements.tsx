@@ -6,7 +6,7 @@ import { useToast } from "@getpaseo/plugin/client/react-native";
 import type { CardDetail } from "../shared/card-detail";
 import { t } from "../shared/i18n";
 import type { Task } from "../shared/model";
-import { appendTaskSupplement } from "../shared/rpc";
+import { appendTaskSupplement, updateTask } from "../shared/rpc";
 import { taskSupplementLimits, type TaskSupplement } from "../shared/task-supplements";
 import { detailKey, invalidateCardViews, useTaskDetail } from "./card-detail-query";
 import { Enter } from "./motion";
@@ -44,7 +44,7 @@ export function SupplementList({ entries, draft, setDraft, add, remove, disabled
           <View style={{ flex: 1, minWidth: 0 }}>
             <Label selectable>{entry.text}</Label>
           </View>
-          {remove && <IconButton icon="X" label={t("Remove note")} disabled={disabled} onPress={() => remove(entry.id)} />}
+          {!readOnly && remove && <IconButton icon="X" label={t("Remove note")} disabled={disabled} onPress={() => remove(entry.id)} />}
         </View>
       ))}
       {!readOnly && (
@@ -78,31 +78,28 @@ export const SidebarSupplements = memo(function SidebarSupplements({ task, activ
 }) {
   const { hostId } = useTaskDetail();
   const client = useQueryClient();
-  const save = useRpc(appendTaskSupplement);
+  const append = useRpc(appendTaskSupplement);
+  const update = useRpc(updateTask);
   const toast = useToast();
   const [draft, setDraft] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const submitted = useRef<TaskSupplement | null>(null);
   const lock = useRef(false);
-  async function add() {
-    const text = draft.trim();
-    if (!active || readOnly || lock.current || !text) return false;
-    const entry = submitted.current?.text === text ? submitted.current : { id: newMessageId(), text };
-    submitted.current = entry;
+  const entries = task.supplements ?? empty;
+  async function persist(write: () => Promise<Task>, success: string) {
+    if (!active || readOnly || lock.current) return false;
     lock.current = true;
     setPending(true);
     setError("");
     try {
-      const saved = await save({ taskId: task.id, entry });
+      const saved = await write();
       const key = detailKey(hostId, saved.id, saved.workspaceId);
       await client.cancelQueries({ queryKey: key, exact: true });
       client.setQueryData<CardDetail>(key, (current) =>
         current && current.task.revision < saved.revision ? { ...current, task: saved } : current,
       );
-      setDraft("");
-      submitted.current = null;
-      toast.show(t("Note added"), { variant: "success" });
+      toast.show(success, { variant: "success" });
       void invalidateCardViews(client);
       return true;
     } catch (e) {
@@ -114,12 +111,32 @@ export const SidebarSupplements = memo(function SidebarSupplements({ task, activ
       setPending(false);
     }
   }
+  async function add() {
+    const text = draft.trim();
+    if (!text) return false;
+    const entry = submitted.current?.text === text ? submitted.current : { id: newMessageId(), text };
+    const saved = await persist(() => {
+      submitted.current = entry;
+      return append({ taskId: task.id, entry });
+    }, t("Note added"));
+    if (saved) {
+      setDraft("");
+      submitted.current = null;
+    }
+    return saved;
+  }
+  function remove(id: string) {
+    const remaining = entries.filter((entry) => entry.id !== id);
+    if (remaining.length === entries.length) return;
+    // The revision check prevents a stale list from dropping a concurrent append.
+    void persist(() => update({ id: task.id, revision: task.revision, supplements: remaining }), t("Note removed"));
+  }
   return (
     <View style={{ gap: space[2] }}>
-      <SupplementList entries={task.supplements ?? empty} draft={draft} setDraft={(text) => {
+      <SupplementList entries={entries} draft={draft} setDraft={(text) => {
         setDraft(text);
         setError("");
-      }} add={add} disabled={!active || pending} readOnly={readOnly} />
+      }} add={add} remove={remove} disabled={!active || pending} readOnly={readOnly} />
       {!!error && <Notice>{error}</Notice>}
     </View>
   );

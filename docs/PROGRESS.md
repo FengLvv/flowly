@@ -19,6 +19,7 @@
 
 ## Card supplemental notes — 2026-11-23
 
+- The sidebar can remove one saved note at a time. It shares the form's version check and row control, and keeps any open Add note draft. The existing tour still applies, and no new tip or telemetry was added.
 - Follow-up: Add note opens one single-line field. Success and cancellation close it. The current tour describes the same Add action, and the visible control needs no new tip or telemetry.
 - New task and Edit task show a list below the description and images. The card sidebar adds entries immediately. The daemon serializes and deduplicates retrying appends, and revision checks protect the list from stale forms. The task schema remains backward compatible. See [contract](CARD-SUPPLEMENTS-SPEC.md).
 - The welcome tour and both READMEs point to the labeled input. The control is visible on editable cards and needs no one-time tip. No telemetry property was added.

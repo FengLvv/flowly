@@ -5,6 +5,7 @@ const catalog: Catalog = {
   "Add note": "メモを追加",
   "Remove note": "メモを削除",
   "Note added": "メモを追加しました",
+  "Note removed": "メモを削除しました",
   "You can add up to {count} supplemental notes.": "補足メモは {count} 件まで追加できます。",
   "Keep extra details below a card’s description. Add notes directly from the sidebar.": "カードの説明の下に補足情報をまとめましょう。サイドバーから直接メモを追加できます。",
   "Loading attachments…": "添付ファイルを読み込み中…",

@@ -5,6 +5,7 @@ const catalog: Catalog = {
   "Add note": "Añadir nota",
   "Remove note": "Quitar nota",
   "Note added": "Nota añadida",
+  "Note removed": "Nota eliminada",
   "You can add up to {count} supplemental notes.": "Puedes añadir hasta {count} notas adicionales.",
   "Keep extra details below a card’s description. Add notes directly from the sidebar.": "Guarda detalles adicionales debajo de la descripción de la tarjeta. Añade notas directamente desde la barra lateral.",
   "Loading attachments…": "Cargando adjuntos…",
