@@ -62,5 +62,3 @@ export function createRuntimeSearch(load: Loader) {
     },
   };
 }
-
-

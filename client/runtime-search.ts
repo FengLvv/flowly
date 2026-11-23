@@ -27,4 +27,3 @@ export function useRuntimeSearch(candidates: readonly SearchCandidate[], enabled
   // An effect has not yet applied this render's new query: never paint the old matches.
   return { ...(configured.current === key ? snapshot : empty), retry: store.retry };
 }
-
