@@ -100,8 +100,12 @@ export default function contribute(host: PluginServerContext) {
     const state = await featurePrefs.read().catch(() => null);
     return featureSettingsValues(state?.status === "ready" ? state.values : {});
   };
+  const boardFeed = new ChangeFeed();
   const stopFeaturePrefs = featurePrefs.subscribe((state) => {
-    if (state.status === "ready") setMemoryEverywhere(featureSettingsValues(state.values).memory);
+    if (state.status === "ready") {
+      setMemoryEverywhere(featureSettingsValues(state.values).memory);
+      boardFeed.notify();
+    }
   });
   void featureValues().then((v) => setMemoryEverywhere(v.memory));
   // The global switch for rules A1/A1r; unreadable settings keep the default (on).
@@ -234,7 +238,11 @@ export default function contribute(host: PluginServerContext) {
     sessions: await tools.managedSessions(),
     workspaces: workspaceBindings(await store.read()),
   }));
-  const boardFeed = new ChangeFeed();
+  guardrails.store.onCommit = () => boardFeed.notify();
+  // Chip preferences used to be found by the minute's reconciliation. Push them even if no board write occurs.
+  const stopChipPrefs = [ideasPrefs, wrapupPrefs, nativePrefs].map((prefs) =>
+    prefs.subscribe(() => boardFeed.notify("sessions")),
+  );
   store.onCommit = () => {
     folders.schedule();
     sessionMetadata.changed();
@@ -327,6 +335,7 @@ export default function contribute(host: PluginServerContext) {
   // Project memory (PROJECT-MEMORY-SPEC): confirmed knowledge shared across a project's cards.
   const memory = new MemoryService(store, summaries.store, summaries.settings, aiLanguage, (taskId) => summaries.settled(taskId));
   memoryRunning = () => memory.runningTasks();
+  memory.onRunningChange = () => boardFeed.notify();
   // Learning from rework turns rides on the card summary (GUARDRAILS-SPEC §4.2).
   summaries.guardrails = { section: (taskId) => guardrails.section(taskId), learn: (input) => guardrails.learn(input) };
   // Skill material: card summaries and project memory (INSIGHTS-REDESIGN-SPEC §3.2).
@@ -897,6 +906,9 @@ export default function contribute(host: PluginServerContext) {
     sessionTitles.dispose();
     stopTailTiming();
     sessionMetadata.stop();
+    stopChipPrefs.forEach((stop) => stop());
+    guardrails.store.onCommit = null;
+    memory.onRunningChange = null;
     boardFeed.stop();
     void store.close().catch((e) => logFailure("Flowly storage: close failed:", e));
     workflow.stop();

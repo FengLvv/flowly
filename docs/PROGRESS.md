@@ -1641,3 +1641,72 @@ Phase 2 spec: [PHASE-02-SPEC.md](PHASE-02-SPEC.md). Three current-card tools; au
 
 - Speed now highlights a non-default tier in yellow. Plan uses blue and Auto-accept uses green when enabled. The trigger label and menu selection use the same effective provider option. Light surfaces use higher contrast shades. Model, reasoning, and permission icons keep their ordinary foreground.
 - Verified live Fast and Plan in dark desktop and light compact Flowly using the installed Paseo renderer and an isolated daemon. The existing Session controls tour and tip cover the behavior. No telemetry field is needed. [Verification](verification/session-feature-colors.md).
+
+## 2026-11-16 Paseo 0.16 在线 chip 零周期读取返工
+
+- 自动验收发现 PR #115 保留的 60 s chip 校对违背「屏幕静止时没有周期性读取」；§3.7 的暂缓不豁免该项。接受意见，保留历史 51→1 手机数据并更正其解释。
+- 先增强回归：静止 180 s 原实现读取 2→5，exit 1；在线时不再安排定时轮次后通过。首事件前、旧宿主、订阅拒绝/关闭继续轮询；恢复首事件后再次停止。
+- 去除分钟触发后，Ideas/Wrap up/native-session 设置通过原有 sessions 通知触发刷新；agent 流建立补一次完整列表、归档事件使归档引用过期。无新增轮询、协议或依赖。
+- 变更后 typecheck exit 0，5 文件 58 聚焦通过；全量 exit 0，165 文件通过/1 跳过，1506 测试通过/6 跳过。独立复核、提交与交付信息见 verification/paseo016-ga-2026-11-16/IDLE-READS-REWORK.md。
+- 本轮 AndroMeld control socket 不存在，adb 无设备；没有新手机或冷启动样本，旧数据保持历史属性。不新增用户操作、设置、引导、遥测字段或版本号。
+
+- CodeRabbit 三条有效补审意见均以确定性回归复现：读取拒绝后chip不恢复、旧设置响应吞新失效、旧归档扫描吞新移除。用户明确批准后两处最小并发保护；各加变化编号，不新增周期轮询。设置旧请求结束保留新失效；归档扫描无论成功/失败都保留新移除并补查。
+- 读取失败用5/30/60 s故障退避，成功即停止；stream初始化未成功应用的完整列表保留relist。该列表路径补回归先红；持续失败不自旋、stop取消、恢复后180秒无周期读取均保留。最终命令、SHA与独立复核记入IDLE-READS-REWORK.md。
+
+- 后续真实CodeRabbit补审又复现三条被catch为null/仅记时间戳的失败路径：归档失败不实际重试、设置失败错误标新鲜、外部insights失败无重试。新回归原3失败/36通过；最小修复后完整聚焦5文件69通过、typecheck exit0。归档仅失败时安排15秒一次性补查，成功/stop取消；设置/insights共用现有故障退避，健康静止仍零读取。
+- 最终候选冷启动门槛目前未满足：本轮AndroMeld socket不存在、adb无设备；3043bd8的历史+3.73%不能自动覆盖之后客户端与server修改。已撤掉卡片冷启动勾选，并向用户请求补测手机或明确接受本次补丁沿用，尚未授权时不合入。
+
+- 随后用户明确回复「授权本次补丁沿用旧冷启动结论」：该决定仅覆盖PR#117当前chip故障恢复补丁/产品531adad，按旧+3.7257%与5%标准接受沿用；没有新候选真机样本，保留UNRUN。此前未满足门槛的时序保留，不再等待连接手机作为本次合入条件。全量本次1517通过/6skip，165文件通过/1skip，exit0。
+
+
+## 2026-11-17 Paseo 0.16 原生agent流恢复与名单合并
+
+- CodeRabbit上轮正文还有两条outside-diff意见，未因check成功或无未解决线程而盲目合入。确定性回归复现setup失败无重试、旧活跃名单覆盖archive/create：原3失败/40通过；修好setup后41通过/2并发失败。
+- 用户明确批准最小名单变化编号，并再次确认本补丁冷启继续沿用旧结论。新增/移除事件递增编号，完整列表返回时若已过期则保留流状态并补读；不再复活已归档session或丢掉新session。setup失败清理本地监听并按既有5/30/60s退避重订阅，成功后停止，stop取消。无新健康周期轮询。
+- 完整5文件聚焦73项通过，typecheck exit0；全量与最终独立报告按冻结源码另记于IDLE-READS-REWORK.md。冷启动仍无新手机样本，严格按用户本补丁沿用授权记录，未扩展到其他功能。
+
+- 独立Luna对3ab5ff8暂缓放行：本地尚无ID时的remove被changed=false提前过滤，旧完整列表仍复活该session。临时诊断已移除、WITHHELD证据单独保留（LUNA-STREAM-RECONCILE.md/86e9198）；原73/1521通过不掩盖此缺口。
+- 在已批准的名单保护内补常规remove-unseen与archive-unseen回归，旧实现2失败/43通过（实测仍有旧session extras）。原始归档/移除现在即使本地尚无ID也递增membership编号、使归档引用失效并触发刷新。修改后完整5文件75项通过，typecheck exit0；重新冻结后复验全量与独立检查。
+
+- 最新最终产品deca6bd：typecheck与75聚焦通过，同一Luna复验PASS；父全量1523通过/6skip、165文件通过/1skip。保留旧WITHHELD时序，新报告LUNA-STREAM-FINAL.md；测试session已清理。最终证据整理后一次推送PR#117，等CI与真实CodeRabbit补审，不改产品源码。
+
+- CodeRabbit对dd47856补审提出持续stream setup失败时普通列表仍需刷新的有效意见。新回归先红（1失败/45通过，新a2无Task chip）；仅将既有stream退避回调从openStream改为refreshNow，使订阅重试同时通过普通列表更新新session。连续5/30秒失败期间a2/a3可见，成功后180秒无继续读取；不新增timer。修改后完整5文件76项与typecheck通过，exit0；全量/独立最终证据随后按冻结SHA记录。
+
+- 持续失败回退最终6be6f31：typecheck与76聚焦、父全量1524/6skip通过，独立Luna PASS，报告LUNA-PERSISTENT-STREAM.md；测试会话已清理。新手机仍UNRUN，按用户明确授权沿用本补丁旧冷启结论。最终证据推送后继续等CI与真实CodeRabbit补审。
+
+
+## 2026-11-17 Paseo 0.16 Guardrails/Memory 计数零周期读取返工
+
+- 接受自动验收 goal：启用 Memory 的总览仍每60秒调用 `guardrails.counts`。新客户端回归在180秒静止读数1→4时红灯；独立存储提交的通知回归0次（预期1）红灯。首次服务端fixture缺少noteKind的无效失败已修正后重新确认。
+- GuardrailsStore 的成功原子写入复用 `board.changes` 的board通知（含daemon学习、MCP写入，不要求看板提交）；失败/无改动不通知，停用时解除回调。看板推送失效集合包含counts；健康订阅停止60秒轮询，旧宿主/connecting/断开或计数读取失败时保留60秒回退，成功后停止，隐藏/卸载不读。无新协议、健康timer或依赖。
+- 聚焦7文件91项通过、typecheck exit0（初次绿灯）；最终精确SHA及独立验收见本轮报告。既有§3.7暂缓不变，没有修改旧Luna报告。
+- AndroMeld连接报control socket missing，adb设备列表为空；用户明确暂时无法连接。新手机收益/冷启动为UNRUN，PR#117的旧冷启沿用授权不自动扩展到本轮。
+- 无新UI/设置/核心动作/遥测字段，不需要tour、tip、What's new；README与OVERVIEW同步说明计数推送。既有Wrap up文档worktree-only与自有directory实际归档的差异由已有idea跟踪，本轮不改策略。
+
+- 后续同日：最终产品 `31d9dee` typecheck exit0，全量166文件通过/1skip、1528项通过/6skip。Luna会话26784627对同SHA代码与7文件91聚焦PASS，报告a3af96d，当时因设备未测保留整体验收。用户随后明确授权PR#118本轮计数补丁沿用历史+3.7257%/5%冷启结论；这是决策沿用，不是新采样，不改Luna当时的原报告。新手机/daemon/UI仍未运行。测试agent已删除，native inspect确认AGENT_NOT_FOUND。PR#118待CI与真实CodeRabbit，auto-merge关闭。
+
+- 额度等待期间补父任务隔离0.16.0运行时：真实guardrails.create/update写入无board revision变化时，board推送分别104.2/104.3ms到达，counts 0→1→0；etag省略及重订阅all通过。fixture项目/原生registry均空后停止owned daemon，删除owned home/project/script；未碰常用daemon。新手机/UI仍UNRUN。详见GUARDRAIL-COUNTS-REWORK报告。
+
+- CodeRabbit真实补审（02:33UTC）给出首次计数pending吞推送与显式Refresh漏读两条有效意见。临时诊断1失败/3skip、永久回归1失败/3通过（预期第二次读、实际一次）。用户明确批准最小修复并保留回归，继续沿用本轮冷启动决定；`invalidateCardViews`在失效前取消旧counts读取，总览Refresh保留原data.refetch并同时失效counts。无新轮询/变化编号。新精确SHA检查见本轮报告，旧Luna证据不改。
+
+- 本轮修复产品93b7a2：typecheck0、完整7文件92聚焦、全量166文件/1529通过6skip均exit0；无新手机采样，继续明确授权沿用旧冷启。独立Luna对同SHA复核，完整记录追加于GUARDRAIL-COUNTS-REWORK，未改旧独立报告。
+
+- 独立Luna会话ec866156对精确93b7a2代码/typecheck/7文件92聚焦PASS，报告dc0da42。澄清disabled指全局features.memory，不改变既有project.memory开关策略；新手机/daemon/UI仍UNRUN，授权沿用不当作新采样。
+
+- CodeRabbit对62b2a74真实补审（03:35UTC）指出短于30秒的无推送重入不重算计数，违反既有re-entry契约。新增10秒隐藏、无隐藏推送、重新显示的真实QueryObserver回归原实现1失败/4通过（预期2读、实际1读）。最小修复仅在线时staleTime设0，重入即补读，旧宿主/断线保留30秒；回归也检查20次重复render与180秒静止不新增读取，无effect/计时器/新并发机制。
+
+- 重入修复产品bacc790：typecheck0、7文件93聚焦、全量166文件/1530通过6skip均exit0；独立Luna会话4befbffa同SHA代码/typecheck/93聚焦PASS，报告661a6ff。父报告记录旧红灯与继承/UNRUN边界；推送后继续真实CodeRabbit补审，若限额按用户决定定时跟进。
+
+
+## 2026-11-17 Memory / Guardrails 页面健康订阅零周期读取返工
+
+- 接受新auto review goal：useGuardrailsQuery由Memory/Guardrails页共用，原健康idle仍30秒读。真实QueryObserver静止180秒1→7确定红灯；fallback/running/错误/首读推送及MemoryService运行态通知回归共6失败/16通过。首版服务端等待信号写错导致测试/清理超时，修正为现有summarySettled入口信号后重跑，未将那次超时当产品证据。
+- 共用查询读取既有BoardPushLive，健康时全停（含running），旧宿主/connecting/断线或查询错误保留原5秒running/30秒idle，成功在线即停。board推送失效guardrails前缀，沿用已批准取消首读再失效机制，隐藏/重入仍正确。
+- GuardrailsStore成功提交既有board通知覆盖数据/错误；补MemoryService内存running开始/结束通知（含无store提交的自动review取消路径与手动review），全局features.memory准备完成/变化也通知，cleanup解除running回调。项目级开关策略不变，无新subscription协议/健康timer/依赖。README/OVERVIEW同步，未变UI文案/设置/遥测，无需tour/tip/What's new。
+- 首轮完整9文件115聚焦与typecheck exit0；最终源码/full/独立及隔离运行时结果另记MEMORY-PAGE-REWORK。新手机采样UNRUN：AndroMeld control socket missing，adb无设备；PR118计数补丁的旧冷启沿用授权不自动扩大到本轮Memory页。
+
+### 2026-11-17 Memory 页面返工验收与直接合入决定
+
+- 产品9170380：typecheck exit0，9文件115聚焦、全量167文件通过/1跳过，1536项通过/6跳过。独立GPT6Luna同SHA审阅与115项检查通过；报告LUNA-MEMORY-PAGE.md，验收会话已精确删除并确认AGENT_NOT_FOUND。
+- 真实隔离0.16 daemon的Memory新增/删除与全局开关推送104–109ms，页面数据和etag通过；所有fixture与owned daemon已清理。新手机/UI/冷启动仍UNRUN。
+- 用户明确授权本轮页面补丁沿用3043bd8历史+3.7257%/5%冷启结论，随后明确小改动可直接合入、不走PR流程。按本次指示正常快进push main并关闭草稿119；CodeRabbit的NEUTRAL限额不当作通过。原独立报告保留授权之前的边界，不改旧证据。
