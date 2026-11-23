@@ -71,6 +71,7 @@ import { LinkOrigin, TaskLinks } from "./task-links";
 import { TaskArtifacts } from "./task-artifacts";
 import { TaskWorkpad } from "./task-workpad";
 import { TaskTags } from "./task-tags";
+import { SidebarSupplements } from "./task-supplements";
 import { drawerSectionOrder, drawerSectionsOpen, type AnyDrawerSection, type DrawerSection } from "../shared/drawer-sections";
 import { ideaInstruction } from "../shared/ideas";
 import { getLocale, localizedLabels, msg, t, tn } from "../shared/i18n";
@@ -1077,6 +1078,8 @@ function TaskDrawerView({
               </Clamped>
             )}
             {!!task.descriptionImages?.length && <DescriptionImages task={task} />}
+            <SidebarSupplements key={task.id} task={task} active={active && !selected && !sending}
+              readOnly={!!task.archivedAt || !!project.archivedAt} />
             {!!detailState.error && <Notice>{message(detailState.error)}</Notice>}
             {!detailState.detail ? <Button quiet onPress={detailState.retry}>{detailState.error ? t("Retry") : t("Loading cards…")}</Button> : order.map((id) => <Fragment key={id}>{section(id)}</Fragment>)}
             {settled && (

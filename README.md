@@ -120,6 +120,7 @@ The first time you open Flowly, a short welcome tour explains projects, cards an
 ## How it works
 
 - **Description images**: save pictures below a card description; choose **Use card description** to send its text and pictures as the first session instruction. Flowly imposes no image count or size cap; host and model limits still apply.
+- **Supplemental notes**: keep additional details under a card's description and add new entries directly from the card sidebar.
 - **One board project = one native Paseo project root.** To work across repositories, put them under one directory and register it, or let the plugin create a linked root with one symlink per repository (removing a link never touches the target).
 - **One card = one workspace**, created when its first session starts. Plan cards without creating workspaces; later sessions share the same workspace. Linking an existing workspace still binds it immediately. You choose which session receives an instruction; ordinary follow-ups send exactly what you type.
 - **Session context.** In New session, choose dialogue text from another session in the same project, across models. The source stays unchanged; images and tool results are excluded.

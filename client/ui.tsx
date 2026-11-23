@@ -343,6 +343,7 @@ export function Field({
   commitDelay,
   onSubmit,
   autoFocus,
+  maxLength,
   secure = false,
 }: {
   title: string;
@@ -358,6 +359,7 @@ export function Field({
   /** Enter submits (Shift+Enter is a new line in a multiline field). Pass nothing while the form can't be submitted. */
   onSubmit?: () => void;
   autoFocus?: boolean;
+  maxLength?: number;
 }) {
   const { colors } = useTheme();
   const [focused, setFocused] = useState(false);
@@ -375,6 +377,7 @@ export function Field({
         multiline={multiline}
         editable={editable}
         autoFocus={autoFocus}
+        maxLength={maxLength}
         placeholder={placeholder}
         placeholderTextColor={colors.foregroundMuted}
         {...(secure ? { secureTextEntry: true, autoCorrect: false, autoCapitalize: "none" as const } : {})}

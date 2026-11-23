@@ -498,6 +498,7 @@ export default function contribute(host: PluginServerContext) {
     return task;
   });
   server.handle(rpc.updateTaskTags, (input) => store.editTags(input));
+  server.handle(rpc.appendTaskSupplement, (input) => store.appendTaskSupplement(input));
   server.handle(rpc.placeTask, async (input, { paseo }) => {
     const previous = await statusOf(input.id);
     const task = await store.placeTask(input);

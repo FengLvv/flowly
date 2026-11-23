@@ -6,6 +6,11 @@
 
 # Implementation progress
 
+## Card supplemental notes — 2026-11-23
+
+- New task and Edit task show a list below the description and images. The card sidebar adds entries immediately. The daemon serializes and deduplicates retrying appends, and revision checks protect the list from stale forms. The task schema remains backward compatible. See [contract](CARD-SUPPLEMENTS-SPEC.md).
+- The welcome tour and both READMEs point to the labeled input. The control is visible on editable cards and needs no one-time tip. No telemetry property was added.
+
 ## Native conversation Runtime view — 2026-11-16
 
 - Latest user scope replaces earlier task-card/global-board proposals: all native Paseo conversations on this host, one per session including those without Flowly cards. The fixed Runtime tab/compact chooser opens the original Flowly SessionPreview directly, without a TaskDrawer or Better Paseo detail page. Project business boards and native bindings stay unchanged; no synthetic tasks, extra filters/statistics/lane-width settings or automatic workflow changes.

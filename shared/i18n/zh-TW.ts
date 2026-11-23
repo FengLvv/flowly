@@ -1,6 +1,12 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Supplemental notes": "補充內容",
+  "Add note": "新增項目",
+  "Remove note": "移除項目",
+  "Note added": "已新增項目",
+  "You can add up to {count} supplemental notes.": "最多可新增 {count} 條補充內容。",
+  "Keep extra details below a card’s description. Add notes directly from the sidebar.": "在卡片描述下記錄補充內容，也可直接從側邊欄新增項目。",
   "Command": "命令",
   "Review model": "驗收模型",
   "{n} s": "{n} 秒",
