@@ -571,9 +571,10 @@ export function TaskForm({
   };
   function addSupplement() {
     const entry = draftSupplement();
-    if (!entry || pending) return;
+    if (!entry || pending) return false;
     setSupplements([...supplements, entry]);
     setSupplementDraft("");
+    return true;
   }
   const removeDescriptionImage = useStableCallback((id: string) => setSavedDescriptionImages((images) => images.filter((i) => i.id !== id)));
   const descriptionAttachments = useImageAttachments();

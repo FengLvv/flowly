@@ -334,6 +334,7 @@ export function TextBox({ value, onChangeText, commitDelay = 0, onFocus, onBlur,
 
 export function Field({
   title,
+  hideTitle = false,
   value,
   onChange,
   multiline = false,
@@ -347,6 +348,7 @@ export function Field({
   secure = false,
 }: {
   title: string;
+  hideTitle?: boolean;
   value: string;
   onChange: (text: string) => void;
   /** Hide the typed text (tokens); also turns off autocorrect and capitalization. */
@@ -366,9 +368,7 @@ export function Field({
   useShortcutBlock(focused);
   return (
     <View style={{ gap: space[1.5] }}>
-      <Label medium size={font.sm} muted>
-        {title}
-      </Label>
+      {!hideTitle && <Label medium size={font.sm} muted>{title}</Label>}
       <TextBox
         accessibilityLabel={title}
         value={value}

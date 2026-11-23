@@ -2,9 +2,10 @@
 
 ## Interaction
 
-- New task and Edit task show **Supplemental notes** directly below the description and its images. Add adds the current text to the draft list. Save also includes text still in the input. The form can remove any listed draft item before saving, and Cancel discards form changes.
-- The card sidebar shows the same list directly below the description and images, before the configurable sections. It remains available on a card with no description. Add saves immediately and clears the field after confirmation. Enter adds and Shift+Enter inserts a new line on web. While a save is in progress, the sidebar input and Add are disabled. An error appears beside the input and leaves the text available to retry.
-- Archived cards and archived projects show existing notes read-only. The sidebar uses the same layout on desktop and compact screens. Switching cards starts with an empty input.
+- The forms and card sidebar show **Supplemental notes** below the description and its images. Initially the list shows its existing entries and **Add note**. Clicking **Add note** opens and focuses one single-line field below the list. Add or Enter submits that entry and closes the field on success. Cancel closes the entry without adding anything. Click **Add note** again for another entry.
+- Forms add an entry to the draft list and commit the list on Save. Save includes any nonblank text still in the open input. The form can remove listed draft items before saving.
+- The sidebar supports direct additions even when the card description is empty. Its field and actions are disabled while saving. An error leaves the field open with the text available to retry. Previously saved multiline entries keep their line breaks.
+- Archived cards and archived projects show existing notes read-only. The sidebar uses the same layout on desktop and compact screens. Switching cards closes the input.
 - A card description is rendered once as detail data refreshes, while the notes editor keeps its own identity and draft for that card.
 
 ## Data and errors
@@ -16,7 +17,7 @@
 
 ## Acceptance
 
-1. Create and edit a card with several notes. Reopen to check order, multiline text and removed entries.
-2. Append directly from the desktop and compact sidebar, including when the description is empty. Open Edit and check the same list.
+1. Create and edit a card with several notes. Verify the field starts hidden, opens as one line, and closes after Add or Cancel. Reopen to check saved order and removed entries.
+2. Append twice from the desktop and compact sidebar, including when the description is empty. Verify each successful addition closes the field, and reopening Edit shows the same list.
 3. Reopen an older card and reload persisted records. Concurrent appends are kept, retries are idempotent, and stale forms cannot erase appended notes.
 4. Blank, oversized and duplicate-ID input is handled as specified. An archived card is read-only and a failing sidebar save keeps the current draft available for retry.

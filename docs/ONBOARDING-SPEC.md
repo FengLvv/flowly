@@ -63,7 +63,7 @@ Title with detail "Your first three steps." (plus "Nothing is created until you 
 
 The More features tour also includes Description images: save pictures with a card description and use its text and pictures as a session instruction. It clarifies that Flowly imposes no image count or size cap while host/model limits still apply.
 
-The More features tour lists Supplemental notes next to Description images. It points users to the list below the description and to the direct Add action in the sidebar. The labeled input appears there on every editable card.
+The More features tour lists Supplemental notes next to Description images. It points users to the list below the description and to the direct Add note action in the sidebar. Add note opens a single-line entry field on editable cards. Existing tour guidance still applies.
 
 ### 5. One-time contextual tips (small, non-modal)
 
