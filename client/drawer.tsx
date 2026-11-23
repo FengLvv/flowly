@@ -330,8 +330,8 @@ function TaskDrawerView({
     refetchInterval: 10000,
   });
   const scope = useQuery({
-    queryKey: ["flowly", "context", task.id, task.revision, project.revision],
-    queryFn: () => contextRead({ id: task.id }),
+    queryKey: ["flowly", "context", task.id, task.revision, project.revision, "availability"],
+    queryFn: () => contextRead({ id: task.id, instructions: false }),
     enabled: ready,
     refetchInterval: 10000,
     // A revision bump (e.g. an automatic status move) must not blank the

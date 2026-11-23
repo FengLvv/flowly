@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { View } from "react-native";
 import { Collapse } from "./disclosure";
+import { SessionTitleSettings } from "./session-title-settings";
 import { Icon } from "@getpaseo/plugin/client/react-native";
 import { usePaseo, useRpc, useSettings } from "@getpaseo/plugin/client";
 import { useQuery } from "@tanstack/react-query";
@@ -423,6 +424,7 @@ export function AiPage() {
         />
       </SettingsGroup>
       <MemoryFeatureGroup />
+      <SessionTitleSettings />
       <InsightsFeatureGroup />
       {(features.values?.insights ?? true) && <WorkflowInsightsGroup />}
       <SettingsGroup title={t("Ideas")}>

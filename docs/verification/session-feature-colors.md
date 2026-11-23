@@ -1,0 +1,11 @@
+# Session feature icon colors, 2026-11-18
+
+The user reported that Speed showed Fast selected while its lightning icon remained gray. The installed Paseo 0.16.1 renderer assigns yellow to Speed and legacy Fast, blue to Plan, and green to Auto-accept when active. Model, reasoning, and permission icons use their normal foreground. Flowly now uses the same feature states for the icon, trigger label, and menu check mark. Its light surfaces use darker shades for contrast.
+
+Product commit `5f0d136f60df2c3df7f76e247b0d2c4508c33ae6`. The detached checkout passed `npm run typecheck` and 75 focused tests across `session-feature-state`, `session-settings`, `native-session`, and `i18n`. The focused tests cover legacy Fast, Auto-accept, select fallback, and neutral colors for disabled and unfamiliar features.
+
+The installed renderer and an isolated Paseo daemon passed 20 UI checks at 1450 px in dark mode and 750 px in light mode. Checks include actual SVG strokes, native confirmation of Fast and Plan, Speed menu selection after reopening, and neutral colors after resetting both controls. The test used the session ID in [results.json](session-feature-colors/results.json), sent no message, and cleaned up its project, card, session, daemon, and home. Screenshots were captured through `docs/promo/shot-lib.mjs`. The first UI run assumed the selected button would carry `aria-selected`. The row already showed its check mark, so the final run asserts the rendered mark and reports the computed strokes.
+
+The shared checkout passed typecheck and `paseo plugin reload flowly` returned running. Device-native mobile and providers that expose Auto-accept or the legacy Fast toggle were not exercised in live UI. The existing Session controls tour and tip still describe this behavior. No new guidance or telemetry field is needed for this correction.
+
+Two two-worker full runs exited with code 1 before Vitest printed a summary. A serial run with `npm test -- --maxWorkers=1 --reporter=verbose` completed with 1716 passed, 8 skipped, and one 15-second timeout in `server/agent-service.test.ts` (the progress reminder test). That exact test passed when run on its own on both the product commit and its parent `a7608f3`. The full run still records one timeout. The test body, assertions, and timeouts were kept as written.

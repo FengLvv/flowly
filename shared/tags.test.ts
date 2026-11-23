@@ -103,4 +103,7 @@ test("filter and search: OR filter with prefixes, #tag terms AND, text also matc
   expect(taskMatchesSearch(b, "a11y")).toBe(true);
   expect(taskMatchesSearch(b, "contrast")).toBe(true);
   expect(taskMatchesSearch(b, "#a11y contrast")).toBe(true);
+  const combined = card("c", [human("a11y")], { title: "Contrast fix", description: "Render lighting" });
+  expect(taskMatchesSearch(combined, "LIGHTING contrast #a11y")).toBe(true);
+  expect(taskMatchesSearch(combined, "contrast missing #a11y")).toBe(false);
 });

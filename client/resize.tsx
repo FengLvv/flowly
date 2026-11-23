@@ -1,7 +1,10 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PanResponder, View } from "react-native";
 import { touch, useTheme } from "./ui";
 import { t } from "../shared/i18n";
+import { createResizeDrag } from "./resize-drag";
+
+export const resizeGripWidth = touch ? 16 : 8;
 
 export function ResizeGrip({
   width,
@@ -9,6 +12,7 @@ export function ResizeGrip({
   maxWidth = 720,
   onStart,
   onEnd,
+  enabled = true,
 }: {
   width: number;
   onChange(width: number): void;
@@ -16,26 +20,25 @@ export function ResizeGrip({
   /** Drag began / finished (released or interrupted). */
   onStart?(): void;
   onEnd?(): void;
+  enabled?: boolean;
 }) {
   const { colors } = useTheme();
   const [hovered, setHovered] = useState(false);
-  const current = useRef({ width, onChange, onStart, onEnd });
-  current.current = { width, onChange, onStart, onEnd };
-  const startWidth = useRef(width);
-  const pan = useRef(
+  const current = useRef({ width, maxWidth, enabled, onChange, onStart, onEnd });
+  current.current = { width, maxWidth, enabled, onChange, onStart, onEnd };
+  const [drag] = useState(() => createResizeDrag(() => current.current));
+  useEffect(() => { if (!enabled) drag.end(); }, [enabled]);
+  useEffect(() => () => drag.end(), []);
+  const [pan] = useState(() =>
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderGrant: () => {
-        startWidth.current = current.current.width;
-        current.current.onStart?.();
-      },
-      onPanResponderRelease: () => current.current.onEnd?.(),
-      onPanResponderTerminate: () => current.current.onEnd?.(),
-      onPanResponderMove: (_e, g) =>
-        current.current.onChange(startWidth.current - g.dx),
+      onStartShouldSetPanResponder: () => current.current.enabled,
+      onPanResponderGrant: () => drag.start(),
+      onPanResponderRelease: () => drag.end(),
+      onPanResponderTerminate: () => drag.end(),
+      onPanResponderMove: (_e, g) => drag.move(g.dx),
       onPanResponderTerminationRequest: () => false,
     }),
-  ).current;
+  );
   return (
     <View
       {...pan.panHandlers}
@@ -48,13 +51,13 @@ export function ResizeGrip({
       ]}
       onAccessibilityAction={(event) => {
         const name = event.nativeEvent.actionName;
-        if (name === "increment" || name === "decrement")
-          current.current.onChange(current.current.width + (name === "increment" ? 60 : -60));
+        if (name === "increment" || name === "decrement") drag.adjust(name === "increment" ? 1 : -1);
       }}
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => setHovered(false)}
       style={{
-        width: touch ? 16 : 8,
+        width: resizeGripWidth,
+        flexShrink: 0,
         alignItems: "center",
         cursor: "col-resize",
       } as never}

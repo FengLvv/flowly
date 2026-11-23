@@ -13,6 +13,7 @@ import { t, tn } from "../shared/i18n";
  * what is waiting on you. Attention items open the Attention list.
  */
 export function OverviewBar({
+  search,
   overview,
   nameOf,
   onAttention,
@@ -29,6 +30,7 @@ export function OverviewBar({
   onMemory,
   memoryShortcut,
 }: {
+  search?: ReactNode;
   overview: BoardOverview;
   nameOf(status: Status): string;
   onAttention(): void;
@@ -54,9 +56,11 @@ export function OverviewBar({
   const { colors } = useTheme();
   const o = overview;
   return (
-    <View style={{ borderBottomWidth: 1, borderColor: colors.border }}>
+    <View style={{ borderBottomWidth: 1, borderColor: colors.border, flexDirection: "row", alignItems: "center", paddingLeft: search ? space[3] : 0, paddingVertical: search ? space[1.5] : 0 }}>
+      {search}
       <ScrollView
         horizontal
+        style={{ flex: 1, minWidth: 0 }}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
           flexDirection: "row",

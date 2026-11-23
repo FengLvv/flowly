@@ -46,16 +46,18 @@ export function repoMatcher(repos: string[]) {
   return async (workspacePath: string): Promise<string[]> => {
     const path = await canonical(workspacePath);
     if (!path) return [];
-    const identity = await common(path);
     const matches: string[] = [];
     for (const repo of repos) {
       const root = await canonical(repo);
       if (!root) continue;
-      if (
-        contains(root, path) ||
-        (identity && identity === (await common(root)))
-      )
+      if (contains(root, path)) {
         matches.push(repo);
+        continue;
+      }
+      // Most cards use the project root or a child directory. Their canonical
+      // containment already proves membership; Git is only needed outside it.
+      const identity = await common(path);
+      if (identity && identity === (await common(root))) matches.push(repo);
     }
     return matches.sort((a, b) => b.length - a.length);
   };

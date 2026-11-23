@@ -2,7 +2,7 @@ import type { BoardOverview } from "../shared/overview";
 import { imageInputSupported } from "./web-images";
 import { CardDetailProvider, detailQueryOptions, detailUnavailable, invalidateCardViews, useCardDetailQuery, useProjectIdeasQuery } from "./card-detail-query";
 import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
-import { Animated, Platform, Pressable, View, useWindowDimensions, type GestureResponderEvent } from "react-native";
+import { Platform, Pressable, View, useWindowDimensions, type GestureResponderEvent } from "react-native";
 import { Icon, ScrollView, useToast } from "@getpaseo/plugin/client/react-native";
 import { Modal, useAfterModalClose } from "./modal";
 import {
@@ -65,7 +65,7 @@ import { waitingOn } from "../shared/links";
 import { LinkPicker } from "./task-links";
 import { TaskDrawer } from "./drawer";
 import { DeleteTaskDialog } from "./task-delete";
-import { useOverviewQuery, useLiveAgents, useGuardrailCountsQuery, useResourcesQuery, useWorkflowInsightsQuery } from "./queries";
+import { useOverviewQuery, useLiveAgents, guardrailCountsKey, useGuardrailCountsQuery, useResourcesQuery, useWorkflowInsightsQuery } from "./queries";
 import { projectOpenIdeaCount } from "./overview-query";
 import { useStableCallback, useStableTheme } from "./stable";
 import { isLegacyScope } from "../shared/scope";
@@ -91,17 +91,26 @@ import { Popover, type PopoverPlace } from "./popover";
 import { ContextMenuProvider, eventPoint, menuHandlers, suppressNativeMenu, useMenuOpener, type MenuEntry } from "./context-menu";
 import { DesktopColumns, OlderToggle, type Placement } from "./columns";
 import { olderFinishedFromDates } from "./finished-cards";
-import { ResizeGrip } from "./resize";
+import { resizeGripWidth } from "./resize";
+import { DrawerFrame } from "./drawer-frame";
 import { drawerWidth, isCompactLayout } from "./geometry";
 import { useSessionReads } from "./session-reads";
 import { sessionAttentionSummaryFromTurns } from "../shared/session-attention";
-import { MotionProvider, MotionReveal, useMotionPresence, lerp } from "./motion";
+import { activeTaskLanes, projectLaneMotion } from "../shared/lane-activity";
+import { LaneIconMotion } from "./lane-motion";
+import { MotionProvider, MotionReveal, useMotionPresence } from "./motion";
 import { SortableList } from "./sortable-list";
 import { useBoardView } from "./board-view";
+import { useRuntimePreferences } from "./runtime-preferences";
 import { setSweepEnabled } from "./sweep-setting";
 import { BoardOutputActive, BoardPushLive, boardIsActive } from "./query-activity";
 import { BoardPush } from "./board-push";
 import { OverviewBar } from "./overview-bar";
+import { BoardSearch, RuntimeToolbar } from "./board-search";
+import { useRuntimeSearch } from "./runtime-search";
+import { filterRuntime, remainingSearch, runtimeNameCompare, type RuntimeRange, type RuntimeSort } from "../shared/runtime-filter";
+import { filterRuntimeProjects, runtimeWorkspaceProjects, toggleRuntimeProject } from "../shared/runtime-projects";
+import { RuntimeProjectOptions } from "./runtime-project-filter";
 import { InsightsPage } from "./insights";
 import { IdeasPage } from "./ideas-page";
 import { SearchPage } from "./search-page";
@@ -109,7 +118,7 @@ import { focusOfHit, type DrawerFocus } from "./drawer-focus";
 import { searchSources as allSearchSources, type SearchCard, type SearchHit, type SearchMemoryHit } from "../shared/search";
 import { GuardrailsPage } from "./guardrails";
 import { MemoryPage, type MemoryPrefs } from "./memory";
-import { lastViewedProject, pickProject, rememberViewedProject } from "./project-memory";
+import { lastViewedProject, pickProject, rememberViewedProject, rememberViewedRuntime, restoreRuntimeView } from "./project-memory";
 import { ProjectTabs } from "./project-tabs";
 import { RemoveProjectDialog } from "./project-remove";
 import { boardOverview } from "./overview";
@@ -138,7 +147,7 @@ import { ConceptStrip, GuideBanner, WelcomeTour, useOnboarding } from "./onboard
 import { nextTip, settingsHintDue, welcomeDecision, type TipId } from "./onboarding-logic";
 import { latestRelease, whatsNew, whatsNewDecision, type WhatsNewItem } from "./whats-new";
 import { WhatsNewWindow } from "./whats-new-window";
-import { t, tn } from "../shared/i18n";
+import { getLocale, t, tn } from "../shared/i18n";
 import { PROJECT_UNAVAILABLE, gone } from "../shared/card-detail";
 import { workpadEnabled } from "../shared/workpad";
 import { cardDisplay } from "../shared/card-display";
@@ -146,6 +155,8 @@ import { parentOf } from "../shared/subagents";
 import { runtimeGroups } from "../shared/runtime-view";
 import { RuntimeBoard, RuntimeTab } from "./runtime-board";
 import { RuntimeSessionPane, RuntimeSessionCard, type RuntimeTarget } from "./runtime-session";
+import { RuntimeWorkspace, RuntimeParentWait } from "./runtime-workspace";
+import { matchesRuntimeCard, runtimeParent as resolveRuntimeParent } from "../shared/runtime-parent";
 import { listAgents } from "./resources";
 import { reviewLabel } from "./task-review";
 import { visibleReview } from "../shared/auto-review";
@@ -155,6 +166,7 @@ import { composersOf } from "./host-support";
 
 /** One-time tip texts (ONBOARDING-SPEC §5). */
 const tipText: Record<TipId, (compact?: boolean) => string> = {
+  "composer-input": () => Platform.OS === "web" ? t("Use + to add images, files or issues and pull requests. Type / to choose a command or skill.") : t("Type / to choose a command or skill."),
   "runtime-view": () => t("Runtime shows all Paseo conversations on this host. Open a conversation to chat in Flowly."),
   "board-pan": () => t("Hold the right mouse button on empty board space and drag left or right to scroll."),
   "image-limits": () => t("Flowly does not limit image count or size. Model and host limits still apply."),
@@ -310,7 +322,19 @@ function BoardContent(
   const [sessionEntry, setSessionEntry] = useState<
     (SessionEntry & { taskId: string }) | null
   >(null);
-  const view = useBoardView();
+  const view = useBoardView(props.host.id);
+  const runtimePrefs = useRuntimePreferences(view, props.host.id, () => toast.error(t("Could not save view preferences.")));
+  const { runtimeSearch, runtimeRange, runtimeSort, runtimeFullSearch, runtimeHideSubagents } = runtimePrefs.values;
+  const runtimeReady = runtimePrefs.ready && view.ready;
+  const runtimeProjectFilter = useMemo(() => ({ ids: runtimePrefs.values.runtimeProjectIds, unlinked: runtimePrefs.values.runtimeUnlinked }), [runtimePrefs.values.runtimeProjectIds, runtimePrefs.values.runtimeUnlinked]);
+  const setRuntimeSearch = useStableCallback((value: string) => runtimePrefs.update({ runtimeSearch: value.slice(0, 200) }));
+  const setRuntimeRange = useStableCallback((value: RuntimeRange) => runtimePrefs.update({ runtimeRange: value }));
+  const setRuntimeSort = useStableCallback((value: RuntimeSort) => runtimePrefs.update({ runtimeSort: value }));
+  const toggleRuntimeCollapse = useStableCallback((id: string) => {
+    const previous = runtimePrefs.values.runtimeCollapsed;
+    runtimePrefs.update({ runtimeCollapsed: previous.includes(id) ? previous.filter(value => value !== id) : [...previous, id] });
+  });
+  const selectRuntimeGroup = useStableCallback((id: string) => runtimePrefs.update({ runtimeGroup: id }));
   // Moving a card into Done/Cancelled asks whether to wrap it up, unless the
   const sweepOn = view.values?.runningSweep ?? true;
   useEffect(() => setSweepEnabled(sweepOn), [sweepOn]);
@@ -340,8 +364,15 @@ function BoardContent(
     setWrapPrompt(id);
   };
   const runtimeDrafts = useRef(new Map<string, string>());
-  const [runtimeView, setRuntimeView] = useState(false);
-  const [runtimeSession, setRuntimeSession] = useState<RuntimeTarget | null>(null);
+  const [runtimeView, setRuntimeView] = useState(() => restoreRuntimeView(!!(directCard || props.workspaceId || ideaInput.link || input.error || ideaInput.error)));
+  const [runtimeSession, setRuntimeSessionState] = useState<RuntimeTarget | null>(null);
+  const runtimeParentRead = useRef(0), runtimeNow = useRef(runtimeSession); runtimeNow.current = runtimeSession;
+  const setRuntimeSession = useStableCallback((next: RuntimeTarget | null) => {
+    // All explicit routes (including project links/tabs) invalidate pending parent ownership reads.
+    if (!next?.parent) runtimeParentRead.current++;
+    setRuntimeSessionState(next);
+  });
+  useEffect(() => () => { runtimeParentRead.current++; }, [props.host.id]);
   const runtimeDrawer = useMotionPresence(runtimeSession, runtimeSession ? `${runtimeSession.id}|${runtimeSession.workspaceId}` : "");
   const [projectId, setProject] = useState(""),
     [taskId, setTaskState] = useState(""),
@@ -350,7 +381,7 @@ function BoardContent(
     [taskType, setTaskTypeState] = useState("all"),
     [tagFilter, setTagFilterState] = useState<string[]>([]),
     [archived, setArchivedState] = useState(false),
-    [menu, setMenu] = useState<"projects" | "filters" | "status" | "attention" | "shortcuts" | "settings" | null>(null),
+    [menu, setMenu] = useState<"projects" | "runtime-projects" | "filters" | "status" | "attention" | "shortcuts" | "settings" | null>(null),
     // First-run welcome tour (ONBOARDING-SPEC): opened once automatically, or by hand.
     [welcomeOpen, setWelcomeOpen] = useState(false),
     // The tour opened by itself for a new user (ONBOARDING-SETUP-SPEC §4); manual opens are not first runs.
@@ -408,15 +439,10 @@ function BoardContent(
     setArchivedState(view.values.showArchived);
     if (view.values.drawerWidth) setPreferredWidth(view.values.drawerWidth);
   }, [!!view.values]);
-  const searchSave = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => {
-    if (searchSave.current) clearTimeout(searchSave.current);
-  }, []);
-  const setSearch = (next: string) => {
+  const setSearch = useStableCallback((next: string) => {
     setSearchState(next);
-    if (searchSave.current) clearTimeout(searchSave.current);
-    searchSave.current = setTimeout(() => void view.update({ filterSearch: next.slice(0, 200) }), 500);
-  };
+    void view.update({ filterSearch: next.slice(0, 200) });
+  });
   const setPriority = (next: string) => {
     setPriorityState(next);
     void view.update({ filterPriority: next as "all" });
@@ -519,7 +545,21 @@ function BoardContent(
   // While the drawer is being dragged the board keeps one width, the widest it can have (the
   // drawer overlays it), so columns neither reflow nor leave a blank gap when the drawer narrows.
   const [resizing, setResizing] = useState(false);
-  const resizingFrom = resizing ? Math.max(0, surfaceWidth - 340 - 8 - 16) || null : null;
+  const resizingFrom = resizing ? Math.max(0, surfaceWidth - 340 - resizeGripWidth - 16) || null : null;
+  const resizedWidth = useRef(preferredWidth); resizedWidth.current = preferredWidth;
+  const resizeDrawer = useStableCallback((next: number) => {
+    const clamped = drawerWidth(next, surfaceWidth);
+    resizedWidth.current = clamped; setPreferredWidth(clamped);
+  });
+  const startDrawerResize = useStableCallback(() => setResizing(true));
+  const endDrawerResize = useStableCallback(() => {
+    setResizing(false);
+    // The final pointer move may share a render batch with release or an accessible action.
+    const next = Math.round(resizedWidth.current);
+    if (next !== view.values?.drawerWidth) void view.update({ drawerWidth: next });
+  });
+  const frameProps = { compact, width, maxWidth: drawerWidth(720, surfaceWidth || 1000), resizing: resizingFrom != null,
+    onResize: resizeDrawer, onStartResize: startDrawerResize, onEndResize: endDrawerResize };
   // Match the current route and open drawer before exposing any scoped data.
   // Back drops it; a newer full-board deletion must never resurrect the card.
   const directDetail = directCard && input.link && !input.error && !resolvedLink.error &&
@@ -580,11 +620,12 @@ function BoardContent(
     if (!view.values || next === boardSort) return;
     void view.update({ boardSort: next });
   };
-  const project = pickProject(projects, projectId, lastViewedProject());
-  // Returning to the board in this app run reopens the project viewed last; a cold start opens the first.
-  useEffect(() => { if (!runtimeView) rememberViewedProject(project?.id); }, [project?.id, runtimeView]);
-  const chooseProject = (id: string) => { ignoredLink.current = linkKey; setRuntimeView(false); setRuntimeSession(null); setProject(id); setTask(""); setPage(null); };
-  const chooseRuntime = () => { ignoredLink.current = linkKey; setRuntimeView(true); setRuntimeSession(null); setTask(""); setPage(null); setActionTask(null); setSessionEntry(null); setMenu(null); void onboarding.markTipSeen("runtime-view"); };
+  const runtimeCardParent = runtimeView && runtimeDrawer.item?.parent?.kind === "card" ? runtimeDrawer.item.parent : null;
+  const project = (runtimeCardParent && board?.projects.find(p => p.id === runtimeCardParent.projectId)) || pickProject(projects, projectId, lastViewedProject());
+  // Runtime and project tabs share app-run return memory; a fresh bundle still opens the first project.
+  useEffect(() => { if (runtimeView) rememberViewedRuntime(); else rememberViewedProject(project?.id); }, [project?.id, runtimeView]);
+  const chooseProject = (id: string) => { ignoredLink.current = linkKey; rememberViewedProject(id); setRuntimeView(false); setRuntimeSession(null); setProject(id); setTask(""); setPage(null); };
+  const chooseRuntime = () => { ignoredLink.current = linkKey; rememberViewedRuntime(); setRuntimeView(true); setRuntimeSession(null); setTask(""); setPage(null); setActionTask(null); setSessionEntry(null); setMenu(null); void onboarding.markTipSeen("runtime-view"); };
   useEffect(() => {
     setActionTask(null);
   }, [project?.id]);
@@ -605,6 +646,9 @@ function BoardContent(
     events: currentDetail?.events || noEvents,
   } : undefined, [task, project, currentDetail, detailData.error]);
   const drawer = useMotionPresence(drawerTarget, drawerTarget ? `${drawerTarget.project.id}|${drawerTarget.task.id}` : "");
+  // The view and Escape must agree on whether there really is a card parent to consume Back.
+  const runtimeCardParentShown = matchesRuntimeCard(runtimeCardParent, drawer.item?.task) &&
+    (!runtimeDrawer.active || (matchesRuntimeCard(runtimeCardParent, task) && !detailUnavailable(detailData.error)));
   // Desktop: the open card's lane is centred in the board left of the drawer when the drawer would hide it, on
   // opening, on moving to another lane, and on coming back to the board from a page (DRAWER-SPEC). Only the last:
   // an In review / Blocked chip pressed in the same moment (it also leaves the page) keeps its own lane.
@@ -768,6 +812,29 @@ function BoardContent(
   const rootRef = useRef<View>(null),
     attentionRef = useRef<View>(null);
   const [attentionPlace, setAttentionPlace] = useState<PopoverPlace | null>(null);
+  const runtimeProjectRef = useRef<View>(null), runtimeProjectGeneration = useRef(0), runtimeProjectOpening = useRef(false), runtimeProjectHeight = useRef(0);
+  const [runtimeProjectPlace, setRuntimeProjectPlace] = useState<PopoverPlace | null>(null);
+  const closeRuntimeProjects = useStableCallback(() => {
+    runtimeProjectGeneration.current++; runtimeProjectOpening.current = false;
+    setRuntimeProjectPlace(null); setMenu(current => current === "runtime-projects" ? null : current);
+  });
+  const openRuntimeProjects = useStableCallback(() => {
+    if (menu === "runtime-projects" || runtimeProjectOpening.current) { closeRuntimeProjects(); return; }
+    const generation = ++runtimeProjectGeneration.current;
+    if (compact) { setRuntimeProjectPlace(null); setMenu("runtime-projects"); return; }
+    const root = rootRef.current, anchor = runtimeProjectRef.current;
+    if (!root || !anchor) return;
+    runtimeProjectOpening.current = true;
+    root.measureInWindow((cx, cy, cw, ch) => anchor.measureInWindow((x, y, width, height) => {
+      if (generation !== runtimeProjectGeneration.current) return;
+      runtimeProjectOpening.current = false;
+      if (!width || !cw) return;
+      setRuntimeProjectPlace({ anchor: { x, y, width, height }, container: { x: cx, y: cy, width: cw, height: ch } });
+      setMenu("runtime-projects");
+    }));
+  });
+  useEffect(() => { closeRuntimeProjects(); }, [runtimeView, compact, surfaceWidth, runtimeSession?.id]);
+  useEffect(() => () => { runtimeProjectGeneration.current++; }, []);
   const openAttentionMenu = () => {
     const anchor = attentionRef.current,
       root = rootRef.current;
@@ -826,7 +893,10 @@ function BoardContent(
     Number(tagFilter.length > 0);
   const refresh = () => {
     if (taskId) void invalidateCardViews(queryClient);
-    else void data.refetch();
+    else {
+      void data.refetch();
+      void queryClient.invalidateQueries({ queryKey: guardrailCountsKey });
+    }
     void resources.refetch();
     void agents.refetch();
     void readState.refetch();
@@ -964,6 +1034,7 @@ function BoardContent(
     const workspaceIds = new Set((resources.data?.workspaces || []).map((w) => w.id));
     return { agentsByWorkspace, workspaceIds };
   }, [agents.data, resources.data]);
+  const activeLanes = agents.isError ? new Set<Status>() : activeTaskLanes(visible, cardIndex.agentsByWorkspace);
   const openIdeaCount = useMemo(() => {
     const counts = new Map<string, number>();
     if (ideasOn) for (const c of projected?.cards || []) counts.set(c.taskId, c.openIdeas);
@@ -990,14 +1061,44 @@ function BoardContent(
     setDrawerFocus(null);
     setTask(t.id);
   });
-  const openRuntimeSession = useStableCallback((agent: PaseoAgent) => setRuntimeSession({ id: agent.id, workspaceId: agent.workspaceId || "" }));
-  const closeRuntimeSession = useStableCallback(() => setRuntimeSession(null));
+  const focusRuntimeBoard = useStableCallback(() => {
+    if (Platform.OS === "web") (rootRef.current as unknown as { focus?(): void } | null)?.focus?.();
+  });
+  const openRuntimeSession = useStableCallback((agent: PaseoAgent) => {
+    focusRuntimeBoard();
+    setTask(""); setRuntimeSession({ id: agent.id, workspaceId: agent.workspaceId || "" });
+  });
+  const closeRuntimeSession = useStableCallback(() => { focusRuntimeBoard(); setTask(""); setRuntimeSession(null); });
+  const backRuntimeSession = useStableCallback(async () => {
+    if (!runtimeSession) return;
+    const target = runtimeSession;
+    if (!target.workspaceId) { closeRuntimeSession(); return; }
+    const generation = ++runtimeParentRead.current;
+    focusRuntimeBoard();
+    const current = () => generation === runtimeParentRead.current && runtimeNow.current?.id === target.id && runtimeNow.current.workspaceId === target.workspaceId;
+    setRuntimeSession({ ...target, parent: { kind: "pending", workspaceId: target.workspaceId } });
+    try {
+      const result = await overviewData.refetch();
+      if (!current()) return;
+      if (result.error) throw result.error;
+      if (!result.data) throw new Error(t("Card ownership unavailable."));
+      const parent = resolveRuntimeParent(target.workspaceId, result.data.tasks, result.data.projects)!;
+      setRuntimeSession({ ...target, parent });
+      if (parent.kind === "card") {
+        setDetailTarget({ id: parent.taskId, workspaceId: parent.workspaceId, projectId: parent.projectId });
+        setTask(parent.taskId);
+      }
+    } catch (error) {
+      if (current()) setRuntimeSession({ ...target, parent: { kind: "pending", workspaceId: target.workspaceId, error: message(error) } });
+    }
+  });
   const openCardActions = useStableCallback((t: Task) => setActionTask(t));
   const cardMenuFor = useStableCallback((t: Task) => cardMenu(t));
   // Stable drawer callbacks (memoized drawer).
   const closeDrawer = useStableCallback(() => {
     setDrawerFocus(null);
     setTask("");
+    if (runtimeView) { focusRuntimeBoard(); setRuntimeSession(null); }
   });
   const editDrawerTask = useStableCallback(() => task && setTaskForm({ task, status: task.status }));
   // IDEAS-SPEC §6: the new-task form, prefilled from the idea and its source card.
@@ -1151,7 +1252,7 @@ function BoardContent(
   const projectIdeaList = useMemo(() => projectIdeasData.data?.ideas || [], [projectIdeasData.data]);
   const projectOpenIdeas = useMemo(() => projectOpenIdeaCount(projected, project?.id), [projected?.cards, projected?.tasks, project?.id]);
   // Observing commands and guidelines learned this week (GUARDRAILS-SPEC §7.4); the chip hides when the project turned guardrails off.
-  const guardrailCounts = useGuardrailCountsQuery(boardActive && !!project && features.memory);
+  const guardrailCounts = useGuardrailCountsQuery(boardActive && !!project && features.memory, pushLive);
   const guardrailsOn = features.memory && !!project && project.memory !== false;
   const projectGuardrails = guardrailsOn ? guardrailCounts.data?.[project!.id] : undefined;
   const guardrailCount = guardrailsOn ? (projectGuardrails ? projectGuardrails.observing + projectGuardrails.added : 0) : null;
@@ -1389,6 +1490,31 @@ function BoardContent(
   const runtime = useMemo(() => runtimeGroups([
     ...(runtimeHistory.data || []), ...(agents.data || []),
   ], receipts, readUnavailable), [runtimeHistory.data, agents.data, receipts, readUnavailable]);
+  const runtimeLocations = useMemo(() => new Map(resources.data?.workspaces.map(w => [w.id, w])), [resources.data]);
+  const runtimeProjects = useMemo(() => (overviewData.data?.projects ?? []).slice().sort((a, b) => Number(!!a.archivedAt) - Number(!!b.archivedAt) || projectOrder(a, b)), [overviewData.data?.projects]);
+  const runtimeProjectMembership = useMemo(() => runtimeWorkspaceProjects(overviewData.data?.projects ?? [], overviewData.data?.tasks ?? [], resources.data?.workspaces ?? []), [overviewData.data?.projects, overviewData.data?.tasks, resources.data?.workspaces]);
+  const runtimeInProjects = useMemo(() => filterRuntimeProjects(runtime, runtimeProjectMembership, runtimeProjectFilter), [runtime, runtimeProjectMembership, runtimeProjectFilter]);
+  const toggleProjectFilter = useStableCallback((id: string) => runtimePrefs.update({ runtimeProjectIds: [...toggleRuntimeProject(runtimeProjectFilter, id).ids] }));
+  const toggleUnlinkedFilter = useStableCallback(() => runtimePrefs.update({ runtimeUnlinked: !runtimeProjectFilter.unlinked }));
+  const resetProjectFilter = useStableCallback(() => runtimePrefs.update({ runtimeProjectIds: [], runtimeUnlinked: false }));
+  const runtimeLocationOf = useStableCallback((agent: PaseoAgent) => runtimeLocations.get(agent.workspaceId || ""));
+  const compareRuntimeNames = useMemo(() => runtimeNameCompare(getLocale()), [getLocale()]);
+  const runtimeFiltered = useMemo(() => filterRuntime(runtimeInProjects, {
+    query: "", range: runtimeRange, sort: null, now: Date.now(), locationOf: runtimeLocationOf, compareNames: compareRuntimeNames,
+    hideSubagents: runtimeHideSubagents,
+  }), [runtimeInProjects, runtimeRange, runtimeLocationOf, compareRuntimeNames, runtimeHideSubagents]);
+  const runtimeCandidates = useMemo(() => runtimeFullSearch ? runtimeFiltered.flatMap(group => group.sessions.flatMap(agent => {
+    const query = remainingSearch(agent, runtimeSearch, runtimeLocations.get(agent.workspaceId || ""));
+    return query ? [{ id: agent.id, workspaceId: agent.workspaceId, query, version: `${agent.lastUserMessageAt}|${agent.attentionTimestamp}` }] : [];
+  })) : [], [runtimeFiltered, runtimeFullSearch, runtimeSearch, runtimeLocations]);
+  const runtimeConversationSearch = useRuntimeSearch(runtimeCandidates, runtimeView && boardActive && runtimeReady && runtimeFullSearch && !!runtimeSearch.trim());
+  const visibleRuntime = useMemo(() => filterRuntime(runtimeFiltered, {
+    query: runtimeSearch, range: "all", sort: runtimeSort, now: Date.now(), locationOf: runtimeLocationOf,
+    compareNames: compareRuntimeNames, conversationMatches: runtimeFullSearch ? runtimeConversationSearch.matches : undefined,
+  }), [runtimeFiltered, runtimeSearch, runtimeSort, runtimeLocations, runtimeLocationOf, compareRuntimeNames, runtimeFullSearch, runtimeConversationSearch.matches]);
+  const toggleRuntimeFullSearch = useStableCallback(() => runtimePrefs.update({ runtimeFullSearch: !runtimeFullSearch }));
+  const toggleRuntimeSubagents = useStableCallback(() => runtimePrefs.update({ runtimeHideSubagents: !runtimeHideSubagents }));
+  const openBoardSearch = useStableCallback(() => openSearch(search));
   const renderRuntimeSession = useStableCallback((agent: PaseoAgent) => {
     const ws = resources.data?.workspaces.find(w => w.id === agent.workspaceId);
     const source = ws ? `${ws.owner} · ${ws.name}` : agent.cwd || "";
@@ -1483,7 +1609,12 @@ function BoardContent(
   const withKey = (text: string, key: string) =>
     shortcutsOn ? `${text} (${key})` : text;
   function runIntent(intent: BoardIntent | Exclude<ShortcutAction, BoardIntent>) {
-    if (runtimeView && runtimeSession && intent === "escape") { setRuntimeSession(null); return true; }
+    if (menu === "runtime-projects") { closeRuntimeProjects(); return true; }
+    if (runtimeView && runtimeSession && intent === "escape") {
+      if (!runtimeSession.parent) { backRuntimeSession(); return true; }
+      if (!runtimeCardParentShown || !drawer.active) { closeRuntimeSession(); return true; }
+      // A real card parent owns its existing session → card → close Escape stack.
+    }
     if (runtimeView && !task && ["new-task", "filters", "insights", "ideas", "guardrails", "memory", "search"].includes(intent)) return false;
     // The dropdown is not a dialog, so shortcuts still reach the board: any other one closes it.
     if (attentionDropdown && intent !== "attention") {
@@ -1562,6 +1693,9 @@ function BoardContent(
     }
   }
   const onKeyDown = (e: WebKeyEvent) => {
+    if (menu === "runtime-projects" && e.key === "Escape" && !e.nativeEvent?.isComposing) {
+      closeRuntimeProjects(); e.preventDefault(); e.stopPropagation(); return;
+    }
     const action = resolveShortcut(
       { ...e, isComposing: e.nativeEvent?.isComposing },
       shortcutsOn && !shortcutsBlocked(),
@@ -1696,53 +1830,7 @@ function BoardContent(
       )}
     </>
   );
-  const runtimeDrawerView = runtimeView && runtimeDrawer.item && (
-    <Animated.View testID="runtime-drawer-motion" pointerEvents={runtimeDrawer.active ? "auto" : "none"}
-      accessibilityElementsHidden={!runtimeDrawer.active}
-      style={{ ...(compact ? { position: "absolute", top: 0, bottom: 0, left: 0, right: 0, zIndex: 10 } as const : { width, flexDirection: "row" } as const),
-        flex: 1, minHeight: 0, backgroundColor: colors.surface0,
-        ...(runtimeDrawer.settled ? null : { opacity: runtimeDrawer.progress, transform: [{ translateX: lerp(runtimeDrawer.progress, [32, 0]) }] }) }}>
-      {!compact && <ResizeGrip width={width} maxWidth={drawerWidth(720, surfaceWidth || 1000)}
-        onStart={() => setResizing(true)} onEnd={() => { setResizing(false); void view.update({ drawerWidth: Math.round(preferredWidth) }); }}
-        onChange={next => setPreferredWidth(drawerWidth(next, surfaceWidth))} />}
-      <RuntimeSessionPane target={runtimeDrawer.item} compact={compact} hostId={props.host.id} navigation={props.navigation}
-        active={runtimeDrawer.active} onClose={closeRuntimeSession} refresh={stableRefresh} draftMemory={runtimeDrafts.current} />
-    </Animated.View>
-  );
-  const drawerView = drawer.item && (
-    <Animated.View
-      testID="task-drawer-motion"
-      pointerEvents={drawer.active ? "auto" : "none"}
-      accessibilityElementsHidden={!drawer.active}
-      importantForAccessibility={drawer.active ? "auto" : "no-hide-descendants"}
-      style={{
-        // Phone: an opaque overlay above the still laid-out board, so opening
-        // or closing re-lays out nothing underneath (PERFORMANCE-SPEC §3).
-        ...(compact
-          ? { position: "absolute", top: 0, bottom: 0, left: 0, right: 0, zIndex: 30, backgroundColor: colors.surface0 }
-          : resizingFrom != null
-            ? { position: "absolute", top: 0, bottom: 0, right: 0, width: width + 8, minHeight: 0, zIndex: 20, backgroundColor: colors.surface0 }
-            : { width: width + 8, minHeight: 0, flexShrink: 0 }),
-        flexDirection: "row",
-        // Only while opening or closing: at rest no animated props, so a stale native write cannot stay (MotionReveal).
-        ...(drawer.settled ? null : { opacity: drawer.progress, transform: [{ translateX: lerp(drawer.progress, [32, 0]) }] }),
-      }}
-    >
-      {!compact && (
-        <ResizeGrip
-          width={width}
-          maxWidth={drawerWidth(720, surfaceWidth || 1000)}
-          onStart={() => setResizing(true)}
-          onEnd={() => {
-            setResizing(false);
-            // Saved once, on release, never per frame.
-            if (preferredWidth !== view.values?.drawerWidth) void view.update({ drawerWidth: Math.round(preferredWidth) });
-          }}
-          onChange={(next) =>
-            setPreferredWidth(drawerWidth(next, surfaceWidth))
-          }
-        />
-      )}
+  const drawerContent = drawer.item && (
       <CardDetailProvider hostId={props.host.id} task={drawer.item.task} active={drawer.active} initialRead={false}>
       <TaskDrawer
         key={drawer.item.task.id}
@@ -1785,7 +1873,29 @@ function BoardContent(
         focus={drawerFocus?.taskId === drawer.item.task.id ? drawerFocus : undefined}
       />
       </CardDetailProvider>
-    </Animated.View>
+  );
+  const drawerView = drawer.item && <DrawerFrame {...frameProps} testID="task-drawer-motion"
+    active={drawer.active} settled={drawer.settled} progress={drawer.progress}>{drawerContent}</DrawerFrame>;
+  const runtimeAllSessions = useMemo(() => runtime.flatMap(group => group.sessions), [runtime]);
+  const runtimeDrawerView = runtimeView && runtimeDrawer.item && (
+    <DrawerFrame {...frameProps} testID="runtime-drawer-motion" active={runtimeDrawer.active}
+      settled={runtimeDrawer.settled} progress={runtimeDrawer.progress}>
+      <MotionReveal transitionKey={runtimeDrawer.item.parent ? `parent-${runtimeDrawer.item.workspaceId}` : `session-${runtimeDrawer.item.id}`}
+        direction={runtimeDrawer.item.parent ? -1 : 1} distance={16} style={{ flex: 1, minWidth: 0, minHeight: 0 }}>
+        <View style={{ flex: 1, minHeight: 0, display: runtimeDrawer.item.parent ? "none" : "flex" }}>
+          <RuntimeSessionPane target={runtimeDrawer.item} compact={compact} hostId={props.host.id} navigation={props.navigation}
+            active={runtimeDrawer.active && !runtimeDrawer.item.parent} onBack={backRuntimeSession} onClose={closeRuntimeSession}
+            refresh={stableRefresh} draftMemory={runtimeDrafts.current} />
+        </View>
+        {!!runtimeDrawer.item.parent && (runtimeDrawer.item.parent.kind === "pending"
+          ? <RuntimeParentWait error={runtimeDrawer.item.parent.error} onRetry={backRuntimeSession} onClose={closeRuntimeSession} />
+          : runtimeCardParentShown
+          ? <View testID="runtime-card-parent" style={{ flex: 1, minHeight: 0 }}>{drawerContent}</View>
+          : <RuntimeWorkspace workspaceId={runtimeDrawer.item.workspaceId} hostId={props.host.id} sessions={runtimeAllSessions}
+            active={runtimeDrawer.active} cardUnavailable={!!runtimeCardParent} loading={agents.isPending && runtimeHistory.isPending}
+            stale={agents.isError || runtimeHistory.isError} onOpen={openRuntimeSession} onClose={closeRuntimeSession} onRetry={retryRuntime} />)}
+      </MotionReveal>
+    </DrawerFrame>
   );
   return (
     <BoardPushLive.Provider value={pushLive}>
@@ -1797,7 +1907,12 @@ function BoardContent(
         ref={rootRef}
         {...(keyboardProps as {})}
         {...({ onContextMenu: suppressNativeMenu } as object)}
-        onLayout={(e) => setSurfaceWidth(e.nativeEvent.layout.width)}
+        onLayout={(e) => {
+          setSurfaceWidth(e.nativeEvent.layout.width);
+          const height = e.nativeEvent.layout.height;
+          if (!compact && height !== runtimeProjectHeight.current && (menu === "runtime-projects" || runtimeProjectOpening.current)) closeRuntimeProjects();
+          runtimeProjectHeight.current = height;
+        }}
         // The root only takes focus to receive shortcuts; it must not draw a focus ring.
         style={{ flex: 1, minHeight: 0, overflow: "hidden", backgroundColor: colors.surface0, outlineStyle: "none" } as never}
       >
@@ -1921,8 +2036,9 @@ function BoardContent(
           </View>
         )}
         {!runtimeView && project && board && (
-          <View {...covered}>
+          <View {...covered} style={{ zIndex: 2 }}>
           <OverviewBar
+            search={<BoardSearch value={search} onChange={setSearch} onSearch={openBoardSearch} />}
             overview={boardOverview(project, board.tasks, agents.data || [], attention)}
             nameOf={nameOf}
             onAttention={openAttentionMenu}
@@ -1951,6 +2067,13 @@ function BoardContent(
           />
           </View>
         )}
+        {runtimeView && runtimeReady && <View {...covered} style={{ zIndex: 2 }}><RuntimeToolbar query={runtimeSearch} onQuery={setRuntimeSearch}
+          hideSubagents={runtimeHideSubagents} onSubagents={toggleRuntimeSubagents}
+          projectRef={runtimeProjectRef} projectCount={runtimeProjectFilter.ids.length + Number(runtimeProjectFilter.unlinked)} projectOpen={menu === "runtime-projects"}
+          projectsReady={!!overviewData.data && !!resources.data} onProjects={openRuntimeProjects}
+          range={runtimeRange} onRange={setRuntimeRange} sort={runtimeSort} onSort={setRuntimeSort}
+          full={runtimeFullSearch} onFull={toggleRuntimeFullSearch} pending={runtimeConversationSearch.pending}
+          errors={runtimeConversationSearch.errors} onRetry={runtimeConversationSearch.retry} /></View>}
         {!runtimeView && emptyProjectHint && (
           <GuideBanner
             text={t("Add your first task. It gets its own workspace and sessions.")}
@@ -2034,8 +2157,13 @@ function BoardContent(
                     : { width: resizingFrom, flexGrow: 0, flexShrink: 0, minHeight: 0, overflow: "hidden" }
                 }
               >
-                {runtimeView && !page ? (
-                  <RuntimeBoard groups={runtime} compact={compact} active={boardActive}
+                {runtimeView && !page && !runtimeReady ? <View testID="runtime-preferences-loading" style={{ padding: space[4], gap: space[2] }}>
+                  <Label muted>{view.problem ? t("Could not load view preferences.") : t("Loading…")}</Label>
+                  {!!view.problem && <Button quiet onPress={() => void view.reload()}>{t("Retry")}</Button>}
+                </View> : runtimeView && !page ? (
+                  <RuntimeBoard groups={visibleRuntime} compact={compact} active={boardActive}
+                    collapsed={runtimePrefs.values.runtimeCollapsed} selected={runtimePrefs.values.runtimeGroup}
+                    onToggleCollapse={toggleRuntimeCollapse} onSelectGroup={selectRuntimeGroup}
                     stale={agents.isError || readState.isError || resources.isError || runtimeHistory.isError}
                     renderCard={renderRuntimeSession} onRetry={retryRuntime} loading={agents.isPending && runtimeHistory.isPending} />
                 ) : page === "ideas" && (!projectIdeasData.data || projectIdeasData.error) ? (
@@ -2092,7 +2220,7 @@ function BoardContent(
                         title={nameOf(mobileStatus)}
                         label={t("Choose task status")}
                         testID="lane-chooser"
-                        leading={<StatusIcon status={mobileStatus} size={16} />}
+                        leading={<LaneIconMotion testID={`lane-icon-${mobileStatus}`} active={activeLanes.has(mobileStatus)} kind={projectLaneMotion(mobileStatus)}><StatusIcon status={mobileStatus} size={16} /></LaneIconMotion>}
                         trailing={
                           <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
                             <Label muted size={font.md} selectable={false}>{laneOf(mobileStatus).count}</Label>
@@ -2117,6 +2245,7 @@ function BoardContent(
                 ) : (
                   <DesktopColumns
                     statuses={shownStatuses}
+                    activeLanes={activeLanes}
                     tasks={visible}
                     disabled={pending || !!project?.archivedAt}
                     cancelKey={`${project?.id}|${search}|${priority}|${taskType}|${tagFilter.join(",")}|${archived}|${shownStatuses.join(",")}|${taskId}|${menu}|${actionTask?.id}|${projectForm}|${!!taskForm}`}
@@ -2139,7 +2268,7 @@ function BoardContent(
                 )}
               </MotionReveal>
             )}
-            {!compact && drawerView}
+            {!compact && !runtimeView && drawerView}
             {!compact && runtimeDrawerView}
           </View>
         )}
@@ -2650,7 +2779,7 @@ function BoardContent(
           />
           </CardDetailProvider>
         )}
-        {compact && drawerView}
+        {compact && !runtimeView && drawerView}
         {compact && runtimeDrawerView}
         {!runtimeView && compact && !task && !page && !!project && !project.archivedAt && !!board && (
           <NewTaskFab onPress={() => setTaskForm({ status: "todo" })} />
@@ -2717,6 +2846,17 @@ function BoardContent(
             }}
           />
         )}
+        <Modal open={menu === "runtime-projects" && compact} title={t("Flowly projects")} onOpenChange={open => !open && closeRuntimeProjects()}>
+          <Modal.Content contentContainerStyle={{ padding: space[3], gap: space[1] }}>
+            <RuntimeProjectOptions projects={runtimeProjects} selected={runtimeProjectFilter} active={menu === "runtime-projects" && compact}
+              onToggle={toggleProjectFilter} onUnlinked={toggleUnlinkedFilter} onReset={resetProjectFilter} onClose={closeRuntimeProjects} />
+          </Modal.Content>
+        </Modal>
+        <Popover place={menu === "runtime-projects" && !compact ? runtimeProjectPlace : null} title={t("Flowly projects")}
+          width={Math.min(320, Math.max(200, surfaceWidth - 24))} onClose={closeRuntimeProjects}>
+          <RuntimeProjectOptions projects={runtimeProjects} selected={runtimeProjectFilter} active={menu === "runtime-projects" && !compact}
+            onToggle={toggleProjectFilter} onUnlinked={toggleUnlinkedFilter} onReset={resetProjectFilter} onClose={closeRuntimeProjects} />
+        </Popover>
         <Popover
           place={attentionDropdown}
           title={t("Needs attention")}

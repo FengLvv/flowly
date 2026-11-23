@@ -1,4 +1,5 @@
 # Phase 2：Agent tools 与 skill 实施合约
+2026-11-18 工作目录修订：[AGENT-WORKING-DIRECTORIES-SPEC](AGENT-WORKING-DIRECTORIES-SPEC.md) 将目录范围改为默认工作位置，允许用户授权的外部目录、应用和服务操作；下文 §2 的“任务指示边界”不再是禁止目录外操作的规则。Flowly 身份、资源绑定及文件服务校验不变。
 2026-11-16 创建时机修订：[LAZY-WORKSPACE-SPEC](LAZY-WORKSPACE-SPEC.md) 规定目录/worktree 卡片先保存工作区计划，首个对话提交时才创建工作区；已有工作区关联不变。
 
 2026-11-16 输出契约修订：MCP/CLI 默认返回精简读模型与轻量写续写信息，`responseDetail: "full"` / CLI `--full` 保留旧形状；CLI 写支持 `--save-request`，连续写不必重复读卡。以下第 5–7 节的完整上下文返回约定以 [AGENT-OUTPUT-SPEC](AGENT-OUTPUT-SPEC.md) 为准；身份、版本、冲突与重放规则不变。

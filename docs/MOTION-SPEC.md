@@ -21,6 +21,22 @@ An exiting sidebar retains its presentation until exit finishes. Preview receive
 
 ## Architecture
 
+### Active lane icons — 2026-11-17
+
+User request: animate the existing Flowly lane glyph itself, not a replacement glyph or a new halo. Runtime Needs attention breathes (opacity 0.5–1 over 2.4s) while it has pending conversations; Running rotates its original Loader once per 2.4s while nonempty. Other Runtime lanes stay static. Project lanes animate when a displayed, non-archived task has a native running/real-starting or pending-input conversation. CircleEllipsis, CircleGauge and CircleDotDashed rotate; symmetric Circle/CircleDot and other pictograms breathe so their activity is visible without spinning checks or slashes. Keep original size, color, name, count and collapse/Add actions. Expanded, collapsed and compact lane headers use the same rule.
+
+No extra polling, data writes or timers per lane. Reuse the existing shared native marquee clock (opacity/rotation transforms only); web uses bounded React Native StyleSheet keyframes like RunningDots, with no JS frame loop. Stop decorative work when the board is covered/inactive, the lane is offscreen, no active conversations remain, under Reduce Motion or while compact height motion holds the clock. Resting icons carry no animated props. Native app/clock lifecycle stays owned by the existing primitive.
+
+Use known native conversation state rather than business lane, old activity events, or unread completion; initialization that only restores history, failures, archived agents and internal helper sessions cannot trigger a running animation. Waiting input can breathe without being counted as actually running in the entry badge. No new setting, dependency, telemetry, What's new or tip; append this visible signal to the Runtime guidance.
+
+Acceptance: source state/visible-task association, waiting vs running, excluded history/error/archive/helper states; original glyphs and dimensions unchanged; expanded/collapsed/compact headers, running-to-idle, hidden/reappear and Reduce Motion reversal; shared clock cleanup and no per-frame React work on web. Physical-phone smoothness is a separate unrun gate until measured.
+
+#### Selection and geometry continuity — 2026-11-17
+
+Selecting/opening a card or conversation never changes its native activity. A lane still visible beside a desktop sidebar must keep animating while that conversation remains active; compact covered boards must pause and resume on return. Visibility must be recomputed from one current ordered lane layout and observed viewport/scroll offset. Do not treat a requested animated scroll target as an observed scroll position, keep positional caches after sibling collapse/reorder, or reuse group indices as identities. Layout shrink/expand, automatic reveal, right pan, scrollbar, dynamic groups and rapid sidebar reversal all use the same visibility rule. No extra data polling is justified by a selection or layout change.
+
+Regression checks must include actual card click and close/reopen on a late project lane, sidebar resize/reveal, sibling collapse/reorder, Runtime conversation open/close and group insertion/removal, compact cover/return, and hidden/Reduce Motion/work-ended pauses. Static fixtures that only toggle `active` do not prove this lifecycle.
+
 No schema/RPC/storage migration or resource provisioning. `client/motion.tsx` owns preference, interruption-safe presence and shared reveal/progress primitives. Board owns drawer presence, host toast and content transition; drawer owns session transition; columns/cards own drag feedback. Client remains React Native only. AGENTS.md requires motion for future plugin-owned opens/closes/navigation/drag feedback, reduced-motion support and cleanup coverage.
 
 ## Acceptance and evidence

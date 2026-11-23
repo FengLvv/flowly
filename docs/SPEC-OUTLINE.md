@@ -1,6 +1,9 @@
 # Paseo Kanban Plugin：Spec 大纲与路线图
 
 2026-11-23 卡片补充内容：新建和编辑表单的描述下方有补充内容列表，侧边栏可直接新增并保存。[规范](CARD-SUPPLEMENTS-SPEC.md)。
+2026-11-18 工作目录授权：卡片目录为默认工作位置；用户授权后可操作目录外的文件、应用与外部服务。保留单根项目与 Flowly 工具校验。[契约](AGENT-WORKING-DIRECTORIES-SPEC.md)。
+2026-11-17 只读历史快路（提案，未实施）：Paseo 保存有界历史快照并提供保证不启动 provider 的 SDK 接口；无快照的存量对话离线导入另定范围。[设计](PASEO-HISTORY-FAST-PATH-DESIGN.md)。
+
 2026-11-16 测试原生资源隔离：Vitest 独立 home、Windows CLI 子进程替身、旧 worktree 扫描排除与归属核对。[契约](WINDOWS-TEST-ISOLATION-SPEC.md)。
 
 2026-11-16 卡片延迟创建工作区：目录/worktree 卡片先保存计划，首个对话提交时幂等创建，已有绑定保留。[spec](LAZY-WORKSPACE-SPEC.md)。
@@ -128,6 +131,8 @@
 2026-10-13 修订：任务卡片默认不指定 repo，工作范围为项目全部 repo；可显式选择一个或多个 repo。workspace 启动/来源 repo 与任务范围分别管理。可关联项目 repo 中的已有 Paseo workspace，包括归属其他原生 project 的 workspace，保留原归属。第一阶段实现和 Luna 验证完成后暂停，交由用户验收再决定第二阶段。
 调研日期：2026-10-13。  
 本文记录初版约定、可行性依据、spec 章节大纲与实施路线图。后续扩展单独评估。
+
+自动对话标题：首条指令开始时优化默认对话名，保护手动命名，不改任务和工作区标题。[契约](SESSION-TITLES-SPEC.md)。
 
 ## 1. 初步结论
 
@@ -321,6 +326,6 @@ releases from validated version tags. [Spec](CI-CD-SPEC.md),
 2026-11-16 聊天配置对齐：[SESSION-PARITY-SPEC](SESSION-PARITY-SPEC.md)，模型、提供方功能、复制与重载，以及明确的原生功能边界。
 
 
-2026-11-16 Runtime view: the additional host-wide view shows individual Paseo conversations and directly opens the existing Flowly conversation sidebar, including conversations without a Flowly card. No wider Better Paseo feature migration. [Contract](RUNTIME-VIEW-SPEC.md).
+2026-11-16 Runtime view: the additional host-wide view shows individual Paseo conversations and directly opens the existing Flowly conversation sidebar, including conversations without a Flowly card. User-requested 2026-11-17: inline search on project/Runtime boards; Flowly project multi-select, history range and group sorting only on Runtime. Other Better Paseo enhancements remain excluded. [Contract](RUNTIME-VIEW-SPEC.md).
 2026-11-12 Linear connector：第七个只读 provider 族，覆盖 issue，`TEAM-123` key，GraphQL 只发常量 query
 （`queryEndpoints` 放行 `/graphql`），issue 的 Markdown 带子 issue 与评论。见 [spec](CONNECTORS-SPEC.md) §15。

@@ -13,6 +13,7 @@ type TailInput = SessionTarget & {
 
 type RawPage = Awaited<ReturnType<ReturnType<PaseoApi["agents"]["ref"]>["timeline"]["refetch"]>>;
 type RawEntry = RawPage["entries"][number];
+export type SessionTailTiming = { totalMs: number; scopeMs: number; timelineMs: number; pages: number; entries: number };
 
 /**
  * A card session's timeline without tool payloads (PERFORMANCE-SPEC §3), read
@@ -24,29 +25,46 @@ type RawEntry = RawPage["entries"][number];
 export class SessionTailService {
   constructor(readonly store: BoardStore) {}
 
-  async tail(input: TailInput, paseo: PaseoApi): Promise<TailPage> {
-    const expectedWorkspace = input.workspaceId
-      ? (await nativeSession(paseo, input)).workspaceId
-      : (await this.store.read()).tasks.find(t => t.id === input.taskId)?.workspaceId;
-    if (!expectedWorkspace) throw new Error("Task not found.");
-    const handle = paseo.agents.ref(input.agentId);
-    const mode = input.mode ?? "tail";
-    if ((mode === "before" || mode === "after") && !input.cursor) throw new Error("A cursor is required to page the timeline.");
-    const read = async (options: Parameters<typeof handle.timeline.refetch>[0]) => {
-      const response = await handle.timeline.refetch({ ...options, projection: "projected" });
-      if (response.error) throw new Error(response.error);
-      return response;
-    };
-    const first =
-      mode === "turn"
-        ? await read({ direction: "tail", limit: Math.min(HISTORY_PAGE, input.maxEntries ?? TURN_MAX_ENTRIES) })
-        : await read({ direction: mode, limit: input.limit, ...(input.cursor ? { cursor: input.cursor } : {}) });
-    const agent = first.agent ?? (await handle.refresh())?.agent;
-    if (!agent || agent.workspaceId !== expectedWorkspace)
-      throw new Error("Session is unavailable or belongs to a different workspace.");
-    if (first.reset || first.staleCursor) return { entries: [], epoch: first.epoch, reset: true };
-    if (mode !== "turn") return page(first.entries, first);
-    return this.turn(first, read, input.maxEntries ?? TURN_MAX_ENTRIES);
+  async tail(input: TailInput, paseo: PaseoApi, trace?: (timing: SessionTailTiming) => void): Promise<TailPage> {
+    const started = trace ? performance.now() : 0;
+    const timing: SessionTailTiming = { totalMs: 0, scopeMs: 0, timelineMs: 0, pages: 0, entries: 0 };
+    try {
+      const expectedWorkspace = input.workspaceId
+        ? (await nativeSession(paseo, input)).workspaceId
+        : (await this.store.read()).tasks.find(t => t.id === input.taskId)?.workspaceId;
+      if (!expectedWorkspace) throw new Error("Task not found.");
+      if (trace) timing.scopeMs = performance.now() - started;
+      const handle = paseo.agents.ref(input.agentId);
+      const mode = input.mode ?? "tail";
+      if ((mode === "before" || mode === "after") && !input.cursor) throw new Error("A cursor is required to page the timeline.");
+      const read = async (options: Parameters<typeof handle.timeline.refetch>[0]) => {
+        const start = trace ? performance.now() : 0;
+        try {
+          const response = await handle.timeline.refetch({ ...options, projection: "projected" });
+          timing.pages++;
+          timing.entries += response.entries.length;
+          if (response.error) throw new Error(response.error);
+          return response;
+        } finally {
+          if (trace) timing.timelineMs += performance.now() - start;
+        }
+      };
+      const first =
+        mode === "turn"
+          ? await read({ direction: "tail", limit: Math.min(HISTORY_PAGE, input.maxEntries ?? TURN_MAX_ENTRIES) })
+          : await read({ direction: mode, limit: input.limit, ...(input.cursor ? { cursor: input.cursor } : {}) });
+      const agent = first.agent ?? (await handle.refresh())?.agent;
+      if (!agent || agent.workspaceId !== expectedWorkspace)
+        throw new Error("Session is unavailable or belongs to a different workspace.");
+      if (first.reset || first.staleCursor) return { entries: [], epoch: first.epoch, reset: true };
+      if (mode !== "turn") return page(first.entries, first);
+      return await this.turn(first, read, input.maxEntries ?? TURN_MAX_ENTRIES);
+    } finally {
+      if (trace) {
+        timing.totalMs = performance.now() - started;
+        trace(timing);
+      }
+    }
   }
 
   /** Pages back from the end until the latest user message, the start, or `max` entries. */

@@ -1,5 +1,7 @@
 # New-user onboarding
 
+Automatic conversation titles (2026-11-17): More features lists the optional AI-features switch and explains that summary models name new conversations while manual names are kept. The setting itself discloses the first-message/provider transfer and 1,000-character bound. No additional tip id is warranted: it is off by default and introduced at its enable point. See [contract](SESSION-TITLES-SPEC.md).
+
 Status: **implemented, real-UI verification pending** (2026-10-16, card "增加new user onboarding"; user approved the design and its five calls). This adds a first-run welcome tour, a better empty state and a few one-time contextual tips. It changes no business contract in SINGLE-ROOT, Phase 2 or AUTO-STATUS specs.
 
 ## Why
@@ -164,4 +166,22 @@ The More features page includes Session controls: "Change models and provider fe
 
 ## Runtime view guidance
 
-The More features tour includes Runtime. Tip `runtime-view` appears on a populated project board with no card/page open, after first-card and before lane-swipe. Text: "Runtime shows all Paseo conversations on this host. Open a conversation to chat in Flowly." Opening Runtime or dismissing the tip marks it seen once. Card/project-specific tips are hidden while Runtime is selected. It uses daemon onboarding settings and reaches existing users through the new id. No What's new or telemetry field is added.
+Runtime's conversation-text search and subagent visibility icons provide desktop hover explanations using their existing translations (2026-11-17). This restores discoverability at the controls; it adds no concept, workflow or setting, so existing tour/tips/README guidance and telemetry remain sufficient.
+
+The existing Runtime More features sentence now also mentions hiding subagents. Its Network/ListTree toolbar control is always reachable beside search, labelled Show subagents with checked state; default shown. The switch only hides board cards, while the existing parent workspace/card lists and Subagents chip remain drilldowns. The familiar visibility switch needs no extra tip id/banner; READMEs and nine catalogs match. No new telemetry field or What's new.
+
+Runtime's More features row now adds "Back shows its card or workspace; Close returns to Runtime." It documents direct chat → real card/native workspace → Runtime and the separate X action. READMEs and nine catalogs match. Back/Close are the existing sidebar affordances, now consistent with project cards; no new tip id or banner is warranted. Missing ownership waits/retries rather than inventing a card. No new setting or telemetry field is needed.
+
+Runtime conversation resizing shares the project card sidebar frame, bounds, interruption cleanup and saved width (2026-11-17 consistency repair). It restores the already documented grip interaction and adds no entry, control, setting or mapping; no new welcome-tour sentence or tip is warranted. No new visible copy, telemetry field or What's new entry.
+
+Runtime now remembers collapse, selected group and its existing search/project/range/sort controls in host-scoped view preferences, like the project board. This repairs expected consistency, adds no entry/control or conceptual mapping, and needs no extra tour sentence or tip id. Save/load failures use translated toast/Retry feedback. No telemetry field or What's new entry changes.
+
+The Runtime More features row also explains: "The sidebar shows how many conversations are running." and "Lane icons animate while conversations are active." READMEs keep the same claim. These visible signals warrant no additional one-time tip; the existing Runtime entry tip remains. No new telemetry field or What's new entry is needed.
+
+The Runtime More features row now says: "Search Paseo conversations, filter by Flowly project and history range, and sort within groups. Open a conversation to chat in Flowly." The project overview's first control is inline task search; its trailing action opens the existing full Flowly content search. The Runtime search toggle includes conversation text. The Project dropdown selects Flowly project identities and keeps Unlinked/All reachable. These controls are always visible at entry and use familiar search/multi-select/segmented/sort affordances; no extra banner/tip id is warranted for this increment. Keep the existing Runtime entry tip. No What's new or telemetry fields change: these are view refinements and read-only search, with no new usage/content collection.
+
+The More features tour includes Runtime. Tip `runtime-view` appears on a populated project board with no card/page open, after first-card and before lane-swipe. Text: "Runtime shows all Paseo conversations on this host. Open a conversation to chat in Flowly." Opening Runtime or dismissing the tip marks it seen once. Card/project-specific tips are hidden while Runtime is selected. It uses daemon onboarding settings and reaches existing users through the new id. No What's new or telemetry field is added. Runtime now participates in the same app-run return memory as projects; this consistency fix needs no additional tour copy/tip. Runtime headers use the same collapse/expand affordance as project lanes; this familiar control needs no additional tour item or tip.
+
+2026-11-17: once-only `composer-input` tip uses the existing `cardWithSession` fact after prior session guidance. Web: "Use + to add images, files or issues and pull requests. Type / to choose a command or skill." Native: "Type / to choose a command or skill.". The More features tour includes Files and commands with the same copy; no native file-picker promise.
+
+- Composer attachments persist with their session draft on the daemon, including original image/file bytes and issue/PR references. Navigation and reload restore them; acknowledged send/queue clears only submitted IDs. This extends the existing Files and commands tip, with no extra tip for draft recovery.

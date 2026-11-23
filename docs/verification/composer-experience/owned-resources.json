@@ -1,0 +1,39 @@
+{
+  "owner": "composer-audit-65252acb-ff7b-4a59-9d0f-084768450c6b",
+  "home": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\composer-exact-dbb7a82\\.test-data\\composer-audit-65252acb-ff7b-4a59-9d0f-084768450c6b",
+  "port": 9224,
+  "daemonPid": 20524,
+  "sessions": [
+    {
+      "id": "2b8a510c-a0e2-494a-8e8c-2953967cc70a",
+      "workspaceId": "wks_1563af3580609067",
+      "directory": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\composer-exact-dbb7a82\\.test-data\\composer-audit-65252acb-ff7b-4a59-9d0f-084768450c6b\\project",
+      "title": "Composer parity fixture"
+    },
+    {
+      "id": "1dff84b9-f8fa-4c7f-a6d3-791c129e9f7c",
+      "workspaceId": "wks_1563af3580609067",
+      "directory": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\composer-exact-dbb7a82\\.test-data\\composer-audit-65252acb-ff7b-4a59-9d0f-084768450c6b\\project",
+      "title": "Other composer fixture"
+    }
+  ],
+  "nativeProjects": [],
+  "project": {
+    "id": "a22d8690-1661-4fd1-822a-b193e388033a",
+    "title": "Composer fixture",
+    "description": "",
+    "paseoProjectId": "prj_500dd914c52afa81",
+    "primaryPath": "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\composer-exact-dbb7a82\\.test-data\\composer-audit-65252acb-ff7b-4a59-9d0f-084768450c6b\\project",
+    "repos": [
+      "F:\\Project\\Paseo_plugins\\Flowly\\.test-data\\composer-exact-dbb7a82\\.test-data\\composer-audit-65252acb-ff7b-4a59-9d0f-084768450c6b\\project"
+    ],
+    "autoReview": {
+      "enabled": true,
+      "maxRounds": 2
+    },
+    "revision": 1,
+    "createdAt": "2026-11-17T12:49:41.934Z",
+    "updatedAt": "2026-11-17T12:49:41.934Z",
+    "archivedAt": null
+  }
+}

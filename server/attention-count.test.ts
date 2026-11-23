@@ -1,9 +1,9 @@
 import { expect, test, vi } from "vitest";
 import type { PaseoAgent, PaseoApi } from "@getpaseo/client";
 import type { Board } from "../shared/model";
-import { readAttentionCount } from "./attention-count";
+import { readAttentionCount, readSidebarCounts } from "./attention-count";
 import { attentionFromSources } from "../shared/attention";
-import { readAttentionCount as contract } from "../shared/rpc";
+import { readAttentionCount as contract, readSidebarCounts as sidebarContract } from "../shared/rpc";
 import { SUMMARIZER_LABELS } from "../shared/summary";
 
 const at = "2026-10-23T04:00:00.000Z";
@@ -72,4 +72,61 @@ test("read receipt and dismissal boundaries retain parity; every request reads f
   f.list.mockResolvedValue({ entries: [{ agent: agent("a", { ...finished, attentionTimestamp: "2026-10-23T04:01:00.000Z" }) }], pageInfo: {} });
   expect(await readAttentionCount(f.store, f.reads, f.paseo)).toEqual({ count: 1 });
   expect(f.store.read).toHaveBeenCalledTimes(3);
+});
+
+test("sidebar counts actual host-wide conversations independently of Flowly business scope", async () => {
+  const b = board();
+  b.projects[0].archivedAt = at;
+  const f = fixture(b, [agent("unbound", { status: "running" }),
+    agent("child", { status: "running", labels: { "paseo.parent-agent-id": "unbound" } }),
+    agent("a", { status: "running" }), agent("b", finished)]);
+  expect(await readSidebarCounts(f.store, f.reads, f.paseo)).toEqual({ attention: 0, running: 3 });
+  expect(f.list).toHaveBeenCalledTimes(1);
+});
+
+test("sidebar excludes waiting, failure, archived, helpers and history-only restoration", async () => {
+  const f = fixture(board(), [agent("waiting", { status: "running", pendingPermissions: [{}] }),
+    agent("question", { status: "running", requiresAttention: true, attentionReason: "permission" }),
+    agent("error", { status: "error" }), agent("idle"), agent("closed", { status: "closed" }),
+    agent("archived", { status: "running", archivedAt: at }),
+    agent("helper", { status: "running", labels: SUMMARIZER_LABELS }),
+    agent("legacy-helper", { status: "running", labels: { "ultra-kanban": "summarizer" } }),
+    agent("history", { status: "initializing", lastUserMessageAt: at, activeTurn: null }),
+    agent("new", { status: "initializing" }),
+    agent("turn", { status: "initializing", lastUserMessageAt: at, activeTurn: { startedAt: at } })]);
+  expect((await readSidebarCounts(f.store, f.reads, f.paseo)).running).toBe(2);
+});
+
+test("sidebar paginates and deduplicates by newest native snapshot without stale running counts", async () => {
+  const f = fixture();
+  f.list.mockResolvedValueOnce({ entries: [
+    { agent: agent("ended", { status: "running", updatedAt: "2026-10-23T03:00:00Z" }) },
+    { agent: agent("live", { status: "running", updatedAt: at }) },
+  ], pageInfo: { nextCursor: "next" } } as never).mockResolvedValueOnce({ entries: [
+    { agent: agent("ended", { status: "idle", updatedAt: at }) },
+    { agent: agent("live", { status: "idle", updatedAt: "2026-10-23T03:00:00Z" }) },
+    { agent: agent("other", { status: "running", updatedAt: at }) },
+  ], pageInfo: {} });
+  expect(await readSidebarCounts(f.store, f.reads, f.paseo)).toEqual({ attention: 0, running: 2 });
+  expect(f.list).toHaveBeenNthCalledWith(2, { filter: { includeArchived: false }, page: { limit: 200, cursor: "next" } });
+});
+
+test("sidebar keeps Attention independent and never turns failed reads into zero", async () => {
+  const f = fixture(board(), [agent("a", finished), agent("b", { status: "running" }),
+    agent("c", { status: "error" })], true);
+  expect(await readSidebarCounts(f.store, f.reads, f.paseo)).toEqual({ attention: 1, running: 1 });
+  f.list.mockRejectedValueOnce(Error("SDK unavailable"));
+  await expect(readSidebarCounts(f.store, f.reads, f.paseo)).rejects.toThrow("SDK unavailable");
+  f.store.read.mockRejectedValueOnce(Error("board unavailable"));
+  await expect(readSidebarCounts(f.store, f.reads, f.paseo)).rejects.toThrow("board unavailable");
+});
+
+test("sidebar projection contains only exact nullable counts and preserves the older contract", () => {
+  expect(sidebarContract.input.parse({})).toEqual({});
+  expect(sidebarContract.output.parse({ attention: null, running: 0 })).toEqual({ attention: null, running: 0 });
+  for (const running of [-1, 1.5, "2", undefined])
+    expect(() => sidebarContract.output.parse({ attention: 1, running })).toThrow();
+  expect(() => sidebarContract.output.parse({ attention: 1, running: 2, agents: [] })).toThrow();
+  expect(() => sidebarContract.input.parse({ projectId: "p" })).toThrow();
+  expect(contract.output.parse({ count: 2 })).toEqual({ count: 2 });
 });

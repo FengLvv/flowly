@@ -142,8 +142,8 @@ export function taskMatchesSearch(task: Pick<Task, "title" | "description" | "ta
   const values = tagValues(task);
   if (!tags.every((f) => values.some((t) => tagMatches(t, f)))) return false;
   if (!text) return true;
-  const needle = text.toLowerCase();
-  return `${task.title}\n${task.description}\n${values.join(" ")}`.toLowerCase().includes(needle);
+  const haystack = `${task.title}\n${task.description}\n${values.join(" ")}`.toLowerCase();
+  return text.toLowerCase().split(/\s+/).filter(Boolean).every(word => haystack.includes(word));
 }
 
 /** Board tag filter: any selected value matches (OR); none selected shows every card. */

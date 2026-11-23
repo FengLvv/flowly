@@ -104,6 +104,7 @@ function SessionTranscriptView({
   onStreamError,
 }: TranscriptProps) {
   usePerfRender("switch.transcript.commit");
+  const firstOutput = useRef(perfStart());
   const switchStart = perfStart();
   const { colors } = useTheme();
   const paseo = usePaseo();
@@ -139,6 +140,12 @@ function SessionTranscriptView({
     };
   }, [agent, subscribe]);
   const loaded = timeline.query.data;
+  useEffect(() => {
+    if (showOutput && settled && loaded && firstOutput.current) {
+      perfEnd("session.timeline.first-data", firstOutput.current);
+      firstOutput.current = 0;
+    }
+  }, [showOutput, settled, loaded]);
   // Messages sent from here appear at once; each is replaced (same row key) when the timeline brings its record.
   const [echoes, setEchoes] = useState<readonly SentEcho[]>([]);
   const echoTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>());

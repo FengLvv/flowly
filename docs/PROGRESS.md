@@ -1,3 +1,9 @@
+## 2026-11-18 User-authorized external operations
+
+- Removed the absolute workspace-only task instruction and corresponding skill rule. Card directories remain defaults; user authorization permits external directories, applications and services. Existing authorization is reused; provider permissions and Flowly identity/resource/file-serving guards are preserved. Contract: [AGENT-WORKING-DIRECTORIES-SPEC](AGENT-WORKING-DIRECTORIES-SPEC.md).
+- PASS: typecheck; focused 7-file 72/72 tests; scoped diff check; local plugin reload and runtime skill readback. Full-access Luna read-only source/diff review found no new High. Evidence and activation limits archived locally in `verification/agent-working-directories.md`.
+- UNRUN: full suite, independent frozen-commit gate, real model external writes and UI/phone checks. Shared work preserved; uncommitted. Old saved prompts are not rewritten by reload: re-send work instructions, or create a new session if an older higher-priority restriction persists. No tour/tip/telemetry/version/What's new change warranted for this instruction correction.
+
 ## 2026-11-13 PR #103 table wrapping review
 
 - Removed `wordBreak: "break-all"` from web table cells. `overflowWrap: "anywhere"` preserves normal word-boundary wrapping while allowing overlong identifiers and numbers to break within their columns. Contract updated in SESSION-UX-SPEC §8.
@@ -6,10 +12,120 @@
 
 # Implementation progress
 
+## Fork integration follow-up (2026-11-23)
+
+- Consolidates the local Runtime, board, composer, session and workspace improvements with fork PR #9 and upstream main through a675f3b. Card supplements and the large-attachment validation fix are retained. The read-only Paseo history proposal remains a design document.
+- Existing PR evidence stays with its commits. Additional local screenshots, run logs and native resource inventories stay in the local verification archive. See the [integration contract](INTEGRATION-20261117-SPEC.md).
+
 ## Card supplemental notes — 2026-11-23
 
 - New task and Edit task show a list below the description and images. The card sidebar adds entries immediately. The daemon serializes and deduplicates retrying appends, and revision checks protect the list from stale forms. The task schema remains backward compatible. See [contract](CARD-SUPPLEMENTS-SPEC.md).
 - The welcome tour and both READMEs point to the labeled input. The control is visible on editable cards and needs no one-time tip. No telemetry property was added.
+
+
+## Runtime icon hover explanations — 2026-11-17
+
+- Both icons beside Runtime search now explain themselves on hover: Search conversation text and state-dependent Show/Hide subagents. Shared project search keeps its Search everywhere identity. Visible local RN help uses existing translations/motion, ignores pointer events, stays within the viewport and invalidates stale measurements. Spec/workpad first; onboarding decision recorded, no new tip/tour/README copy or telemetry/RPC/preference/version change.
+- PASS: final typecheck, 5-file 70/70, scoped diff; final isolated desktop/compact 15/15, both screenshots visibly clear and all resources cleaned. Earlier native-title and covered-help attempts are retained as failed visual evidence, even where text assertions passed. Report archived locally in `verification/runtime-hover.md`. Full suite, phone, dark/keyboard-only/Reduce Motion visual and independent frozen-commit gates unrun. Shared work preserved, uncommitted.
+
+## Runtime-only subagent visibility — 2026-11-17
+
+- User confirmed the Better Paseo visibility control belongs only in Runtime. Spec/workpad first; Network/ListTree switch beside search, default shown, independent host-persisted `runtimeHideSubagents`. Explicit native parent labels hide individual child cards before visible group counts and transcript search; native status/global counts, project boards, complete parent/workspace lists and already-open chat remain intact. Tour/READMEs and nine catalogs updated; no extra tip/banner, RPC, telemetry, dependency, version or What's new change.
+- PASS: final typecheck and scoped diff check exit 0; initial focused 10-file 158/158; actual isolated desktop/compact 37/37, no page errors, all owned native/Flowly resources and browser/daemon/home cleaned. Local reload exit 0, current checkout enabled/running. Read-only full-access Luna source audit found no concrete serious regression. Evidence archived locally in `verification/runtime-subagents.md`.
+- FAIL: final focused 140 passed/18 failed (composer missing/stale strings in nine catalogs); full 1782 passed/19 failed/8 skipped (same plus native queue sender's new attachments argument). Concurrent composer work was preserved, no assertions weakened, no isolated baseline claim. UNRUN: physical phone, forced preference-save error UI, positive-running child badge UI, independent frozen-commit/remote gates. No commit/push/PR; shared work and daily data preserved.
+
+## Runtime conversation → workspace parent — 2026-11-17
+
+- Latest user request separates Back from Close. Initial Runtime click still opens original Flowly chat directly. Back now reads fresh ownership and steps up inside the same frame: a proven workspace/card link reuses original TaskDrawer details/session navigation (even from another selected project); an unbound workspace shows read-only native identity and exact-workspace sessions. X closes directly to Runtime; Escape/Android takes conversation → parent → Runtime. Runtime stays mounted with width, group, collapse, filters, position and exact-session drafts preserved. No synthetic card/binding. Contract/workpad updated first; tour, READMEs and nine catalogs match. No new tip, RPC/storage/setting, telemetry field, dependency, version or What's new.
+- Loading/error ownership is pending, not unbound. Fresh results are fenced by target/generation and all explicit routes cancel the old read. Parent rendering and Escape share exact task/workspace/project matching; unavailable content cannot consume Escape invisibly. Hidden preview flushes/blurs, releases shortcut focus and pauses reads/live subscription; web navigation focuses the same board root. Existing card scope/action guards remain.
+- PASS: final typecheck exit 0; complete relevant 9-file 144/144 exit 0; full `npm test -- --maxWorkers=4` exit 0, 187 passed/2 skipped files, 1796 passed/8 skipped tests; isolated actual desktop/compact 29/29, no page errors, all owned fixtures cleaned. Local reload exit 0, this checkout enabled/running. Evidence archived locally in `verification/runtime-parent.md`.
+- Corrected: read-only Luna audit found pending-ownership misclassification and hidden focus; both fixed, with actual initial Escape failure retained. Re-review found unavailable-card Escape delegation mismatch, now using the same render predicate and unit coverage. Harness async/title/compact-button/shortcut-suffix selectors corrected without weakening product assertions; whole final UI reran. UNRUN: physical phone/Hermes/IME, forced ownership-read failure/deleted/moved-resource UI and independent frozen-commit/remote gates. Shared uncommitted work and user data preserved; no commit/push/PR.
+
+## Sidebar native project-ring alignment — 2026-11-17
+
+- User requested the Flowly entry's running circle match native project circles. Installed renderer and upstream StatusRing sources agree on 14/12/6 geometry, 1.5 stroke/gap, .3/.9 track/quarter, 900ms and native light/dark status blue. The public SDK exposes no StatusRing, so only drawing changed with RN primitives, web keyframes and a single native-driver loop; existing count, Attention, placement and lane behavior are preserved. Contract updated first. Existing guidance remains accurate; no telemetry, translation, dependency, version or What's new change.
+- Typecheck and focused 4-file 66/66 passed, scoped diff check passed. Desktop/compact actual renderer geometry, rotation and state checks plus resource cleanup are recorded in verification archived locally in `verification/sidebar-native-ring.md`. The public reference page returned 403; local SDK declarations and installed/upstream native source were used. Physical phone, dark UI comparison, full suite and frozen-commit milestone remain unrun for this cosmetic increment; shared changes preserved and uncommitted.
+
+## Runtime/project sidebar resizing parity — 2026-11-17
+
+- Reproduced the user's no-movement click failure in the actual isolated renderer: Runtime frame 640pt → 364pt on grant, ignoring a saved 560pt content width. Its `flex:1` wrapper stayed in flow when shared drag state froze the board, whereas the project frame switched to a fixed right overlay. Both entry points now use one DrawerFrame: content width plus grip, no flex growth/shrink, right-anchored overlay while dragging, opaque full-width compact overlay, original interruptible motion. Shared resize callbacks synchronously retain the final accepted width and save on completion. The grip ends once on release/termination/disable/unmount, ignores old moves, and accessible adjustments also use the clamp/save path. Contracts updated before implementation; existing resize guidance is sufficient (ONBOARDING-SPEC). No new data/RPC/settings/strings/telemetry, dependency, version or What's new change.
+- PASS: final typecheck exit 0; 9-file focused 118/118 exit 0; full `npm test -- --maxWorkers=4` exit 0, 186 passed/2 skipped files and 1788 passed/8 skipped tests; actual desktop/compact 85/85, no page errors. Bound/unbound Runtime, task detail and project-session preview all track five measured width steps in each tested direction; no grant snap, final save, release/late-move, bounds, Escape cancellation, window reclamp, compact conversation preservation, cold restoration and draft/Back paths pass. Local reload exit 0, enabled/running. Evidence archived locally in `verification/runtime-resize.md`. Both baseline and final owned native/Flowly fixtures, daemon/browser/homes cleaned.
+- FAIL/CORRECTED: pre-fix reproduction intentionally fails the no-snap assertion, saved separately. First candidate UI run passed its first 54 checks then a premature shot-lib privacy hide removed the Runtime tab; moved capture to the end and reran the entire sequence with unchanged assertions (no product change). Final 85/85 passes. UNRUN: physical phone/native a11y, forced native termination and independent frozen-commit milestone; lifecycle/a11y paths have 8 focused unit regressions and a read-only full-access Luna source audit found no new High/Medium issue. Shared uncommitted work and user data preserved; no commit/push/PR.
+
+## Runtime view preference persistence — 2026-11-17
+
+- Fixed the user's Runtime collapse/reentry inconsistency. The old group state lived inside RuntimeBoard and the other Runtime controls lived in the parent component; both reset on remount. Eight independent additive host board-view fields now save collapse, compact group, query/full text, Flowly project/Unlinked selection, range and sort. Hydrate before editable controls/search; keep a visit snapshot so background settings cannot reseed focused text. Versioned optimistic updates and a serialized fresh-revision merge prevent rapid inverse operations or unrelated setting writers from overwriting the final intent. Failed still-current fields revert with translated feedback. Project search also hands its already-debounced committed text directly to persistence instead of cancelling a second timer when leaving. Contract updated first; onboarding documents why this familiar consistency fix needs no new tour/tip. No new business storage/RPC/polling, telemetry field, dependency, version or What's new.
+- PASS: `npm run typecheck` exit 0; final 12-file relevant suite 174/174; full `npm test -- --maxWorkers=4` exit 0, 185 passed/2 skipped files, 1780 passed/8 skipped tests; actual isolated desktop1350/compact750 persistence 50/50, no renderer errors. Covers project/host-surface leave/reentry, cold bundle, second client, rapid collapse/expand, compact group/collapse, independent project prefs and immediate project-search navigation. Owned native/Flowly fixtures, daemon/browser/home all cleaned. Local plugin reload exit 0, enabled/running (reload status is not extra UI evidence). Evidence archived locally in `verification/runtime-persistence.md`.
+- Corrected: initial typecheck found a readonly project-ID array assigned to mutable settings; copied the array and reran the complete relevant suite. UNRUN: physical phone/Hermes/IME, actual two-host lifecycle and load/save-failure UI, independent frozen-commit milestone. Unit cases cover invalid/loading/failure/conflict/scope guards. Read-only Luna source audit found no confirmed serious same-host defect; its conditional cross-host lifecycle concern is recorded, not claimed as UI-tested. Shared uncommitted tree/other sessions preserved; no commit/push/PR.
+
+## Selected lane motion continuity — 2026-11-17
+
+- Reproduced the user's exact visible-state failure in the actual Board/Drawer: collapse four preceding lanes, then open the Test card; the icon remains inside the reduced viewport but becomes static. RN-web did not fire a later sibling's x-layout event, leaving the visibility cache stale. Project and Runtime now share ordered current-width content geometry plus observed viewport/scroll state; Runtime also uses stable group IDs for header/list eligibility. Selection does not change native activity, and truly offscreen/compact-covered/reduced states still pause. No extra polling, timer, setting, new copy/onboarding/telemetry, dependency, version or What's new change. Other sessions' persistence/history/title work is preserved.
+- PASS: implementer typecheck and 7-file focused 63/63; independent full-access Luna typecheck and same 63/63, no new High finding; actual Board/Drawer/Runtime 20/20 and original desktop/compact regression 52/52, no page errors. Actual checks cover repeated card clicks, sidebar resize, viewport shrink/restore, preceding lane collapse, Runtime collapse/expand and Reduce Motion reversal. Owned native/board fixtures, daemons/browsers/homes cleaned; independent session archived by exact ID. Implementer evidence archived locally in `verification/lane-visibility.md`, independently owned audit archived locally in `verification/lane-visibility-audit.md`.
+- FAIL/UNRUN: first concurrent full run 1772 passed / 2 timeout failures / 8 skipped. Final without UI concurrency 1773 passed / 1 settings-default failure / 8 skipped: the timeouts recovered; another session's newly added Runtime preference fields are missing from its old default expectation. Neither that implementation nor assertions/timeouts were changed here. Physical phone/Hermes and frozen-commit milestone remain unrun; shared tree is uncommitted.
+
+## Host running count and active lane icons — 2026-11-17
+
+- User screenshots requested the Better Paseo running count plus original Flowly lane icons that breathe/rotate in both Runtime and project boards. The entry now uses the existing 3s daemon-only count read, preserving Attention/legacy RPC behavior; host-wide native state determines running, independently of card stages. Marker sizing follows Better Paseo's 14pt box/10.5pt mark/12pt number, without importing its private appearance shim. Runtime attention breathes and Running rotates; project headers use exact workspace activity, preserving original glyphs/colors, collapse, compact headers and gestures. Symmetric glyphs breathe rather than spin invisibly. Native shares the existing marquee clock, web uses RN StyleSheet keyframes; inactive/offscreen/reduced/settled headers stop. Contracts were updated first; README/tour/9 catalogs synchronized. No setting, telemetry field, dependency, version, What's new or extra tip.
+- PASS: final typecheck exit 0; 7-file focused suite 94/94 exit 0; final full suite 1769 passed / 8 skipped exit 0; isolated actual renderer desktop/compact 52/52 exit 0, no page errors. Checks include counts/errors/recovery/compatibility, actual rotation-matrix and opacity changes, collapse, hiding and Reduce Motion. Controlled sidebar responses and lane data are explicit fixtures, not real model turns. Board/native registries empty, owned browser/daemon/home cleaned; user windows/data preserved. Fixed initial excess singular catalog keys, hidden/compact test selectors and the real RN-web keyframe-array rotation failure; assertions were retained. Evidence and boundaries archived locally in `verification/runtime-count.md`.
+- UNRUN: physical phone/Hermes smoothness, actual native model-turn transitions in UI, custom system font settings, dark comparison and independent frozen-commit milestone. Shared tree remains uncommitted; no commit/push/PR or outside-session delegation in this increment. No additional idea was warranted.
+
+## Runtime Flowly project selector — 2026-11-17
+
+- Added the user's Better Paseo-style Project dropdown only in Runtime, keyed by Flowly UUID/title. Multi-select, name search, All/Unlinked and selected checks; explicit card workspace links win, then registered Flowly root fallback includes cardless conversations. Intersects existing search/range/sort before transcript scheduling; original chat/Back/drafts, header collapse, panning/menu/scrollbar remain. Contract first, tour/README/catalogs synchronized; no new tip, setting/RPC/polling, telemetry field, dependency/version or What's new.
+- PASS: typecheck exit 0; complete relevant 12-file/175-test suite exit 0; actual owned desktop/compact 57/57 exit 0, no page errors; local Flowly reload exit 0/running without daemon restart. Initial local keyboard type and actual focused-input Esc defects corrected, then entire sequence rerun unchanged. All owned native/Flowly fixtures/home cleaned, no prompts sent or daily UI touched. Evidence and limits archived locally in `verification/runtime-project-filter.md`.
+- UNRUN: this increment's full suite, exact-commit independent gate, physical phone/IME/Reduce Motion and live legacy cross-owner fixture (unit-covered). No commit/push/PR. Same-card automatic-title and entry-count work and acceptance items preserved; this result covers the project selector only.
+
+## Automatic conversation titles — 2026-11-17
+
+- Added optional host-scoped Auto conversation titles in AI features, default off. Mirrors Better Paseo's first-prompt automatic path, including actual turn-ID/provisional-title guards and manual-name protection. Covers unbound native conversations; only native session names change. Uses existing summary models/AI language, read-only hidden child helpers, bounded first-message reads, two-job concurrency and cleanup; switch/unload/title/workspace changes suppress stale writes. Contract written first in [SESSION-TITLES-SPEC](SESSION-TITLES-SPEC.md).
+- PASS: typecheck exit 0; focused six files/160 tests exit 0; shared full suite 1764 passed/8 skipped exit 0; actual isolated desktop/compact and real Haiku/CLI 16/16 exit 0, native/Flowly fixtures cleared and owned home removed. Early concurrent catalog/type errors were fixed without weakening assertions. Evidence archived locally in `verification/session-titles.md`.
+- Updated settings, More features, README and all nine catalogs; no extra tip, telemetry field, What's new or version bump. Preserved other sessions' changes; supplied missing keyboard-event type needed by their project filter. UNRUN: phone/Hermes and independent exact-commit gate; uncommitted, no push/PR. Initial source-title concurrency guard remains best effort because the host has no CAS rename.
+
+## Paseo read-only history fast-path proposal — 2026-11-17
+
+- User requested design before deciding implementation scope. [Proposal](PASEO-HISTORY-FAST-PATH-DESIGN.md) separates provider-free memory/persisted-snapshot reads from legacy-history import. Confirmed durable hooks exist but are not injected by installed beta.2 or fixed upstream `0bac18f3593297c7ccbf24d8a831c7b8b557f27c` bootstrap. A bounded snapshot must not masquerade as complete durable history (`historyPrimed` risk).
+- Proposed separate wire/SDK endpoint with strict no-spawn/miss/unsupported, source-specific cursor/reset, freshness/coverage and explicit provider-backed fallback. Maps changes to Paseo server/protocol/client/plugin and Flowly; no Codex change needed for first scope. Uncached legacy first opens need a separate offline-import decision.
+- Source/contract inspection and one read-only full-access Luna contribution plus correction completed; collaborator deleted by exact ID. No product code, SDK pin, version, settings, daily UI or installed app changed; no reload/benchmark/full suite. Scoped checks are in the delivery. Original latency acceptance remains open; only design acceptance is deliverable this round.
+
+## Cold conversation history and retained Web output — 2026-11-17
+
+- Captured the user's long-unopened conversation stall inside the SDK timeline await: server total 6802.2 ms, scope 2.3 ms, timeline 6799.9 ms, one page/11 entries; a later incremental read took 4438.4 ms. Read-only installed-host inspection shows unloaded Codex history restoration starts a temporary app-server and replays thread history before serving the requested page. The exact startup/replay split remains unmeasured. This supersedes the earlier pending-server-trace diagnosis below. Evidence and limits archived locally in `verification/transcript-retention.md`.
+- Web now keeps already-read scoped output beyond default inactive GC, bounded to 12 inactive windows / 1,000,000 text characters, with LRU eviction and active/mount protection. Reopen can show last-known output during fresh reads. Native lifetime, fresh authorization, paging/reset and sends remain unchanged. First-ever/evicted cold reads still depend on the host; principal latency acceptance remains open. No host modification, disk cache, speculative provider warming, new copy/onboarding/telemetry/version change.
+- PASS: final typecheck exit 0; focused 6 files/35 tests exit 0; independent full-access Luna four-file 21/21 plus final cache 5/5 and review; shared full suite 1712 passed/8 skipped exit 0 (started before final mount protection, so not an isolated final-commit gate). Flowly reloaded and is running; temporary performance logging restored false; owned verifier session removed. FAILED: none in this focused increment. UNRUN: final live-inactivity UI/phone, measured end-to-end mitigation gain, host per-stage timing/fast path, exact-commit independent milestone and commit/push. Earlier R2 desktop/compact 33/33 predates this cache change. Other sessions' shared changes remain intact.
+
+## Runtime search, range and sort — 2026-11-17
+
+- Added inline search first in project overview and a separate Runtime search with optional native conversation text. Runtime alone adds 24h/7d/∞ history range and stable ascending/descending group sorting. Only Idle/Archived are time-limited; missing times/values remain unknown. Reliable sort fields only; no branch polling or invented duration. Existing direct chat/Back/drafts, headers, pan, menus and scrollbar preserved. Contracts updated first in RUNTIME-VIEW-SPEC and SEARCH-SPEC; README, onboarding and nine catalogs synchronized. No extra tip, telemetry field, dependency/version/What's new change.
+- Final PASS: typecheck exit 0; focused 14 files/201 tests exit 0; full `npm test -- --maxWorkers=4` 1708 passed/8 skipped exit 0; owned isolated desktop/compact 42/42 exit 0, no page errors; local Flowly reload exit 0/running without daemon restart. Native empty-history hasNewer/cursor quirk was reproduced and fixed with a regression. An earlier concurrent full run had one existing gate timeout; final whole suite passed without changing assertions/timeouts. Fixtures and owned home cleaned, daily UI/data and unrelated shared work preserved. Evidence, failures and limits archived locally in `verification/runtime-controls.md`.
+- UNRUN: independent exact-commit gate, physical phone/Hermes/IME/Reduce Motion, large-host measurements and live positive conversation-text search. No messages sent; text-match/scope behavior has unit coverage. No commit/push/PR in this increment; remaining card verification stays open.
+
+## Sidebar workspace/output wait, second pass — 2026-11-17
+
+- Removed unconditional Git from canonical contained workspace checks; external worktree identity remains verified. The drawer uses availability-only `tasks.context` with an isolated query key; full agent instructions remain the default and sends still recheck fresh scope. Actual local availability RPC median 99.1 → 8.1 ms (13.9–19.3 ms under concurrent test load), payload 1490 → 260 B; canonical match 52.6–73.3 → 0.2–0.5 ms. These are RPC boundaries, not screen paint. Evidence archived locally in `verification/session-open-r2/report.md`.
+- PASS: implementer typecheck; focused 41/41 and expanded 58/58; independent full-access Luna typecheck and 37/37; real isolated desktop/compact UI 33/33, no page errors, fixtures/native registries empty and owned processes/home removed. Full shared suite: 1706 pass / 1 fail / 8 skip; the concurrent search UI's missing focus outline opt-out was repaired by its owner and its focused check now passes; full rerun after that unrelated repair remains unrun. Other sessions' work is preserved, no commit/push/version/new copy or telemetry/onboarding change.
+- User then supplied a screenshot of a closed older conversation stuck on Loading output. That named session's warm current-turn read is 21 entries / 5.4 KB in 11–12 ms; this does not explain or disprove the original multi-second cold/client episode. Added opt-in client query/RPC/first-data timing spans, enabled temporary logging after checks, and requested a live reproduction. Restore the saved diagnostic preference after capture. The seconds-long symptom remains open pending that trace; phone and exact-commit milestone are unrun.
+
+## Desktop/Web conversation opening — 2026-11-17
+
+- User deferred native-pane embedding and requested a shorter wait in the existing sidebar. Web now starts and shows the existing transcript during the pane entrance instead of waiting for `useSettled` (220 + 32 ms); native keeps its previous schedule. No history/RPC/cursor/authorization, draft, configuration, polling or resource-ownership change. [Contract](PERFORMANCE-SPEC.md#desktopweb-conversation-opening--2026-11-17).
+- PASS: candidate typecheck exit 0; focused session/history/draft/target tests 46/46 exit 0; final full suite 1688 passed / 8 skipped exit 0; isolated installed host desktop 1350px and compact 750px UI 30/30 exit 0, no page errors. Draft/Back/session switching work; owned board/native fixtures empty, daemon/browser stopped and owned home removed. Local Flowly reloaded successfully; daily canvas/daemon untouched. Evidence and limits archived locally in `verification/session-open-speed.md`.
+- UNRUN: actual before/after end-to-end opening latency, physical phone (not connected), exact-commit independent milestone and commit/push. The 252 ms figure identifies the removed source-level gate, not a measured whole-page improvement. This small loading fix adds no concept/control or collection, so existing onboarding and telemetry remain appropriate; no string, dependency, version or What's new change.
+
+## Runtime warm-return memory — 2026-11-17
+
+- User reported that project selection survives leaving/reopening Flowly, but Runtime did not. `runtimeView` always started false and the app-run memory effect skipped it. Runtime and project tabs now share return-view memory without using a fake project ID; explicit selections update it immediately. Linked card/workspace/idea entry takes precedence, loading without a project cannot clear Runtime, and a new bundle keeps the existing first-project cold-start rule. No new daemon setting, device storage, visible string, telemetry field or What's new change; existing entry guidance is sufficient.
+- PASS: typecheck exit 0; final five-file focused navigation/state suite 116/116 exit 0; isolated desktop/compact host leave/reenter and page reload 13/13 exit 0, no page errors. Both Runtime and a later project restore correctly; cold reload opens the first project. Owned test projects/native resources/Flowly records cleaned, fixture daemon/browser stopped and owned home removed; no model session/message or daily window/canvas interaction. Evidence archived locally in `verification/runtime-return.md`.
+- UNRUN: full suite for this increment, physical phone, live explicit-link UI and exact-commit independent milestone gate. Explicit-target priority is covered by the memory unit test and initialization guard; no independent run per small increment. No commit/push/PR this turn; earlier header work remains intact.
+
+
+## Runtime group header alignment — 2026-11-17
+
+- User screenshots define the header: icon, name and adjacent count; right-side collapse only, no Add. Runtime now matches project-lane spacing/type sizes and ChevronsRightLeft action, plus the 44pt collapsed strip and original motion. Compact retains the header and folds its selected list. Collapse is transient view state, retained with Runtime during conversation navigation; no new daemon preference or business-lane changes.
+- PASS: typecheck exit 0; complete seven-file focused suite 141/141 exit 0; isolated desktop/compact UI 30/30 exit 0, including adjacency/no Add, collapse/expand, width-change virtualization, direct chat, return/drafts, right pan/card menus and native scrollbar. Owned fixtures cleaned from native and Flowly registries, daemon/browser stopped, owned home removed. Evidence archived locally in `verification/runtime-headers.md`.
+- Initial additional persistence scope was removed after its cross-client check failed: the user requested format and collapse interaction, so no new stored preference is part of this adjustment. That persistence assertion/test was intentionally removed; current-view behavior and untouched business-lane preferences are checked. No existing business assertions were weakened.
+- UNRUN: full suite for this increment, physical phone, exact-commit/independent milestone gate. This small follow-up does not trigger another independent run per increment. Existing tour/Runtime tip already explains the entry; familiar lane collapse needs no additional tour/tip. No new strings, telemetry field, dependency, version or What's new change.
+
 
 ## Native conversation Runtime view — 2026-11-16
 
@@ -1517,3 +1633,85 @@ Phase 2 spec: [PHASE-02-SPEC.md](PHASE-02-SPEC.md). Three current-card tools; au
 - 最终363073c覆盖绑定读取窗口，确定性回归先红后绿；typecheck与全量1501通过/6skip，独立Luna 53聚焦通过并放行。客户端产品源码未改，既有手机与旧宿主证据不冒充新取样。
 
 - 删除清理补轮d38c8ab：在drain前重新dirty，冷/热删除回归先红后绿；55聚焦、typecheck、全量1503/6skip与独立Luna通过。旧报告时序已独立注释；按用户决定继续等CodeRabbit额度。
+
+
+## Composer experience parity — 2026-11-17
+
+- Native 0.16 comparison: Add image / Add issue or PR / Upload file; provider commands and skills from the current session. Flowly now offers these actions, generic file picker/paste/drop, actual Forge search and keyboard completion. `/clear` and `/exit` open the exact native composer for user review; selecting them does not send/archive. Add anchors above Plus in desktop/compact layouts, per the user's correction.
+- Unsent image/file/reference drafts persist per session on the daemon with original bytes, metadata and stable IDs. Scoped idempotent add/remove/read RPCs, serial atomic storage, retryable client cache across unmount, missing-file recovery, and submitted-ID-only cleanup preserve new attachments and uncertain sends. No binary polling. Server upload batches clean only positively owned fresh IDs before a send is attempted.
+- Guidance: new Files and commands tour row and once-only composer-input tip; README and parity/onboarding specs aligned, nine catalogs updated. No additional recovery tip is needed for expected draft persistence. No telemetry field (existing message flow), dependency, version or What's new change.
+- Verification before freeze: typecheck exit 0; 9 focused files / 139 tests passed. Isolated installed-host UI 30/30, including desktop/compact anchors, command/skill selection, generic picker/paste/drop, image draft Back/reopen/session switch/plugin reload, exact provider file-byte response, and no automatic host-command execution. Dedicated board/native resources, daemon, browser and temporary home all cleaned. Earlier attempts failed on stale translation/type and native-command routing; these were fixed and the full focused/UI sequences rerun. Final exact-commit and independent results are recorded in docs/verification/composer-experience.md and composer-experience-independent.md; phone and live authenticated Forge results are separate/unrun.
+
+## Composer feature indicators (2026-11-18)
+
+- Speed now highlights a non-default tier in yellow. Plan uses blue and Auto-accept uses green when enabled. The trigger label and menu selection use the same effective provider option. Light surfaces use higher contrast shades. Model, reasoning, and permission icons keep their ordinary foreground.
+- Verified live Fast and Plan in dark desktop and light compact Flowly using the installed Paseo renderer and an isolated daemon. The existing Session controls tour and tip cover the behavior. No telemetry field is needed. [Verification](verification/session-feature-colors.md).
+
+## 2026-11-16 Paseo 0.16 在线 chip 零周期读取返工
+
+- 自动验收发现 PR #115 保留的 60 s chip 校对违背「屏幕静止时没有周期性读取」；§3.7 的暂缓不豁免该项。接受意见，保留历史 51→1 手机数据并更正其解释。
+- 先增强回归：静止 180 s 原实现读取 2→5，exit 1；在线时不再安排定时轮次后通过。首事件前、旧宿主、订阅拒绝/关闭继续轮询；恢复首事件后再次停止。
+- 去除分钟触发后，Ideas/Wrap up/native-session 设置通过原有 sessions 通知触发刷新；agent 流建立补一次完整列表、归档事件使归档引用过期。无新增轮询、协议或依赖。
+- 变更后 typecheck exit 0，5 文件 58 聚焦通过；全量 exit 0，165 文件通过/1 跳过，1506 测试通过/6 跳过。独立复核、提交与交付信息见 verification/paseo016-ga-2026-11-16/IDLE-READS-REWORK.md。
+- 本轮 AndroMeld control socket 不存在，adb 无设备；没有新手机或冷启动样本，旧数据保持历史属性。不新增用户操作、设置、引导、遥测字段或版本号。
+
+- CodeRabbit 三条有效补审意见均以确定性回归复现：读取拒绝后chip不恢复、旧设置响应吞新失效、旧归档扫描吞新移除。用户明确批准后两处最小并发保护；各加变化编号，不新增周期轮询。设置旧请求结束保留新失效；归档扫描无论成功/失败都保留新移除并补查。
+- 读取失败用5/30/60 s故障退避，成功即停止；stream初始化未成功应用的完整列表保留relist。该列表路径补回归先红；持续失败不自旋、stop取消、恢复后180秒无周期读取均保留。最终命令、SHA与独立复核记入IDLE-READS-REWORK.md。
+
+- 后续真实CodeRabbit补审又复现三条被catch为null/仅记时间戳的失败路径：归档失败不实际重试、设置失败错误标新鲜、外部insights失败无重试。新回归原3失败/36通过；最小修复后完整聚焦5文件69通过、typecheck exit0。归档仅失败时安排15秒一次性补查，成功/stop取消；设置/insights共用现有故障退避，健康静止仍零读取。
+- 最终候选冷启动门槛目前未满足：本轮AndroMeld socket不存在、adb无设备；3043bd8的历史+3.73%不能自动覆盖之后客户端与server修改。已撤掉卡片冷启动勾选，并向用户请求补测手机或明确接受本次补丁沿用，尚未授权时不合入。
+
+- 随后用户明确回复「授权本次补丁沿用旧冷启动结论」：该决定仅覆盖PR#117当前chip故障恢复补丁/产品531adad，按旧+3.7257%与5%标准接受沿用；没有新候选真机样本，保留UNRUN。此前未满足门槛的时序保留，不再等待连接手机作为本次合入条件。全量本次1517通过/6skip，165文件通过/1skip，exit0。
+
+
+## 2026-11-17 Paseo 0.16 原生agent流恢复与名单合并
+
+- CodeRabbit上轮正文还有两条outside-diff意见，未因check成功或无未解决线程而盲目合入。确定性回归复现setup失败无重试、旧活跃名单覆盖archive/create：原3失败/40通过；修好setup后41通过/2并发失败。
+- 用户明确批准最小名单变化编号，并再次确认本补丁冷启继续沿用旧结论。新增/移除事件递增编号，完整列表返回时若已过期则保留流状态并补读；不再复活已归档session或丢掉新session。setup失败清理本地监听并按既有5/30/60s退避重订阅，成功后停止，stop取消。无新健康周期轮询。
+- 完整5文件聚焦73项通过，typecheck exit0；全量与最终独立报告按冻结源码另记于IDLE-READS-REWORK.md。冷启动仍无新手机样本，严格按用户本补丁沿用授权记录，未扩展到其他功能。
+
+- 独立Luna对3ab5ff8暂缓放行：本地尚无ID时的remove被changed=false提前过滤，旧完整列表仍复活该session。临时诊断已移除、WITHHELD证据单独保留（LUNA-STREAM-RECONCILE.md/86e9198）；原73/1521通过不掩盖此缺口。
+- 在已批准的名单保护内补常规remove-unseen与archive-unseen回归，旧实现2失败/43通过（实测仍有旧session extras）。原始归档/移除现在即使本地尚无ID也递增membership编号、使归档引用失效并触发刷新。修改后完整5文件75项通过，typecheck exit0；重新冻结后复验全量与独立检查。
+
+- 最新最终产品deca6bd：typecheck与75聚焦通过，同一Luna复验PASS；父全量1523通过/6skip、165文件通过/1skip。保留旧WITHHELD时序，新报告LUNA-STREAM-FINAL.md；测试session已清理。最终证据整理后一次推送PR#117，等CI与真实CodeRabbit补审，不改产品源码。
+
+- CodeRabbit对dd47856补审提出持续stream setup失败时普通列表仍需刷新的有效意见。新回归先红（1失败/45通过，新a2无Task chip）；仅将既有stream退避回调从openStream改为refreshNow，使订阅重试同时通过普通列表更新新session。连续5/30秒失败期间a2/a3可见，成功后180秒无继续读取；不新增timer。修改后完整5文件76项与typecheck通过，exit0；全量/独立最终证据随后按冻结SHA记录。
+
+- 持续失败回退最终6be6f31：typecheck与76聚焦、父全量1524/6skip通过，独立Luna PASS，报告LUNA-PERSISTENT-STREAM.md；测试会话已清理。新手机仍UNRUN，按用户明确授权沿用本补丁旧冷启结论。最终证据推送后继续等CI与真实CodeRabbit补审。
+
+
+## 2026-11-17 Paseo 0.16 Guardrails/Memory 计数零周期读取返工
+
+- 接受自动验收 goal：启用 Memory 的总览仍每60秒调用 `guardrails.counts`。新客户端回归在180秒静止读数1→4时红灯；独立存储提交的通知回归0次（预期1）红灯。首次服务端fixture缺少noteKind的无效失败已修正后重新确认。
+- GuardrailsStore 的成功原子写入复用 `board.changes` 的board通知（含daemon学习、MCP写入，不要求看板提交）；失败/无改动不通知，停用时解除回调。看板推送失效集合包含counts；健康订阅停止60秒轮询，旧宿主/connecting/断开或计数读取失败时保留60秒回退，成功后停止，隐藏/卸载不读。无新协议、健康timer或依赖。
+- 聚焦7文件91项通过、typecheck exit0（初次绿灯）；最终精确SHA及独立验收见本轮报告。既有§3.7暂缓不变，没有修改旧Luna报告。
+- AndroMeld连接报control socket missing，adb设备列表为空；用户明确暂时无法连接。新手机收益/冷启动为UNRUN，PR#117的旧冷启沿用授权不自动扩展到本轮。
+- 无新UI/设置/核心动作/遥测字段，不需要tour、tip、What's new；README与OVERVIEW同步说明计数推送。既有Wrap up文档worktree-only与自有directory实际归档的差异由已有idea跟踪，本轮不改策略。
+
+- 后续同日：最终产品 `31d9dee` typecheck exit0，全量166文件通过/1skip、1528项通过/6skip。Luna会话26784627对同SHA代码与7文件91聚焦PASS，报告a3af96d，当时因设备未测保留整体验收。用户随后明确授权PR#118本轮计数补丁沿用历史+3.7257%/5%冷启结论；这是决策沿用，不是新采样，不改Luna当时的原报告。新手机/daemon/UI仍未运行。测试agent已删除，native inspect确认AGENT_NOT_FOUND。PR#118待CI与真实CodeRabbit，auto-merge关闭。
+
+- 额度等待期间补父任务隔离0.16.0运行时：真实guardrails.create/update写入无board revision变化时，board推送分别104.2/104.3ms到达，counts 0→1→0；etag省略及重订阅all通过。fixture项目/原生registry均空后停止owned daemon，删除owned home/project/script；未碰常用daemon。新手机/UI仍UNRUN。详见GUARDRAIL-COUNTS-REWORK报告。
+
+- CodeRabbit真实补审（02:33UTC）给出首次计数pending吞推送与显式Refresh漏读两条有效意见。临时诊断1失败/3skip、永久回归1失败/3通过（预期第二次读、实际一次）。用户明确批准最小修复并保留回归，继续沿用本轮冷启动决定；`invalidateCardViews`在失效前取消旧counts读取，总览Refresh保留原data.refetch并同时失效counts。无新轮询/变化编号。新精确SHA检查见本轮报告，旧Luna证据不改。
+
+- 本轮修复产品93b7a2：typecheck0、完整7文件92聚焦、全量166文件/1529通过6skip均exit0；无新手机采样，继续明确授权沿用旧冷启。独立Luna对同SHA复核，完整记录追加于GUARDRAIL-COUNTS-REWORK，未改旧独立报告。
+
+- 独立Luna会话ec866156对精确93b7a2代码/typecheck/7文件92聚焦PASS，报告dc0da42。澄清disabled指全局features.memory，不改变既有project.memory开关策略；新手机/daemon/UI仍UNRUN，授权沿用不当作新采样。
+
+- CodeRabbit对62b2a74真实补审（03:35UTC）指出短于30秒的无推送重入不重算计数，违反既有re-entry契约。新增10秒隐藏、无隐藏推送、重新显示的真实QueryObserver回归原实现1失败/4通过（预期2读、实际1读）。最小修复仅在线时staleTime设0，重入即补读，旧宿主/断线保留30秒；回归也检查20次重复render与180秒静止不新增读取，无effect/计时器/新并发机制。
+
+- 重入修复产品bacc790：typecheck0、7文件93聚焦、全量166文件/1530通过6skip均exit0；独立Luna会话4befbffa同SHA代码/typecheck/93聚焦PASS，报告661a6ff。父报告记录旧红灯与继承/UNRUN边界；推送后继续真实CodeRabbit补审，若限额按用户决定定时跟进。
+
+
+## 2026-11-17 Memory / Guardrails 页面健康订阅零周期读取返工
+
+- 接受新auto review goal：useGuardrailsQuery由Memory/Guardrails页共用，原健康idle仍30秒读。真实QueryObserver静止180秒1→7确定红灯；fallback/running/错误/首读推送及MemoryService运行态通知回归共6失败/16通过。首版服务端等待信号写错导致测试/清理超时，修正为现有summarySettled入口信号后重跑，未将那次超时当产品证据。
+- 共用查询读取既有BoardPushLive，健康时全停（含running），旧宿主/connecting/断线或查询错误保留原5秒running/30秒idle，成功在线即停。board推送失效guardrails前缀，沿用已批准取消首读再失效机制，隐藏/重入仍正确。
+- GuardrailsStore成功提交既有board通知覆盖数据/错误；补MemoryService内存running开始/结束通知（含无store提交的自动review取消路径与手动review），全局features.memory准备完成/变化也通知，cleanup解除running回调。项目级开关策略不变，无新subscription协议/健康timer/依赖。README/OVERVIEW同步，未变UI文案/设置/遥测，无需tour/tip/What's new。
+- 首轮完整9文件115聚焦与typecheck exit0；最终源码/full/独立及隔离运行时结果另记MEMORY-PAGE-REWORK。新手机采样UNRUN：AndroMeld control socket missing，adb无设备；PR118计数补丁的旧冷启沿用授权不自动扩大到本轮Memory页。
+
+### 2026-11-17 Memory 页面返工验收与直接合入决定
+
+- 产品9170380：typecheck exit0，9文件115聚焦、全量167文件通过/1跳过，1536项通过/6跳过。独立GPT6Luna同SHA审阅与115项检查通过；报告LUNA-MEMORY-PAGE.md，验收会话已精确删除并确认AGENT_NOT_FOUND。
+- 真实隔离0.16 daemon的Memory新增/删除与全局开关推送104–109ms，页面数据和etag通过；所有fixture与owned daemon已清理。新手机/UI/冷启动仍UNRUN。
+- 用户明确授权本轮页面补丁沿用3043bd8历史+3.7257%/5%冷启结论，随后明确小改动可直接合入、不走PR流程。按本次指示正常快进push main并关闭草稿119；CodeRabbit的NEUTRAL限额不当作通过。原独立报告保留授权之前的边界，不改旧证据。

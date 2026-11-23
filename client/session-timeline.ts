@@ -1,8 +1,11 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Platform } from "react-native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRpc } from "@getpaseo/plugin/client";
 import { sessionTail } from "../shared/rpc";
 import { t } from "../shared/i18n";
+import { perfEnd, perfStart } from "./perf";
+import { RETAINED_TRANSCRIPT_GC, retainTranscript } from "./transcript-cache";
 import {
   HISTORY_PAGE,
   TURN_MAX_ENTRIES,
@@ -38,10 +41,24 @@ export function useSessionTimeline({
   enabled: boolean;
   streamReady: boolean;
 }) {
-  const read = useRpc(sessionTail);
+  const request = useRpc(sessionTail);
+  const firstQuery = useRef(perfStart());
+  const read = useCallback(async (input: Parameters<typeof request>[0]) => {
+    const start = perfStart();
+    try {
+      return await request(input);
+    } catch (error) {
+      perfEnd("session.timeline.rpc-error", start);
+      throw error;
+    } finally {
+      perfEnd(`session.timeline.rpc.${input.mode ?? "tail"}`, start);
+    }
+  }, [request]);
   const client = useQueryClient();
   const target = taskId ? { taskId } : { workspaceId };
   const key = transcriptKey(taskId || `workspace:${workspaceId}`, agentId);
+  const retain = Platform.OS === "web";
+  useEffect(() => retain ? retainTranscript(client, key) : undefined, [client, taskId, workspaceId, agentId, retain]);
   const cached = () => client.getQueryData<TimelineWindow>(key);
   const readTurn = async () => {
     const page = await read({ ...target, agentId, limit: HISTORY_PAGE, mode: "turn", maxEntries: TURN_MAX_ENTRIES });
@@ -55,6 +72,8 @@ export function useSessionTimeline({
   const query = useQuery({
     queryKey: key,
     queryFn: async (): Promise<TimelineWindow> => {
+      perfEnd("session.timeline.query-start", firstQuery.current);
+      firstQuery.current = 0;
       const before = cached();
       const cursor = before?.epoch ? refreshCursor(before) : null;
       if (before && cursor) {
@@ -65,6 +84,7 @@ export function useSessionTimeline({
       return readTurn();
     },
     enabled,
+    gcTime: retain ? RETAINED_TRANSCRIPT_GC : undefined,
     refetchInterval: streamReady ? 15000 : 3000,
   });
   const [loadingEarlier, setLoadingEarlier] = useState(false);

@@ -145,7 +145,7 @@ describe("tips", () => {
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors"], facts, blocked: false })).toBe("session-history");
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history"], facts, blocked: false })).toBe("session-context");
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history"], facts: { ...none, cardWithSession: true }, blocked: true })).toBeNull();
-    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history", "session-context", "session-controls"], facts, blocked: false })).toBe("sidebar-order");
+    expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "session-history", "session-context", "session-controls", "composer-input"], facts, blocked: false })).toBe("sidebar-order");
     expect(nextTip({ tipsSeen: ["description-images", "image-limits", "connectors", "tapd-connect", "lazy-workspace"], facts: { ...none, cardOpen: true }, blocked: false })).toBeNull();
   });
   test("subagents are announced after the workpad tip, before ideas", () => {
@@ -381,9 +381,19 @@ test("session-composer-fill: shown once on a 0.16 host with a card session, afte
   expect(nextTip({ tipsSeen: [], facts: none, blocked: false })).toBe(null);
   const facts = { ...none, sessionComposerFill: true, cardWithSession: true, projectTabs: true };
   expect(nextTip({ tipsSeen: [], facts, blocked: false })).toBe("session-history");
-  expect(nextTip({ tipsSeen: ["session-context", "session-controls", "session-history"], facts, blocked: false })).toBe("session-composer-fill");
-  expect(nextTip({ tipsSeen: ["session-context", "session-controls", "session-history", "session-composer-fill"], facts, blocked: false })).toBe("project-menu");
-  expect(nextTip({ tipsSeen: ["session-context", "session-controls", "session-history"], facts, blocked: true })).toBe(null);
-  expect(nextTip({ tipsSeen: ["session-context", "session-controls", "session-history"], facts: { ...facts, sessionComposerFill: false }, blocked: false })).toBe("project-menu");
-  expect(nextTip({ tipsSeen: ["session-context", "session-controls", "session-history", "composer-controls"], facts, blocked: false })).toBe("session-composer-fill");
+  expect(nextTip({ tipsSeen: ["session-context", "session-controls", "composer-input", "session-history"], facts, blocked: false })).toBe("session-composer-fill");
+  expect(nextTip({ tipsSeen: ["session-context", "session-controls", "composer-input", "session-history", "session-composer-fill"], facts, blocked: false })).toBe("project-menu");
+  expect(nextTip({ tipsSeen: ["session-context", "session-controls", "composer-input", "session-history"], facts, blocked: true })).toBe(null);
+  expect(nextTip({ tipsSeen: ["session-context", "session-controls", "composer-input", "session-history"], facts: { ...facts, sessionComposerFill: false }, blocked: false })).toBe("project-menu");
+  expect(nextTip({ tipsSeen: ["session-context", "session-controls", "composer-input", "session-history", "composer-controls"], facts, blocked: false })).toBe("session-composer-fill");
+});
+
+
+test("composer input tip is once-only, session-scoped and blocked with the other tips", () => {
+  const facts = { cardWithSession: true } as TipFacts;
+  const previous = ["session-context", "session-controls", "session-history"];
+  expect(nextTip({ tipsSeen: previous, facts, blocked: false })).toBe("composer-input");
+  expect(nextTip({ tipsSeen: [...previous, "composer-input"], facts, blocked: false })).toBeNull();
+  expect(nextTip({ tipsSeen: previous, facts: {} as TipFacts, blocked: false })).toBeNull();
+  expect(nextTip({ tipsSeen: previous, facts, blocked: true })).toBeNull();
 });

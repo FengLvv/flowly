@@ -1,3 +1,4 @@
+import { SessionFiles } from "./server/session-files";
 import { DescriptionImageFiles, DescriptionImages } from "./server/description-images";
 import { readCardDetail, readProjectCardIndex, readProjectIdeas } from "./server/card-detail";
 import type { PluginServerContext } from "@getpaseo/plugin/server";
@@ -6,6 +7,8 @@ import { BoardStore, columnOrder } from "./server/store";
 import { BoardService, dataDirectory, migrateLegacyPluginData, paseoHome } from "./server/service";
 import { readPaseoVersion } from "./server/paseo-version";
 import { SessionMetadataSync, workspaceBindings } from "./server/session-metadata";
+import { SessionTitles } from "./server/session-titles";
+import { sessionTitleSettings, sessionTitleValues } from "./shared/session-titles";
 import { ChangeFeed } from "./server/change-feed";
 import { NativeDirectoryPicker, detectNativePicker, listDirectories } from "./server/directories";
 import * as rpc from "./shared/rpc";
@@ -13,7 +16,7 @@ import { agentHabitsOn, developerSettings, performanceLogOn, performanceSettings
 import { ToolServer } from "./server/tool-server";
 import { openKanbanSession } from "./server/session-open";
 import { SessionReadStore, SessionReadService, daemonNativeAttention } from "./server/session-reads";
-import { readAttentionCount } from "./server/attention-count";
+import { readAttentionCount, readSidebarCounts } from "./server/attention-count";
 import { WrapupService } from "./server/wrapup";
 import { WorkspaceRestoreService } from "./server/workspace-restore";
 import { SessionImageService } from "./server/session-images";
@@ -33,6 +36,7 @@ import { ComposerService, ComposerStore } from "./server/composer";
 import { adoptIdea } from "./server/ideas";
 import { createLink, deleteLink } from "./server/links";
 import { ArtifactService } from "./server/artifacts";
+import { searchSession } from "./server/session-search";
 import { WorkpadService } from "./server/workpad";
 import { ConnectorService, migrateTicketDirectory, refKey } from "./server/connectors/service";
 import { projectRepos, repoVerdict } from "./server/connectors/repos";
@@ -76,12 +80,18 @@ export default function contribute(host: PluginServerContext) {
   const modelPrefs = server.registerSettings(modelSettings);
   server.registerSettings(onboardingSettings);
   const summaryPrefs = server.registerSettings(summarySettings);
+  const titlePrefs = server.registerSettings(sessionTitleSettings);
   const wrapupPrefs = server.registerSettings(wrapupSettings);
   const statusPrefs = server.registerSettings(statusSettings);
   const ideasPrefs = server.registerSettings(ideasSettings);
   const nativePrefs = server.registerSettings(nativeSessionSettings);
   const workflowPrefs = server.registerSettings(workflowInsightsSettings);
   const perfPrefs = server.registerSettings(performanceSettings);
+  let tailTimingOn = false;
+  const stopTailTiming = perfPrefs.subscribe((state) => {
+    tailTimingOn = state.status === "ready" && performanceLogOn(state.values);
+  });
+  void perfPrefs.read().then(state => { tailTimingOn = state.status === "ready" && performanceLogOn(state.values); }).catch(() => {});
   const telemetryPrefs = server.registerSettings(telemetrySettings);
   const developerPrefs = server.registerSettings(developerSettings);
   // Project memory and Insights as a whole (ONBOARDING-SETUP-SPEC §6); unreadable settings keep the defaults (on).
@@ -90,8 +100,12 @@ export default function contribute(host: PluginServerContext) {
     const state = await featurePrefs.read().catch(() => null);
     return featureSettingsValues(state?.status === "ready" ? state.values : {});
   };
+  const boardFeed = new ChangeFeed();
   const stopFeaturePrefs = featurePrefs.subscribe((state) => {
-    if (state.status === "ready") setMemoryEverywhere(featureSettingsValues(state.values).memory);
+    if (state.status === "ready") {
+      setMemoryEverywhere(featureSettingsValues(state.values).memory);
+      boardFeed.notify();
+    }
   });
   void featureValues().then((v) => setMemoryEverywhere(v.memory));
   // The global switch for rules A1/A1r; unreadable settings keep the default (on).
@@ -126,6 +140,13 @@ export default function contribute(host: PluginServerContext) {
     },
     aiLanguage,
   );
+  const sessionTitles = new SessionTitles(async () => {
+    const state = await titlePrefs.read().catch(() => null);
+    return {
+      enabled: state?.status === "ready" && sessionTitleValues(state.values).enabled,
+      models: summaryModelsOf(await summaries.settings()),
+    };
+  }, aiLanguage);
   // Progress, next steps and ideas for sessions Flowly does not manage (NATIVE-SESSION-SPEC §12); off by default.
   const nativeValues = async () => {
     const state = await nativePrefs.read().catch(() => null);
@@ -217,7 +238,11 @@ export default function contribute(host: PluginServerContext) {
     sessions: await tools.managedSessions(),
     workspaces: workspaceBindings(await store.read()),
   }));
-  const boardFeed = new ChangeFeed();
+  guardrails.store.onCommit = () => boardFeed.notify();
+  // Chip preferences used to be found by the minute's reconciliation. Push them even if no board write occurs.
+  const stopChipPrefs = [ideasPrefs, wrapupPrefs, nativePrefs].map((prefs) =>
+    prefs.subscribe(() => boardFeed.notify("sessions")),
+  );
   store.onCommit = () => {
     folders.schedule();
     sessionMetadata.changed();
@@ -260,17 +285,27 @@ export default function contribute(host: PluginServerContext) {
   void syncReads(true);
   server.handle(rpc.readSessionReceipts, () => sessionReads.read());
   server.handle(rpc.readAttentionCount, (_, { paseo }) => readAttentionCount(store, sessionReads, paseo));
+  server.handle(rpc.readSidebarCounts, async (_, { paseo }) => {
+    try { return await readSidebarCounts(store, sessionReads, paseo); }
+    catch (error) { logFailure("Flowly sidebar counts failed:", error); throw error; }
+  });
   server.handle(rpc.markSessionRead, (input, { paseo }) =>
     readService.mark(input, paseo),
   );
   server.handle(rpc.markSessionUnread, (input, { paseo }) => readService.markUnread(input, paseo));
-  const composer = new ComposerService(new ComposerStore(store.directory), store);
+  const sessionFiles = new SessionFiles(store);
+  server.handle(rpc.searchSessionForge, (input, { paseo }) => sessionFiles.search(input, input.query, paseo));
+  server.handle(rpc.uploadSessionFiles, (input, { paseo }) => sessionFiles.prepare(input, input.files, paseo));
+  const composer = new ComposerService(new ComposerStore(store.directory), store, undefined, undefined, sessionFiles);
   server.handle(rpc.readComposer, (_, { paseo }) => {
     void composer.drainAll(paseo).catch(() => undefined);
     return composer.read();
   });
   server.handle(rpc.saveDraft, (input, { paseo }) => composer.saveDraft(input, paseo));
   server.handle(rpc.queueMessage, (input, { paseo }) => composer.push(input, paseo));
+  server.handle(rpc.readAttachmentDraft, (input, { paseo }) => composer.readAttachments(input, paseo));
+  server.handle(rpc.addAttachmentDraft, (input, { paseo }) => composer.addAttachments(input, paseo));
+  server.handle(rpc.removeAttachmentDraft, (input, { paseo }) => composer.removeAttachments(input, paseo));
   server.handle(rpc.unqueueMessage, (input) => composer.remove(input));
   server.handle(rpc.sendQueuedNow, (input, { paseo }) => composer.sendNow(input, paseo));
   const images = new SessionImageService(store);
@@ -282,7 +317,10 @@ export default function contribute(host: PluginServerContext) {
   const archived = new ArchivedSessionsService(store);
   server.handle(rpc.archivedSessions, (input, { paseo }) => archived.list(input.taskId, paseo));
   server.handle(rpc.archivedSessionRefs, (_, { paseo }) => archived.refs(paseo));
-  server.handle(rpc.sessionTail, (input, { paseo }) => tails.tail(input, paseo));
+  server.handle(rpc.sessionTail, (input, { paseo }) => tails.tail(input, paseo, tailTimingOn ? timing => {
+    console.log(`[perf] session.tail mode=${input.mode ?? "tail"} total=${timing.totalMs.toFixed(1)}ms scope=${timing.scopeMs.toFixed(1)}ms timeline=${timing.timelineMs.toFixed(1)}ms pages=${timing.pages} entries=${timing.entries}`);
+  } : undefined));
+  server.handle(rpc.sessionSearch, (input, { paseo }) => searchSession(input, paseo));
   const wrapups = new WrapupService(store, undefined, (taskId) => summaries.settled(taskId));
   const restores = new WorkspaceRestoreService(store);
   const sessionSettings = new SessionSettingsService(store);
@@ -297,6 +335,7 @@ export default function contribute(host: PluginServerContext) {
   // Project memory (PROJECT-MEMORY-SPEC): confirmed knowledge shared across a project's cards.
   const memory = new MemoryService(store, summaries.store, summaries.settings, aiLanguage, (taskId) => summaries.settled(taskId));
   memoryRunning = () => memory.runningTasks();
+  memory.onRunningChange = () => boardFeed.notify();
   // Learning from rework turns rides on the card summary (GUARDRAILS-SPEC §4.2).
   summaries.guardrails = { section: (taskId) => guardrails.section(taskId), learn: (input) => guardrails.learn(input) };
   // Skill material: card summaries and project memory (INSIGHTS-REDESIGN-SPEC §3.2).
@@ -461,7 +500,7 @@ export default function contribute(host: PluginServerContext) {
     service.createTask(input, paseo),
   );
   server.handle(rpc.taskContext, (input, { paseo }) =>
-    service.context(input.id, paseo),
+    service.context(input.id, paseo, undefined, input.instructions !== false),
   );
   // With auto wrap-up on, moving a card into Done/Cancelled archives its own
   // workspace in the background when the preflight is clean; the status write
@@ -700,6 +739,7 @@ export default function contribute(host: PluginServerContext) {
     if (await managedTask(event.agent)) sessionMetadata.created(paseo, event.agent.id);
   });
   server.addHook("agent.turn.before", async (event, { paseo }) => {
+    void sessionTitles.turnStarted(event.agent, event.turnId, paseo);
     tools.attach(paseo);
     const identity = await managedTask(event.agent);
     if (!identity) {
@@ -863,7 +903,12 @@ export default function contribute(host: PluginServerContext) {
     openKanbanSession(request, tools, store.directory, paseo),
   );
   return () => {
+    sessionTitles.dispose();
+    stopTailTiming();
     sessionMetadata.stop();
+    stopChipPrefs.forEach((stop) => stop());
+    guardrails.store.onCommit = null;
+    memory.onRunningChange = null;
     boardFeed.stop();
     void store.close().catch((e) => logFailure("Flowly storage: close failed:", e));
     workflow.stop();

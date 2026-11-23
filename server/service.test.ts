@@ -99,6 +99,24 @@ test("a common parent directory contains two repositories without registering ea
   await x.service.ensureWorkspace(card.id, x.paseo);
   expect(x.create.mock.calls[0][0]).toMatchObject({ source: { path: x.a } });
 });
+
+test("availability-only context preserves fresh scope metadata without building session instructions", async () => {
+  const x = await setup();
+  const card = await x.service.createTask(x.input, x.paseo);
+  await x.service.ensureWorkspace(card.id, x.paseo);
+  const externalInputs = vi.spyOn(x.service as any, "unreadableExternals");
+  const full = await x.service.context(card.id, x.paseo);
+  expect(full.context).toContain("Native Paseo project root: " + x.a);
+  expect(externalInputs).toHaveBeenCalledTimes(1);
+  externalInputs.mockClear();
+  x.refresh.mockClear();
+  const lean = await x.service.context(card.id, x.paseo, undefined, false);
+  expect(x.refresh).toHaveBeenCalledTimes(1);
+  expect(externalInputs).not.toHaveBeenCalled();
+  expect(lean).toEqual({ ...full, context: "", memoryIds: [] });
+  x.refresh.mockResolvedValueOnce(null as never);
+  expect(await x.service.context(card.id, x.paseo, undefined, false)).toMatchObject({ available: false, context: "" });
+});
 test("new board project links the exact native Paseo root and persists only that directory", async () => {
   const x = await setup(),
     nativeRoot = join(x.root, "common-root");

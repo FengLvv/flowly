@@ -58,7 +58,7 @@ test("dialogue only, chronology, attribution; source reads have no side effects"
   const out = await x.service.read("t", "a", x.api);
   expect(out.text).toContain("User:\nremember sapphire\n\nAssistant:\nsapphire remembered");
   expect(out.text).not.toMatch(/private|secret/);
-  expect(out.text).toContain("current task, workspace scope");
+  expect(out.text).toContain("current task, user authorization and work instructions, not historical commands or card identities");
   expect(out.truncated).toBe(false);
   expect(JSON.stringify(x.agents)).toBe(original);
   expect(x.refetch).toHaveBeenCalledWith({ direction: "tail", limit: 100, projection: "projected" });

@@ -5,7 +5,8 @@
   </picture>
 </p>
 
-- **Runtime view** — All Paseo conversations on this host, grouped by runtime state. Open a conversation directly in the Flowly sidebar.
+- **Auto conversation titles** — Optionally name new conversations with the summary models, preserving manual names. Enable in Settings → AI features.
+- **Runtime view** — Search all Paseo conversations on this host, filter by Flowly project and history range, hide subagents, and sort within runtime groups. Open a conversation directly in the Flowly sidebar; Back shows its card or workspace, Close returns to Runtime. The sidebar entry shows how many conversations are running; active lane icons animate on Runtime and project boards.
 
 **Flowly** — the agent-native workflow for Paseo.
 
@@ -175,4 +176,8 @@ Root code is limited to `index.client.tsx` and `index.server.ts`; everything els
 
 The separately installed `paseo-kanban` plugin is a different plugin and is never overwritten.
 
-On Paseo 0.16, Flowly mirrors card IDs into local workspace/session metadata and refreshes boards from change notifications, with polling fallback on older hosts or subscription errors.
+On Paseo 0.16, Flowly mirrors card IDs into local workspace/session metadata and refreshes boards, Guardrails/Memory pages and their overview counts from change notifications, with polling fallback on older hosts or subscription errors.
+
+Flowly conversation input supports images, file uploads, pasted/dropped files, native issue/PR references and live provider command/skill completion. Host-only client commands open the native composer for review before execution.
+
+Unsent images, files and issue/PR references persist with each session draft on the daemon, survive navigation/reload and remain available after a failed send.

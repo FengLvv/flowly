@@ -6,6 +6,7 @@ import { languageChoices, localeCodes } from "./i18n";
 import { aiLanguageChoices } from "./ai-language";
 import { cardActivityModes } from "./card-display";
 import { memoryKinds } from "./memory";
+import { runtimeSortKeys } from "./runtime-filter";
 
 /** The Memory page's sort orders (GUARDRAILS-SPEC §7.4). */
 export const memorySorts = ["newest", "used", "recent"] as const;
@@ -26,6 +27,16 @@ export const boardViewSettings = defineSettings({
     boardSort: z.enum(boardSorts).default("manual"),
     /** Desktop columns shown as a narrow strip. */
     collapsedColumns: z.array(statusSchema).max(7).default([]),
+    /** Runtime preferences are independent of project board controls; keep future lane IDs. */
+    runtimeCollapsed: z.array(z.string().min(1).max(80)).max(100).catch([]).default([]),
+    runtimeGroup: z.string().min(1).max(80).catch("attention").default("attention"),
+    runtimeSearch: z.string().max(200).catch("").default(""),
+    runtimeFullSearch: z.boolean().catch(false).default(false),
+    runtimeHideSubagents: z.boolean().catch(false).default(false),
+    runtimeRange: z.enum(["24h", "7d", "all"]).catch("7d").default("7d"),
+    runtimeSort: z.object({ key: z.enum(runtimeSortKeys), direction: z.enum(["asc", "desc"]) }).nullable().catch(null).default(null),
+    runtimeProjectIds: z.array(z.string().min(1).max(200)).max(1000).catch([]).default([]),
+    runtimeUnlinked: z.boolean().catch(false).default(false),
     /** Board filters, remembered between visits. */
     filterSearch: z.string().max(200).default(""),
     filterPriority: z.enum(["all", ...priorities]).default("all"),

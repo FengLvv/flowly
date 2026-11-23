@@ -1,3 +1,4 @@
+import type { OutgoingFile, ForgeReference } from "../shared/session-files";
 import { sessionScope, type SessionScope } from "../shared/session-target";
 import { useEffect, useRef } from "react";
 import { useRpc } from "@getpaseo/plugin/client";
@@ -72,11 +73,13 @@ export function useComposer(enabled = true) {
       if (immediate) return flush();
       timers.current.set(agentId, { timer: setTimeout(flush, 500), flush });
     },
-    async queue(target: string | SessionScope, agentId: string, text: string, images: OutgoingImage[] = []) {
+    async queue(target: string | SessionScope, agentId: string, text: string, images: OutgoingImage[] = [], files: OutgoingFile[] = [], references: ForgeReference[] = []) {
       const temp: ComposerEntry["queue"][number] = {
         id: `pending-${Date.now()}`,
         text,
+        ...(references.length ? { references } : {}),
         at: new Date().toISOString(),
+        ...(files.length ? { files: files.map((file, i) => ({ file: `pending-${i}.bin`, name: file.name, mimeType: file.mimeType })) } : {}),
         ...(images.length ? { images: images.map((image, i) => ({ file: `pending-${i}.png`, mimeType: image.mimeType })) } : {}),
       };
       // Until the daemon answers, no poll may land: one already in flight is cancelled (its result predates this
@@ -94,7 +97,7 @@ export function useComposer(enabled = true) {
             },
           },
         }));
-        const item = await push({ ...sessionScope(target), agentId, text, ...(images.length ? { images } : {}) });
+        const item = await push({ ...sessionScope(target), agentId, text, ...(images.length ? { images } : {}), ...(files.length ? { files } : {}), ...(references.length ? { references } : {}) });
         // The confirmed message takes the temporary one's place and its row key, so the row is not rebuilt.
         rowKeys.set(item.id, temp.id);
         patch((s) => {
