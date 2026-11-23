@@ -1073,12 +1073,12 @@ function TaskDrawerView({
             {onOpenTask && <LinkOrigin taskId={task.id} onOpenTask={onOpenTask} />}
             {!!task.description && (
               // Long descriptions (often from an idea) start clamped so Sessions stay in view.
-              <Clamped key={task.id} background={colors.surface0} bare>
+              <Clamped key={`description:${task.id}`} background={colors.surface0} bare>
                 <SessionMarkdown text={task.description} />
               </Clamped>
             )}
             {!!task.descriptionImages?.length && <DescriptionImages task={task} />}
-            <SidebarSupplements key={task.id} task={task} active={active && !selected && !sending}
+            <SidebarSupplements key={`supplements:${task.id}`} task={task} active={active && !selected && !sending}
               readOnly={!!task.archivedAt || !!project.archivedAt} />
             {!!detailState.error && <Notice>{message(detailState.error)}</Notice>}
             {!detailState.detail ? <Button quiet onPress={detailState.retry}>{detailState.error ? t("Retry") : t("Loading cards…")}</Button> : order.map((id) => <Fragment key={id}>{section(id)}</Fragment>)}

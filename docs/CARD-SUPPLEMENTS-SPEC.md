@@ -5,6 +5,7 @@
 - New task and Edit task show **Supplemental notes** directly below the description and its images. Add adds the current text to the draft list. Save also includes text still in the input. The form can remove any listed draft item before saving, and Cancel discards form changes.
 - The card sidebar shows the same list directly below the description and images, before the configurable sections. It remains available on a card with no description. Add saves immediately and clears the field after confirmation. Enter adds and Shift+Enter inserts a new line on web. While a save is in progress, the sidebar input and Add are disabled. An error appears beside the input and leaves the text available to retry.
 - Archived cards and archived projects show existing notes read-only. The sidebar uses the same layout on desktop and compact screens. Switching cards starts with an empty input.
+- A card description is rendered once as detail data refreshes, while the notes editor keeps its own identity and draft for that card.
 
 ## Data and errors
 
