@@ -94,6 +94,12 @@ output = {
 
 ## 5. 界面
 
+### 5.0 看板内联搜索（2026-11-17 用户要求）
+
+项目概览统计行最前面加入带 Search 图标、清空操作的搜索框；复用当前看板 `filterSearch` 和已有筛选弹层，标题/描述/标签文本改为 Better Paseo 的不分大小写、空白切词 AND 匹配（可分散在不同字段），保留 #tag 层级匹配规则。输入防抖，清空恢复其它筛选下的卡片。右侧“Search everywhere”图标打开现有 Search 页并带上查询；不改变该页范围/来源契约，不把它称为对话全文搜索。保留现有快捷键/Command Center。范围和新增排序不进入项目概览行。
+
+Runtime 对话视图有独立查询，不共用项目 filterSearch。默认筛选对话元数据，右侧开关可额外搜对话消息；原生对话分页搜索、安全范围、状态和范围/排序规则见 RUNTIME-VIEW-SPEC。它不替换本规范的 Flowly 项目资料检索。现有“会话没有搜索接口”仅说明旧 Search 页的范围；新 sessions.search 通过 SDK 投影时间线在 daemon 逐页只读搜索，不引入连接或客户端全文缓存。
+
 ### 5.1 入口
 
 - **Search 页**：和 Ideas、Insights、Guardrails 一样，打开后替换看板区域（`page = "search"`），桌面和手机相同。

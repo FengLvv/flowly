@@ -1,5 +1,7 @@
 # Session dialogue context
 
+2026-11-18: the historical-reference preamble defers to the current task, user authorization and work instructions. It must not imply a workspace-only operation boundary; see [AGENT-WORKING-DIRECTORIES-SPEC](AGENT-WORKING-DIRECTORIES-SPEC.md).
+
 ## Contract
 
 User decision, 2026-11-12: use public SDK timeline reads to inherit dialogue text across models, limited to this project. This is a text snapshot, not a provider-native session clone. Images, tool results, reasoning and previous session configuration are excluded.

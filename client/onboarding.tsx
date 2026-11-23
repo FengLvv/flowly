@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Animated, Modal as RNModal, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
+import { Animated, Platform, Modal as RNModal, Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
 import { Icon, ScrollView } from "@getpaseo/plugin/client/react-native";
 import { useSettings } from "@getpaseo/plugin/client";
 import type { PluginTheme } from "@getpaseo/plugin";
@@ -423,9 +423,11 @@ function Hint({ icon, text }: { icon: string; text: string }) {
 function MoreFeatures() {
   const { colors } = useTheme();
   const more = [
-    { icon: "Activity", title: t("Runtime"), text: t("Runtime shows all Paseo conversations on this host. Open a conversation to chat in Flowly.") },
+    { icon: "CaseSensitive", title: t("Auto conversation titles"), text: t("Enable in AI features to name new conversations with your summary models. Manual names are kept.") },
+    { icon: "Activity", title: t("Runtime"), text: `${t("Search Paseo conversations, filter by Flowly project and history range, hide subagents, and sort within groups. Open a conversation to chat in Flowly.")} ${t("Back shows its card or workspace; Close returns to Runtime.")} ${t("The sidebar shows how many conversations are running.")} ${t("Lane icons animate while conversations are active.")}` },
     { icon: "MessagesSquare", title: t("Session context"), text: t("Start a new session with dialogue text from another session in the same project, even with a different model.") },
     { icon: "SlidersHorizontal", title: t("Session controls"), text: t("Change models and provider features inside Flowly. Copy messages or reload a session from its menu.") },
+    { icon: "Paperclip", title: t("Files and commands"), text: Platform.OS === "web" ? t("Use + to add images, files or issues and pull requests. Type / to choose a command or skill.") : t("Type / to choose a command or skill.") },
     { icon: "Images", title: t("Description images"), text: t("Save pictures with a card description and use its text and pictures as a session instruction.") + " " + t("Flowly does not limit image count or size. Model and host limits still apply.") },
     { icon: "ListPlus", title: t("Supplemental notes"), text: t("Keep extra details below a card’s description. Add notes directly from the sidebar.") },
     { icon: "ListChecks", title: t("Workpad"), text: t("Agents set the card's type and tags and write an acceptance list before they start; the card shows how many items are met, next to the latest review.") },

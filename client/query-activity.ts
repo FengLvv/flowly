@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-/** Only retained board card outputs consume this; visible detail queries are independent. */
+/** Visibility of retained board output and decoration; visible detail queries are independent. */
 export const BoardOutputActive = createContext(true);
 
 export function boardIsActive(compact: boolean, taskId: string, page: string | null, formOpen: boolean) {

@@ -1,9 +1,17 @@
 import { expect, test } from "vitest";
 import { boardViewValues, statusSettingsValues } from "./settings";
 
+const runtimeDefaults = { runtimeCollapsed: [], runtimeGroup: "attention", runtimeSearch: "", runtimeFullSearch: false, runtimeHideSubagents: false, runtimeRange: "7d", runtimeSort: null, runtimeProjectIds: [], runtimeUnlinked: false };
+
+test("Runtime child visibility is optional and invalid values preserve other valid preferences", () => {
+  expect(boardViewValues({}).runtimeHideSubagents).toBe(false);
+  expect(boardViewValues({ runtimeHideSubagents: true }).runtimeHideSubagents).toBe(true);
+  expect(boardViewValues({ runtimeHideSubagents: "yes", runtimeSearch: "keep", boardSort: "title" })).toMatchObject({ runtimeHideSubagents: false, runtimeSearch: "keep", boardSort: "title" });
+});
+
 test("older stored settings get defaults for newer fields; invalid values fall back", () => {
-  expect(boardViewValues({ lastProjectId: "p" })).toEqual({ lastProjectId: "p", sendBehavior: "steer", startAgentOnCreate: true, boardSort: "manual", collapsedColumns: [], filterSearch: "", filterPriority: "all", filterType: "all", filterTags: [], showArchived: false, hideFinishedAfterDays: 14, runningSweep: true, lastTicketConnection: "", lastConnections: {}, cardActivity: "auto", cardHidden: [], drawerOrder: [], drawerOpen: {}, drawerWidth: 0, memoryKind: "all", memorySort: "newest", memoryLayout: "list" });
-  expect(boardViewValues(undefined)).toEqual({ lastProjectId: "", sendBehavior: "steer", startAgentOnCreate: true, boardSort: "manual", collapsedColumns: [], filterSearch: "", filterPriority: "all", filterType: "all", filterTags: [], showArchived: false, hideFinishedAfterDays: 14, runningSweep: true, lastTicketConnection: "", lastConnections: {}, cardActivity: "auto", cardHidden: [], drawerOrder: [], drawerOpen: {}, drawerWidth: 0, memoryKind: "all", memorySort: "newest", memoryLayout: "list" });
+  expect(boardViewValues({ lastProjectId: "p" })).toEqual({ ...runtimeDefaults, lastProjectId: "p", sendBehavior: "steer", startAgentOnCreate: true, boardSort: "manual", collapsedColumns: [], filterSearch: "", filterPriority: "all", filterType: "all", filterTags: [], showArchived: false, hideFinishedAfterDays: 14, runningSweep: true, lastTicketConnection: "", lastConnections: {}, cardActivity: "auto", cardHidden: [], drawerOrder: [], drawerOpen: {}, drawerWidth: 0, memoryKind: "all", memorySort: "newest", memoryLayout: "list" });
+  expect(boardViewValues(undefined)).toEqual({ ...runtimeDefaults, lastProjectId: "", sendBehavior: "steer", startAgentOnCreate: true, boardSort: "manual", collapsedColumns: [], filterSearch: "", filterPriority: "all", filterType: "all", filterTags: [], showArchived: false, hideFinishedAfterDays: 14, runningSweep: true, lastTicketConnection: "", lastConnections: {}, cardActivity: "auto", cardHidden: [], drawerOrder: [], drawerOpen: {}, drawerWidth: 0, memoryKind: "all", memorySort: "newest", memoryLayout: "list" });
   expect(boardViewValues({ sendBehavior: "bogus" }).sendBehavior).toBe("steer");
   expect(boardViewValues({ memoryKind: "pitfall", memorySort: "used", memoryLayout: "grid" })).toMatchObject({ memoryKind: "pitfall", memorySort: "used", memoryLayout: "grid" });
   expect(boardViewValues({ memoryKind: "bogus", memorySort: "bogus", memoryLayout: "bogus", lastProjectId: "p" })).toMatchObject({ memoryKind: "all", memorySort: "newest", memoryLayout: "list", lastProjectId: "p" });
@@ -25,6 +33,12 @@ test("filters are remembered with safe defaults", () => {
   expect(boardViewValues({}).filterPriority).toBe("all");
   expect(boardViewValues({}).filterType).toBe("all");
   expect(boardViewValues({ filterType: "research" }).filterType).toBe("research");
+});
+
+test("Runtime preferences are additive and independent of project preferences", () => {
+  const saved = { runtimeCollapsed: ["idle", "future-lane"], runtimeGroup: "idle", runtimeSearch: "unbound", runtimeFullSearch: true, runtimeRange: "all", runtimeSort: { key: "title", direction: "desc" }, runtimeProjectIds: ["removed-project"], runtimeUnlinked: true };
+  expect(boardViewValues({ ...saved, collapsedColumns: ["test"], filterSearch: "apricot", boardSort: "priority" })).toMatchObject({ ...saved, collapsedColumns: ["test"], filterSearch: "apricot", boardSort: "priority" });
+  expect(boardViewValues({ runtimeRange: "bad", runtimeCollapsed: 1, runtimeSort: { key: "unknown", direction: "asc" }, runtimeProjectIds: false, runtimeSearch: "keep", runtimeFullSearch: true, collapsedColumns: ["design"] })).toMatchObject({ runtimeRange: "7d", runtimeCollapsed: [], runtimeSort: null, runtimeProjectIds: [], runtimeSearch: "keep", runtimeFullSearch: true, collapsedColumns: ["design"] });
 });
 
 test("automatic status rules default to on; unset or invalid stored values stay on", () => {

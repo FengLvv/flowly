@@ -40,6 +40,8 @@ Before product edits, an in-memory TypeScript probe against the installed SDK re
 
 ## 5. Preview and navigation
 
+2026-11-17 availability-read refinement: the drawer uses `tasks.context({id, instructions:false})` for its availability/owner/directory display, with a distinct query-key projection. The returned `context` is empty; complete context remains the default for agent creation, follow-ups and explicit instructions. Canonical root/child workspace membership avoids Git, while outside paths still require Git-common-directory proof. Fresh checks, error states and send authorization remain unchanged; see PERFORMANCE-SPEC, Sidebar availability reads.
+
 - Selecting a card is explicit; resource refresh never automatically opens the first session. Overview and preview are separate sidebar modes. Switching actors does not send instructions.
 - Header shows Back to task, session title/status, and Open in Paseo when navigation is available. Use the current host ID explicitly when opening native. Do not describe successful native focus until UI acceptance verifies it.
 - Refresh the selected actor through the public SDK. Every newly opened preview uses a fresh, mount-scoped actor query (no reuse of an earlier preview's membership snapshot); release that query cache on unmount. Before timeline/tool access or message writes, require its workspace ID to equal this task's workspace. Missing, moved, archived or unavailable actors have an explanatory state; never fall through to another session.

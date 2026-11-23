@@ -1,3 +1,4 @@
+import type { UploadedFile, ForgeReference } from "../shared/session-files";
 import { instructionText } from "../shared/description-images";
 import type { OutgoingImage } from "../shared/composer";
 import type {
@@ -80,6 +81,7 @@ export async function sendCardInstruction(
   mode: "steer" | "interrupt" = "steer",
   images: OutgoingImage[] = [],
   messageId?: string,
+  attachments: (UploadedFile | ForgeReference)[] = [],
 ) {
   const [actor, scope] = await Promise.all([
     workspaceSession(paseo, agentId, task.workspaceId, "restore"),
@@ -91,6 +93,7 @@ export async function sendCardInstruction(
     .send(instruction, {
       ...(actor.status === "running" || actor.status === "initializing" ? { activeTurnBehavior: mode } : {}),
       ...(images.length ? { images } : {}),
+      ...(attachments.length ? { attachments } : {}),
       ...(messageId ? { messageId } : {}),
     });
 }

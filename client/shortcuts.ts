@@ -3,6 +3,15 @@ import type { PluginScreenParams } from "@getpaseo/plugin/client";
 import type { Status, Task } from "../shared/model";
 import { t, msg } from "../shared/i18n";
 
+/** RN-Web forwards these on View; native View's types do not expose keyboard events. */
+export type WebKeyEvent = {
+  key: string;
+  isComposing?: boolean;
+  nativeEvent?: { isComposing?: boolean };
+  preventDefault(): void;
+  stopPropagation(): void;
+};
+
 /** Board-scoped desktop shortcuts. See docs/SHORTCUTS-SPEC.md. */
 export type ShortcutAction =
   | "new-task"

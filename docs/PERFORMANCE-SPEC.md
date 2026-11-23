@@ -68,6 +68,34 @@ The transitions run on the native driver, but they started in the same frame tha
 - `sessions.archived { taskId }`: the daemon returns the card workspace's archived, non-summarizer sessions. The client no longer pages every agent (hundreds of KB) on each open.
 - Phone: the open card is an opaque overlay above the board, which stays laid out (covered, not focusable, hidden from accessibility). Opening and Back change no layout underneath. The board no longer replays its own reveal when a card opens or closes.
 
+### Desktop/Web conversation opening — 2026-11-17
+
+On Web (including the desktop app), opening a session starts the existing transcript query in parallel with the pane transition and renders available output without waiting for `useSettled`. Cached output can therefore appear during the entrance instead of being hidden for 220 + 32 ms on every open. This supersedes the transcript scheduling in the preceding paragraph for Web only. The pane and transcript retain their short, interruptible entrance animations and Reduce Motion behavior. Model/configuration and composer-state reads retain their existing schedule.
+
+Native platforms retain the settled gate for both transcript reads and rendering: a desktop result does not establish phone rendering performance. No speculative history prefetch, additional connection, new RPC, polling change or shared native cache is introduced. The selected task/workspace/session query key, fresh server membership checks, current-turn limit, older-history paging, reset/epoch handling, stream cleanup, drafts and send behavior remain unchanged. Runtime's initial draft recovery still precedes its preview mount.
+
+Acceptance: measure cold and cached Web opening before/after with the same response delays and normal motion; verify the existing current-turn and incremental/history contracts, error and rapid-switch isolation, desktop/compact navigation, and unchanged native gating. Record component/query scheduling measurements separately from actual host paint and device evidence. This is a loading fix with no new control or concept, so existing session-history/Runtime onboarding guidance and telemetry need no change.
+
+### Sidebar availability reads — 2026-11-17
+
+The sidebar's periodic availability check requests `tasks.context` with optional `instructions: false`. The default (field absent or true) still builds complete agent instructions for creation, sending and explicit copy/context actions. The availability projection returns the same fresh availability/reason, revision, directories, repository matches and owner, with `context: ""`; it skips project memory and external-input instruction assembly. Its client query key includes the projection identity so it cannot replace full instruction context. No stale availability is used to authorize a send.
+
+Repository membership still resolves real paths on every operation. A canonical workspace contained in a configured repository is accepted without launching Git; only paths outside a candidate repository need the existing Git-common-directory comparison for linked worktrees. Do not cache membership across operations or stop after the first match: legacy multi-repository matches and symlink escape rejection remain unchanged.
+
+Acceptance: compare local scope/context RPC wall time before/after separately from UI paint; keep root, nested, missing, sibling-prefix, symlink and external-worktree authorization coverage; verify default full context, false projection and unchanged sidebar/send behavior. No new control, tour/tip, string, collection, dependency or version is needed.
+
+The existing opt-in performance log also records session `query-start` (transcript mount to its first query), `rpc.<mode>` (client RPC promise including transport/validation/scheduling), `rpc-error` (failed promise duration) and `first-data` (mount to the first eligible transcript data effect). Names contain no session IDs or message text. These are client wall-clock boundaries, not native paint or a decomposition of host dispatch/JSON/CPU. Disable/restore temporary logging after a reproduction; never infer a multi-second client stall from a fast local daemon probe alone.
+
+With the same log enabled, the daemon records one `session.tail` timing per request: total handler work, scope validation, summed SDK timeline awaits, page count and raw entry count. It does not stringify raw timeline payloads or log conversation content/IDs. The settings subscription is released on plugin cleanup; logging adds no awaited settings read to the transcript path. Correlate these server boundaries with the client RPC/first-data timings to distinguish history/SDK latency from dispatch/transport waits.
+
+### Bounded Web transcript retention — 2026-11-17
+
+An inactive Web transcript is retained beyond the query library's default garbage-collection interval for the current app run. Retain at most 12 inactive transcript windows and 1,000,000 message-text characters in total; evict least recently opened inactive windows first, including a single oversized window. Active observers are never evicted. Prune on open and after close, once observers have detached; introduce no retained timer/listener, disk storage or background polling. Native keeps its existing query lifetime until device measurements justify a change.
+
+Opening a retained transcript uses the existing scoped key and cached-data display, immediately revalidates through the existing `after`/current-turn path and keeps last-known content while that read is pending. Actor/workspace checks, disabled writes, error notices and epoch/reset handling remain unchanged; cache is never authorization. This prevents repeated blank output after inactivity; a never-read or evicted conversation still pays the host's cold history cost. The cache ends with the client process and is not a claim to bypass Codex/provider startup on a first cold read.
+
+Acceptance: use a real query client/observer to verify retention past default GC and data availability while refresh is pending; test inactive count/text limits, least-recently-opened eviction, active observers, oversized windows, independent scoped keys and unmount cleanup. Keep pagination/epoch/scope/draft regressions. No new UI control/copy, onboarding concept or telemetry collection.
+
 ### Follow-up: sideways drift while scrolling (user report with an Android capture)
 
 The open card's content (its header included) sat offset to the left while the host header did not, i.e. the details view's own reveal transform (it slides from the left) stayed at a stale start value. Two weaknesses in the shared primitives made that possible on Android's new architecture: every render built new interpolation nodes (re-attaching the native graph and committing the JS-side value mid-animation), and nothing forced the end value into the committed props.
@@ -188,7 +216,7 @@ Results: [verification](verification/performance.md).
 
 ### Mobile covered-board queries and first TaskForm (2026-10-23)
 
-Native SidebarEntry uses daemon `attention.count {}` → `{count:number|null}` instead of board/agent payloads, with the same shared Attention rule and a 3s refresh (was 15s: the badge lagged the board's live Attention button; the response is a few bytes, the decoding stays on the daemon). Retained native compact boards disable their own query/stream observers and card-output reads while covered; direct links still start a fresh full board in the background. TaskForm keeps its Title/Description mounted and defers optional controls/queries until `useSettled`, preserving Create guards, native input ownership, fresh authorization and 450ms modal handoff. [Complete contract and checks](MOBILE-QUERY-MODAL-SPEC.md).
+SidebarEntry uses daemon `sidebar.counts {}` → `{attention:number|null,running:number|null}` instead of board/agent payloads, on the existing 3s refresh (2026-11-17: adds the host-wide Runtime running count to the same read, not an extra poll). The shared Attention rule and legacy `attention.count` contract stay unchanged; errors hide retained counts. Decoding stays on the daemon. Retained native compact boards disable their own query/stream observers and card-output reads while covered; direct links still start a fresh full board in the background. TaskForm keeps its Title/Description mounted and defers optional controls/queries until `useSettled`, preserving Create guards, native input ownership, fresh authorization and 450ms modal handoff. [Complete contract and checks](MOBILE-QUERY-MODAL-SPEC.md), [running count](RUNTIME-VIEW-SPEC.md#sidebar-running-count--2026-11-17).
 
 ## Android task/session switch frames (2026-10-23)
 

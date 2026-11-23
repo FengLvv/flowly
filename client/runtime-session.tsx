@@ -12,9 +12,10 @@ import { menuHandlers, useMenuOpener } from "./context-menu";
 import { Button, Label, Notice, font, message, radius, space, useTheme } from "./ui";
 import { useStableCallback } from "./stable";
 import type { BoardEvent } from "../shared/model";
+import type { RuntimeTarget } from "../shared/runtime-parent";
+export type { RuntimeTarget } from "../shared/runtime-parent";
 
 const noEvents: BoardEvent[] = [];
-export type RuntimeTarget = { id: string; workspaceId: string };
 
 export const RuntimeSessionCard = memo(function RuntimeSessionCard({ agent, source, selected, receipts, readUnavailable, onOpen }: {
   agent: PaseoAgent; source: string; selected: boolean; receipts: readonly SessionReadReceipt[];
@@ -36,9 +37,9 @@ export const RuntimeSessionCard = memo(function RuntimeSessionCard({ agent, sour
 });
 
 /** The original Flowly chat UI, with a real native workspace target and no synthetic card. */
-export function RuntimeSessionPane({ target, compact, hostId, navigation, active, onClose, refresh, draftMemory }: {
+export function RuntimeSessionPane({ target, compact, hostId, navigation, active, onBack, onClose, refresh, draftMemory }: {
   target: RuntimeTarget; compact: boolean; hostId: string; navigation: PluginSurfaceProps["navigation"];
-  active: boolean; onClose(): void; refresh(): void; draftMemory: Map<string, string>;
+  active: boolean; onBack(): void; onClose(): void; refresh(): void; draftMemory: Map<string, string>;
 }) {
   const composer = useComposer(active);
   const [drafts, setDrafts] = useState<Record<string, string>>(() => Object.fromEntries(draftMemory));
@@ -74,6 +75,7 @@ export function RuntimeSessionPane({ target, compact, hostId, navigation, active
       hostId={hostId} compact={compact} events={noEvents} unavailable={!target.workspaceId}
       navigation={navigation} draft={drafts[target.id] ?? draftMemory.get(target.id) ?? ""} pending={busy.has(target.id)}
       beginOperation={begin} endOperation={end} onDraftChange={change}
-      onComposerFocus={focus} onBack={onClose} onClose={onClose} refresh={refresh} visible={active} />
+      onComposerFocus={focus} onBack={onBack} backLabel={target.workspaceId ? t("Back to workspace") : t("Back to Runtime")}
+      onClose={onClose} refresh={refresh} visible={active} />
   </View>;
 }

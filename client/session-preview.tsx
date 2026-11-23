@@ -1,3 +1,11 @@
+import { ComposerAddMenu } from "./composer-add-menu";
+import { useAttachmentDraft } from "./attachment-draft-hook";
+import type { DraftAttachment } from "../shared/attachment-drafts";
+import { composersOf } from "./host-support";
+import { chipClient } from "./native-chips";
+import { isHostCommand } from "../shared/composer-commands";
+import { ComposerForge } from "./composer-forge";
+import type { ForgeReference } from "../shared/session-files";
 import { perfStart, perfEnd, usePerfRender } from "./perf";
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { PaseoAgent } from "@getpaseo/client";
@@ -13,6 +21,7 @@ import {
   Icon,
   TextInput,
   useToast,
+  copyText,
 } from "@getpaseo/plugin/client/react-native";
 import { Modal } from "./modal";
 import { useShortcutBlock } from "./shortcuts";
@@ -46,7 +55,9 @@ import { sessionTone } from "./status";
 import { resolveSend, sendBehaviorText, type SendBehavior } from "./send-queue";
 import { queuedRowKey, useComposer } from "./composer";
 import { useLiveAgents } from "./queries";
-import { imageInputSupported, listenForImages, pickImageFiles, readImages, type Attachment } from "./web-images";
+import { fileInputSupported, listenForFiles, pickFiles, readFiles, type ComposerAttachment, type BrowserFile } from "./web-files";
+import { CommandInput } from "./command-input";
+import type { OutgoingImage } from "../shared/composer";
 import { AttachmentThumb } from "./image-attach";
 import { newMessageId, rememberSentImages } from "./sent-images";
 import { eventPoint, menuHandlers, useMenuOpener, type MenuEntry } from "./context-menu";
@@ -120,6 +131,7 @@ function SessionPreviewView({
   onDraftChange,
   onComposerFocus,
   onBack,
+  backLabel,
   onOpenSession,
   onClose,
   refresh,
@@ -144,6 +156,7 @@ function SessionPreviewView({
   /** The composer got focus (the drawer stops restoring a saved draft into it). */
   onComposerFocus?(sessionId: string): void;
   onBack(): void;
+  backLabel?: string;
   /**
    * Show another session of this card in the sidebar (a subagent picked from the chip).
    * Returns false when it is not one of the card's sessions; the chip then opens it in Paseo.
@@ -170,7 +183,7 @@ function SessionPreviewView({
     healthRead = useRpc(rpc.toolsHealth),
     prepareExisting = useRpc(rpc.prepareExisting),
     accessRead = useRpc(rpc.accessState);
-  const reads = useSessionReads();
+  const reads = useSessionReads(visible);
   const toast = useToast();
   const [draftBuffer] = useState(() => createDraftBuffer(draft));
   // Native (phone) typing: the input owns its text. Pushing every keystroke
@@ -196,7 +209,7 @@ function SessionPreviewView({
   const flushReport = () => reporter.flush();
   const reportDraft = (text: string) => (ownInput ? reporter.change(text) : onDraftChange(sessionId, text));
   useEffect(() => () => reporter.flush(), []);
-  const inputRef = useRef<{ clear?(): void; focus?(): void } | null>(null);
+  const inputRef = useRef<{ clear?(): void; focus?(): void; blur?(): void } | null>(null);
   const refocus = useRef(false);
   // A picked next move remounts the native input with its text: focus that mount.
   const focusNextMount = useRef(false);
@@ -224,9 +237,16 @@ function SessionPreviewView({
     [confirmReload, setConfirmReload] = useState(false),
     [renaming, setRenaming] = useState(false),
     [chipMenu, setChipMenu] = useState<ChipMenuId | null>(null);
-  useShortcutBlock(focused);
+  useShortcutBlock(visible && focused);
   const focusedRef = useRef(false);
   focusedRef.current = focused;
+  useEffect(() => {
+    if (visible) return;
+    reporter.flush();
+    inputRef.current?.blur?.();
+    focusedRef.current = false; refocus.current = false; focusNextMount.current = false;
+    setFocused(false);
+  }, [visible]);
   const keyboard = useKeyboardInset(visible, useReducedMotion());
   const lock = useRef(false);
   const transcript = useRef<TranscriptHandle | null>(null);
@@ -242,6 +262,7 @@ function SessionPreviewView({
   // The board's streamed agent list has this session already: show it at once
   // and revalidate (PERFORMANCE-SPEC §3). Archived sessions are not in it.
   const liveAgents = useLiveAgents({
+    enabled: visible,
     poll: false,
     select: useCallback((agents: PaseoAgent[]) => agents.find((a) => a.id === sessionId) ?? null, [sessionId]),
   });
@@ -258,9 +279,11 @@ function SessionPreviewView({
   const actor = streamed && (!polled || streamed.updatedAt >= polled.updatedAt) ? streamed : polled;
   const belongs = !!actor && actor.workspaceId === workspace;
   const active = belongs ? actor : undefined;
-  // The transcript (markdown, images) and the slower reads wait for the open
-  // transition to finish (PERFORMANCE-SPEC §3).
+  // Native keeps heavy transcript work out of the open transition. On Web,
+  // load and show output during that transition instead of hiding even a
+  // cached conversation for another 252 ms (PERFORMANCE-SPEC §3).
   const settled = useSettled(sessionId);
+  const transcriptReady = Platform.OS === "web" || settled;
   // Only the Kanban tools section shows these.
   const tools = useQuery({
     queryKey: ["flowly", "tools"],
@@ -318,28 +341,41 @@ function SessionPreviewView({
   const queueEntry = composer.entry(sessionId);
   const queued = queueEntry?.queue || [];
   const running = active?.status === "running" || active?.status === "initializing";
-  // Images attached to the next message (web: paste, drop or the attach button).
-  const [attachments, setAttachmentsState] = useState<Attachment[]>([]);
-  const attachmentsRef = useRef<Attachment[]>([]);
-  const setAttachments = (next: Attachment[]) => {
-    attachmentsRef.current = next;
-    setAttachmentsState(next);
+  const attachmentDraft = useAttachmentDraft(hostId, { ...target, agentId: sessionId }, visible && settled, queueEntry?.attachmentRevision);
+  const { files: attachments, references } = attachmentDraft;
+  const attachmentsRef = useRef<ComposerAttachment[]>([]);
+  attachmentsRef.current = attachments;
+  const setAttachments = (next: ComposerAttachment[]) => {
+    attachmentDraft.owner.remove(attachmentsRef.current.filter(item => !next.some(other => other.id === item.id)).map(item => item.id));
   };
-  const addImageFiles = async (files: Parameters<typeof readImages>[0]) => {
-    if (!files.length) return;
-    try {
-      const { images, problems } = await readImages(files);
-      if (!mounted.current) return;
-      if (images.length) setAttachments([...attachmentsRef.current, ...images]);
-      if (problems.length) toast.error(problems.join(" "));
-    } catch (e) {
-      toast.error(message(e));
-    }
+  const [forgeOpen, setForgeOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  useShortcutBlock(addOpen);
+  const referenceRef = useRef<ForgeReference[]>([]);
+  referenceRef.current = references;
+  const setReferences = (items: ForgeReference[]) => {
+    const stored = attachmentDraft.owner.snapshot().items.filter(item => item.kind === "reference");
+    attachmentDraft.owner.remove(stored.filter(item => !items.some(other => other.url === item.reference.url && other.type === item.reference.type)).map(item => item.id));
+    attachmentDraft.owner.add(items.filter(item => !stored.some(other => other.reference.url === item.url && other.reference.type === item.type)).map(reference => ({ id: newMessageId(), kind: "reference", reference })));
+  };
+  const fileWritable = useRef(false); fileWritable.current = visible && canWrite;
+  const intake = useRef(Promise.resolve());
+  const addImageFiles = (files: readonly BrowserFile[]) => {
+    if (!files.length || !mounted.current || !fileWritable.current) return Promise.resolve();
+    const previous = intake.current;
+    intake.current = attachmentDraft.owner.collect(async () => {
+      await previous;
+      const result = await readFiles(files);
+      if (result.problems.length) toast.error(result.problems.join(" "));
+      return result.attachments.map(({ id, kind, name, mimeType, data }) => ({ id, kind, name, mimeType, data })) as DraftAttachment[];
+    }).catch(error => toast.error(message(error)));
+    return intake.current;
   };
   const addImages = useRef(addImageFiles);
   addImages.current = addImageFiles;
+  const uploadFiles = useRpc(rpc.uploadSessionFiles);
   const [composerNode, setComposerNode] = useState<View | null>(null);
-  useEffect(() => listenForImages(composerNode, (files) => void addImages.current(files)), [composerNode]);
+  useEffect(() => listenForFiles(composerNode, files => void addImages.current(files)), [composerNode]);
   const submitState = useRef({ canWrite, preferred, running, pendingPermission: false });
   submitState.current = {
     canWrite,
@@ -447,6 +483,17 @@ function SessionPreviewView({
       onBack();
     }
   }
+  async function nativeCommand(text: string) {
+    if (!mounted.current || !submitState.current.canWrite || !attachmentDraft.owner.ready()) return;
+    try {
+      if (task) { const scope = await contextRead({ id: task.id }); if (!scope.available) throw new Error(scope.reason); }
+      await workspaceSession(paseo, sessionId, workspace, true);
+      if (!mounted.current || !submitState.current.canWrite || !attachmentDraft.owner.ready()) return;
+      const native = composersOf(chipClient())?.({ agentId: sessionId })[0];
+      if (native) { if (native.prompt.trim() && native.prompt !== text) { await copyText(text); toast.show(t("Copied"), { variant: "success" }); } else native.setPrompt(text); openNativeSession(navigation, sessionId, hostId); await native.focus(); }
+      else { await copyText(text); openNativeSession(navigation, sessionId, hostId); toast.show(t("Copied"), { variant: "success" }); }
+    } catch (error) { toast.error(message(error)); }
+  }
   async function submitInstruction(alternate = false) {
     noteInteraction();
     // The drawer must hold the latest text before the send clears it.
@@ -454,52 +501,62 @@ function SessionPreviewView({
     const { canWrite: writable, preferred: behavior, running: busyTurn, pendingPermission } = submitState.current;
     const instruction = draftBuffer.read();
     const attached = attachmentsRef.current;
-    const images = attached.map(({ data, mimeType }) => ({ data, mimeType }));
-    if (!mounted.current || !writable || (!instruction.trim() && !images.length)) return;
+    const refs = referenceRef.current;
+    if (!mounted.current || !writable || !attachmentDraft.owner.ready()) return;
+    setAddOpen(false);
+    if (!attached.length && !refs.length && isHostCommand(instruction)) { await nativeCommand(instruction); return; }
+    const images = attached.filter(a => a.kind === "image").map(({ data, mimeType }) => ({ data, mimeType: mimeType as OutgoingImage["mimeType"] }));
+    const files = attached.filter(a => a.kind === "file").map(({ name, data, mimeType }) => ({ name, data, mimeType }));
+    if (!mounted.current || !writable || (!instruction.trim() && !images.length && !files.length && !refs.length)) return;
     const action = resolveSend(behavior, { running: busyTurn, alternate, pendingPermission });
     if (action.kind === "queue") {
+      const submitted = attachmentDraft.owner.detach()!;
       // Paseo parity: queued messages are sent when the current turn ends.
-      void composer.queue(draftTarget, sessionId, instruction, images).then((item) =>
-        rememberSentImages(item.id, attached.map((a) => a.uri)),
-      ).catch((e) => {
+      void composer.queue(draftTarget, sessionId, instruction, images, files, refs).then((item) => {
+        attachmentDraft.owner.acknowledge(submitted);
+        rememberSentImages(item.id, attached.filter(a => a.kind === "image").map(a => a.uri));
+      }).catch((e) => {
         // Never lose the text or images: put them back in the composer.
         flushReport();
         onDraftChange(sessionId, restoredDraft(instruction, draftBuffer.read()));
-        if (mounted.current) setAttachments([...attached, ...attachmentsRef.current]);
-        setError(message(e));
+        attachmentDraft.owner.restore(submitted);
+        if (mounted.current) setError(message(e));
       });
       draftBuffer.clear(instruction);
       onDraftChange(sessionId, "", instruction);
-      setAttachments([]);
       return;
     }
     await perform(async () => {
+      const submitted = attachmentDraft.owner.detach();
+      if (!submitted) return;
       const messageId = newMessageId();
-      rememberSentImages(messageId, attached.map((a) => a.uri));
+      rememberSentImages(messageId, attached.filter(a => a.kind === "image").map(a => a.uri));
       // Clear at once, so text typed while the send is in flight is never
       // erased by it; a failed send puts the text back (PERFORMANCE-SPEC §2).
       draftBuffer.clear(instruction);
       onDraftChange(sessionId, "", instruction);
-      setAttachments(attachmentsRef.current.filter((a) => !attached.includes(a)));
       // The message shows in the transcript at once, not after the checks, the send and the next read (SESSION-UX-SPEC).
       transcript.current?.echo(messageId, instruction);
       if (mounted.current) transcript.current?.jumpToLatest();
       try {
-        if (task) await sendCardInstruction(paseo, task, sessionId, contextRead, instruction, action.activeTurnBehavior, images, messageId);
+        if (files.length) await workspaceSession(paseo, sessionId, workspace, "restore");
+        const uploaded = [...(files.length ? await uploadFiles({ ...target, agentId: sessionId, files }) : []), ...refs];
+        if (task) await sendCardInstruction(paseo, task, sessionId, contextRead, instruction, action.activeTurnBehavior, images, messageId, uploaded);
         else {
           const actor = await workspaceSession(paseo, sessionId, workspace, "restore");
           const ws = await paseo.workspaces.ref(workspace).refresh();
           if (!ws || ws.id !== workspace || ws.archivingAt) throw new Error(t("Workspace unavailable"));
-          await agent.send(instruction, { ...(actor.status === "running" || actor.status === "initializing" ? { activeTurnBehavior: action.activeTurnBehavior } : {}), ...(images.length ? { images } : {}), messageId });
+          await agent.send(instruction, { ...(actor.status === "running" || actor.status === "initializing" ? { activeTurnBehavior: action.activeTurnBehavior } : {}), ...(images.length ? { images } : {}), ...(uploaded.length ? { attachments: uploaded } : {}), messageId });
         }
       } catch (e) {
         transcript.current?.unecho(messageId);
         flushReport();
         const typed = draftBuffer.read();
         onDraftChange(sessionId, restoredDraft(instruction, typed));
-        if (mounted.current) setAttachments([...attached, ...attachmentsRef.current]);
+        attachmentDraft.owner.restore(submitted);
         throw e;
       }
+      attachmentDraft.owner.acknowledge(submitted);
       if (mounted.current) transcript.current?.jumpToLatest();
       void current.refetch();
       transcript.current?.refresh();
@@ -550,9 +607,9 @@ function SessionPreviewView({
     if (suggestion) setHiddenMoves(suggestion.id);
   });
   const tone = state ? sessionTone(colors, state, !!attention?.unread) : colors.foregroundMuted;
-  const canSend = canWrite && (!!draft.trim() || attachments.length > 0);
+  const canSend = canWrite && attachmentDraft.ready && (!!draft.trim() || attachments.length > 0 || references.length > 0);
   // Paseo parity: a running session with an empty composer shows Stop.
-  const stopMode = running && !draft.trim() && !attachments.length && canWrite && !busy;
+  const stopMode = running && attachmentDraft.ready && !draft.trim() && !attachments.length && !references.length && canWrite && !busy;
   const sendSize = touch ? 36 : 32;
   const inputMax = compact ? 108 : 160;
   const fitInput = (contentHeight: number) => {
@@ -594,7 +651,7 @@ function SessionPreviewView({
                             .then(() => toast.show(t("Sent to the running turn"), { variant: "success" }))
                             .catch((e) => setError(message(e))) }]
                       : []),
-                    { id: "edit", label: t("Edit"), icon: "Pencil", disabled: m.id.startsWith("pending-") || !!m.images?.length, onPress: () => withdraw(m) },
+                    { id: "edit", label: t("Edit"), icon: "Pencil", disabled: m.id.startsWith("pending-") || !!(m.images?.length || m.files?.length || m.references?.length), onPress: () => withdraw(m) },
                     { kind: "separator", id: "s" },
                     { id: "remove", label: t("Remove"), icon: "Trash2", danger: true, disabled: m.id.startsWith("pending-"), onPress: () =>
                         void composer.remove(sessionId, m.id).catch((e) => setError(message(e))) },
@@ -613,13 +670,13 @@ function SessionPreviewView({
                   <Icon name="Clock" size={13} color={colors.foregroundMuted} />
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Label size={font.sm} lines={1} selectable={false}>
-                      {m.text.replace(/\s+/g, " ") || (m.images?.length === 1 ? t("Image") : tn(m.images?.length || 0, "{n} image", "{n} images"))}
+                      {m.text.replace(/\s+/g, " ") || m.files?.map(file => file.name).join(", ") || m.references?.map(item => item.title).join(", ") || (m.images?.length === 1 ? t("Image") : tn(m.images?.length || 0, "{n} image", "{n} images"))}
                     </Label>
                   </View>
-                  {!!m.images?.length && !!m.text.trim() && (
+                  {!!(m.images?.length || m.files?.length || m.references?.length) && !!m.text.trim() && (
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 2 }}>
                       <Icon name="Image" size={12} color={colors.foregroundMuted} />
-                      <Label muted size={font.xs} selectable={false}>{m.images.length}</Label>
+                      <Label muted size={font.xs} selectable={false}>{(m.images?.length || 0) + (m.files?.length || 0) + (m.references?.length || 0)}</Label>
                     </View>
                   )}
                   <Label muted size={font.xs} selectable={false}>{t("Queued")}</Label>
@@ -638,7 +695,7 @@ function SessionPreviewView({
                     >
                       {t("Steer")}</Button>
                   )}
-                  {!m.images?.length && (
+                  {!m.images?.length && !m.files?.length && !m.references?.length && (
                     <IconButton
                       icon="Undo2"
                       size={26}
@@ -672,10 +729,15 @@ function SessionPreviewView({
               backgroundColor: colors.surface1,
             }}
           >
+            {(attachmentDraft.state.loading || attachmentDraft.state.collecting > 0) && <ActivityIndicator size="small" color={colors.foregroundMuted} accessibilityLabel={t("Loading attachments…")} />}
+            {attachmentDraft.state.saving && !attachmentDraft.state.error && <ActivityIndicator size="small" color={colors.foregroundMuted} accessibilityLabel={t("Saving attachments…")} />}
+            {!!attachmentDraft.state.error && <View><Notice>{attachmentDraft.state.error}</Notice><Button quiet onPress={() => void attachmentDraft.owner.retry()}>{t("Retry")}</Button></View>}
+            {attachments.some(item => item.unavailable) && <View><Notice>{t("An attachment is missing. Retry or remove it before sending.")}</Notice><Button quiet onPress={() => void attachmentDraft.owner.retry()}>{t("Retry")}</Button></View>}
+            {references.length > 0 && <View style={{ flexDirection: "row", flexWrap: "wrap", gap: space[2] }}>{references.map(item => <View key={`${item.type}:${item.url}`} style={{ flexDirection: "row", alignItems: "center", gap: space[1], maxWidth: "100%" }}><Icon name="GitPullRequest" size={16} color={colors.foregroundMuted} /><Label size={font.sm} lines={1}>{`#${item.number} ${item.title}`}</Label><IconButton icon="X" size={24} label={t("Remove {name}", { name: item.title })} onPress={() => setReferences(referenceRef.current.filter(other => other !== item))} /></View>)}</View>}
             {attachments.length > 0 && (
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: space[1.5], paddingHorizontal: space[1.5], paddingTop: 2 }}>
                 {attachments.map((a) => (
-                  <AttachmentThumb key={a.id} attachment={a} onRemove={() => setAttachments(attachmentsRef.current.filter((x) => x.id !== a.id))} />
+                  a.kind === "image" && !a.unavailable ? <AttachmentThumb key={a.id} attachment={{ ...a, mimeType: a.mimeType as OutgoingImage["mimeType"] }} onRemove={() => setAttachments(attachmentsRef.current.filter(x => x.id !== a.id))} /> : <View key={a.id} style={{ flexDirection: "row", alignItems: "center", gap: space[1], padding: space[2], borderWidth: 1, borderColor: colors.border, borderRadius: radius.md }}><Icon name="File" size={16} color={colors.foregroundMuted} /><Label size={font.sm} lines={1}>{a.name}</Label><IconButton icon="X" size={24} label={t("Remove {name}", { name: a.name })} onPress={() => setAttachments(attachmentsRef.current.filter(x => x.id !== a.id))} /></View>
                 ))}
               </View>
             )}
@@ -694,7 +756,10 @@ function SessionPreviewView({
                 </NativeText>
               </View>
             )}
-            <TextInput
+            <CommandInput
+              agentId={sessionId}
+              commandsEnabled={visible && canWrite && !busy && !addOpen}
+              onNativeCommand={!attachments.length && !references.length ? nativeCommand : undefined}
               key={ownInput ? `input-${inputKey}` : "input"}
               ref={inputRef as never}
               accessibilityLabel={t("Follow-up instruction")}
@@ -709,6 +774,7 @@ function SessionPreviewView({
                 reportDraft(text);
               }}
               onFocus={() => {
+                setAddOpen(false);
                 onComposerFocus?.(sessionId);
                 setFocused(true);
                 keyboard.onInputFocus();
@@ -724,6 +790,7 @@ function SessionPreviewView({
               submitBehavior={Platform.OS === "web" ? "newline" : "submit"}
               returnKeyType="send"
               onKeyPress={(event) => {
+                if (event.nativeEvent.key === "Escape" && addOpen) { event.preventDefault(); setAddOpen(false); return; }
                 if (Platform.OS !== "web") return;
                 const action = composerEnterAction(event.nativeEvent as ComposerKey);
                 if (action === "native") return;
@@ -766,10 +833,13 @@ function SessionPreviewView({
                 <ComposerChips
                   config={config}
                   menu={chipMenu}
-                  setMenu={setChipMenu}
+                  setMenu={menu => { setAddOpen(false); setChipMenu(menu); }}
                   inline={compact}
                   disabled={!canWrite || busy}
-                  leading={imageInputSupported ? <IconButton icon="Plus" size={32} label={t("Attach images")} disabled={!canWrite} onPress={() => void pickImageFiles().then((files) => addImages.current(files))} /> : undefined}
+                  leading={fileInputSupported ? <View {...(Platform.OS === "web" ? { onKeyDown: (event: { key: string; preventDefault(): void; stopPropagation(): void }) => { if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); setAddOpen(false); } } } : {})} style={{ position: "relative", width: 32, height: 32, zIndex: 50 }}>
+                    <ComposerAddMenu open={addOpen} onImage={() => { setAddOpen(false); void pickFiles(true).then(files => addImages.current(files)); }} onForge={() => { setAddOpen(false); setForgeOpen(true); }} onFile={() => { setAddOpen(false); void pickFiles().then(files => addImages.current(files)); }} />
+                    <IconButton icon="Plus" size={32} label={t("Add attachment")} active={addOpen} disabled={!canWrite || busy} onPress={() => { setChipMenu(null); setAddOpen(value => !value); }} />
+                  </View> : undefined}
                   onOpenInPaseo={typeof navigation?.openAgent === "function" ? () => { setChipMenu(null); openNativeSession(navigation, sessionId, hostId); } : undefined}
                 />
               </View>
@@ -882,7 +952,7 @@ function SessionPreviewView({
       >
         {/* A running session's header carries the same dot sweep as its row in the card (MOTION-SPEC, running state). */}
         {state?.active && !active?.archivedAt && <RunningDots color={tone} seed={sessionId} />}
-        <IconButton icon="ArrowLeft" label={task ? t("Back to task") : t("Back to Runtime")} onPress={onBack} />
+        <IconButton icon="ArrowLeft" label={backLabel ?? (task ? t("Back to task") : t("Back to Runtime"))} onPress={onBack} />
         <View style={{ flex: 1, minWidth: 0, paddingHorizontal: space[1] }}>
           <Label medium size={font.base} lines={1}>
             {active?.title || t("Session preview")}
@@ -1021,9 +1091,9 @@ function SessionPreviewView({
         taskId={task?.id}
         workspaceId={task ? undefined : workspace}
         agentId={sessionId}
-        enabled={visible && settled && !current.isError}
+        enabled={visible && transcriptReady && !current.isError}
         subscribe={visible && belongs && !current.isError}
-        settled={settled}
+        settled={transcriptReady}
         showOutput={!!active}
         live={!!state?.active}
         starting={active?.status === "initializing"}
@@ -1036,10 +1106,10 @@ function SessionPreviewView({
         inset={keyboard.inset}
         onStreamError={setError}
       />
-      {!!chipMenu && (
+      {(!!chipMenu || addOpen) && (
         <Pressable
           accessibilityLabel={t("Close menu")}
-          onPress={() => setChipMenu(null)}
+          onPress={() => { setChipMenu(null); setAddOpen(false); }}
           style={{ ...noFocusRing, position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 20 }}
         />
       )}
@@ -1074,6 +1144,7 @@ function SessionPreviewView({
               onOpenAgent={onOpenSession || typeof navigation?.openAgent === "function" ? openSubagent : undefined}
             />
           )}
+          {forgeOpen && <ComposerForge target={{ ...target, agentId: sessionId }} onClose={() => setForgeOpen(false)} onChoose={item => setReferences([...referenceRef.current, item])} />}
           {renderComposer()}
         </Animated.View>
       )}

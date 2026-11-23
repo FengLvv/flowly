@@ -31,6 +31,8 @@ The SDK's `agent.timeline.refetch` (`@getpaseo/client` 0.11.x, protocol `fetch_a
 
 ### 1.3 Proposed behavior
 
+2026-11-17 Web retention: previously loaded windows remain in an app-run, bounded inactive cache (12 windows / 1,000,000 text characters). Reopen shows that scoped last-known output while the existing fresh read runs; native lifetime, current-turn/older-history caps and reset rules remain unchanged. Eviction and never-cached conversations can still require the host's cold provider-history read. See PERFORMANCE-SPEC, Bounded Web transcript retention.
+
 - **Open**: the pane loads the **current turn**: from the latest user message to now, capped at 300 entries (whichever comes first). The daemon does the paging in one RPC call, so the phone makes one request.
 - **Load earlier**: a "Load earlier" row at the top of the transcript reads one older page (100 entries) per press. It disappears when `hasOlder` is false. Loaded history is capped at 1000 entries per open session; beyond that the row says "Open in Paseo for the full conversation".
 - The prepend keeps the reading position: native uses `maintainVisibleContentPosition` (`{ minIndexForVisible: 0 }`, supported on iOS and Android in RN 0.81); web compensates the content-height difference with one `scrollTo` after layout.

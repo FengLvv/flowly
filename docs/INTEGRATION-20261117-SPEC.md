@@ -1,5 +1,12 @@
 # Fork consolidation and upstream carry-forward
 
+## 2026-11-23 follow-up
+
+- Integrate the open PR in the personal fork, the implemented local changes, and current upstream main. Upstream open PRs are outside this integration.
+- Keep the shared checkout intact while assembling and testing the candidate in an independent Git worktree. Keep existing card supplements, session attachments, workspace behavior, and test guards while reconciling the newer live subscriptions and modal changes.
+- Synchronize local and remote main after merging. Preserve new local edits that arrive after capture and keep private or unreferenced verification artifacts local. A documented proposal does not count as shipped behavior.
+- Run the repository tests and independent verification on the frozen candidate. Use GitHub CI evidence for that same candidate before merging. Report unavailable review checks and any pending authorization.
+
 User request, 2026-11-17: consolidate all local/origin branches and PRs into the fork's main, then manually integrate the original project's newer main commits and synchronize the local checkout with the personal GitHub repository.
 
 ## Contract

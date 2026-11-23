@@ -1,5 +1,7 @@
 # Single-root project amendment
 
+> 2026-11-18: the root and checkout mappings are default working locations, not an agent filesystem allowlist. User-authorized external operations are allowed; resource binding and Flowly tool authorization stay unchanged. See [AGENT-WORKING-DIRECTORIES-SPEC](AGENT-WORKING-DIRECTORIES-SPEC.md).
+
 > 2026-10-15: project creation can also build a plugin-owned linked root that symlinks several repositories ([PROJECT-PICKER-SPEC](PROJECT-PICKER-SPEC.md)). The one-project-one-root contract below is unchanged.
 
 Status: approved by the user's 2026-10-13 instruction; implementation follows this document. This amends the active Phase 1 and Phase 2 specs wherever they describe adding repositories to a board project or selecting repositories per card.

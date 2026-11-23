@@ -8,6 +8,9 @@ import { IconButton, Label, font, noFocusRing, radius, space, touch, useTheme, v
 import { menuHandlers, useMenuOpener } from "./context-menu";
 import { createBoardPan, hoveringBoardScrollbar } from "./board-pan";
 import { StatusIcon } from "./status";
+import { LaneIconMotion } from "./lane-motion";
+import { projectLaneMotion } from "../shared/lane-activity";
+import { useLaneViewport } from "./lane-viewport";
 import type { CardDrag } from "./card";
 import { Enter, motionDuration, useMotionPresence, useMotionValue, lerp } from "./motion";
 import {
@@ -126,6 +129,7 @@ export function DesktopColumns({
   onToggleOlder,
   reveal,
   renderCard,
+  activeLanes,
   onAdd,
   onDrop,
 }: {
@@ -156,11 +160,13 @@ export function DesktopColumns({
    */
   reveal?: { status: Status; n: number; at: number; center?: boolean; taskId?: string };
   renderCard(task: Task, drag: CardDrag, dragging: boolean): ReactNode;
+  activeLanes?: ReadonlySet<Status>;
   onAdd(status: Status): void;
   onDrop(input: Placement): void;
 }) {
   const { colors } = useTheme();
   const openMenu = useMenuOpener();
+  const laneViewport = useLaneViewport(statuses.map(id => ({ id, width: collapsed.includes(id) ? collapsedWidth : columnWidth })));
   const [hoverHeader, setHoverHeader] = useState<Status | null>(null);
   // RN-web ends a Pressable's hover while a nested Pressable is hovered, so the header buttons report their own.
   const [hoverHeaderButton, setHoverHeaderButton] = useState<string | null>(null);
@@ -358,7 +364,8 @@ export function DesktopColumns({
         setScrollbarHovered(false);
       } : undefined}
       style={{ flex: 1, minHeight: 0, overflow: "hidden", ...(!touch && panning ? { cursor: "grabbing" } as object : {}) }}
-      onLayout={() => {
+      onLayout={(event) => {
+        laneViewport.setViewportWidth(event.nativeEvent.layout.width);
         cancel();
         cancelPan();
         viewportRef.current?.measureInWindow((x, y, width, height) => {
@@ -375,6 +382,7 @@ export function DesktopColumns({
         scrollEventThrottle={16}
         onScroll={(e) => {
           offset.current = e.nativeEvent.contentOffset.x;
+          laneViewport.observeScroll(e.nativeEvent.contentOffset.x, e.nativeEvent.layoutMeasurement?.width);
           if (live.current) move(live.current.point);
         }}
         onContentSizeChange={(width) => {
@@ -431,6 +439,7 @@ export function DesktopColumns({
           };
           const measure = (x: number, width: number) => {
             columns.current = [...columns.current.filter((c) => c.status !== status), { status, x, width }];
+            laneViewport.setLaneWidth(status, width);
           };
           if (collapsed.includes(status))
             return (
@@ -456,7 +465,7 @@ export function DesktopColumns({
                   };
                 }}
               >
-                <StatusIcon status={status} />
+                <LaneIconMotion testID={`lane-icon-${status}`} active={!!activeLanes?.has(status) && laneViewport.visible.includes(status)} kind={projectLaneMotion(status)} size={14}><StatusIcon status={status} /></LaneIconMotion>
                 <Label muted size={font.sm} selectable={false}>{column.length}</Label>
                 {/* Vertical title: a rotated label in a box as tall as the text is wide. */}
                 <View style={{ width: 20, height: 140, alignItems: "center", justifyContent: "center" }}>
@@ -497,7 +506,7 @@ export function DesktopColumns({
                   ...({ cursor: "default" } as object),
                 }}
               >
-                <StatusIcon status={status} />
+                <LaneIconMotion testID={`lane-icon-${status}`} active={!!activeLanes?.has(status) && laneViewport.visible.includes(status)} kind={projectLaneMotion(status)} size={14}><StatusIcon status={status} /></LaneIconMotion>
                 <View style={{ flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: space[1.5] }}>
                   <Label medium size={font.md} lines={1} selectable={false}>
                     {nameOf(status)}
