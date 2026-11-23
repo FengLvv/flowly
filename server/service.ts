@@ -593,6 +593,7 @@ export class BoardService {
             repoPaths,
             title: input.title,
             description,
+            ...(input.supplements?.length ? { supplements: input.supplements } : {}),
             status: input.status,
             priority: input.priority,
             ...(input.type ? { type: input.type } : {}),

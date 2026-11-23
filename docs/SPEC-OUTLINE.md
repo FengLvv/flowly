@@ -1,4 +1,6 @@
 # Paseo Kanban Plugin：Spec 大纲与路线图
+
+2026-11-23 卡片补充内容：新建和编辑表单的描述下方有补充内容列表，侧边栏可直接新增并保存。[规范](CARD-SUPPLEMENTS-SPEC.md)。
 2026-11-16 测试原生资源隔离：Vitest 独立 home、Windows CLI 子进程替身、旧 worktree 扫描排除与归属核对。[契约](WINDOWS-TEST-ISOLATION-SPEC.md)。
 
 2026-11-16 卡片延迟创建工作区：目录/worktree 卡片先保存计划，首个对话提交时幂等创建，已有绑定保留。[spec](LAZY-WORKSPACE-SPEC.md)。

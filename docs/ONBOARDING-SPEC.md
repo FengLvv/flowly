@@ -61,6 +61,8 @@ Title with detail "Your first three steps." (plus "Nothing is created until you 
 
 The More features tour also includes Description images: save pictures with a card description and use its text and pictures as a session instruction. It clarifies that Flowly imposes no image count or size cap while host/model limits still apply.
 
+The More features tour lists Supplemental notes next to Description images. It points users to the list below the description and to the direct Add action in the sidebar. The labeled input appears there on every editable card.
+
 ### 5. One-time contextual tips (small, non-modal)
 
 A tip is a single dismissible banner row (icon, one sentence, **Got it**) under the overview bar; only **Got it** records it as seen. Priority when several apply: agent-question, needs-you, attention-dismiss, first-done, older-finished, next-move, auto-review, first-guardrail, first-workpad, subagents, first-idea, first-skill-draft, first-workflow-insight, ai-language, summary-models, first-artifact, first-ticket, first-tag, first-card, runtime-view, lane-swipe, board-pan, card-display, search, description-images, image-limits, connectors, session-history, session-context, session-controls, session-composer-fill, sidebar-order, project-menu, jira-connect, tapd-connect, lazy-workspace. The empty-project hint takes the same slot and wins at the top of the relevant surface, using theme colours. At most one tip is visible at a time; a tip appears at most once per host (`tipsSeen`); dismissing or acting on the feature records it. Tips never block input, never move a focused input, and are not shown while the welcome tour is open or the settings callout (`settings-entry`) shows.

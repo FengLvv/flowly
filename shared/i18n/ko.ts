@@ -1,6 +1,12 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Supplemental notes": "추가 메모",
+  "Add note": "메모 추가",
+  "Remove note": "메모 삭제",
+  "Note added": "메모를 추가했습니다",
+  "You can add up to {count} supplemental notes.": "추가 메모는 최대 {count}개까지 추가할 수 있습니다.",
+  "Keep extra details below a card’s description. Add notes directly from the sidebar.": "카드 설명 아래에 추가 정보를 적어 두세요. 사이드바에서 바로 메모를 추가할 수 있습니다.",
   "Command": "명령",
   "Review model": "검토 모델",
   "{n} s": "{n}초",

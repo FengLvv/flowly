@@ -1,4 +1,5 @@
 import { sessionTargetFields, validSessionScope } from "./session-target";
+import { appendTaskSupplementInput } from "./task-supplements";
 import { descriptionImageSchema } from "./description-images";
 import { cardDetailSchema, projectCardIndexSchema, projectIdeasSchema } from "./card-detail";
 import { attentionDismissInput, attentionDismissalSchema, attentionRestoreInput } from "./attention-dismiss";
@@ -252,6 +253,11 @@ export const createTask = defineRpc({
 export const updateTask = defineRpc({
   name: "tasks.update",
   input: taskEdit,
+  output: taskSchema,
+});
+export const appendTaskSupplement = defineRpc({
+  name: "tasks.supplements.append",
+  input: appendTaskSupplementInput,
   output: taskSchema,
 });
 /** Add or remove single tags without the card revision (CARD-TAGS-SPEC §3). */

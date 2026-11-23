@@ -1,6 +1,12 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Supplemental notes": "Notas adicionales",
+  "Add note": "Añadir nota",
+  "Remove note": "Quitar nota",
+  "Note added": "Nota añadida",
+  "You can add up to {count} supplemental notes.": "Puedes añadir hasta {count} notas adicionales.",
+  "Keep extra details below a card’s description. Add notes directly from the sidebar.": "Guarda detalles adicionales debajo de la descripción de la tarjeta. Añade notas directamente desde la barra lateral.",
   "Command": "Comando",
   "Review model": "Modelo de revisión",
   "{n} s": "{n} s",

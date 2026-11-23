@@ -1,6 +1,12 @@
 import type { Catalog } from "../i18n";
 
 const catalog: Catalog = {
+  "Supplemental notes": "Дополнительные заметки",
+  "Add note": "Добавить заметку",
+  "Remove note": "Удалить заметку",
+  "Note added": "Заметка добавлена",
+  "You can add up to {count} supplemental notes.": "Можно добавить не более {count} дополнительных заметок.",
+  "Keep extra details below a card’s description. Add notes directly from the sidebar.": "Храните дополнительные сведения под описанием карточки. Добавляйте заметки прямо на боковой панели.",
   "Command": "Команда",
   "Review model": "Модель проверки",
   "{n} s": "{n} с",
