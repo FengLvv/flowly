@@ -1,0 +1,147 @@
+{
+  "checks": [
+    {
+      "pass": true,
+      "label": "Fixture telemetry forced off"
+    },
+    {
+      "pass": true,
+      "label": "1450px isolated host bound"
+    },
+    {
+      "pass": true,
+      "label": "Desktop: Add menu anchors above Plus"
+    },
+    {
+      "pass": true,
+      "label": "Desktop: menu fits viewport"
+    },
+    {
+      "pass": true,
+      "label": "Desktop: native action order"
+    },
+    {
+      "pass": true,
+      "label": "Escape closes only the Add menu"
+    },
+    {
+      "pass": true,
+      "label": "Issue/PR action opens real native-forge search"
+    },
+    {
+      "pass": true,
+      "label": "Enter selects a provider command instead of sending"
+    },
+    {
+      "pass": true,
+      "label": "Tab selects a real skill with native slash syntax"
+    },
+    {
+      "pass": true,
+      "label": "Escape dismisses suggestions without deleting the draft"
+    },
+    {
+      "pass": true,
+      "label": "Menu and completion selection send no prompt"
+    },
+    {
+      "pass": true,
+      "label": "Generic file picker retains a text file"
+    },
+    {
+      "pass": true,
+      "label": "Pasted non-image file is consumed once"
+    },
+    {
+      "pass": true,
+      "label": "Dropped binary file with empty MIME is retained"
+    },
+    {
+      "pass": true,
+      "label": "Pasted image original bytes persist on daemon"
+    },
+    {
+      "pass": true,
+      "label": "Back/reopen retains text and image/file draft"
+    },
+    {
+      "pass": true,
+      "label": "Other session never receives original session attachments"
+    },
+    {
+      "pass": true,
+      "label": "Switching back restores mixed draft"
+    },
+    {
+      "pass": true,
+      "label": "Plugin reload restores exact image and generic file bytes"
+    },
+    {
+      "pass": true,
+      "label": "Removing restored image persists without removing files"
+    },
+    {
+      "pass": true,
+      "label": "Attached-file message reaches the real provider and finishes"
+    },
+    {
+      "pass": true,
+      "label": "Provider reads exact picker/paste/drop bytes"
+    },
+    {
+      "pass": true,
+      "label": "Successful send clears only submitted attachments"
+    },
+    {
+      "pass": true,
+      "label": "Compact: Add menu anchors above Plus"
+    },
+    {
+      "pass": true,
+      "label": "Compact: menu fits viewport"
+    },
+    {
+      "pass": true,
+      "label": "Compact: native action order"
+    },
+    {
+      "pass": true,
+      "label": "Compact command selection preserves focus and draft"
+    },
+    {
+      "pass": true,
+      "label": "Host-only command opens the exact native composer for review"
+    },
+    {
+      "pass": true,
+      "label": "Host-only completion neither sends nor archives automatically"
+    },
+    {
+      "pass": true,
+      "label": "No page errors"
+    }
+  ],
+  "cleanup": {
+    "boardEmpty": true,
+    "nativeEmpty": true,
+    "daemonStopped": true,
+    "browserClosed": true,
+    "homeRemoved": true
+  },
+  "pageErrors": [],
+  "commands": {
+    "count": 104,
+    "commandCount": 2,
+    "skillCount": 102,
+    "error": null
+  },
+  "messageEvidence": {
+    "filenames": [
+      "picker.txt",
+      "pasted.txt",
+      "dropped.bin"
+    ],
+    "expected": "PICKER|PASTE|DROP",
+    "seen": true
+  }
+}
