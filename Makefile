@@ -56,7 +56,7 @@ bump: ## Set the version in package.json, the lockfile and shared/version.ts (VE
 	npm version "$(VERSION)" --no-git-tag-version --ignore-scripts
 	node -e 'const fs = require("fs"), f = "shared/version.ts"; fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace(/FLOWLY_VERSION = "[^"]*"/, `FLOWLY_VERSION = "$${process.argv[1]}"`))' "$(VERSION)"
 
-tag: ## Annotate the already committed current version (merge the bump PR first)
+tag: ## Annotate the current version after its bump commit lands on main
 	git tag -a "v$(CUR)" -m "Flowly v$(CUR): the agent-native workflow for Paseo"
 
 push: ## Push the tag for the current version to origin
@@ -90,7 +90,7 @@ release: ## Validate the merged version and push its tag; GitHub Actions publish
 	@test -n "$(VERSION)" || { echo "usage: make release VERSION=x.y.z"; exit 1; }
 	@$(MAKE) --no-print-directory verify-clean
 	@$(MAKE) --no-print-directory check
-	@if [ -z "$(DRY_RUN)" ] && [ "$(VERSION)" != "$(CUR)" ]; then echo "Merge a version-bump PR first: make bump VERSION=$(VERSION)"; exit 1; fi
+	@if [ -z "$(DRY_RUN)" ] && [ "$(VERSION)" != "$(CUR)" ]; then echo "Land the version-bump commit on main first: make bump VERSION=$(VERSION)"; exit 1; fi
 	@$(RUN) make tag
 	@$(MAKE) --no-print-directory push
 	@echo "GitHub Actions owns npm and GitHub publication: https://github.com/JasprW/flowly/actions/workflows/release.yml"
