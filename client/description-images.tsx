@@ -6,14 +6,19 @@ import { readDescriptionImages, readSupplementImage } from "../shared/rpc";
 import type { Task } from "../shared/model";
 import type { DescriptionImage } from "../shared/description-images";
 import { Button, Label, message, noFocusRing, radius, space, useTheme } from "./ui";
-import { ImageViewer } from "./image-viewer";
+import { ImageViewer, useWebImageViewer } from "./image-viewer";
 import { t } from "../shared/i18n";
 
 export const ImagePreview = memo(function ImagePreview({ uri, name, small = false }: { uri: string; name: string; small?: boolean }) {
   const theme = useTheme();
+  const openWebViewer = useWebImageViewer();
   const [preview, setPreview] = useState({ open: false, version: 0 });
+  const open = () => {
+    if (openWebViewer) openWebViewer(uri, name);
+    else setPreview(({ version }) => ({ open: true, version: version + 1 }));
+  };
   return <>
-    <Pressable style={noFocusRing} accessibilityRole="imagebutton" accessibilityLabel={t("{alt}. Open larger", { alt: name })} onPress={() => setPreview(({ version }) => ({ open: true, version: version + 1 }))}>
+    <Pressable style={noFocusRing} accessibilityRole="imagebutton" accessibilityLabel={t("{alt}. Open larger", { alt: name })} onPress={open}>
       <Image source={{ uri }} accessibilityLabel={name} resizeMode="contain" style={{ width: small ? 52 : 160, height: small ? 52 : 112, borderRadius: radius.md, backgroundColor: theme.colors.surface2 }} />
     </Pressable>
     {preview.version > 0 && <ImageViewer key={preview.version} uri={uri} name={name} open={preview.open}

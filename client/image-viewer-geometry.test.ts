@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { boundView, fitImage, fitView, zoomImage } from "./image-viewer-geometry";
+import { boundView, fitImage, fitView, imageViewerSize, zoomImage } from "./image-viewer-geometry";
 
 describe("image viewer geometry", () => {
   const viewport = { width: 400, height: 300 };
@@ -7,6 +7,18 @@ describe("image viewer geometry", () => {
   it("fits wide and tall images on their limiting axis", () => {
     expect(fitImage({ width: 800, height: 400 }, viewport)).toEqual({ width: 400, height: 200 });
     expect(fitImage({ width: 100, height: 300 }, viewport)).toEqual({ width: 100, height: 300 });
+  });
+
+  it("uses two thirds of the window width for a wide desktop image", () => {
+    expect(imageViewerSize({ width: 1600, height: 800 }, { width: 1500, height: 1200 }, 92))
+      .toEqual({ width: 1000, height: 500 });
+  });
+
+  it("fits the image and controls in two thirds of the window height", () => {
+    const window = { width: 1920, height: 1080 };
+    expect(imageViewerSize({ width: 400, height: 300 }, window, 92).height).toBeCloseTo(628);
+    const portrait = imageViewerSize({ width: 150, height: 300 }, window, 92);
+    expect(portrait).toEqual({ width: 314, height: 628 });
   });
 
   it("keeps the point under the cursor stationary while zooming", () => {

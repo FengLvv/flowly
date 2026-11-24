@@ -1,17 +1,22 @@
-import { useEffect, useRef, useState } from "react";
-import { Image, PanResponder, Platform, Pressable, StyleSheet, View, type ViewStyle } from "react-native";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { Image, Modal as RNModal, PanResponder, Platform, Pressable, StyleSheet, useWindowDimensions, View, type ViewStyle } from "react-native";
 import { Icon, useToast } from "@getpaseo/plugin/client/react-native";
 import { t } from "../shared/i18n";
 import { copyImage } from "./image-clipboard";
-import { boundView, fitImage, fitView, maxZoom, zoomImage, type ImageView } from "./image-viewer-geometry";
-import { Modal } from "./modal";
-import { Enter } from "./motion";
+import { boundView, fitImage, fitView, imageViewerSize, maxZoom, zoomImage, type ImageView, type Size } from "./image-viewer-geometry";
+import { Modal, useInsideModal } from "./modal";
+import { Enter, useReducedMotion } from "./motion";
+import { useShortcutBlock } from "./shortcuts";
 import { Label, font, noFocusRing, radius, space, useTheme } from "./ui";
 
 const web = Platform.OS === "web";
 const step = 1.25;
 const menuWidth = 180;
 const menuHeight = 40;
+const titleHeight = 48;
+const toolbarHeight = 44;
+const border = 1;
+const fallbackAspect = { width: 4, height: 3 };
 const empty = { width: 0, height: 0 };
 type Point = { x: number; y: number };
 type PointerEvent = {
@@ -29,29 +34,138 @@ type WheelEvent = {
 };
 const focusState = (state: { pressed: boolean }) => state as { pressed: boolean; hovered?: boolean; focused?: boolean };
 
-export function ImageViewer({ uri, name, open, onClose }: { uri: string; name: string; open: boolean; onClose(): void }) {
-  const [menu, setMenu] = useState<Point | null>(null);
+const WebViewerContext = createContext<((uri: string, name: string) => void) | null>(null);
+
+/** Keep the viewer open when the board remounts the drawer at a layout breakpoint. */
+export function WebImageViewerProvider({ children }: { children: ReactNode }) {
+  const [preview, setPreview] = useState<{ uri: string; name: string; open: boolean; version: number } | null>(null);
+  const sequence = useRef(0);
+  const show = useCallback((uri: string, name: string) => {
+    setPreview({ uri, name, open: true, version: ++sequence.current });
+  }, []);
+  const close = () => setPreview((current) => current && { ...current, open: false });
+  const clear = (version: number) => setPreview((current) =>
+    current?.version === version && !current.open ? null : current);
   return (
-    <Modal open={open} title={name} onOpenChange={(next) => {
-      if (next) return;
-      if (menu) setMenu(null);
-      else onClose();
-    }}>
-      <Modal.Content scrollable={false} contentContainerStyle={styles.body}>
-        <ImageViewport uri={uri} name={name} menu={menu} setMenu={setMenu} />
+    <WebViewerContext.Provider value={web ? show : null}>
+      {children}
+      {preview && <ImageViewer key={preview.version} {...preview} onClose={close} onDismiss={() => clear(preview.version)} />}
+    </WebViewerContext.Provider>
+  );
+}
+
+export function useWebImageViewer() {
+  const show = useContext(WebViewerContext);
+  return useInsideModal() ? null : show;
+}
+
+export function ImageViewer({ uri, name, open, onClose, onDismiss }: {
+  uri: string; name: string; open: boolean; onClose(): void; onDismiss?(): void;
+}) {
+  const inModal = useInsideModal();
+  const standalone = web && !inModal;
+  useShortcutBlock(open && standalone);
+  const window = useWindowDimensions();
+  const [source, setSource] = useState<Size | null>(null);
+  const [error, setError] = useState(false);
+  const [menu, setMenu] = useState<Point | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    let active = true;
+    Image.getSize(uri, (width, height) => {
+      if (!active) return;
+      if (width > 0 && height > 0) setSource({ width, height });
+      else setError(true);
+    }, () => {
+      if (active) setError(true);
+    });
+    return () => { active = false; };
+  }, [open, uri]);
+
+  const dismiss = () => {
+    if (menu) setMenu(null);
+    else onClose();
+  };
+  const viewportProps = { uri, name, source, error, onError: () => setError(true), menu, setMenu };
+  if (standalone) {
+    const size = imageViewerSize(source ?? fallbackAspect,
+      { width: window.width - border * 2, height: window.height - border * 2 }, titleHeight + toolbarHeight);
+    return <DesktopViewer size={size} name={name} open={open} onClose={onClose} onDismiss={onDismiss} dismiss={dismiss} viewportProps={viewportProps} />;
+  }
+  // Keep the host's focus stack for nested forms and its native mobile sheet.
+  // On web, let the nested dialog shrink vertically to the bitmap.
+  const nested = web ? fitImage(source ?? fallbackAspect, {
+    width: Math.max(1, Math.min(520, window.width - 48) - border * 2),
+    height: Math.max(1, (window.height - 48) * 0.85 - 66 - toolbarHeight),
+  }) : null;
+  return (
+    <Modal open={open} title={name} onOpenChange={(next) => { if (!next) dismiss(); }}>
+      <Modal.Content scrollable={!!nested} contentContainerStyle={[styles.body, !nested && styles.fillBody]}>
+        {nested ? <View style={{ height: nested.height + toolbarHeight }}>
+          <ImageViewport {...viewportProps} />
+        </View> : <ImageViewport {...viewportProps} />}
       </Modal.Content>
     </Modal>
   );
 }
 
-function ImageViewport({ uri, name, menu, setMenu }: {
-  uri: string; name: string; menu: Point | null; setMenu(menu: Point | null): void;
+type ViewportProps = {
+  uri: string; name: string; source: Size | null; error: boolean; onError(): void;
+  menu: Point | null; setMenu(menu: Point | null): void;
+  onCopyFeedback?(success: boolean): void;
+};
+
+function DesktopViewer({ size, name, open, onClose, onDismiss, dismiss, viewportProps }: {
+  size: Size; name: string; open: boolean; onClose(): void; onDismiss?(): void; dismiss(): void; viewportProps: ViewportProps;
 }) {
+  const { colors } = useTheme();
+  const { width } = useWindowDimensions();
+  const reduced = useReducedMotion();
+  const [feedback, setFeedback] = useState<{ success: boolean } | null>(null);
+  useEffect(() => {
+    if (!feedback || !open) return;
+    const timer = setTimeout(() => setFeedback(null), 2000);
+    return () => clearTimeout(timer);
+  }, [feedback, open]);
+  return (
+    <RNModal visible={open} transparent accessibilityLabel={name} animationType={reduced ? "none" : "fade"} onRequestClose={dismiss} onDismiss={onDismiss}>
+      <View style={styles.desktopOverlay}>
+        <Pressable
+          accessible={false} focusable={false} onPress={dismiss}
+          style={[StyleSheet.absoluteFillObject, noFocusRing, { backgroundColor: "rgba(0,0,0,0.55)" }]}
+        />
+        <View
+          testID="image-viewer-frame"
+          style={[styles.desktopFrame, {
+            width: Math.min(width, Math.max(192, size.width + border * 2)),
+            height: titleHeight + size.height + toolbarHeight + border * 2,
+            borderColor: colors.border, backgroundColor: colors.surface0,
+          }]}
+        >
+          <View style={[styles.titleBar, { borderBottomColor: colors.border }]}>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Label lines={1} medium selectable={false}>{name}</Label>
+            </View>
+            <ViewerButton icon="X" label={t("Close")} onPress={onClose} disabled={false} />
+          </View>
+          <ImageViewport {...viewportProps} onCopyFeedback={(success) => setFeedback({ success })} />
+          {/* Host toasts are drawn below the web Modal portal. Mirror the
+              feedback above the toolbar while this viewer covers the app. */}
+          {feedback && <View pointerEvents="none" style={styles.feedback}>
+            <View accessibilityLiveRegion="polite" style={[styles.feedbackLabel, { backgroundColor: colors.surface0, borderColor: colors.border }]}>
+              <Label size={font.sm}>{feedback.success ? t("Image copied") : t("Could not copy image.")}</Label>
+            </View>
+          </View>}
+        </View>
+      </View>
+    </RNModal>
+  );
+}
+
+function ImageViewport({ uri, name, source, error, onError, menu, setMenu, onCopyFeedback }: ViewportProps) {
   const { colors } = useTheme();
   const toast = useToast();
   const [viewport, setViewport] = useState(empty);
-  const [source, setSource] = useState(empty);
-  const [error, setError] = useState(false);
   const [view, setView] = useState(fitView);
   const [dragging, setDragging] = useState(false);
   const drag = useRef<(Point & { pointerId: number }) | null>(null);
@@ -59,21 +173,11 @@ function ImageViewport({ uri, name, menu, setMenu }: {
   const copyAction = useRef<View>(null);
   const copying = useRef(false);
   const restoreFocus = useRef(false);
-  const fitted = source.width > 0 && source.height > 0 && fitImage(source, viewport);
+  const fitted = source && fitImage(source, viewport);
   const ready = !!fitted && viewport.width > 0 && viewport.height > 0 && !error;
   const frame = fitted ? boundView(view, fitted, viewport) : fitView;
   const canPan = ready && view.zoom > 1 &&
     (fitted.width * view.zoom > viewport.width || fitted.height * view.zoom > viewport.height);
-
-  useEffect(() => {
-    let active = true;
-    Image.getSize(uri, (width, height) => {
-      if (active) setSource({ width, height });
-    }, () => {
-      if (active) setError(true);
-    });
-    return () => { active = false; };
-  }, [uri]);
 
   useEffect(() => {
     if (menu) {
@@ -87,7 +191,7 @@ function ImageViewport({ uri, name, menu, setMenu }: {
 
   const resize = (size: typeof viewport) => {
     setViewport(size);
-    if (source.width > 0 && source.height > 0) {
+    if (source) {
       setView((current) => boundView(current, fitImage(source, size), size));
     }
     setMenu(null);
@@ -165,8 +269,10 @@ function ImageViewport({ uri, name, menu, setMenu }: {
     try {
       await copyImage(uri);
       toast.show(t("Image copied"), { variant: "success" });
+      onCopyFeedback?.(true);
     } catch {
       toast.error(t("Could not copy image."));
+      onCopyFeedback?.(false);
     } finally {
       copying.current = false;
     }
@@ -193,7 +299,7 @@ function ImageViewport({ uri, name, menu, setMenu }: {
             source={{ uri }}
             accessibilityLabel={name}
             resizeMode="contain"
-            onError={() => setError(true)}
+            onError={onError}
             style={[size, { transform: [{ translateX: frame.x }, { translateY: frame.y }, { scale: frame.zoom }] }]}
           />
         )}
@@ -266,11 +372,20 @@ function ViewerButton({ buttonRef, label, icon, text, disabled, onPress }: {
 }
 
 const styles = StyleSheet.create({
-  body: { flex: 1, minHeight: 0, padding: 0, gap: 0 },
+  body: { padding: 0, gap: 0 },
+  fillBody: { flex: 1, minHeight: 0 },
+  desktopOverlay: { flex: 1, alignItems: "center", justifyContent: "center" },
+  desktopFrame: { borderWidth: border, borderRadius: radius.xl, overflow: "hidden" },
+  titleBar: {
+    height: titleHeight, flexDirection: "row", alignItems: "center", gap: space[2],
+    paddingLeft: space[4], paddingRight: space[2], borderBottomWidth: StyleSheet.hairlineWidth,
+  },
   viewport: { flex: 1, minHeight: 0, overflow: "hidden" },
   imageLayer: { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
   toolbar: {
     flexDirection: "row", alignItems: "center", justifyContent: "center",
-    gap: space[1], paddingVertical: space[1], borderTopWidth: StyleSheet.hairlineWidth,
+    gap: space[1], height: web ? toolbarHeight : 52, borderTopWidth: StyleSheet.hairlineWidth,
   },
+  feedback: { position: "absolute", bottom: toolbarHeight + space[2], left: 0, right: 0, alignItems: "center" },
+  feedbackLabel: { borderWidth: border, paddingHorizontal: space[2], paddingVertical: space[1], borderRadius: radius.md },
 });

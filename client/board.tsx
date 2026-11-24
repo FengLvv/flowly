@@ -5,6 +5,7 @@ import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type
 import { Platform, Pressable, View, useWindowDimensions, type GestureResponderEvent } from "react-native";
 import { Icon, ScrollView, useToast } from "@getpaseo/plugin/client/react-native";
 import { Modal, useAfterModalClose } from "./modal";
+import { WebImageViewerProvider } from "./image-viewer";
 import {
   usePaseo,
   useRpc,
@@ -249,9 +250,11 @@ function BoardSurface(props: PluginSurfaceProps & { workspaceId?: string; params
   return (
     <MotionProvider>
       <Theme.Provider value={theme}>
-        <ContextMenuProvider compact={isCompactLayout(surfaceWidth || windowWidth)}>
-          <BoardContent {...props} theme={theme} surfaceWidth={surfaceWidth} onSurfaceWidth={setSurfaceWidth} />
-        </ContextMenuProvider>
+        <WebImageViewerProvider>
+          <ContextMenuProvider compact={isCompactLayout(surfaceWidth || windowWidth)}>
+            <BoardContent {...props} theme={theme} surfaceWidth={surfaceWidth} onSurfaceWidth={setSurfaceWidth} />
+          </ContextMenuProvider>
+        </WebImageViewerProvider>
       </Theme.Provider>
     </MotionProvider>
   );

@@ -11,7 +11,10 @@ import { MotionBridge, motionDuration, useMotionValue, useReducedMotion, lerp } 
 import { Theme, useTheme } from "./ui";
 
 /** Host Modal that suspends board shortcuts while open; the host keeps Esc and focus. */
-const OpenContext = createContext(true);
+const OpenContext = createContext<boolean | null>(null);
+export function useInsideModal() {
+  return useContext(OpenContext) !== null;
+}
 function TrackedModal(props: ModalProps) {
   useShortcutBlock(props.open);
   const theme = useTheme();
@@ -25,7 +28,7 @@ function TrackedModal(props: ModalProps) {
 /** Content settles in with a short rise when the modal opens (the host card itself appears instantly on desktop). */
 function ModalEnter({ gap, fill, children }: { gap: number; fill: boolean; children: ModalContentProps["children"] }) {
   // Replays on every open, also when the host keeps the content mounted while closed.
-  const open = useContext(OpenContext);
+  const open = useContext(OpenContext) ?? true;
   const progress = useMotionValue(open ? 1 : 0, open ? motionDuration.forward : motionDuration.reverse, 0);
   return (
     <Animated.View

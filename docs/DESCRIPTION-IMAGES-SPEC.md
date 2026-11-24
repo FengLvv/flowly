@@ -37,11 +37,18 @@ automatic remote-image download is introduced.
 
 ## Image viewer
 
-- The thumbnail opens the host dialog with the image name and its existing
-  dismiss controls. Card descriptions and draft image attachments use the same
-  viewer and existing image data. Within the dialog,
-  the image fills the available viewing area on its limiting axis. Fit keeps the
-  original aspect ratio, shows all pixels and centers any remaining space.
+- On desktop/web, a thumbnail outside a host dialog opens a resizable viewer
+  with the image name above the picture and zoom controls below. At fit, its
+  picture area matches the source aspect ratio and the dialog's limiting
+  dimension occupies roughly two thirds of the host window. The title and
+  controls count toward that height.
+  Extreme portrait images keep their proportions and the title and controls
+  retain a usable width. Resize recomputes the frame from the source dimensions
+  and the available space. Zoom and pan act inside that frame.
+- Inside an existing host form, the viewer uses a nested host dialog so that
+  focus and Escape return to the form. On web it fits the body height to the
+  image within that dialog's available space. Native mobile retains the host
+  sheet. Fit shows the complete image at its original aspect ratio on all paths.
 - The viewer starts at fit on each open. The toolbar zooms in and out and returns
   to fit. Wheel over the image area zooms between fit and 8× fit, anchoring to the
   cursor where the image bounds permit. Dragging a zoomed image reveals its

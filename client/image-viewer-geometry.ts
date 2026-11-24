@@ -1,4 +1,4 @@
-type Size = { width: number; height: number };
+export type Size = { width: number; height: number };
 type Point = { x: number; y: number };
 export type ImageView = Point & { zoom: number };
 export const fitView: ImageView = { x: 0, y: 0, zoom: 1 };
@@ -7,6 +7,14 @@ export const maxZoom = 8;
 export function fitImage(image: Size, viewport: Size): Size {
   const scale = Math.min(viewport.width / image.width, viewport.height / image.height);
   return { width: image.width * scale, height: image.height * scale };
+}
+
+/** Two-thirds of the window, with the title bar and toolbar inside that budget. */
+export function imageViewerSize(image: Size, window: Size, chromeHeight: number): Size {
+  return fitImage(image, {
+    width: Math.max(1, window.width * 2 / 3),
+    height: Math.max(1, window.height * 2 / 3 - chromeHeight),
+  });
 }
 
 export function boundView(view: ImageView, image: Size, viewport: Size): ImageView {
