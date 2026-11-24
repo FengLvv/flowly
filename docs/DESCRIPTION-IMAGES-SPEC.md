@@ -35,6 +35,32 @@ automatic remote-image download is introduced.
   `project.json`; restore validates/imports those files before restoring records.
   Missing files fail visibly rather than silently dropping images.
 
+## Image viewer
+
+- The thumbnail opens the host dialog with the image name and its existing
+  dismiss controls. Card descriptions and draft image attachments use the same
+  viewer and existing image data. Within the dialog,
+  the image fills the available viewing area on its limiting axis. Fit keeps the
+  original aspect ratio, shows all pixels and centers any remaining space.
+- The viewer starts at fit on each open. The toolbar zooms in and out and returns
+  to fit. Wheel over the image area zooms between fit and 8× fit, anchoring to the
+  cursor where the image bounds permit. Dragging a zoomed image reveals its
+  edges. The image stays clipped to its viewport, centered on any axis that fits,
+  and within pan bounds when the dialog resizes. Controls and filename remain
+  visible while zoomed, including in compact layouts. A failed image load is
+  shown in the viewing area and the dialog can still be dismissed.
+- On desktop/web the image area's right-click menu and the keyboard-accessible
+  toolbar action copy the full-resolution bitmap to the local clipboard. PNG
+  stays PNG. Other formats are exported as a PNG bitmap, using the first frame
+  for animated images. Clipboard denial or an unavailable image encoder reports
+  an error. Successful copy confirms with a toast and keeps the viewer open.
+  Escape dismisses the open menu first, then the viewer. An outside click in
+  the viewer dismisses the menu. Clipboard actions require web image clipboard
+  support. Phones retain fit, zoom buttons and touch panning.
+- Verify fit for wide and tall images, off-center wheel anchoring, drag bounds,
+  return to fit, resize and reopen, menu dismissal and keyboard access, and paste
+  or read back a bitmap with the original pixel dimensions after zooming.
+
 ## Use card description
 
 Both New task → Start an agent now and New session offer **Use card description**
