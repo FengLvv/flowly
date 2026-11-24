@@ -5,10 +5,16 @@ import { createHash, randomUUID } from "node:crypto";
 import { descriptionImageInputsSchema, type DescriptionImageInput, type DescriptionImage } from "../shared/description-images";
 import type { OutgoingImage } from "../shared/composer";
 import type { BoardStore } from "./store";
+import type { Task } from "../shared/model";
+import type { TaskSupplement, TaskSupplementInput } from "../shared/task-supplements";
 import { logFailure } from "./error-report";
 
 const extension = { "image/png": "png", "image/jpeg": "jpg", "image/gif": "gif", "image/webp": "webp" } as const;
 const hash = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
+
+export function cardImages(task: Pick<Task, "descriptionImages" | "supplements">): DescriptionImage[] {
+  return [...(task.descriptionImages ?? []), ...(task.supplements ?? []).flatMap((entry) => entry.images ?? [])];
+}
 async function writeImage(path: string, bytes: Buffer) {
   const handle = await open(path, "wx", 0o600);
   try { await handle.writeFile(bytes); await handle.sync(); }
@@ -66,6 +72,24 @@ export class DescriptionImageFiles {
     }
     return result;
   }
+  /** Retain image IDs only from the same entry. Unchanged lists need no file writes or reads. */
+  async saveSupplements(inputs: readonly TaskSupplementInput[], existing: readonly TaskSupplement[], added: DescriptionImage[]) {
+    const imagesByEntry = new Map(existing.map((entry) => [entry.id, entry.images ?? []]));
+    const result: TaskSupplement[] = [];
+    for (const entry of inputs) {
+      const current = imagesByEntry.get(entry.id) ?? [];
+      const requested = entry.images ?? [];
+      const images = requested.length === current.length && requested.every((image, index) => "id" in image && image.id === current[index].id)
+        ? current
+        : await this.save(requested, current, added);
+      result.push({ id: entry.id, text: entry.text, ...(images.length ? { images } : {}) });
+    }
+    return result;
+  }
+  matchesImage(input: Exclude<DescriptionImageInput, { id: string }>, image: DescriptionImage) {
+    const bytes = decode(input);
+    return input.name === image.name && input.mimeType === image.mimeType && bytes.length === image.bytes && hash(bytes) === image.sha256;
+  }
   async read(image: DescriptionImage): Promise<OutgoingImage> {
     if (!(await lstat(this.directory).catch(() => null))?.isDirectory()) throw new Error("Description image storage is unavailable.");
     const path = this.path(image);
@@ -80,9 +104,10 @@ export class DescriptionImageFiles {
   }
   /** Historical backups retain old files. Clean only this failed attempt's unused files. */
   async cleanup(store: BoardStore, added: readonly DescriptionImage[]) {
+    if (!added.length) return;
     try {
       const board = await store.read();
-      const live = new Set(board.tasks.flatMap((t) => t.descriptionImages || []).map((i) => i.id));
+      const live = new Set(board.tasks.flatMap(cardImages).map((i) => i.id));
       for (const image of added) if (!live.has(image.id)) await unlink(this.path(image)).catch((e: NodeJS.ErrnoException) => { if (e.code !== "ENOENT") throw e; });
     } catch (error) { logFailure("Description image cleanup failed:", error); }
   }
@@ -113,5 +138,18 @@ export class DescriptionImages {
     const latest = (await this.store.read()).tasks.find((t) => t.id === task.id);
     if (latest?.revision !== task.revision) throw new Error("Card changed. Use card description again to reload it.");
     return { revision: task.revision, description: task.description, images: payload };
+  }
+
+  async readSupplementImage(input: { taskId: string; revision: number; supplementId: string; imageId: string }) {
+    const task = (await this.store.read()).tasks.find((entry) => entry.id === input.taskId);
+    if (!task) throw new Error("Task not found.");
+    const stale = "Card changed. Reopen the supplemental note to reload it.";
+    if (task.revision !== input.revision) throw new Error(stale);
+    const image = task.supplements?.find(({ id }) => id === input.supplementId)?.images?.find(({ id }) => id === input.imageId);
+    if (!image) throw new Error("Image does not belong to this supplemental note.");
+    const payload = await new DescriptionImageFiles(this.store.directory).read(image);
+    const latest = (await this.store.read()).tasks.find(({ id }) => id === task.id);
+    if (latest?.revision !== task.revision) throw new Error(stale);
+    return { ...image, ...payload };
   }
 }

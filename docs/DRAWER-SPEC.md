@@ -12,7 +12,7 @@ Status: authorized by the user's 2026-10-14 sidebar redesign request. This repla
 
 ## Layout and behavior
 
-Supplemental notes sit after the card description and its images, before the configurable sections. The sidebar supports direct additions and removals on editable cards. See [Card supplements](CARD-SUPPLEMENTS-SPEC.md).
+Supplemental notes sit after the card description and its images, before the configurable sections. Editable cards support adding, editing and removing notes with text and images directly from the sidebar. See [Card supplements](CARD-SUPPLEMENTS-SPEC.md).
 
 1. Fixed header: task title and Close/Back icon; one wrapped action group contains the current Status selector, Edit and Archive/Restore. Remove Narrower/Wider/Reset buttons and the drawer `onWidthChange` prop. Desktop width uses the existing boundary grip and clamps; its adjustable accessibility actions expose the same operation and effective width bounds without extra buttons. Compact remains full width.
 2. Status uses public host `SettingsSelect` (`@getpaseo/plugin/client/ui`) with a single current value and seven labelled options. It opens the host's dropdown/sheet on demand rather than rendering status chips in the task body. Same-value selection does nothing. A new selection writes once using task ID/current revision, is disabled for archived task/project, inactive drawer or pending mutation, and shows the native success toast only after success. Mutation errors stay near the action group; no optimistic status change or automatic revision retry. Edit/Archive share the pending lock; Archive/Restore retain their existing resource-preservation behavior.

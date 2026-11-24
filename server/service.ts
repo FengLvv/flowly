@@ -1,4 +1,4 @@
-import { DescriptionImageFiles } from "./description-images";
+import { DescriptionImageFiles, cardImages } from "./description-images";
 import type { DescriptionImage } from "../shared/description-images";
 import { laneName, laneProblem } from "../shared/lanes";
 import { linkContextLines, linksOf } from "../shared/links";
@@ -407,7 +407,7 @@ export class BoardService {
       if (board.projects.some((p) => p.id === snapshot.project.id)) throw new Error("This project is already on the board.");
       const native = await this.nativeProject(primaryPath, paseo);
       await new DescriptionImageFiles(join(primaryPath, ".flowly")).copyTo(
-        new DescriptionImageFiles(this.store.directory), snapshot.tasks.flatMap((t) => t.descriptionImages || []),
+        new DescriptionImageFiles(this.store.directory), snapshot.tasks.flatMap(cardImages),
       );
       const restored = await this.store.restoreProject(snapshot, { primaryPath, paseoProjectId: native.projectId });
       // Linked projects: drop recorded links whose symlink is gone.
@@ -495,6 +495,7 @@ export class BoardService {
       // Validated before any workspace exists (CARD-TAGS-SPEC §3).
       const imageFiles = new DescriptionImageFiles(this.store.directory);
       imageFiles.validate(input.descriptionImages || []);
+      for (const entry of input.supplements ?? []) imageFiles.validate(entry.images ?? []);
       const addedImages: DescriptionImage[] = [];
       const tags = normalizeTags(input.tags || []);
       if (tags.length > tagLimits.perTask) throw new Error(`A card can have at most ${tagLimits.perTask} tags.`);
@@ -583,6 +584,7 @@ export class BoardService {
           if (input.followUpOf) followUpSource(current, input.followUpOf, project.id);
           const now = new Date().toISOString();
           const descriptionImages = await imageFiles.save(input.descriptionImages || [], [], addedImages);
+          const supplements = await imageFiles.saveSupplements(input.supplements ?? [], [], addedImages);
           const task = {
             ...(descriptionImages.length ? { descriptionImages } : {}),
             id: randomUUID(),
@@ -593,7 +595,7 @@ export class BoardService {
             repoPaths,
             title: input.title,
             description,
-            ...(input.supplements?.length ? { supplements: input.supplements } : {}),
+            ...(supplements.length ? { supplements } : {}),
             status: input.status,
             priority: input.priority,
             ...(input.type ? { type: input.type } : {}),

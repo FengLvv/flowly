@@ -2,7 +2,7 @@ import { memo, useState } from "react";
 import { Image, Pressable, View } from "react-native";
 import { useRpc } from "@getpaseo/plugin/client";
 import { useQuery } from "@tanstack/react-query";
-import { readDescriptionImages } from "../shared/rpc";
+import { readDescriptionImages, readSupplementImage } from "../shared/rpc";
 import type { Task } from "../shared/model";
 import type { DescriptionImage } from "../shared/description-images";
 import { Button, Label, Theme, message, noFocusRing, radius, space, useTheme } from "./ui";
@@ -24,23 +24,30 @@ export const ImagePreview = memo(function ImagePreview({ uri, name, small = fals
   </>;
 });
 
-const SavedImage = memo(function SavedImage({ taskId, revision, image, onRemove }: { taskId: string; revision: number; image: DescriptionImage; onRemove?: (id: string) => void }) {
+const SavedImage = memo(function SavedImage({ taskId, revision, image, supplementId, onRemove }: {
+  taskId: string; revision: number; image: DescriptionImage; supplementId?: string; onRemove?: (id: string) => void;
+}) {
   const read = useRpc(readDescriptionImages);
+  const readNote = useRpc(readSupplementImage);
   const query = useQuery({
-    queryKey: ["flowly", "description-image", taskId, revision, image.id],
-    queryFn: () => read({ taskId, revision, imageId: image.id }),
+    queryKey: ["flowly", "card-image", taskId, revision, image.id, supplementId],
+    queryFn: async () => supplementId
+      ? readNote({ taskId, revision, imageId: image.id, supplementId })
+      : (await read({ taskId, revision, imageId: image.id })).images[0],
     staleTime: Infinity, gcTime: 5 * 60_000, retry: false,
   });
-  const data = query.data?.images[0];
+  const data = query.data;
   return <View style={{ gap: space[1], maxWidth: 180 }}>
-    {data ? <ImagePreview uri={`data:${data.mimeType};base64,${data.data}`} name={image.name} />
+    {data ? <ImagePreview uri={`data:${data.mimeType};base64,${data.data}`} name={image.name} small={!!supplementId} />
       : <Label muted>{query.error ? message(query.error) : t("Loading…")}</Label>}
     {onRemove && <Button quiet small onPress={() => onRemove(image.id)}>{t("Remove")}</Button>}
   </View>;
 });
 
-export const DescriptionImages = memo(function DescriptionImages({ task, images = task.descriptionImages || [], onRemove }: { task: Task; images?: readonly DescriptionImage[]; onRemove?: (id: string) => void }) {
+export const DescriptionImages = memo(function DescriptionImages({ task, images = task.descriptionImages || [], supplementId, onRemove }: {
+  task: Task; images?: readonly DescriptionImage[]; supplementId?: string; onRemove?: (id: string) => void;
+}) {
   return <View style={{ flexDirection: "row", flexWrap: "wrap", gap: space[2] }}>
-    {images.map((image) => <SavedImage key={image.id} taskId={task.id} revision={task.revision} image={image} onRemove={onRemove} />)}
+    {images.map((image) => <SavedImage key={image.id} taskId={task.id} revision={task.revision} image={image} supplementId={supplementId} onRemove={onRemove} />)}
   </View>;
 });

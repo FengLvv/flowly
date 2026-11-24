@@ -119,7 +119,7 @@ Insights 用 GitHub 式的热力图显示项目一年的活跃度：每天一格
 ## 工作方式
 
 - **描述图片**：在卡片描述下保存图片，启动会话时点“使用卡片描述”，将文字和图片作为首条指令。
-- **补充内容**：在卡片描述下方逐条记录补充信息，也可以直接在卡片侧边栏添加。
+- **补充内容**：在卡片描述下方逐条记录图文，可直接在侧栏添加、编辑和删除。
 - **一个看板 project 对应一个原生 Paseo project 根目录。** 要跨多个仓库工作，可以把它们放进同一个父目录并注册该目录；也可以让插件建一个“链接根目录”，里面为每个仓库放一个软链接（移除链接不会动目标目录）。
 - **一张卡对应一个 workspace**，首次创建 session 时才创建。可先规划卡片，后续 session 共用该 workspace；关联已有 workspace 时仍立即绑定。由你选择哪个 session 接收指令；普通追问只发送你输入的原文。
 - **Agent 工具。** 从卡片创建的 session 会获得受限 MCP 工具：`flowly_get_task`、`flowly_update_status`、`flowly_report_progress`、`flowly_propose_idea`、`flowly_suggest_next_moves`、`flowly_set_tags`、`flowly_set_type`、`flowly_add_artifact`、`flowly_remove_artifact`、`flowly_update_workpad`、`flowly_search` 和 `flowly_read_external`（`flowly_read_ticket` 作为旧 session 的别名保留），以及说明它们用法的 `flowly` skill。agent 可以在工作阶段之间和 In review 之间移动自己的卡片；Done 与 Cancelled 由人决定。交付或提问的那次调用（`flowly_update_status`、`flowly_report_progress`）还可以带上 `nextMoves`，即显示在输入框上方的建议下一步；没有需要用户做的事就传 `[]`。没有 MCP 的 session 可使用 CLI 兜底。

@@ -496,6 +496,7 @@ export default function contribute(host: PluginServerContext) {
   });
   const descriptionImages = new DescriptionImages(store);
   server.handle(rpc.readDescriptionImages, (input) => descriptionImages.read(input));
+  server.handle(rpc.readSupplementImage, (input) => descriptionImages.readSupplementImage(input));
   server.handle(rpc.createTask, (input, { paseo }) =>
     service.createTask(input, paseo),
   );

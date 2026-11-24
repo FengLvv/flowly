@@ -1,6 +1,6 @@
 import { DescriptionImages } from "./description-images";
-import { SupplementList } from "./task-supplements";
-import { taskSupplementLimits, type TaskSupplement } from "../shared/task-supplements";
+import { hasNoteContent, newSupplementInput, supplementInput, SupplementList, type SupplementDraftReader, type SupplementItem } from "./task-supplements";
+import { taskSupplementLimits } from "../shared/task-supplements";
 import { descriptionKey, hasInstruction } from "../shared/description-images";
 import { enabledStatuses, laneName, projectLanes } from "../shared/lanes";
 import { LaneEditor } from "./lane-editor";
@@ -562,18 +562,11 @@ export function TaskForm({
   // Images with the agent's first message (web: paste, drop or Add images).
   const attachments = useImageAttachments();
   const [savedDescriptionImages, setSavedDescriptionImages] = useState(task?.descriptionImages || []);
-  const [supplements, setSupplements] = useState(task?.supplements ?? []);
-  const [supplementDraft, setSupplementDraft] = useState("");
-  const draftSupplement = (): TaskSupplement | undefined => {
-    const text = supplementDraft.trim();
-    if (text && supplements.length < taskSupplementLimits.perTask)
-      return { id: newMessageId(), text };
-  };
-  function addSupplement() {
-    const entry = draftSupplement();
-    if (!entry || pending) return false;
-    setSupplements([...supplements, entry]);
-    setSupplementDraft("");
+  const [supplements, setSupplements] = useState<SupplementItem[]>(() => task?.supplements ?? []);
+  const supplementDraft = useRef<SupplementDraftReader>(null);
+  function saveSupplement(entry: SupplementItem, original?: SupplementItem) {
+    if (pending) return false;
+    setSupplements((items) => original ? items.map((item) => item.id === entry.id ? entry : item) : [...items, entry]);
     return true;
   }
   const removeDescriptionImage = useStableCallback((id: string) => setSavedDescriptionImages((images) => images.filter((i) => i.id !== id)));
@@ -607,8 +600,16 @@ export function TaskForm({
     try {
       if (startChosen && descriptionSource !== null && descriptionSource !== descriptionSnapshot())
         throw new Error(t("Description changed. Use card description again."));
-      const entry = draftSupplement();
-      const savedSupplements = entry ? [...supplements, entry] : supplements;
+      const draft = supplementDraft.current?.();
+      let savedSupplements = supplements;
+      if (draft) {
+        if (supplements.some(({ id }) => id === draft.id)) {
+          if (!hasNoteContent(draft)) throw new Error(t("A note needs text or an image."));
+          savedSupplements = supplements.map((entry) => entry.id === draft.id ? draft : entry);
+        } else if (hasNoteContent(draft) && supplements.length < taskSupplementLimits.perTask) {
+          savedSupplements = [...supplements, draft];
+        }
+      }
       const result = task
         ? await update({
             id: task.id,
@@ -617,7 +618,7 @@ export function TaskForm({
             description,
             descriptionImages: [...savedDescriptionImages.map(({ id }) => ({ id })), ...descriptionInputs()],
             ...(savedSupplements !== task.supplements && (savedSupplements.length || task.supplements?.length)
-              ? { supplements: savedSupplements }
+              ? { supplements: savedSupplements.map(supplementInput) }
               : {}),
             status,
             priority,
@@ -630,7 +631,7 @@ export function TaskForm({
             title,
             description,
             descriptionImages: descriptionInputs(),
-            ...(savedSupplements.length ? { supplements: savedSupplements } : {}),
+            ...(savedSupplements.length ? { supplements: savedSupplements.map(newSupplementInput) } : {}),
             status,
             priority,
             type: type || undefined,
@@ -705,8 +706,8 @@ export function TaskForm({
             <Field title={t("Description")} value={description} onChange={setDescription} multiline editable={!pending} onSubmit={submit} />
             {task && <DescriptionImages task={task} images={savedDescriptionImages} onRemove={pending ? undefined : removeDescriptionImage} />}
           </ImageAttachments>
-          <SupplementList entries={supplements} draft={supplementDraft} setDraft={setSupplementDraft}
-            add={addSupplement} remove={(id) => setSupplements((entries) => entries.filter((entry) => entry.id !== id))}
+          <SupplementList task={task} entries={supplements} draftRef={supplementDraft}
+            save={saveSupplement} remove={(id) => setSupplements((entries) => entries.filter((entry) => entry.id !== id))}
             disabled={pending} readOnly={!!task?.archivedAt || !!project.archivedAt} />
           {ready ? <>
           {!task && byFamily.size > 0 && (

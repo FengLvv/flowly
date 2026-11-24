@@ -1,7 +1,7 @@
 import { draftAttachmentSchema, hydratedAttachmentSchema } from "./attachment-drafts";
 import { outgoingFileSchema, uploadedFileSchema, forgeReferenceSchema } from "./session-files";
 import { sessionTargetFields, validSessionScope } from "./session-target";
-import { appendTaskSupplementInput } from "./task-supplements";
+import { appendTaskSupplementInput, taskSupplementIdSchema } from "./task-supplements";
 import { descriptionImageSchema } from "./description-images";
 import { cardDetailSchema, projectCardIndexSchema, projectIdeasSchema } from "./card-detail";
 import { attentionDismissInput, attentionDismissalSchema, attentionRestoreInput } from "./attention-dismiss";
@@ -921,6 +921,12 @@ export const readDescriptionImages = defineRpc({
   name: "tasks.description-images",
   input: z.strictObject({ taskId: z.string(), revision: z.number().int(), imageId: z.string().uuid().optional() }),
   output: z.strictObject({ revision: z.number().int(), description: z.string(), images: z.array(descriptionImageSchema.extend({ data: z.string() })) }),
+});
+
+export const readSupplementImage = defineRpc({
+  name: "tasks.supplements.image",
+  input: z.strictObject({ taskId: z.string(), revision: z.number().int(), supplementId: taskSupplementIdSchema, imageId: z.string().uuid() }),
+  output: descriptionImageSchema.extend({ data: z.string() }),
 });
 
 export const uploadSessionFiles = defineRpc({

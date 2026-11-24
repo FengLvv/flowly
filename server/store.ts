@@ -194,7 +194,8 @@ export class BoardStore {
       if (input.supplements !== undefined) {
         const project = board.projects.find((p) => p.id === task.projectId);
         if (task.archivedAt || !project || project.archivedAt) throw new Error("Archived cards can't be changed.");
-        if (input.supplements.length) task.supplements = input.supplements;
+        if (input.supplements.length)
+          task.supplements = await files.saveSupplements(input.supplements, task.supplements ?? [], added);
         else delete task.supplements;
       }
       if (input.descriptionImages !== undefined) {
@@ -230,8 +231,10 @@ export class BoardStore {
     }); } catch (error) { await files.cleanup(this, added); throw error; }
   }
   /** Appends against the live list. Retrying the same entry after a lost response is safe. */
-  appendTaskSupplement({ taskId, entry }: AppendTaskSupplementInput): Promise<Task> {
-    return this.transaction((board) => {
+  async appendTaskSupplement({ taskId, entry }: AppendTaskSupplementInput): Promise<Task> {
+    const files = new DescriptionImageFiles(this.directory);
+    const added: DescriptionImage[] = [];
+    try { return await this.transaction(async (board) => {
       const task = board.tasks.find((t) => t.id === taskId);
       if (!task) throw new Error("Task not found.");
       const project = board.projects.find((p) => p.id === task.projectId);
@@ -239,16 +242,20 @@ export class BoardStore {
       const entries = task.supplements ?? [];
       const existing = entries.find(({ id }) => id === entry.id);
       if (existing) {
-        if (existing.text !== entry.text) throw new Error("That supplemental note ID is already in use.");
+        const saved = existing.images ?? [];
+        const requested = entry.images ?? [];
+        if (existing.text !== entry.text || requested.length !== saved.length || !requested.every((image, index) => files.matchesImage(image, saved[index])))
+          throw new Error("That supplemental note ID is already in use.");
         return { value: task, changed: false };
       }
       if (entries.length >= taskSupplementLimits.perTask) throw new Error("The card already has the maximum number of supplemental notes.");
-      task.supplements = [...entries, entry];
+      const [supplement] = await files.saveSupplements([entry], [], added);
+      task.supplements = [...entries, supplement];
       task.revision++;
       task.updatedAt = new Date().toISOString();
       this.event(board, { taskId, actor: "human", action: "edited" });
       return { value: task, changed: true };
-    });
+    }); } catch (error) { await files.cleanup(this, added); throw error; }
   }
   /**
    * Single tag adds/removes from the drawer (CARD-TAGS-SPEC §3). Only the board revision

@@ -1,6 +1,6 @@
 # Paseo Kanban Plugin：Spec 大纲与路线图
 
-2026-11-23 卡片补充内容：新建和编辑表单的描述下方有补充内容列表，侧边栏可直接新增并保存。[规范](CARD-SUPPLEMENTS-SPEC.md)。
+2026-11-24 卡片补充内容：表单和侧栏可添加、编辑和删除图文条目。[规范](CARD-SUPPLEMENTS-SPEC.md)。
 2026-11-18 工作目录授权：卡片目录为默认工作位置；用户授权后可操作目录外的文件、应用与外部服务。保留单根项目与 Flowly 工具校验。[契约](AGENT-WORKING-DIRECTORIES-SPEC.md)。
 2026-11-17 只读历史快路（提案，未实施）：Paseo 保存有界历史快照并提供保证不启动 provider 的 SDK 接口；无快照的存量对话离线导入另定范围。[设计](PASEO-HISTORY-FAST-PATH-DESIGN.md)。
 

@@ -47,10 +47,12 @@ export function AttachmentThumb({ attachment, onRemove }: { attachment: Attachme
  * drop or the file chooser (`client/web-images.ts`); phones have no
  * plugin-accessible picker (user decision 2026-10-21, SESSION-PANE-SPEC §6).
  */
-export function useImageAttachments() {
+export function useImageAttachments(initial: readonly Attachment[] = []) {
   const toast = useToast();
-  const [attachments, setState] = useState<Attachment[]>([]);
-  const current = useRef<Attachment[]>([]);
+  const [attachments, setState] = useState<Attachment[]>(() => [...initial]);
+  const current = useRef(attachments);
+  const [reading, setReading] = useState(false);
+  const reads = useRef(0);
   const alive = useRef(true);
   useEffect(() => {
     alive.current = true;
@@ -63,20 +65,28 @@ export function useImageAttachments() {
     setState(next);
   };
   const add = async (files: Parameters<typeof readImages>[0]) => {
-    if (!files.length) return;
+    if (!files.length || !alive.current) return;
+    reads.current++;
+    setReading(true);
     try {
       const { images, problems } = await readImages(files);
       if (!alive.current) return;
       if (images.length) set([...current.current, ...images]);
       if (problems.length) toast.error(problems.join(" "));
     } catch (e) {
-      toast.error(message(e));
+      if (alive.current) toast.error(message(e));
+    } finally {
+      reads.current--;
+      if (alive.current && !reads.current) setReading(false);
     }
   };
   const latestAdd = useRef(add);
   latestAdd.current = add;
   return {
     attachments,
+    getAttachments: () => current.current,
+    reading,
+    isReading: () => reads.current > 0,
     /** What the SDK sends. */
     images: (): OutgoingImage[] => current.current.map(({ data, mimeType }) => ({ data, mimeType })),
     uris: () => current.current.map((a) => a.uri),
@@ -98,11 +108,13 @@ export function ImageAttachments({
   state,
   disabled,
   trailingAction,
+  compact,
   children,
 }: {
   state: ReturnType<typeof useImageAttachments>;
   disabled?: boolean;
   trailingAction?: ReactNode;
+  compact?: boolean;
   children: ReactNode;
 }) {
   const [node, setNode] = useState<View | null>(null);
@@ -119,10 +131,10 @@ export function ImageAttachments({
           {state.attachments.map((a) => (
             <AttachmentThumb key={a.id} attachment={a} onRemove={() => !disabled && state.remove(a.id)} />
           ))}
-          {imageInputSupported && <Button quiet icon="ImagePlus" disabled={disabled} onPress={() => void pickImageFiles().then((files) => state.add(files))}>
+          {imageInputSupported && <Button small={compact} quiet icon="ImagePlus" disabled={disabled} onPress={() => void pickImageFiles().then((files) => { if (!blocked.current) return state.add(files); })}>
             {t("Add images")}
           </Button>}
-          {imageInputSupported && !state.attachments.length && (
+          {imageInputSupported && !compact && !state.attachments.length && (
             <Label muted size={font.sm}>
               {t("or paste or drop them here")}
             </Label>

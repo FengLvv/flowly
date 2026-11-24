@@ -1,4 +1,4 @@
-import { DescriptionImageFiles } from "./description-images";
+import { DescriptionImageFiles, cardImages } from "./description-images";
 import { mkdir, readFile, writeFile, rename, unlink, copyFile, lstat } from "node:fs/promises";
 import { constants } from "node:fs";
 import { join } from "node:path";
@@ -209,7 +209,7 @@ export class ProjectFolders {
     try {
       await prepareFolder(root);
       await setAsideForeign(root, project.id, savedAt);
-      const images = records.tasks.flatMap((t) => t.descriptionImages || []);
+      const images = records.tasks.flatMap(cardImages);
       if (images.length) {
         if (!this.imageFiles) throw new Error("Description image storage is unavailable.");
         await this.imageFiles.copyTo(new DescriptionImageFiles(folderOf(root)), images);
