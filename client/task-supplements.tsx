@@ -72,7 +72,7 @@ function SupplementEditor({ entry, task, adding, disabled, draftRef, save, cance
         </View>}>
         <Field title={t("Supplemental notes")} hideTitle value={text} onChange={setText}
           maxLength={taskSupplementLimits.text} editable={!disabled}
-          multiline={entry.text.includes("\n")} autoFocus onSubmit={submit} />
+          multiline autoFocus />
         {task && !!images?.length && <DescriptionImages task={task} supplementId={entry.id} images={images}
           onRemove={disabled ? undefined : (id) => setImages((current) => current?.filter((image) => image.id !== id))} />}
       </ImageAttachments>

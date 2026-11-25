@@ -2,9 +2,9 @@
 
 ## Interaction
 
-- The forms and card sidebar show **Supplemental notes** below the description and its images. Initially the list shows its existing entries and **Add note**. Clicking **Add note** opens and focuses one single-line field below the list. Add or Enter submits that entry and closes the field on success. Cancel closes the entry without adding anything. Click **Add note** again for another entry.
+- The forms and card sidebar show **Supplemental notes** below the description and its images. Initially the list shows its existing entries and **Add note**. Clicking **Add note** opens and focuses a multiline field below the list. Enter inserts a line break. Add submits the entry and closes the field on success. Cancel closes the entry without adding anything. Click **Add note** again for another entry.
 - Each entry can contain text, images, or both. With the input open, desktop and web support the same file picker, paste and drop as card description images. Saved images show beneath the entry text and open a larger preview. Phones can view and remove saved images and edit the text.
-- Each entry has Edit note and Remove note controls. Edit opens the entry in place with its current text and images. The field is single-line for new entries; legacy multiline text remains editable with its line breaks. Cancel discards the edit. Saving keeps the same entry ID and position.
+- Each entry has Edit note and Remove note controls. Edit opens the same multiline field in place with the entry's text and images. Cancel discards the edit. Save keeps the same entry ID and position, including its internal line breaks and indentation.
 - Forms apply added, edited and removed entries to the draft list and commit the list on Save. Form Save also includes a valid open draft. An empty edit must be cancelled or filled before saving; remove the entry explicitly to delete it.
 - The sidebar supports direct additions even when the card description is empty. Its field and actions are disabled while saving. An error leaves the field open with the text available to retry. Previously saved multiline entries keep their line breaks.
 - Sidebar edits and removals save immediately and leave the other entries in order. An open draft stays available while a different entry is removed. If the entry being edited changes or is removed elsewhere, the draft stays open and the user must reopen the entry before applying their changes.
@@ -22,7 +22,7 @@
 
 ## Acceptance
 
-1. Create and edit a card with text-only, image-only and mixed notes. Check the one-line add, Cancel, image preview, and saving the open draft with the card.
+1. Create and edit a card with text-only, image-only and mixed notes. Check that Enter inserts a line break, Add and Save preserve multiline text, Cancel discards its draft, and form Save includes a valid open draft.
 2. Add, edit and remove entries directly from the desktop and compact sidebar. Reopen the card and Edit to check saved text, images, order and stable IDs.
 3. Reopen an older card and restore a snapshot. Concurrent appends are kept, retries are idempotent, and stale edits cannot erase newer changes.
 4. Reject blank and oversized entries, invalid images, duplicate entry IDs and out-of-scope image IDs. An archived card is read-only and a failing save keeps the draft available for retry.
