@@ -156,6 +156,14 @@ Each step: focused tests (`shared/session-tail` merge/paging, follower anchoring
 
 ## 6. Images in first messages (user request, 2026-10-21)
 
+Clicking an image in a user or agent message within the Flowly transcript opens
+the [shared image viewer](DESCRIPTION-IMAGES-SPEC.md#image-viewer). Its fit,
+zoom, pan, dismissal and clipboard behavior match the card image viewer.
+Transcript thumbnails keep their existing layout and image sources, including
+recently sent attachments, supported Markdown URLs and authorized local
+references. Remote images that lack browser cross-origin read permission report
+a copy failure in the viewer. The host owns images in Paseo's native transcript.
+
 2026-11-12: saved card description pictures can be copied into the first message with **Use card description** on all platforms. Description editing adds desktop paste/drop/picker; the phone picker restriction below remains. See [DESCRIPTION-IMAGES-SPEC](DESCRIPTION-IMAGES-SPEC.md).
 
 Request: phones cannot attach images to a session message; New task (with its first agent) and the sidebar's New session cannot attach images at all.

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { Image, Modal as RNModal, PanResponder, Platform, Pressable, StyleSheet, useWindowDimensions, View, type ViewStyle } from "react-native";
+import { Image, Modal as RNModal, PanResponder, Platform, Pressable, StyleSheet, useWindowDimensions, View, type StyleProp, type ViewStyle } from "react-native";
 import { Icon, useToast } from "@getpaseo/plugin/client/react-native";
 import { t } from "../shared/i18n";
 import { copyImage } from "./image-clipboard";
@@ -54,12 +54,34 @@ export function WebImageViewerProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useWebImageViewer() {
+export function ImagePreviewTrigger({ uri, name, style, children }: {
+  uri: string | undefined; name: string; style?: StyleProp<ViewStyle>; children: ReactNode;
+}) {
   const show = useContext(WebViewerContext);
-  return useInsideModal() ? null : show;
+  const nested = useInsideModal();
+  const [preview, setPreview] = useState({ open: false, version: 0 });
+  const open = () => {
+    if (!uri) return;
+    if (show && !nested) show(uri, name);
+    else setPreview(({ version }) => ({ open: true, version: version + 1 }));
+  };
+  return <>
+    <Pressable
+      accessibilityRole="imagebutton"
+      accessibilityLabel={t("{alt}. Open larger", { alt: name })}
+      onPress={open}
+      style={[noFocusRing, style]}
+    >
+      {children}
+    </Pressable>
+    {uri && preview.version > 0 && <ImageViewer
+      key={preview.version} uri={uri} name={name} open={preview.open}
+      onClose={() => setPreview((current) => ({ ...current, open: false }))}
+    />}
+  </>;
 }
 
-export function ImageViewer({ uri, name, open, onClose, onDismiss }: {
+function ImageViewer({ uri, name, open, onClose, onDismiss }: {
   uri: string; name: string; open: boolean; onClose(): void; onDismiss?(): void;
 }) {
   const inModal = useInsideModal();

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Animated, Image, Platform, Pressable, View } from "react-native";
+import { Animated, Image, Platform, View } from "react-native";
 import { Icon } from "@getpaseo/plugin/client/react-native";
 import { useRpc } from "@getpaseo/plugin/client";
 import { useQuery } from "@tanstack/react-query";
 import * as rpc from "../shared/rpc";
 import { localImagePath, type ImageRef } from "../shared/images";
-import { Modal } from "./modal";
-import { Label, Theme, font, message, noFocusRing, radius, useTheme } from "./ui";
+import { ImagePreviewTrigger } from "./image-viewer";
+import { Label, font, message, radius, useTheme } from "./ui";
 import { motionDuration, useMotionValue } from "./motion";
 import { t } from "../shared/i18n";
 
@@ -29,8 +29,7 @@ export function SessionImage({
   /** Upper bound; small images keep their natural width (never upscaled). */
   maxWidth?: number;
 }) {
-  const theme = useTheme();
-  const { colors } = theme;
+  const { colors } = useTheme();
   const read = useRpc(rpc.sessionImage);
   const local = localImagePath(image.src);
   const served = useQuery({
@@ -45,8 +44,7 @@ export function SessionImage({
   const [natural, setNatural] = useState(0);
   const [ratio, setRatio] = useState(4 / 3),
     [loaded, setLoaded] = useState(false),
-    [failed, setFailed] = useState(""),
-    [open, setOpen] = useState(false);
+    [failed, setFailed] = useState("");
   useEffect(() => {
     // RN-web's onLoad carries no size; ask for it directly. Native onLoad
     // reports the source size, so a second decode of the image is skipped.
@@ -77,59 +75,42 @@ export function SessionImage({
       </View>
     );
   return (
-    <>
-      <Pressable
-        accessibilityRole="imagebutton"
-        accessibilityLabel={t("{alt}. Open larger", { alt: image.alt })}
-        onPress={() => uri && setOpen(true)}
-        style={{ ...noFocusRing, width: "100%", maxWidth: natural ? Math.min(natural, maxWidth) : maxWidth }}
+    <ImagePreviewTrigger
+      uri={uri}
+      name={image.alt || t("Image")}
+      style={{ width: "100%", maxWidth: natural ? Math.min(natural, maxWidth) : maxWidth }}
+    >
+      <View
+        style={{
+          width: "100%",
+          aspectRatio: ratio,
+          maxHeight: 320,
+          borderRadius: radius.lg,
+          borderWidth: 1,
+          borderColor: colors.border,
+          backgroundColor: colors.surface2,
+          overflow: "hidden",
+        }}
       >
-        <View
-          style={{
-            width: "100%",
-            aspectRatio: ratio,
-            maxHeight: 320,
-            borderRadius: radius.lg,
-            borderWidth: 1,
-            borderColor: colors.border,
-            backgroundColor: colors.surface2,
-            overflow: "hidden",
-          }}
-        >
-          {uri && (
-            <Animated.View style={{ flex: 1, opacity: fade }}>
-              <Image
-                source={{ uri }}
-                resizeMode="cover"
-                style={{ width: "100%", height: "100%" }}
-                onLoad={(event) => {
-                  const source = (event.nativeEvent as { source?: { width?: number; height?: number } }).source;
-                  if (source?.width && source.height) {
-                    setRatio(Math.max(0.5, Math.min(3, source.width / source.height)));
-                    setNatural(Math.max(48, source.width));
-                  }
-                  setLoaded(true);
-                }}
-                onError={() => setFailed(t("could not be displayed"))}
-              />
-            </Animated.View>
-          )}
-        </View>
-      </Pressable>
-      <Modal open={open} title={image.alt || t("Image")} onOpenChange={(next) => !next && setOpen(false)}>
-        <Modal.Content>
-          <Theme.Provider value={theme}>
-            {uri && (
-              <Image
-                source={{ uri }}
-                resizeMode="contain"
-                accessibilityLabel={image.alt}
-                style={{ width: "100%", aspectRatio: ratio, maxHeight: 640 }}
-              />
-            )}
-          </Theme.Provider>
-        </Modal.Content>
-      </Modal>
-    </>
+        {uri && (
+          <Animated.View style={{ flex: 1, opacity: fade }}>
+            <Image
+              source={{ uri }}
+              resizeMode="cover"
+              style={{ width: "100%", height: "100%" }}
+              onLoad={(event) => {
+                const source = (event.nativeEvent as { source?: { width?: number; height?: number } }).source;
+                if (source?.width && source.height) {
+                  setRatio(Math.max(0.5, Math.min(3, source.width / source.height)));
+                  setNatural(Math.max(48, source.width));
+                }
+                setLoaded(true);
+              }}
+              onError={() => setFailed(t("could not be displayed"))}
+            />
+          </Animated.View>
+        )}
+      </View>
+    </ImagePreviewTrigger>
   );
 }
